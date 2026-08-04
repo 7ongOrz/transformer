@@ -3045,3 +3045,128 @@ footer > span {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ============================================================
+ * 增强部分：公式兜底 + 经典 SVG 图
+ * ============================================================ */
+
+/* 公式渲染失败时降级显示，避免整页崩溃 */
+.math {
+  display: inline-block;
+  vertical-align: middle;
+}
+.math.math-block {
+  display: block;
+  text-align: center;
+}
+.math.math-error {
+  color: var(--coral);
+  font-family: var(--mono);
+  font-size: 0.92em;
+  background: rgba(255, 101, 68, 0.08);
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+}
+
+/* ===== 新增 SVG 图容器 ===== */
+.svg-figure {
+  margin: 28px 0;
+  padding: 26px 22px 18px;
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  overflow-x: auto;
+}
+.svg-figure svg {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  height: auto;
+}
+.svg-caption {
+  margin-top: 14px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--muted);
+  letter-spacing: 0.2px;
+}
+
+/* SVG 图内文字（浅色背景配套配色） */
+.fig-title {
+  font-family: var(--sans);
+  font-weight: 700;
+  fill: var(--ink);
+  font-size: 14px;
+}
+.fig-lbl {
+  font-family: var(--mono);
+  font-size: 12px;
+  fill: var(--ink-soft);
+}
+.fig-mute {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  fill: var(--muted);
+}
+
+/* 图例药丸 */
+.svg-legend {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 6px 0 2px;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+.svg-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.svg-legend i {
+  width: 13px;
+  height: 13px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+/* 步骤说明网格 */
+.step-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin: 22px 0 4px;
+}
+.step-grid > article {
+  border-left: 3px solid var(--line);
+  padding: 4px 0 4px 14px;
+}
+.step-grid > article:nth-child(1) {
+  border-color: var(--coral);
+}
+.step-grid > article:nth-child(2) {
+  border-color: var(--cyan);
+}
+.step-grid > article:nth-child(3) {
+  border-color: var(--violet);
+}
+.step-grid > article:nth-child(4) {
+  border-color: var(--ink);
+}
+.step-grid b {
+  color: var(--ink);
+}
+.step-grid p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+@media (max-width: 760px) {
+  .step-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

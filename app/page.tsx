@@ -10,13 +10,34 @@ type FormulaProps = {
 };
 
 function Formula({ tex, block = false, className = "" }: FormulaProps) {
-  const html = katex.renderToString(tex, {
-    displayMode: block,
-    throwOnError: true,
-    output: "htmlAndMathml",
-  });
+  let html: string;
+  let errored = false;
+  try {
+    html = katex.renderToString(tex, {
+      displayMode: block,
+      throwOnError: false,
+      output: "html",
+      strict: false,
+    });
+    // 渲染产出含错误标记时降级
+    if (html.includes("katex-error") || html.includes("Parsing error")) {
+      errored = true;
+    }
+  } catch {
+    errored = true;
+    html = "";
+  }
 
   const Tag = block ? "div" : "span";
+  if (errored) {
+    return (
+      <Tag
+        className={`math ${block ? "math-block" : "math-inline"} math-error ${className}`}
+      >
+        {tex}
+      </Tag>
+    );
+  }
   return (
     <Tag
       className={`math ${block ? "math-block" : "math-inline"} ${className}`}
@@ -182,6 +203,236 @@ function SectionHeader({
         <p>{description}</p>
       </div>
     </header>
+  );
+}
+
+/* 经典 Transformer 论文 Figure 1 的精致 SVG 重绘 */
+function TransformerFigure() {
+  return (
+    <div className="svg-figure">
+      <svg viewBox="0 0 940 600" width="940" role="img"
+        aria-label="经典 Transformer Encoder-Decoder 结构图">
+        <defs>
+          <marker id="fah" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+            <path d="M0,0 L8,4.5 L0,9 z" fill="#66767a" />
+          </marker>
+        </defs>
+        {/* 标题 */}
+        <text x="250" y="26" textAnchor="middle" className="fig-title" fill="#56d6dd">Encoder × N（左）</text>
+        <text x="710" y="26" textAnchor="middle" className="fig-title" fill="#ff6544">Decoder × N（右）</text>
+
+        {/* ===== ENCODER ===== */}
+        <rect x="60" y="60" width="120" height="40" rx="8" fill="#fffaf1" stroke="rgba(17,35,38,.14)" />
+        <text x="120" y="85" textAnchor="middle" className="fig-lbl">Input Embedding</text>
+        <circle cx="200" cy="80" r="15" fill="#fff" stroke="#a18aff" />
+        <text x="200" y="85" textAnchor="middle" fill="#a18aff" fontSize="15">+</text>
+        <text x="200" y="50" textAnchor="middle" className="fig-mute">Positional</text>
+        <text x="200" y="62" textAnchor="middle" className="fig-mute">Encoding</text>
+        <path d="M180,80 H186" stroke="#66767a" strokeWidth="1.4" fill="none" markerEnd="url(#fah)" />
+
+        <rect x="80" y="125" width="290" height="350" rx="14" fill="none" stroke="rgba(17,35,38,.2)" strokeDasharray="5 5" />
+        <text x="225" y="120" textAnchor="middle" className="fig-mute">Encoder Layer (堆叠 N 次)</text>
+
+        <rect x="120" y="150" width="210" height="54" rx="9" fill="rgba(86,214,221,.12)" stroke="#56d6dd" />
+        <text x="225" y="174" textAnchor="middle" fill="#2a8b91" style={{ fontWeight: 700, fontSize: "13px" }}>Multi-Head Self-Attention</text>
+        <text x="225" y="192" textAnchor="middle" className="fig-mute">本节讲的核心算子</text>
+
+        <rect x="150" y="222" width="150" height="36" rx="8" fill="#fffaf1" stroke="rgba(17,35,38,.14)" />
+        <text x="225" y="245" textAnchor="middle" className="fig-lbl">Add &amp; Norm（残差+归一化）</text>
+
+        <rect x="120" y="278" width="210" height="50" rx="9" fill="rgba(161,138,255,.12)" stroke="#a18aff" />
+        <text x="225" y="300" textAnchor="middle" fill="#6d57d6" style={{ fontWeight: 700, fontSize: "13px" }}>Feed-Forward Network</text>
+        <text x="225" y="318" textAnchor="middle" className="fig-mute">两层 MLP（逐位置作用）</text>
+
+        <rect x="150" y="346" width="150" height="36" rx="8" fill="#fffaf1" stroke="rgba(17,35,38,.14)" />
+        <text x="225" y="369" textAnchor="middle" className="fig-lbl">Add &amp; Norm</text>
+
+        <path d="M225,204 V218" stroke="#66767a" strokeWidth="1.4" fill="none" markerEnd="url(#fah)" />
+        <path d="M225,258 V274" stroke="#66767a" strokeWidth="1.4" fill="none" markerEnd="url(#fah)" />
+        <path d="M225,328 V342" stroke="#66767a" strokeWidth="1.4" fill="none" markerEnd="url(#fah)" />
+        {/* 残差旁路 */}
+        <path d="M120,170 H100 V410 H225" stroke="#ff6544" strokeWidth="1.3" fill="none" strokeDasharray="4 3" markerEnd="url(#fah)" />
+        <text x="92" y="395" className="fig-mute" fill="#ff6544">残差</text>
+
+        <rect x="150" y="405" width="150" height="34" rx="8" fill="rgba(255,101,68,.12)" stroke="#ff6544" />
+        <text x="225" y="427" textAnchor="middle" fill="#c44a2f">编码器输出（K, V）</text>
+
+        <path d="M215,100 V150" stroke="#66767a" strokeWidth="1.4" fill="none" markerEnd="url(#fah)" />
+
+        {/* ===== DECODER ===== */}
+        <rect x="560" y="60" width="120" height="40" rx="8" fill="#fffaf1" stroke="rgba(17,35,38,.14)" />
+        <text x="620" y="85" textAnchor="middle" className="fig-lbl">Output Embedding</text>
+        <circle cx="700" cy="80" r="15" fill="#fff" stroke="#a18aff" />
+        <text x="700" y="85" textAnchor="middle" fill="#a18aff" fontSize="15">+</text>
+        <text x="700" y="50" textAnchor="middle" className="fig-mute">Positional</text>
+        <text x="700" y="62" textAnchor="middle" className="fig-mute">Encoding</text>
+        <path d="M680,80 H686" stroke="#66767a" strokeWidth="1.4" fill="none" markerEnd="url(#fah)" />
+
+        <rect x="540" y="125" width="310" height="350" rx="14" fill="none" stroke="rgba(17,35,38,.2)" strokeDasharray="5 5" />
+        <text x="695" y="120" textAnchor="middle" className="fig-mute">Decoder Layer (堆叠 N 次)</text>
+
+        <rect x="575" y="150" width="240" height="50" rx="9" fill="rgba(255,101,68,.12)" stroke="#ff6544" />
+        <text x="695" y="172" textAnchor="middle" fill="#c44a2f" style={{ fontWeight: 700, fontSize: "13px" }}>Masked Multi-Head Attention</text>
+        <text x="695" y="189" textAnchor="middle" className="fig-mute">只能看过去（屏蔽未来位）</text>
+
+        <rect x="620" y="216" width="150" height="34" rx="8" fill="#fffaf1" stroke="rgba(17,35,38,.14)" />
+        <text x="695" y="238" textAnchor="middle" className="fig-lbl">Add &amp; Norm</text>
+
+        <rect x="575" y="268" width="240" height="50" rx="9" fill="rgba(86,214,221,.12)" stroke="#56d6dd" />
+        <text x="695" y="290" textAnchor="middle" fill="#2a8b91" style={{ fontWeight: 700, fontSize: "13px" }}>Cross Attention（编码-解码交互）</text>
+        <text x="695" y="307" textAnchor="middle" className="fig-mute">Q 来自解码器，K,V 来自编码器</text>
+
+        <rect x="620" y="334" width="150" height="34" rx="8" fill="#fffaf1" stroke="rgba(17,35,38,.14)" />
+        <text x="695" y="356" textAnchor="middle" className="fig-lbl">Add &amp; Norm</text>
+
+        <rect x="575" y="386" width="240" height="44" rx="9" fill="rgba(161,138,255,.12)" stroke="#a18aff" />
+        <text x="695" y="413" textAnchor="middle" fill="#6d57d6" style={{ fontWeight: 700, fontSize: "13px" }}>Feed-Forward Network</text>
+
+        <rect x="620" y="442" width="150" height="32" rx="8" fill="#fffaf1" stroke="rgba(17,35,38,.14)" />
+        <text x="695" y="463" textAnchor="middle" className="fig-lbl">Add &amp; Norm</text>
+
+        <path d="M695,200 V212" stroke="#66767a" strokeWidth="1.4" fill="none" markerEnd="url(#fah)" />
+        <path d="M695,250 V264" stroke="#66767a" strokeWidth="1.4" fill="none" markerEnd="url(#fah)" />
+        <path d="M695,318 V330" stroke="#66767a" strokeWidth="1.4" fill="none" markerEnd="url(#fah)" />
+        <path d="M695,368 V382" stroke="#66767a" strokeWidth="1.4" fill="none" markerEnd="url(#fah)" />
+        <path d="M695,430 V438" stroke="#66767a" strokeWidth="1.4" fill="none" markerEnd="url(#fah)" />
+
+        {/* 编码器 K,V 跨到 cross attention */}
+        <path d="M300,422 C440,422 460,293 573,293" stroke="#a18aff" strokeWidth="1.4" fill="none" strokeDasharray="4 3" markerEnd="url(#fah)" />
+        <text x="430" y="360" className="fig-mute" fill="#a18aff">编码器 K, V 传过来</text>
+
+        <path d="M695,474 V492" stroke="#66767a" strokeWidth="1.4" fill="none" markerEnd="url(#fah)" />
+        <rect x="600" y="495" width="190" height="34" rx="8" fill="rgba(161,138,255,.12)" stroke="#a18aff" />
+        <text x="695" y="517" textAnchor="middle" fill="#6d57d6">Linear → Softmax → 词概率</text>
+
+        <path d="M685,100 V150" stroke="#66767a" strokeWidth="1.4" fill="none" markerEnd="url(#fah)" />
+
+        {/* 图例 */}
+        <g transform="translate(80,555)">
+          <rect x="0" y="0" width="14" height="14" rx="3" fill="rgba(86,214,221,.12)" stroke="#56d6dd" />
+          <text x="20" y="12" className="fig-mute">Attention</text>
+          <rect x="110" y="0" width="14" height="14" rx="3" fill="rgba(161,138,255,.12)" stroke="#a18aff" />
+          <text x="130" y="12" className="fig-mute">FFN</text>
+          <rect x="190" y="0" width="14" height="14" rx="3" fill="#fffaf1" stroke="rgba(17,35,38,.14)" />
+          <text x="210" y="12" className="fig-mute">Add&amp;Norm</text>
+          <rect x="310" y="0" width="14" height="14" rx="3" fill="#fff" stroke="#a18aff" />
+          <text x="330" y="12" className="fig-mute">位置编码</text>
+        </g>
+      </svg>
+      <div className="svg-caption">图 · 论文 Figure 1 重绘 — Attention 在 Encoder/Decoder 中共出现三次，是同一算子</div>
+    </div>
+  );
+}
+
+/* 向量级 self-attention 四步推导 SVG（对应 PDF 图4-9） */
+function AttentionStepsFigure() {
+  return (
+    <div className="svg-figure">
+      <svg viewBox="0 0 920 430" width="920" role="img"
+        aria-label="self-attention 向量级四步推导">
+        <defs>
+          <marker id="sah" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+            <path d="M0,0 L7,4 L0,8 z" fill="#66767a" />
+          </marker>
+        </defs>
+
+        <text x="10" y="24" className="fig-title">步骤 ① 输入 → 线性变换得到 q / k / v</text>
+        {/* 输入列 */}
+        <g fontFamily="SFMono-Regular, Consolas, monospace" fontSize="12">
+          {[70, 120, 170, 220].map((y, i) => (
+            <g key={`x${i}`}>
+              <rect x="20" y={y} width="40" height="30" rx="6" fill="#fffaf1" stroke="rgba(17,35,38,.14)" />
+              <text x="40" y={y + 19} textAnchor="middle" fill="#18373b">x{i + 1}</text>
+            </g>
+          ))}
+          {/* q */}
+          <rect x="150" y="70" width="44" height="30" rx="6" fill="rgba(255,101,68,.14)" stroke="#ff6544" />
+          <text x="172" y="89" textAnchor="middle" fill="#c44a2f">q₁</text>
+          {/* k */}
+          {[120, 170, 220].map((y, i) => (
+            <g key={`k${i}`}>
+              <rect x="150" y={y} width="44" height="30" rx="6" fill="rgba(161,138,255,.14)" stroke="#a18aff" />
+              <text x="172" y={y + 19} textAnchor="middle" fill="#6d57d6">k{i + 1}</text>
+            </g>
+          ))}
+          {/* v */}
+          {[120, 170, 220].map((y, i) => (
+            <g key={`v${i}`}>
+              <rect x="240" y={y} width="44" height="30" rx="6" fill="rgba(86,214,221,.16)" stroke="#56d6dd" />
+              <text x="262" y={y + 19} textAnchor="middle" fill="#2a8b91">v{i + 1}</text>
+            </g>
+          ))}
+        </g>
+        <text x="172" y="62" className="fig-mute" fill="#c44a2f">Wᵠ·x</text>
+        <text x="172" y="278" className="fig-mute" fill="#6d57d6">Wᵏ·x</text>
+        <text x="262" y="278" className="fig-mute" fill="#2a8b91">Wᵛ·x</text>
+
+        <path d="M60,85 H148" stroke="#66767a" strokeWidth="1.3" fill="none" markerEnd="url(#sah)" />
+        <path d="M60,135 H148" stroke="#66767a" strokeWidth="1.3" fill="none" markerEnd="url(#sah)" />
+        <path d="M60,185 H148" stroke="#66767a" strokeWidth="1.3" fill="none" markerEnd="url(#sah)" />
+        <path d="M60,235 H148" stroke="#66767a" strokeWidth="1.3" fill="none" markerEnd="url(#sah)" />
+        <path d="M60,135 H238" stroke="#66767a" strokeWidth="1.3" fill="none" strokeDasharray="3 3" markerEnd="url(#sah)" />
+        <text x="92" y="78" className="fig-mute">×Wᵠ</text>
+
+        {/* 步骤② q·k 点积 */}
+        <text x="360" y="24" className="fig-title">步骤 ② q₁ 与每个 k 点积 → 相关性 α</text>
+        <g fontFamily="SFMono-Regular, Consolas, monospace" fontSize="12">
+          {[120, 160, 200, 240].map((y, i) => (
+            <g key={`a${i}`}>
+              <rect x="370" y={y} width="56" height="30" rx="6" fill="#fffaf1" stroke="rgba(17,35,38,.14)" />
+              <text x="398" y={y + 19} textAnchor="middle" fill="#2a8b91">α₁,{i + 1}</text>
+            </g>
+          ))}
+        </g>
+        <text x="398" y="290" className="fig-mute">q₁·kⱼ</text>
+        <path d="M194,85 C300,85 330,135 368,135" stroke="#ff6544" strokeWidth="1.3" fill="none" markerEnd="url(#sah)" />
+        <path d="M194,185 C290,185 320,175 368,175" stroke="#a18aff" strokeWidth="1.3" fill="none" markerEnd="url(#sah)" />
+        <path d="M194,235 C300,235 330,215 368,215" stroke="#a18aff" strokeWidth="1.3" fill="none" markerEnd="url(#sah)" />
+        <path d="M194,135 C300,135 330,255 368,255" stroke="#a18aff" strokeWidth="1.3" fill="none" markerEnd="url(#sah)" />
+
+        {/* 步骤③ softmax */}
+        <text x="470" y="24" className="fig-title">步骤 ③ softmax → 归一化权重（和=1）</text>
+        <g fontFamily="SFMono-Regular, Consolas, monospace" fontSize="12">
+          {[120, 160, 200, 240].map((y, i) => (
+            <g key={`ah${i}`}>
+              <rect x="490" y={y} width="60" height="30" rx="6" fill="rgba(86,214,221,.12)" stroke="#56d6dd" />
+              <text x="520" y={y + 19} textAnchor="middle" fill="#2a8b91">α̂₁,{i + 1}</text>
+            </g>
+          ))}
+        </g>
+        <text x="520" y="290" className="fig-mute">Σ=1.0</text>
+        <path d="M426,135 H488" stroke="#66767a" strokeWidth="1.3" fill="none" markerEnd="url(#sah)" />
+        <path d="M426,175 H488" stroke="#66767a" strokeWidth="1.3" fill="none" markerEnd="url(#sah)" />
+        <path d="M426,215 H488" stroke="#66767a" strokeWidth="1.3" fill="none" markerEnd="url(#sah)" />
+        <path d="M426,255 H488" stroke="#66767a" strokeWidth="1.3" fill="none" markerEnd="url(#sah)" />
+
+        {/* 步骤④ 加权求和 */}
+        <text x="600" y="24" className="fig-title">步骤 ④ 权重 × 对应 v 求和 → b₁</text>
+        <g fontFamily="SFMono-Regular, Consolas, monospace" fontSize="12">
+          {[120, 160, 200, 240].map((y, i) => (
+            <g key={`wv${i}`}>
+              <rect x="610" y={y} width="120" height="30" rx="6" fill="#fffaf1" stroke="rgba(17,35,38,.14)" />
+              <text x="670" y={y + 19} textAnchor="middle" fill="#2a8b91">α̂₁,{i + 1}·v{i + 1}</text>
+            </g>
+          ))}
+        </g>
+        <path d="M550,135 H608" stroke="#66767a" strokeWidth="1.3" fill="none" markerEnd="url(#sah)" />
+        <path d="M550,175 H608" stroke="#66767a" strokeWidth="1.3" fill="none" markerEnd="url(#sah)" />
+        <path d="M550,215 H608" stroke="#66767a" strokeWidth="1.3" fill="none" markerEnd="url(#sah)" />
+        <path d="M550,255 H608" stroke="#66767a" strokeWidth="1.3" fill="none" markerEnd="url(#sah)" />
+        <path d="M284,135 C450,135 500,135 608,135" stroke="#56d6dd" strokeWidth="1.3" fill="none" strokeDasharray="3 3" markerEnd="url(#sah)" />
+
+        {/* b1 */}
+        <rect x="780" y="175" width="70" height="40" rx="9" fill="rgba(200,237,105,.18)" stroke="#9bc23a" strokeWidth="1.6" />
+        <text x="815" y="201" textAnchor="middle" fill="#6d7a1a" fontFamily="SFMono-Regular, Consolas, monospace" fontSize="16" fontWeight="700">b₁</text>
+        <path d="M730,135 C760,135 770,180 778,188" stroke="#66767a" strokeWidth="1.3" fill="none" markerEnd="url(#sah)" />
+        <path d="M730,175 H778" stroke="#66767a" strokeWidth="1.3" fill="none" markerEnd="url(#sah)" />
+        <path d="M730,215 C760,215 770,200 778,198" stroke="#66767a" strokeWidth="1.3" fill="none" markerEnd="url(#sah)" />
+        <path d="M730,255 C760,255 770,210 778,205" stroke="#66767a" strokeWidth="1.3" fill="none" markerEnd="url(#sah)" />
+        <text x="815" y="235" className="fig-mute" fill="#6d7a1a">= Σ α̂·v</text>
+      </svg>
+      <div className="svg-caption">图 · 对应 PDF 图 4–9 — 用 q₁ 计算出 b₁ 的完整 4 步（b₂ b₃ b₄ 同理并行）</div>
+    </div>
   );
 }
 
@@ -399,6 +650,27 @@ export default function Home() {
           title="Scaled Dot-Product Attention"
           description="先看整体 shape，再跟踪一个 Query 位置的完整计算。"
         />
+
+        <AttentionStepsFigure />
+
+        <div className="step-grid">
+          <article>
+            <b>① 生成 Q/K/V</b>
+            <p>每个词 x 乘三个可学习矩阵，得到"身份三件套"：去问、被问、内容。</p>
+          </article>
+          <article>
+            <b>② 点积打分</b>
+            <p>q₁ 与所有人的 k 点积，得到相关度分数 α——越像分数越高。</p>
+          </article>
+          <article>
+            <b>③ softmax 变权重</b>
+            <p>分数过 softmax，变成加起来=1 的权重，即"注意力分配"。</p>
+          </article>
+          <article>
+            <b>④ 加权求和</b>
+            <p>权重去加权所有人的 v，求和得到融合全局信息的 b₁。</p>
+          </article>
+        </div>
 
         <figure className="attention-overview" aria-labelledby="attention-flow-title">
           <figcaption>
@@ -687,6 +959,7 @@ export default function Home() {
           title="Attention 如何组成 Transformer"
           description="原始模型是 Encoder–Decoder；每层还包含残差、归一化与 FFN。"
         />
+        <TransformerFigure />
         <figure className="classic-transformer" aria-labelledby="classic-transformer-title">
           <figcaption>
             <span>FIG 03 · ORIGINAL TRANSFORMER</span>
