@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
+import "katex/dist/katex.min.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Attention Lab｜从零理解 Transformer 核心算子",
+  title: "Attention｜Transformer 核心算子详解",
   description:
-    "面向初学者的 Attention 互动讲义：矩阵乘法、QKV、自注意力、多头注意力、Transformer 架构、经典 PyTorch 代码与算子测试。",
+    "Attention 技术讲义：矩阵乘法、QKV、Scaled Dot-Product Attention、多头注意力、Transformer 与算子测试。",
 };
 
 export default function RootLayout({

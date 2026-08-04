@@ -30,12 +30,18 @@ test("server-renders the Attention teaching page", async () => {
 
   const html = await response.text();
   assert.match(html, /<html lang="zh-CN">/i);
-  assert.match(html, /<title>Attention Lab｜从零理解 Transformer 核心算子<\/title>/i);
-  assert.match(html, /为什么要发明 Attention/);
-  assert.match(html, /矩阵乘法拆解台/);
-  assert.match(html, /把 Attention 完整跑一遍/);
-  assert.match(html, /Attention 算子怎么测/);
-  assert.match(html, /原论文 · Attention Is All You Need/);
+  assert.match(html, /<title>Attention｜Transformer 核心算子详解<\/title>/i);
+  assert.match(html, /为什么需要 Self-Attention/);
+  assert.match(html, /只需要一个矩阵乘法规则/);
+  assert.match(html, /Scaled Dot-Product Attention/);
+  assert.match(html, /一条完整的数据流：X 如何变成 Z/);
+  assert.match(html, /多头不是重复计算：它把特征维拆成多个子空间/);
+  assert.match(html, /经典 Transformer Encoder–Decoder 全结构/);
+  assert.match(html, /Encoder–Decoder Attention/);
+  assert.match(html, /经典代码与算子测试/);
+  assert.match(html, /从数学原理到经典实现与算子测试/);
+  assert.match(html, /katex/);
+  assert.doesNotMatch(html, /20\s*(?:分钟|MIN)|TOTAL\s*·\s*20:00|20:00/i);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|react-loading-skeleton/i);
 });
 
@@ -46,10 +52,15 @@ test("removes disposable starter assets and keeps project metadata specific", as
     readFile(new URL("../package.json", import.meta.url), "utf8"),
   ]);
 
-  assert.match(page, /scaled_dot_product_attention/);
-  assert.match(page, /test_attention_matches_reference/);
-  assert.match(layout, /Attention Lab/);
+  assert.match(page, /katex\.renderToString/);
+  assert.match(page, /def attention\(q, k, v, mask=None\)/);
+  assert.match(page, /class EncoderLayer\(nn\.Module\)/);
+  assert.match(page, /FIG 03 · ORIGINAL TRANSFORMER/);
+  assert.match(page, /OPERATOR CHECKLIST/);
+  assert.match(layout, /Transformer 核心算子详解/);
+  assert.doesNotMatch(`${page}\n${layout}`, /20\s*(?:分钟|MIN)|20:00/i);
   assert.match(packageJson, /"name": "attention-operator-lab"/);
+  assert.match(packageJson, /"katex":/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
   await assert.rejects(access(new URL("../app/_sites-preview", import.meta.url)));
 });
