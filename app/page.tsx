@@ -632,8 +632,9 @@ function FigStageScore() {
  * 数据：q1 主角行 alphas=[0.71,2.83,2.83,2.12]  ahats=[0.05,0.38,0.38,0.19]
  * ============================================================ */
 function FigStageSoftmax() {
-  const alphas = [0.71, 2.83, 2.83, 2.12];
-  const ahats = [0.05, 0.38, 0.38, 0.19];
+  // 分数用 3 位小数（与矩阵级 S、e^α 计算口径一致）
+  const alphas = [0.707, 2.828, 2.828, 2.121];
+  const ahats = [0.046, 0.383, 0.383, 0.189];
   const exps = ["2.03", "16.92", "16.92", "8.34"];
   const Z = "44.2";
 
@@ -685,7 +686,7 @@ function FigStageSoftmax() {
           <g key={`s${i}`}>
             <rect x={scoreX[i]} y={cellY} width={cellW} height={cellH} rx={6} fill="rgba(56,189,248,0.10)" stroke="#38bdf8" />
             <text x={scoreX[i] + cellW / 2} y={cellY + 26} textAnchor="middle" fontSize="11" fill="#7dd3fc" fontFamily="JetBrains Mono,monospace" fontWeight="700">α₁,{i + 1}</text>
-            <text x={scoreX[i] + cellW / 2} y={cellY + 54} textAnchor="middle" fontSize="16" fill="#c8d4ff" fontFamily="JetBrains Mono,monospace" fontWeight="700">{a.toFixed(2)}</text>
+            <text x={scoreX[i] + cellW / 2} y={cellY + 54} textAnchor="middle" fontSize="16" fill="#c8d4ff" fontFamily="JetBrains Mono,monospace" fontWeight="700">{a.toFixed(3)}</text>
           </g>
         ))}
         {/* 分数行下方括号：强调「一整行」 */}
@@ -718,7 +719,7 @@ function FigStageSoftmax() {
             <g key={`w${i}`}>
               <rect x={weightX[i]} y={cellY} width={cellW} height={cellH} rx={6} fill={`rgba(56,189,248,${op.toFixed(3)})`} stroke="#38bdf8" />
               <text x={weightX[i] + cellW / 2} y={cellY + 26} textAnchor="middle" fontSize="11" fill="#7dd3fc" fontFamily="JetBrains Mono,monospace" fontWeight="700">α̂₁,{i + 1}</text>
-              <text x={weightX[i] + cellW / 2} y={cellY + 54} textAnchor="middle" fontSize="16" fill={col} fontFamily="JetBrains Mono,monospace" fontWeight="700">{w.toFixed(2)}</text>
+              <text x={weightX[i] + cellW / 2} y={cellY + 54} textAnchor="middle" fontSize="16" fill={col} fontFamily="JetBrains Mono,monospace" fontWeight="700">{w.toFixed(3)}</text>
             </g>
           );
         })}
@@ -735,7 +736,7 @@ function FigStageSoftmax() {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
           {alphas.map((a, i) => (
             <div key={`e${i}`} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: 92, height: 60, borderRadius: 10, background: "rgba(56,189,248,0.08)", border: "1px solid var(--hairline)" }}>
-              <span style={{ color: "var(--t3)", fontSize: 11, fontFamily: "JetBrains Mono,monospace" }}>e^{a.toFixed(2)}</span>
+              <span style={{ color: "var(--t3)", fontSize: 11, fontFamily: "JetBrains Mono,monospace" }}>e^{a.toFixed(3)}</span>
               <span style={{ color: "var(--att)", fontSize: 15, fontWeight: 700, fontFamily: "JetBrains Mono,monospace" }}>≈ {exps[i]}</span>
             </div>
           ))}
@@ -789,7 +790,7 @@ function FigStageAggregate() {
     padding: "18px 16px 22px",
     boxSizing: "border-box",
   };
-  const svgStyle: React.CSSProperties = { width: "100%", height: "auto", display: "block" };
+  const svgStyle: React.CSSProperties = { width: "100%", minWidth: 720, height: "auto", display: "block" };
   const workoutWrap: React.CSSProperties = {
     marginTop: 14,
     padding: "14px 18px",
@@ -871,11 +872,11 @@ function FigStageAggregate() {
 
         {/* 底部导引 */}
         <text x={520} y={455} textAnchor="middle" fill="#6e7aab" fontSize="11.5" fontFamily="JetBrains Mono,monospace">
-          每个 α̂₁,ⱼ 乘对应 vⱼ 得一份贡献，4 份相加 → b₁（用未舍入权重算）
+          每个 α̂₁,ⱼ 乘对应 vⱼ 得一份贡献，4 份相加 → b₁（用 3 位高精度权重算）
         </text>
       </svg>
 
-      {/* 下方加权求和展开（用未舍入权重） */}
+      {/* 下方加权求和展开（用 3 位高精度权重） */}
       <div style={workoutWrap}>
         <div style={line}>
           <span style={lbl}>b₁ =</span>
@@ -902,7 +903,7 @@ function FigStageAggregate() {
           <span style={{ color: "#f472b6", fontWeight: 700 }}>[2.002, 1.338] ≈ [2.0, 1.34]</span>
         </div>
         <div style={note}>
-          注：连线上的乘积与最终 b₁ 均用<b style={{ color: "#a9b4dc" }}>未舍入</b>权重
+          注：连线上的乘积与最终 b₁ 均用<b style={{ color: "#a9b4dc" }}>3 位高精度</b>权重
           （0.046 / 0.383 / 0.383 / 0.189）计算；图中标注为可读性取 2–3 位。
         </div>
       </div>
@@ -1165,7 +1166,7 @@ function FigMatrixStage() {
           <span className="fms-legend-text">低 → 高（越深越大）</span>
         </div>
         <div className="fms-read">
-          四步压成矩阵后，整条链只用了<b>三次矩阵乘法 + 一次 softmax</b>——
+          四步压成矩阵后，整条链只用了<b>矩阵乘法 + softmax</b>（投影×3、QKᵀ、AV 共 5 次；工程常融合成 3 次 GEMM）——
           和向量级结果完全一致，但可被 GPU 整块并行算出。
         </div>
       </div>
@@ -1508,8 +1509,8 @@ export default function Home() {
 
           {/* ===== 矩阵级 ===== */}
           <section className="section" id="s4">
-            <SecHead idx="04" title="Self-Attention · 矩阵级（三步搞定）" />
-            <p className="sec-lead">把所有词的 q/k/v 堆成矩阵 <Formula tex="Q, K, V" />，整件事就坍缩成<b style={{ color: "#eef3ff" }}>三次矩阵乘法</b>——这正是 GPU 最擅长、能大规模并行的形态。</p>
+            <SecHead idx="04" title="Self-Attention · 矩阵级" />
+            <p className="sec-lead">把所有词的 q/k/v 堆成矩阵 <Formula tex="Q, K, V" />，整件事就坍缩成<b style={{ color: "#eef3ff" }}>几次矩阵乘法 + 一次 softmax</b>（工程上 Q/K/V 投影常融合成一次 GEMM，所以常说"三次"）——这正是 GPU 最擅长、能大规模并行的形态。</p>
             <div className="note"><b>记号约定（先说清楚，避免和代码对不上）</b>：本文用 PyTorch 行向量约定 <Formula tex={String.raw`Q=XW^Q`} />，所以是 <Formula tex={String.raw`QK^{\mathsf T}`} />；有的教材用列向量 <Formula tex={String.raw`Q=W^Q I`} />，对应 <Formula tex={String.raw`K^{\mathsf T}Q`} />。两者数学等价，只差一个转置——这也是代码里写 <code>key.transpose(-2, -1)</code> 的原因。</div>
             <FigMatrixStage />
             <div className="note">现在这句公式对你不再是一串符号：<Formula tex={String.raw`QK^{\mathsf T}`} /> 是「两两算相关度」，softmax 是「分数变权重」，乘 <Formula tex={String.raw`V`} /> 是「按权重取内容」。上面这组数值，正是把向量级 4 步压成矩阵后一次性算出的结果。</div>

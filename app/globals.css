@@ -519,7 +519,8 @@ p {
 .fig svg {
   display: block;
   margin: 0 auto;
-  max-width: 100%;
+  width: 100%;
+  min-width: 720px;
   height: auto;
 }
 .fig-cap {
@@ -847,7 +848,8 @@ pre code {
 .infoflow svg {
   display: block;
   margin: 0 auto;
-  max-width: 100%;
+  width: 100%;
+  min-width: 720px;
   height: auto;
 }
 .if-cap {
