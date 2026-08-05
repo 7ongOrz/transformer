@@ -677,15 +677,15 @@ export default function Home() {
                 "每个 W 都是可学习参数，训练时更新。",
               ]}
               tex={String.raw`Q = XW^Q,\quad K = XW^K,\quad V = XW^V`}
-              shapes={["X: [N,d]", "W: [d,d]", "Q,K,V: [N,d]"]}
+              shapes={["X: [N,d_model]", "WQ,WK: [d_model,d_k]", "WV: [d_model,d_v]", "Q,K: [N,d_k]", "V: [N,d_v]"]}
               note="同一组 X 经过不同 W，变成三种不同角色。这里为演示用了具体的 W 值。"
               workout={
                 <>
-                  <div className="wo-title">逐项演算（以 x₁=[1,2] 为例）</div>
+                  <div className="wo-title">逐项演算（以 x₁=[1,2] 为例，先展开 q₁ 的规则）</div>
                   <div className="wo-line">Wᵠ = [[1,0],[0,1]]　Wᵏ = [[0,1],[1,0]]　Wᵛ = [[1,1],[1,0]]</div>
-                  <div className="wo-line">q₁ = x₁·Wᵠ = [1,2]·[[1,0],[0,1]] = <b>[1, 2]</b></div>
-                  <div className="wo-line">k₁ = x₁·Wᵏ = [1,2]·[[0,1],[1,0]] = <b>[2, 1]</b></div>
-                  <div className="wo-line">v₁ = x₁·Wᵛ = [1,2]·[[1,1],[1,0]] = <b>[3, 1]</b></div>
+                  <div className="wo-line">q₁[0] = 1×1 + 2×0 = 1</div>
+                  <div className="wo-line">q₁[1] = 1×0 + 2×1 = 2　→　q₁ = <b>[1, 2]</b></div>
+                  <div className="wo-line">同理 x₁·Wᵏ = [2,1] = k₁，x₁·Wᵛ = [3,1] = v₁</div>
                   <div className="wo-line">同理 x₂=[3,1] → q₂=[3,1], k₂=[1,3], v₂=[4,3]</div>
                 </>
               }
@@ -752,8 +752,8 @@ export default function Home() {
               shapes={["logits: [N]", "weights: [N]"]}
               workout={
                 <>
-                  <div className="wo-title">数值代入</div>
-                  <div className="wo-line">e^2.83 ≈ 16.919　　e^4.95 ≈ 141.139</div>
+                  <div className="wo-title">数值代入（用未舍入分数，2.83、4.95 仅为显示近似）</div>
+                  <div className="wo-line">e^(4/√2) ≈ 16.919　　e^(7/√2) ≈ 141.139</div>
                   <div className="wo-line">总和 = 16.919 + 141.139 = <b>158.058</b></div>
                   <div className="wo-line">α̂₁,₁ = 16.919 / 158.058 = <span className="hl">0.107</span></div>
                   <div className="wo-line">α̂₁,₂ = 141.139 / 158.058 = <span className="hl">0.893</span></div>
@@ -781,7 +781,7 @@ export default function Home() {
               note="关键直觉：Q 和 K 决定「该关注谁」，V 决定「被关注后拿走的内容」。权重大的位置，它的 v 在 b 里占比就高。"
               workout={
                 <>
-                  <div className="wo-title">逐维演算（用未舍入权重）</div>
+                  <div className="wo-title">逐维演算（用三位小数近似权重 0.107、0.893）</div>
                   <div className="wo-line">b₁[0] = 0.107×3 + 0.893×4 = 0.321 + 3.572 = <span className="res">3.893</span></div>
                   <div className="wo-line">b₁[1] = 0.107×1 + 0.893×3 = 0.107 + 2.679 = <span className="res">2.786</span></div>
                   <div className="wo-line">∴ b₁ = [<span className="res">3.89, 2.79</span>]</div>
