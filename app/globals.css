@@ -833,6 +833,86 @@ pre code {
   font-weight: 700;
 }
 
+/* ===== 注意力大网格矩阵（带行列标签，仿 mask-table）===== */
+.attn-grid {
+  margin: 22px auto;
+  max-width: 100%;
+  overflow-x: auto;
+}
+.attn-grid table {
+  border-collapse: separate;
+  border-spacing: 4px;
+  margin: 0 auto;
+}
+.attn-grid th, .attn-grid td {
+  text-align: center;
+  font-family: var(--mono);
+}
+.attn-grid th {
+  color: var(--t3);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 0 6px;
+}
+.attn-grid .corner {
+  color: var(--t-dim);
+  font-size: 10.5px;
+}
+.attn-grid td.cell {
+  width: 60px;
+  height: 46px;
+  border-radius: 7px;
+  border: 1px solid var(--hairline);
+  font-size: 13.5px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* 行首标签（Query 词）*/
+.attn-grid th.rowlab {
+  text-align: right;
+  color: var(--q);
+  padding-right: 10px;
+}
+/* 列标签（Key 词）*/
+.attn-grid th.collab {
+  color: var(--k);
+  padding-bottom: 6px;
+}
+.attn-grid .axis {
+  font-size: 10px;
+  color: var(--t-dim);
+  text-align: center;
+  margin-top: 8px;
+  font-family: var(--mono);
+}
+.attn-pair {
+  display: flex;
+  gap: 36px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+}
+.attn-block {
+  text-align: center;
+}
+.attn-block .ab-title {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--t2);
+  margin-bottom: 10px;
+}
+.attn-block .ab-title b {
+  color: var(--att);
+}
+.attn-block .ab-eq {
+  font-size: 12px;
+  color: var(--t3);
+  margin-top: 10px;
+  max-width: 320px;
+}
+
 /* ===== 数值矩阵流水线（X→Q/K/V→S→A→O）===== */
 .pipeline {
   margin: 24px 0 10px;

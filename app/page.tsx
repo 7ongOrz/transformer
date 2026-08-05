@@ -187,7 +187,7 @@ function FigAttentionMatrix() {
         <span><b>Â</b> <em>[N,N]</em></span><em>→</em>
         <span><b>O=ÂV</b> <em>[N,d_v]</em></span>
       </div>
-      <div className="fig-cap">图 · 对应 PDF 图 10–12 — 压成"一堆矩阵乘法"，可用 GPU 加速</div>
+      <div className="fig-cap">图 · 向量级推导收束成矩阵乘法，可用 GPU 并行加速</div>
     </div>
   );
 }
@@ -239,6 +239,57 @@ function NumMatrix({ data, heat, warm, digits = 2 }: { data: number[][]; heat?: 
   );
 }
 
+/* ---------- 注意力大网格矩阵（带行列标签，仿参考文档 mask-table）---------- */
+const WORDS4 = ["我", "爱", "深", "度"];
+// 4 个 token 的真实数值（d=2，为演示构造）
+const GRID_S = [
+  [0.71, 2.83, 2.83, 2.12],
+  [0.0, 2.83, 1.41, 1.41],
+  [1.41, 7.07, 6.36, 4.95],
+  [0.71, 4.24, 3.54, 2.83],
+];
+const GRID_A = [
+  [0.05, 0.38, 0.38, 0.19],
+  [0.04, 0.65, 0.16, 0.16],
+  [0.0, 0.62, 0.3, 0.07],
+  [0.02, 0.56, 0.28, 0.14],
+];
+
+function AttnGrid({ data, rowColor, digits = 2 }: { data: number[][]; rowColor: string; digits?: number }) {
+  // 找全局最大值用于色阶归一
+  const max = Math.max(...data.flat());
+  return (
+    <div className="attn-grid">
+      <table>
+        <thead>
+          <tr>
+            <th className="corner">Q ＼ K</th>
+            {WORDS4.map((w) => <th key={w} className="collab">{w}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((row, i) => (
+            <tr key={i}>
+              <th className="rowlab" style={{ color: rowColor }}>{WORDS4[i]}</th>
+              {row.map((v, j) => {
+                const t = max > 0 ? v / max : 0;
+                const bg = `rgba(56,189,248,${0.1 + t * 0.75})`;
+                const color = t > 0.4 ? "#fff" : "#a9b4dc";
+                return (
+                  <td key={j}>
+                    <div className="cell" style={{ background: bg, color }}>{v.toFixed(digits)}</div>
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div className="axis">行 = Query（谁在问）· 列 = Key（看谁）· 颜色越深权重越大</div>
+    </div>
+  );
+}
+
 /* ---------- 逐图步骤卡片（向量级，对应文章图4-8 的颗粒度）---------- */
 type StepCardProps = {
   num: string;
@@ -285,58 +336,55 @@ function FigNumPipeline() {
   return (
     <div className="pipeline">
       <div className="pl-note">
-        下面用一组<b>真实小数值</b>（N=2 个 token、d=2 维，为演示构造、非真实权重）把整条流水线走一遍。
-        每一步矩阵都标注了维度，箭头串起计算顺序。
+        下面以「我 爱 深 度」4 个 token 为例，看注意力矩阵怎么从分数一步步变成权重。
+        每一步都用<b>带行列标签的网格矩阵</b>呈现——行是 Query（谁在问），列是 Key（看谁）。
       </div>
 
-      {/* 第 1 行：X → Q,K,V */}
-      <div className="pipeline-row">
+      {/* 第 1 步：Q/K/V 投影（公式说明，小矩阵示意）*/}
+      <div className="pipeline-row" style={{ alignItems: "flex-start" }}>
         <div className="pl-step">
-          <div className="pl-title">输入 <b>X</b></div>
-          <NumMatrix data={DEMO.X} />
-          <div className="pl-shape">[2,2]</div>
+          <div className="pl-title">输入 <b>X</b>　<span style={{ color: "#6e7aab" }}>[4, d]</span></div>
+          <div style={{ fontFamily: "var(--mono)", fontSize: 12.5, color: "#a9b4dc", marginTop: 6, lineHeight: 1.9 }}>
+            我 → x₁<br />爱 → x₂<br />深 → x₃<br />度 → x₄
+          </div>
         </div>
         <div className="pl-op">→</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <div className="pl-step" style={{ textAlign: "center" }}>
-            <div className="pl-title">×Wᵠ → 查询 <b style={{ color: "#f5b042" }}>Q</b></div>
-            <NumMatrix data={DEMO_Q} />
+        <div className="pl-step" style={{ flex: "1 1 320px", minWidth: 260 }}>
+          <div className="pl-title">三路投影</div>
+          <div className="sc-formula" style={{ margin: "6px 0" }}>
+            <Formula block tex={String.raw`Q = XW^Q,\quad K = XW^K,\quad V = XW^V`} />
           </div>
-          <div className="pl-step" style={{ textAlign: "center" }}>
-            <div className="pl-title">×Wᵏ → 键 <b style={{ color: "#a78bfa" }}>K</b></div>
-            <NumMatrix data={DEMO_K} />
-          </div>
-          <div className="pl-step" style={{ textAlign: "center" }}>
-            <div className="pl-title">×Wᵛ → 值 <b style={{ color: "#2dd4bf" }}>V</b></div>
-            <NumMatrix data={DEMO_V} />
+          <div style={{ fontSize: 12.5, color: "#6e7aab", lineHeight: 1.8 }}>
+            每个 token 乘三个权重矩阵，得到各自的 <b style={{ color: "#f5b042" }}>q</b>（查询）、<b style={{ color: "#a78bfa" }}>k</b>（键）、<b style={{ color: "#2dd4bf" }}>v</b>（值）。
           </div>
         </div>
       </div>
 
-      {/* 第 2 行：QKᵀ → S → softmax → A */}
-      <div className="pipeline-row" style={{ marginTop: 26 }}>
-        <div className="pl-step">
-          <div className="pl-title">分数 <b>S = QKᵀ/√dₖ</b></div>
-          <NumMatrix data={DEMO_S} heat />
-          <div className="pl-shape">[2,2]</div>
+      {/* 第 2 步：分数 S 与权重 A 的大网格（核心可视化）*/}
+      <h3 style={{ marginTop: 30 }}>分数矩阵 → softmax → 权重矩阵</h3>
+      <p className="t3" style={{ fontSize: 14, marginTop: 0 }}>
+        左边是<b>原始分数</b> <Formula tex={String.raw`S=QK^{\mathsf T}/\sqrt{d_k}`} />（每行一个 Query 对所有 Key 的相关度）；
+        右边是 <b>softmax 后的权重</b> <Formula tex={String.raw`A`} />（每行归一化、和为 1，即注意力分配）。
+      </p>
+      <div className="attn-pair">
+        <div className="attn-block">
+          <div className="ab-title">分数 <b>S = QKᵀ/√dₖ</b>　[4,4]</div>
+          <AttnGrid data={GRID_S} rowColor="#f5b042" digits={2} />
         </div>
-        <div className="pl-op">→softmax→</div>
-        <div className="pl-step">
-          <div className="pl-title">权重 <b style={{ color: "#38bdf8" }}>A</b>（每行和=1）</div>
-          <NumMatrix data={DEMO_A} heat />
-          <div className="pl-shape">[2,2]</div>
-        </div>
-        <div className="pl-op">→×V→</div>
-        <div className="pl-step">
-          <div className="pl-title">输出 <b style={{ color: "#f472b6" }}>O = AV</b></div>
-          <NumMatrix data={DEMO_O} warm />
-          <div className="pl-shape">[2,2]</div>
+        <div className="attn-block">
+          <div className="ab-title">权重 <b style={{ color: "#38bdf8" }}>A = softmax(S)</b>　[4,4]</div>
+          <AttnGrid data={GRID_A} rowColor="#f5b042" digits={2} />
         </div>
       </div>
 
+      {/* 第 3 步：乘 V 得输出 */}
+      <div className="eq-box" style={{ marginTop: 24 }}>
+        <Formula block tex={String.raw`O = AV`} />
+      </div>
       <div className="pl-note">
-        读法：第 1 个 token 的权重是 <b>[0.11, 0.89]</b>——它把 89% 注意力分给了第 2 个 token，
-        于是输出 <b>O₁ = 0.11·V₁ + 0.89·V₂</b>。这就是"该关注谁、拿走什么"的数值化呈现。
+        权重矩阵 <b>A</b> 的每一行，就是对 <b>V</b> 各行做加权求和的配比——比如「深」这一行权重是
+        <b>[0.00, 0.62, 0.30, 0.07]</b>，说明它主要关注「爱」，于是输出 O₃ 里「爱」的值 v₂ 占了 62%。
+        这就是「该关注谁、拿走什么」的完整数值化呈现。
       </div>
     </div>
   );
@@ -455,7 +503,7 @@ function FigRnnVsAtt() {
         </g>
         <text x="640" y="225" fill="#34d399" fontSize="11">✅ 每个输出都看完整序列，且各 b 互不依赖、一起算</text>
       </svg>
-      <div className="fig-cap">图 · 对应 PDF 图 1·2·3 — 处理序列数据的两种范式</div>
+      <div className="fig-cap">图 · 处理序列数据的两种范式：RNN 串行 vs Self-Attention 并行</div>
     </div>
   );
 }
@@ -799,7 +847,7 @@ export default function Home() {
           <section className="section" id="s4">
             <SecHead idx="04" title="Self-Attention · 矩阵级（三步搞定）" />
             <p className="sec-lead">把所有词的 q/k/v 堆成矩阵 <Formula tex="Q, K, V" />，整件事就坍缩成<b style={{ color: "#eef3ff" }}>三次矩阵乘法</b>——这正是 GPU 最擅长、能大规模并行的形态。</p>
-            <div className="note"><b>记号约定（先说清楚，避免和代码对不上）</b>：本文用 PyTorch 行向量约定 <Formula tex={String.raw`Q=XW^Q`} />，所以是 <Formula tex={String.raw`QK^{\mathsf T}`} />；李宏毅 PDF 用列向量 <Formula tex={String.raw`Q=W^Q I`} />，对应 <Formula tex={String.raw`K^{\mathsf T}Q`} />。两者数学等价，只差一个转置——这也是代码里写 <code>key.transpose(-2, -1)</code> 的原因。</div>
+            <div className="note"><b>记号约定（先说清楚，避免和代码对不上）</b>：本文用 PyTorch 行向量约定 <Formula tex={String.raw`Q=XW^Q`} />，所以是 <Formula tex={String.raw`QK^{\mathsf T}`} />；有的教材用列向量 <Formula tex={String.raw`Q=W^Q I`} />，对应 <Formula tex={String.raw`K^{\mathsf T}Q`} />。两者数学等价，只差一个转置——这也是代码里写 <code>key.transpose(-2, -1)</code> 的原因。</div>
             <FigAttentionMatrix />
             <div className="eq-box">
               <Formula block tex={String.raw`\text{Attention}(Q,K,V) = \mathrm{softmax}\!\left(\frac{QK^{\mathsf T}}{\sqrt{d_k}}\right)V`} />
@@ -1086,7 +1134,7 @@ export default function Home() {
           </section>
 
           <div className="foot">
-            参考：李宏毅 Self-Attention 资料（PDF 图 1–15）· Vaswani et al. <i>Attention Is All You Need</i>（Figure 1）· The Annotated Transformer。<br />
+            参考：Vaswani et al. <i>Attention Is All You Need</i>（Figure 1）· The Annotated Transformer。<br />
             全篇 Q/K/V/Attention/Output 配色一致，SVG 可自由放大查看。
           </div>
 
