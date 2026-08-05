@@ -128,7 +128,7 @@ function FigAttentionSteps() {
   const cell = (x: number, y: number, w: number, fill: string, stroke: string, label: string, fc: string) => (
     <g key={`c-${x}-${y}-${label}`}>
       <rect x={x} y={y} width={w} height={30} rx={6} fill={fill} stroke={stroke} />
-      <text x={x + w / 2} y={y + 19} textAnchor="middle" fill={fc} fontFamily="var(--mono)" fontSize="12">{label}</text>
+      <text x={x + w / 2} y={y + 19} textAnchor="middle" fill={fc} fontFamily="JetBrains Mono, SF Mono, Consolas, monospace" fontSize="12">{label}</text>
     </g>
   );
   return (
@@ -141,65 +141,65 @@ function FigAttentionSteps() {
         </defs>
 
         <text x="10" y="24" fill="#c8d4ff" fontSize="14" fontWeight="700">① 线性变换：每个 x 得到 q / k / v</text>
-        {cell(20, 70, 40, "var(--panel-3)", "var(--hairline)", "x₁", "var(--t2)")}
-        {cell(20, 120, 40, "var(--panel-3)", "var(--hairline)", "x₂", "var(--t2)")}
-        {cell(20, 170, 40, "var(--panel-3)", "var(--hairline)", "x₃", "var(--t2)")}
-        {cell(20, 220, 40, "var(--panel-3)", "var(--hairline)", "x₄", "var(--t2)")}
-        {cell(150, 70, 44, "var(--q-soft)", "var(--q)", "q₁", "var(--q)")}
-        {cell(150, 120, 44, "var(--k-soft)", "var(--k)", "k₁", "var(--k)")}
-        {cell(150, 170, 44, "var(--k-soft)", "var(--k)", "k₂", "var(--k)")}
-        {cell(150, 220, 44, "var(--k-soft)", "var(--k)", "k₃", "var(--k)")}
-        {cell(240, 120, 44, "var(--v-soft)", "var(--v)", "v₁", "var(--v)")}
-        {cell(240, 170, 44, "var(--v-soft)", "var(--v)", "v₂", "var(--v)")}
-        {cell(240, 220, 44, "var(--v-soft)", "var(--v)", "v₃", "var(--v)")}
-        <text x="172" y="62" fill="var(--q)" fontSize="10.5" textAnchor="middle">Wᵠ·x</text>
-        <text x="172" y="278" fill="var(--k)" fontSize="10.5" textAnchor="middle">Wᵏ·x</text>
-        <text x="262" y="278" fill="var(--v)" fontSize="10.5" textAnchor="middle">Wᵛ·x</text>
-        <path d="M60,85 H148" stroke="var(--t3)" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
-        <path d="M60,135 H148" stroke="var(--t3)" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
-        <path d="M60,185 H148" stroke="var(--t3)" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
-        <path d="M60,235 H148" stroke="var(--t3)" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
-        <path d="M60,135 H238" stroke="var(--t3)" strokeWidth="1.2" fill="none" strokeDasharray="3 3" markerEnd="url(#ah-s)" />
-        <text x="92" y="78" fill="var(--t3)" fontSize="10">×Wᵠ</text>
+        {cell(20, 70, 40, "#0c1430", "rgba(255,255,255,0.08)", "x₁", "#a9b4dc")}
+        {cell(20, 120, 40, "#0c1430", "rgba(255,255,255,0.08)", "x₂", "#a9b4dc")}
+        {cell(20, 170, 40, "#0c1430", "rgba(255,255,255,0.08)", "x₃", "#a9b4dc")}
+        {cell(20, 220, 40, "#0c1430", "rgba(255,255,255,0.08)", "x₄", "#a9b4dc")}
+        {cell(150, 70, 44, "rgba(245,176,66,0.14)", "#f5b042", "q₁", "#f5b042")}
+        {cell(150, 120, 44, "rgba(167,139,250,0.14)", "#a78bfa", "k₁", "#a78bfa")}
+        {cell(150, 170, 44, "rgba(167,139,250,0.14)", "#a78bfa", "k₂", "#a78bfa")}
+        {cell(150, 220, 44, "rgba(167,139,250,0.14)", "#a78bfa", "k₃", "#a78bfa")}
+        {cell(240, 120, 44, "rgba(45,212,191,0.14)", "#2dd4bf", "v₁", "#2dd4bf")}
+        {cell(240, 170, 44, "rgba(45,212,191,0.14)", "#2dd4bf", "v₂", "#2dd4bf")}
+        {cell(240, 220, 44, "rgba(45,212,191,0.14)", "#2dd4bf", "v₃", "#2dd4bf")}
+        <text x="172" y="62" fill="#f5b042" fontSize="10.5" textAnchor="middle">Wᵠ·x</text>
+        <text x="172" y="278" fill="#a78bfa" fontSize="10.5" textAnchor="middle">Wᵏ·x</text>
+        <text x="262" y="278" fill="#2dd4bf" fontSize="10.5" textAnchor="middle">Wᵛ·x</text>
+        <path d="M60,85 H148" stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
+        <path d="M60,135 H148" stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
+        <path d="M60,185 H148" stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
+        <path d="M60,235 H148" stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
+        <path d="M60,135 H238" stroke="#6e7aab" strokeWidth="1.2" fill="none" strokeDasharray="3 3" markerEnd="url(#ah-s)" />
+        <text x="92" y="78" fill="#6e7aab" fontSize="10">×Wᵠ</text>
 
         <text x="360" y="24" fill="#c8d4ff" fontSize="14" fontWeight="700">② q₁ 与每个 k 点积 → 相关性 α</text>
-        {cell(370, 120, 56, "var(--panel-3)", "var(--hairline)", "α₁,₁", "var(--att)")}
-        {cell(370, 160, 56, "var(--panel-3)", "var(--hairline)", "α₁,₂", "var(--att)")}
-        {cell(370, 200, 56, "var(--panel-3)", "var(--hairline)", "α₁,₃", "var(--att)")}
-        {cell(370, 240, 56, "var(--panel-3)", "var(--hairline)", "α₁,₄", "var(--att)")}
-        <text x="398" y="290" fill="var(--t3)" fontSize="10.5" textAnchor="middle">q₁·kⱼ</text>
-        <path d="M194,85 C300,85 330,135 368,135" stroke="var(--q)" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
-        <path d="M194,185 C290,185 320,175 368,175" stroke="var(--k)" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
-        <path d="M194,235 C300,235 330,215 368,215" stroke="var(--k)" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
-        <path d="M194,135 C300,135 330,255 368,255" stroke="var(--k)" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
+        {cell(370, 120, 56, "#0c1430", "rgba(255,255,255,0.08)", "α₁,₁", "#38bdf8")}
+        {cell(370, 160, 56, "#0c1430", "rgba(255,255,255,0.08)", "α₁,₂", "#38bdf8")}
+        {cell(370, 200, 56, "#0c1430", "rgba(255,255,255,0.08)", "α₁,₃", "#38bdf8")}
+        {cell(370, 240, 56, "#0c1430", "rgba(255,255,255,0.08)", "α₁,₄", "#38bdf8")}
+        <text x="398" y="290" fill="#6e7aab" fontSize="10.5" textAnchor="middle">q₁·kⱼ</text>
+        <path d="M194,85 C300,85 330,135 368,135" stroke="#f5b042" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
+        <path d="M194,185 C290,185 320,175 368,175" stroke="#a78bfa" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
+        <path d="M194,235 C300,235 330,215 368,215" stroke="#a78bfa" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
+        <path d="M194,135 C300,135 330,255 368,255" stroke="#a78bfa" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
 
         <text x="470" y="24" fill="#c8d4ff" fontSize="14" fontWeight="700">③ softmax → 权重（和=1）</text>
-        {cell(490, 120, 60, "var(--att-soft)", "var(--att)", "α̂₁,₁", "var(--att)")}
-        {cell(490, 160, 60, "var(--att-soft)", "var(--att)", "α̂₁,₂", "var(--att)")}
-        {cell(490, 200, 60, "var(--att-soft)", "var(--att)", "α̂₁,₃", "var(--att)")}
-        {cell(490, 240, 60, "var(--att-soft)", "var(--att)", "α̂₁,₄", "var(--att)")}
-        <text x="520" y="290" fill="var(--t3)" fontSize="10.5" textAnchor="middle">Σ=1.0</text>
+        {cell(490, 120, 60, "rgba(56,189,248,0.14)", "#38bdf8", "α̂₁,₁", "#38bdf8")}
+        {cell(490, 160, 60, "rgba(56,189,248,0.14)", "#38bdf8", "α̂₁,₂", "#38bdf8")}
+        {cell(490, 200, 60, "rgba(56,189,248,0.14)", "#38bdf8", "α̂₁,₃", "#38bdf8")}
+        {cell(490, 240, 60, "rgba(56,189,248,0.14)", "#38bdf8", "α̂₁,₄", "#38bdf8")}
+        <text x="520" y="290" fill="#6e7aab" fontSize="10.5" textAnchor="middle">Σ=1.0</text>
         {[135, 175, 215, 255].map((y) => (
-          <path key={`s3-${y}`} d={`M426,${y} H488`} stroke="var(--t3)" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
+          <path key={`s3-${y}`} d={`M426,${y} H488`} stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
         ))}
 
         <text x="600" y="24" fill="#c8d4ff" fontSize="14" fontWeight="700">④ 权重 × v 求和 → b₁</text>
-        {cell(610, 120, 120, "var(--panel-3)", "var(--hairline)", "α̂₁,₁·v₁", "var(--v)")}
-        {cell(610, 160, 120, "var(--panel-3)", "var(--hairline)", "α̂₁,₂·v₂", "var(--v)")}
-        {cell(610, 200, 120, "var(--panel-3)", "var(--hairline)", "α̂₁,₃·v₃", "var(--v)")}
-        {cell(610, 240, 120, "var(--panel-3)", "var(--hairline)", "α̂₁,₄·v₄", "var(--v)")}
+        {cell(610, 120, 120, "#0c1430", "rgba(255,255,255,0.08)", "α̂₁,₁·v₁", "#2dd4bf")}
+        {cell(610, 160, 120, "#0c1430", "rgba(255,255,255,0.08)", "α̂₁,₂·v₂", "#2dd4bf")}
+        {cell(610, 200, 120, "#0c1430", "rgba(255,255,255,0.08)", "α̂₁,₃·v₃", "#2dd4bf")}
+        {cell(610, 240, 120, "#0c1430", "rgba(255,255,255,0.08)", "α̂₁,₄·v₄", "#2dd4bf")}
         {[135, 175, 215, 255].map((y) => (
-          <path key={`s4-${y}`} d={`M550,${y} H608`} stroke="var(--t3)" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
+          <path key={`s4-${y}`} d={`M550,${y} H608`} stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
         ))}
-        <path d="M284,135 C450,135 500,135 608,135" stroke="var(--v)" strokeWidth="1.2" fill="none" strokeDasharray="3 3" markerEnd="url(#ah-s)" />
+        <path d="M284,135 C450,135 500,135 608,135" stroke="#2dd4bf" strokeWidth="1.2" fill="none" strokeDasharray="3 3" markerEnd="url(#ah-s)" />
 
-        <rect x="780" y="175" width="70" height="40" rx="9" fill="var(--out-soft)" stroke="var(--out)" strokeWidth="1.6" />
-        <text x="815" y="201" textAnchor="middle" fill="var(--out)" fontFamily="var(--mono)" fontSize="16" fontWeight="700">b₁</text>
-        <path d="M730,135 C760,135 770,180 778,188" stroke="var(--t3)" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
-        <path d="M730,175 H778" stroke="var(--t3)" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
-        <path d="M730,215 C760,215 770,200 778,198" stroke="var(--t3)" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
-        <path d="M730,255 C760,255 770,210 778,205" stroke="var(--t3)" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
-        <text x="815" y="235" fill="var(--out)" fontSize="10.5" textAnchor="middle">= Σ α̂·v</text>
+        <rect x="780" y="175" width="70" height="40" rx="9" fill="rgba(244,114,182,0.14)" stroke="#f472b6" strokeWidth="1.6" />
+        <text x="815" y="201" textAnchor="middle" fill="#f472b6" fontFamily="JetBrains Mono, SF Mono, Consolas, monospace" fontSize="16" fontWeight="700">b₁</text>
+        <path d="M730,135 C760,135 770,180 778,188" stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
+        <path d="M730,175 H778" stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
+        <path d="M730,215 C760,215 770,200 778,198" stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
+        <path d="M730,255 C760,255 770,210 778,205" stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
+        <text x="815" y="235" fill="#f472b6" fontSize="10.5" textAnchor="middle">= Σ α̂·v</text>
       </svg>
       <div className="fig-shapes">
         <span><b>x</b> <em>[d]</em></span>
@@ -221,55 +221,55 @@ function FigAttentionMatrix() {
     <div className="fig">
       <svg viewBox="0 0 920 340" width="920" role="img" aria-label="self-attention 矩阵级三步">
         <defs>
-          <linearGradient id="gq-m" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="var(--q)" stopOpacity=".5" /><stop offset="1" stopColor="var(--q)" stopOpacity=".1" /></linearGradient>
-          <linearGradient id="gk-m" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="var(--k)" stopOpacity=".5" /><stop offset="1" stopColor="var(--k)" stopOpacity=".1" /></linearGradient>
-          <linearGradient id="gv-m" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="var(--v)" stopOpacity=".5" /><stop offset="1" stopColor="var(--v)" stopOpacity=".1" /></linearGradient>
-          <linearGradient id="ga-m" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="var(--att)" stopOpacity=".55" /><stop offset="1" stopColor="var(--att)" stopOpacity=".12" /></linearGradient>
-          <linearGradient id="go-m" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="var(--out)" stopOpacity=".55" /><stop offset="1" stopColor="var(--out)" stopOpacity=".12" /></linearGradient>
-          <marker id="ah-m" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="var(--t3)" /></marker>
+          <linearGradient id="gq-m" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="#f5b042" stopOpacity=".5" /><stop offset="1" stopColor="#f5b042" stopOpacity=".1" /></linearGradient>
+          <linearGradient id="gk-m" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="#a78bfa" stopOpacity=".5" /><stop offset="1" stopColor="#a78bfa" stopOpacity=".1" /></linearGradient>
+          <linearGradient id="gv-m" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="#2dd4bf" stopOpacity=".5" /><stop offset="1" stopColor="#2dd4bf" stopOpacity=".1" /></linearGradient>
+          <linearGradient id="ga-m" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="#38bdf8" stopOpacity=".55" /><stop offset="1" stopColor="#38bdf8" stopOpacity=".12" /></linearGradient>
+          <linearGradient id="go-m" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="#f472b6" stopOpacity=".55" /><stop offset="1" stopColor="#f472b6" stopOpacity=".12" /></linearGradient>
+          <marker id="ah-m" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#6e7aab" /></marker>
         </defs>
         <text x="20" y="24" fill="#c8d4ff" fontSize="14" fontWeight="700">把向量堆成矩阵后，整个过程 = 三次矩阵乘法</text>
-        <rect x="20" y="110" width="60" height="120" rx="8" fill="var(--panel-3)" stroke="var(--hairline)" />
-        <text x="50" y="175" textAnchor="middle" fill="var(--t1)" fontSize="15" fontWeight="700">I</text>
-        <text x="50" y="248" textAnchor="middle" fill="var(--t3)" fontSize="10">(n×d)</text>
-        <path d="M80,140 H120" stroke="var(--q)" strokeWidth="1.4" fill="none" markerEnd="url(#ah-m)" />
-        <path d="M80,170 H120" stroke="var(--k)" strokeWidth="1.4" fill="none" markerEnd="url(#ah-m)" />
-        <path d="M80,200 H120" stroke="var(--v)" strokeWidth="1.4" fill="none" markerEnd="url(#ah-m)" />
-        <text x="84" y="133" fill="var(--q)" fontSize="10">×Wᵠ</text>
-        <text x="84" y="164" fill="var(--k)" fontSize="10">×Wᵏ</text>
-        <text x="84" y="216" fill="var(--v)" fontSize="10">×Wᵛ</text>
-        <rect x="120" y="125" width="56" height="34" rx="6" fill="url(#gq-m)" stroke="var(--q)" /><text x="148" y="147" textAnchor="middle" fill="var(--q)" fontWeight="700">Q</text>
-        <rect x="120" y="163" width="56" height="34" rx="6" fill="url(#gk-m)" stroke="var(--k)" /><text x="148" y="185" textAnchor="middle" fill="var(--k)" fontWeight="700">K</text>
-        <rect x="120" y="201" width="56" height="34" rx="6" fill="url(#gv-m)" stroke="var(--v)" /><text x="148" y="223" textAnchor="middle" fill="var(--v)" fontWeight="700">V</text>
-        <text x="215" y="152" fill="var(--t2)" fontSize="12">Q · Kᵀ</text>
-        <text x="215" y="170" fill="var(--t3)" fontSize="10">两两相关度</text>
-        <path d="M176,152 H210" stroke="var(--t3)" strokeWidth="1.3" fill="none" markerEnd="url(#ah-m)" />
-        <path d="M176,190 H210" stroke="var(--t3)" strokeWidth="1.3" fill="none" markerEnd="url(#ah-m)" />
-        <rect x="295" y="110" width="90" height="120" rx="8" fill="url(#ga-m)" stroke="var(--att)" />
-        <text x="340" y="175" textAnchor="middle" fill="var(--att)" fontWeight="700" fontSize="14">A=QKᵀ</text>
-        <text x="340" y="248" textAnchor="middle" fill="var(--t3)" fontSize="10">(n×n)</text>
-        <path d="M245,158 C270,158 275,175 293,178" stroke="var(--t3)" strokeWidth="1.3" fill="none" markerEnd="url(#ah-m)" />
-        <rect x="420" y="110" width="80" height="120" rx="8" fill="var(--panel-3)" stroke="var(--att)" />
-        <text x="460" y="170" textAnchor="middle" fill="var(--att)" fontWeight="700" fontSize="13">softmax</text>
-        <text x="460" y="188" textAnchor="middle" fill="var(--att)" fontWeight="700" fontSize="13">按行</text>
-        <text x="460" y="248" textAnchor="middle" fill="var(--t3)" fontSize="10">→ 权重 Â</text>
-        <path d="M385,170 H418" stroke="var(--t3)" strokeWidth="1.3" fill="none" markerEnd="url(#ah-m)" />
-        <rect x="540" y="110" width="60" height="120" rx="8" fill="url(#ga-m)" stroke="var(--att)" />
-        <text x="570" y="175" textAnchor="middle" fill="var(--att)" fontWeight="700" fontSize="14">Â</text>
-        <text x="570" y="248" textAnchor="middle" fill="var(--t3)" fontSize="10">(n×n)</text>
-        <path d="M500,170 H538" stroke="var(--t3)" strokeWidth="1.3" fill="none" markerEnd="url(#ah-m)" />
-        <path d="M176,228 C400,300 470,300 538,210" stroke="var(--v)" strokeWidth="1.3" fill="none" strokeDasharray="4 3" markerEnd="url(#ah-m)" />
-        <rect x="660" y="110" width="70" height="120" rx="8" fill="url(#go-m)" stroke="var(--out)" />
-        <text x="695" y="175" textAnchor="middle" fill="var(--out)" fontWeight="700" fontSize="15">O</text>
-        <text x="695" y="248" textAnchor="middle" fill="var(--t3)" fontSize="10">(n×d) 输出</text>
-        <path d="M600,170 H658" stroke="var(--t3)" strokeWidth="1.3" fill="none" markerEnd="url(#ah-m)" />
+        <rect x="20" y="110" width="60" height="120" rx="8" fill="#0c1430" stroke="rgba(255,255,255,0.08)" />
+        <text x="50" y="175" textAnchor="middle" fill="#eef3ff" fontSize="15" fontWeight="700">I</text>
+        <text x="50" y="248" textAnchor="middle" fill="#6e7aab" fontSize="10">(n×d)</text>
+        <path d="M80,140 H120" stroke="#f5b042" strokeWidth="1.4" fill="none" markerEnd="url(#ah-m)" />
+        <path d="M80,170 H120" stroke="#a78bfa" strokeWidth="1.4" fill="none" markerEnd="url(#ah-m)" />
+        <path d="M80,200 H120" stroke="#2dd4bf" strokeWidth="1.4" fill="none" markerEnd="url(#ah-m)" />
+        <text x="84" y="133" fill="#f5b042" fontSize="10">×Wᵠ</text>
+        <text x="84" y="164" fill="#a78bfa" fontSize="10">×Wᵏ</text>
+        <text x="84" y="216" fill="#2dd4bf" fontSize="10">×Wᵛ</text>
+        <rect x="120" y="125" width="56" height="34" rx="6" fill="url(#gq-m)" stroke="#f5b042" /><text x="148" y="147" textAnchor="middle" fill="#f5b042" fontWeight="700">Q</text>
+        <rect x="120" y="163" width="56" height="34" rx="6" fill="url(#gk-m)" stroke="#a78bfa" /><text x="148" y="185" textAnchor="middle" fill="#a78bfa" fontWeight="700">K</text>
+        <rect x="120" y="201" width="56" height="34" rx="6" fill="url(#gv-m)" stroke="#2dd4bf" /><text x="148" y="223" textAnchor="middle" fill="#2dd4bf" fontWeight="700">V</text>
+        <text x="215" y="152" fill="#a9b4dc" fontSize="12">Q · Kᵀ</text>
+        <text x="215" y="170" fill="#6e7aab" fontSize="10">两两相关度</text>
+        <path d="M176,152 H210" stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-m)" />
+        <path d="M176,190 H210" stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-m)" />
+        <rect x="295" y="110" width="90" height="120" rx="8" fill="url(#ga-m)" stroke="#38bdf8" />
+        <text x="340" y="175" textAnchor="middle" fill="#38bdf8" fontWeight="700" fontSize="14">A=QKᵀ</text>
+        <text x="340" y="248" textAnchor="middle" fill="#6e7aab" fontSize="10">(n×n)</text>
+        <path d="M245,158 C270,158 275,175 293,178" stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-m)" />
+        <rect x="420" y="110" width="80" height="120" rx="8" fill="#0c1430" stroke="#38bdf8" />
+        <text x="460" y="170" textAnchor="middle" fill="#38bdf8" fontWeight="700" fontSize="13">softmax</text>
+        <text x="460" y="188" textAnchor="middle" fill="#38bdf8" fontWeight="700" fontSize="13">按行</text>
+        <text x="460" y="248" textAnchor="middle" fill="#6e7aab" fontSize="10">→ 权重 Â</text>
+        <path d="M385,170 H418" stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-m)" />
+        <rect x="540" y="110" width="60" height="120" rx="8" fill="url(#ga-m)" stroke="#38bdf8" />
+        <text x="570" y="175" textAnchor="middle" fill="#38bdf8" fontWeight="700" fontSize="14">Â</text>
+        <text x="570" y="248" textAnchor="middle" fill="#6e7aab" fontSize="10">(n×n)</text>
+        <path d="M500,170 H538" stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-m)" />
+        <path d="M176,228 C400,300 470,300 538,210" stroke="#2dd4bf" strokeWidth="1.3" fill="none" strokeDasharray="4 3" markerEnd="url(#ah-m)" />
+        <rect x="660" y="110" width="70" height="120" rx="8" fill="url(#go-m)" stroke="#f472b6" />
+        <text x="695" y="175" textAnchor="middle" fill="#f472b6" fontWeight="700" fontSize="15">O</text>
+        <text x="695" y="248" textAnchor="middle" fill="#6e7aab" fontSize="10">(n×d) 输出</text>
+        <path d="M600,170 H658" stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-m)" />
         <g transform="translate(760,110)">
-          <rect x="0" y="0" width="140" height="120" rx="9" fill="var(--bg)" stroke="var(--hairline)" />
-          <text x="70" y="24" textAnchor="middle" fill="var(--accent)" fontWeight="700" fontSize="12">整个过程 =</text>
-          <text x="12" y="52" fill="var(--t2)" fontSize="11">① I×W → Q,K,V</text>
-          <text x="12" y="74" fill="var(--t2)" fontSize="11">② QKᵀ → softmax</text>
-          <text x="12" y="96" fill="var(--t2)" fontSize="11">③ Â×V → O</text>
-          <text x="12" y="114" fill="var(--t3)" fontSize="9.5">三次矩阵乘法</text>
+          <rect x="0" y="0" width="140" height="120" rx="9" fill="#070b18" stroke="rgba(255,255,255,0.08)" />
+          <text x="70" y="24" textAnchor="middle" fill="#5eead4" fontWeight="700" fontSize="12">整个过程 =</text>
+          <text x="12" y="52" fill="#a9b4dc" fontSize="11">① I×W → Q,K,V</text>
+          <text x="12" y="74" fill="#a9b4dc" fontSize="11">② QKᵀ → softmax</text>
+          <text x="12" y="96" fill="#a9b4dc" fontSize="11">③ Â×V → O</text>
+          <text x="12" y="114" fill="#6e7aab" fontSize="9.5">三次矩阵乘法</text>
         </g>
       </svg>
       <div className="fig-shapes">
@@ -288,69 +288,69 @@ function FigAttentionMatrix() {
  * SVG 图：经典 Transformer 论文 Figure 1
  * ============================================================ */
 function FigTransformer() {
-  const Arrow = ({ d, color = "var(--t3)", dash }: { d: string; color?: string; dash?: string }) => (
+  const Arrow = ({ d, color = "#6e7aab", dash }: { d: string; color?: string; dash?: string }) => (
     <path d={d} stroke={color} strokeWidth="1.4" fill="none" markerEnd="url(#ah-t)" strokeDasharray={dash} />
   );
   const Box = ({ x, y, w, h, fill, stroke, label, sub, lc, sc }: { x: number; y: number; w: number; h: number; fill: string; stroke: string; label: string; sub?: string; lc?: string; sc?: string }) => (
     <g>
       <rect x={x} y={y} width={w} height={h} rx="9" fill={fill} stroke={stroke} />
-      <text x={x + w / 2} y={y + h / 2 + (sub ? -4 : 5)} textAnchor="middle" fill={lc || "var(--t1)"} fontSize="13" fontWeight="700">{label}</text>
-      {sub && <text x={x + w / 2} y={y + h / 2 + 14} textAnchor="middle" fill={sc || "var(--t3)"} fontSize="10">{sub}</text>}
+      <text x={x + w / 2} y={y + h / 2 + (sub ? -4 : 5)} textAnchor="middle" fill={lc || "#eef3ff"} fontSize="13" fontWeight="700">{label}</text>
+      {sub && <text x={x + w / 2} y={y + h / 2 + 14} textAnchor="middle" fill={sc || "#6e7aab"} fontSize="10">{sub}</text>}
     </g>
   );
   return (
     <div className="fig">
       <svg viewBox="0 0 940 600" width="940" role="img" aria-label="经典 Transformer Encoder-Decoder 结构图">
         <defs>
-          <marker id="ah-t" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="var(--t3)" /></marker>
+          <marker id="ah-t" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#6e7aab" /></marker>
         </defs>
-        <text x="250" y="26" textAnchor="middle" fill="var(--att)" fontSize="15" fontWeight="700">Encoder × N（左）</text>
-        <text x="710" y="26" textAnchor="middle" fill="var(--out)" fontSize="15" fontWeight="700">Decoder × N（右）</text>
+        <text x="250" y="26" textAnchor="middle" fill="#38bdf8" fontSize="15" fontWeight="700">Encoder × N（左）</text>
+        <text x="710" y="26" textAnchor="middle" fill="#f472b6" fontSize="15" fontWeight="700">Decoder × N（右）</text>
 
-        <Box x={60} y={60} w={120} h={40} fill="var(--panel-3)" stroke="var(--hairline)" label="Input Embedding" lc="var(--t2)" />
-        <circle cx="200" cy="80" r="15" fill="var(--bg)" stroke="var(--k)" />
-        <text x="200" y="85" textAnchor="middle" fill="var(--k)" fontSize="15">+</text>
-        <text x="200" y="50" textAnchor="middle" fill="var(--k)" fontSize="10">Positional</text>
-        <text x="200" y="62" textAnchor="middle" fill="var(--k)" fontSize="10">Encoding</text>
+        <Box x={60} y={60} w={120} h={40} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Input Embedding" lc="#a9b4dc" />
+        <circle cx="200" cy="80" r="15" fill="#070b18" stroke="#a78bfa" />
+        <text x="200" y="85" textAnchor="middle" fill="#a78bfa" fontSize="15">+</text>
+        <text x="200" y="50" textAnchor="middle" fill="#a78bfa" fontSize="10">Positional</text>
+        <text x="200" y="62" textAnchor="middle" fill="#a78bfa" fontSize="10">Encoding</text>
         <Arrow d="M180,80 H186" />
-        <rect x="80" y="125" width="290" height="345" rx="14" fill="none" stroke="var(--hairline)" strokeDasharray="5 5" />
-        <text x="225" y="120" textAnchor="middle" fill="var(--t3)" fontSize="11">Encoder Layer (堆叠 N 次)</text>
-        <Box x={120} y={150} w={210} h={54} fill="var(--att-soft)" stroke="var(--att)" label="Multi-Head Self-Attention" sub="本节讲的核心算子" lc="var(--att)" sc="var(--t3)" />
-        <Box x={150} y={222} w={150} h={36} fill="var(--panel-3)" stroke="var(--hairline)" label="Add &amp; Norm" lc="var(--t2)" />
-        <Box x={120} y={278} w={210} h={50} fill="var(--v-soft)" stroke="var(--v)" label="Feed-Forward Network" sub="两层 MLP（逐位置作用）" lc="var(--v)" sc="var(--t3)" />
-        <Box x={150} y={346} w={150} h={36} fill="var(--panel-3)" stroke="var(--hairline)" label="Add &amp; Norm" lc="var(--t2)" />
+        <rect x="80" y="125" width="290" height="345" rx="14" fill="none" stroke="rgba(255,255,255,0.08)" strokeDasharray="5 5" />
+        <text x="225" y="120" textAnchor="middle" fill="#6e7aab" fontSize="11">Encoder Layer (堆叠 N 次)</text>
+        <Box x={120} y={150} w={210} h={54} fill="rgba(56,189,248,0.14)" stroke="#38bdf8" label="Multi-Head Self-Attention" sub="本节讲的核心算子" lc="#38bdf8" sc="#6e7aab" />
+        <Box x={150} y={222} w={150} h={36} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
+        <Box x={120} y={278} w={210} h={50} fill="rgba(45,212,191,0.14)" stroke="#2dd4bf" label="Feed-Forward Network" sub="两层 MLP（逐位置作用）" lc="#2dd4bf" sc="#6e7aab" />
+        <Box x={150} y={346} w={150} h={36} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
         <Arrow d="M225,204 V218" /><Arrow d="M225,258 V274" /><Arrow d="M225,328 V342" />
-        <Arrow d="M120,170 H100 V410 H225" color="var(--q)" dash="4 3" />
-        <text x="92" y="395" fill="var(--q)" fontSize="9">残差</text>
-        <Box x={150} y={405} w={150} h={34} fill="var(--out-soft)" stroke="var(--out)" label="编码器输出（K, V）" lc="var(--out)" />
+        <Arrow d="M120,170 H100 V410 H225" color="#f5b042" dash="4 3" />
+        <text x="92" y="395" fill="#f5b042" fontSize="9">残差</text>
+        <Box x={150} y={405} w={150} h={34} fill="rgba(244,114,182,0.14)" stroke="#f472b6" label="编码器输出（K, V）" lc="#f472b6" />
         <Arrow d="M215,100 V150" />
 
-        <Box x={560} y={60} w={120} h={40} fill="var(--panel-3)" stroke="var(--hairline)" label="Output Embedding" lc="var(--t2)" />
-        <circle cx="700" cy="80" r="15" fill="var(--bg)" stroke="var(--k)" />
-        <text x="700" y="85" textAnchor="middle" fill="var(--k)" fontSize="15">+</text>
-        <text x="700" y="50" textAnchor="middle" fill="var(--k)" fontSize="10">Positional</text>
-        <text x="700" y="62" textAnchor="middle" fill="var(--k)" fontSize="10">Encoding</text>
+        <Box x={560} y={60} w={120} h={40} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Output Embedding" lc="#a9b4dc" />
+        <circle cx="700" cy="80" r="15" fill="#070b18" stroke="#a78bfa" />
+        <text x="700" y="85" textAnchor="middle" fill="#a78bfa" fontSize="15">+</text>
+        <text x="700" y="50" textAnchor="middle" fill="#a78bfa" fontSize="10">Positional</text>
+        <text x="700" y="62" textAnchor="middle" fill="#a78bfa" fontSize="10">Encoding</text>
         <Arrow d="M680,80 H686" />
-        <rect x="540" y="125" width="310" height="345" rx="14" fill="none" stroke="var(--hairline)" strokeDasharray="5 5" />
-        <text x="695" y="120" textAnchor="middle" fill="var(--t3)" fontSize="11">Decoder Layer (堆叠 N 次)</text>
-        <Box x={575} y={150} w={240} h={50} fill="var(--q-soft)" stroke="var(--q)" label="Masked Multi-Head Attention" sub="只能看过去（屏蔽未来位）" lc="var(--q)" sc="var(--t3)" />
-        <Box x={620} y={216} w={150} h={34} fill="var(--panel-3)" stroke="var(--hairline)" label="Add &amp; Norm" lc="var(--t2)" />
-        <Box x={575} y={268} w={240} h={50} fill="var(--att-soft)" stroke="var(--att)" label="Cross Attention（编码-解码交互）" sub="Q 来自解码器，K,V 来自编码器" lc="var(--att)" sc="var(--t3)" />
-        <Box x={620} y={334} w={150} h={34} fill="var(--panel-3)" stroke="var(--hairline)" label="Add &amp; Norm" lc="var(--t2)" />
-        <Box x={575} y={386} w={240} h={44} fill="var(--v-soft)" stroke="var(--v)" label="Feed-Forward Network" lc="var(--v)" />
-        <Box x={620} y={442} w={150} h={32} fill="var(--panel-3)" stroke="var(--hairline)" label="Add &amp; Norm" lc="var(--t2)" />
+        <rect x="540" y="125" width="310" height="345" rx="14" fill="none" stroke="rgba(255,255,255,0.08)" strokeDasharray="5 5" />
+        <text x="695" y="120" textAnchor="middle" fill="#6e7aab" fontSize="11">Decoder Layer (堆叠 N 次)</text>
+        <Box x={575} y={150} w={240} h={50} fill="rgba(245,176,66,0.14)" stroke="#f5b042" label="Masked Multi-Head Attention" sub="只能看过去（屏蔽未来位）" lc="#f5b042" sc="#6e7aab" />
+        <Box x={620} y={216} w={150} h={34} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
+        <Box x={575} y={268} w={240} h={50} fill="rgba(56,189,248,0.14)" stroke="#38bdf8" label="Cross Attention（编码-解码交互）" sub="Q 来自解码器，K,V 来自编码器" lc="#38bdf8" sc="#6e7aab" />
+        <Box x={620} y={334} w={150} h={34} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
+        <Box x={575} y={386} w={240} h={44} fill="rgba(45,212,191,0.14)" stroke="#2dd4bf" label="Feed-Forward Network" lc="#2dd4bf" />
+        <Box x={620} y={442} w={150} h={32} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
         <Arrow d="M695,200 V212" /><Arrow d="M695,250 V264" /><Arrow d="M695,318 V330" /><Arrow d="M695,368 V382" /><Arrow d="M695,430 V438" />
-        <Arrow d="M300,422 C440,422 460,293 573,293" color="var(--k)" dash="4 3" />
-        <text x="430" y="360" fill="var(--k)" fontSize="10">编码器 K, V 传过来</text>
+        <Arrow d="M300,422 C440,422 460,293 573,293" color="#a78bfa" dash="4 3" />
+        <text x="430" y="360" fill="#a78bfa" fontSize="10">编码器 K, V 传过来</text>
         <Arrow d="M695,474 V492" />
-        <Box x={600} y={495} w={190} h={34} fill="var(--k-soft)" stroke="var(--k)" label="Linear → Softmax → 词概率" lc="var(--k)" />
+        <Box x={600} y={495} w={190} h={34} fill="rgba(167,139,250,0.14)" stroke="#a78bfa" label="Linear → Softmax → 词概率" lc="#a78bfa" />
         <Arrow d="M685,100 V150" />
 
         <g transform="translate(80,555)">
-          <rect x="0" y="0" width="14" height="14" rx="3" fill="var(--att-soft)" stroke="var(--att)" /><text x="20" y="12" fill="var(--t3)" fontSize="11">Attention</text>
-          <rect x="110" y="0" width="14" height="14" rx="3" fill="var(--v-soft)" stroke="var(--v)" /><text x="130" y="12" fill="var(--t3)" fontSize="11">FFN</text>
-          <rect x="190" y="0" width="14" height="14" rx="3" fill="var(--panel-3)" stroke="var(--hairline)" /><text x="210" y="12" fill="var(--t3)" fontSize="11">Add&amp;Norm</text>
-          <rect x="310" y="0" width="14" height="14" rx="3" fill="var(--bg)" stroke="var(--k)" /><text x="330" y="12" fill="var(--t3)" fontSize="11">位置编码</text>
+          <rect x="0" y="0" width="14" height="14" rx="3" fill="rgba(56,189,248,0.14)" stroke="#38bdf8" /><text x="20" y="12" fill="#6e7aab" fontSize="11">Attention</text>
+          <rect x="110" y="0" width="14" height="14" rx="3" fill="rgba(45,212,191,0.14)" stroke="#2dd4bf" /><text x="130" y="12" fill="#6e7aab" fontSize="11">FFN</text>
+          <rect x="190" y="0" width="14" height="14" rx="3" fill="#0c1430" stroke="rgba(255,255,255,0.08)" /><text x="210" y="12" fill="#6e7aab" fontSize="11">Add&amp;Norm</text>
+          <rect x="310" y="0" width="14" height="14" rx="3" fill="#070b18" stroke="#a78bfa" /><text x="330" y="12" fill="#6e7aab" fontSize="11">位置编码</text>
         </g>
       </svg>
       <div className="fig-cap">图 · 论文 Figure 1 重绘 — Attention 在 Encoder/Decoder 中共出现三次，是同一算子</div>
@@ -365,37 +365,37 @@ function FigRnnVsAtt() {
   return (
     <div className="fig">
       <svg viewBox="0 0 900 250" width="900" role="img" aria-label="RNN 与 Self-Attention 对比">
-        <defs><marker id="ah-r" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L7,4 L0,8 z" fill="var(--t3)" /></marker></defs>
+        <defs><marker id="ah-r" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L7,4 L0,8 z" fill="#6e7aab" /></marker></defs>
         <text x="40" y="40" fill="#c8d4ff" fontSize="15" fontWeight="700">RNN：必须串行，算不出 b₄ 就用不了 b₃</text>
         {[80, 180, 280, 380].map((cx, i) => (
           <g key={`r-${cx}`}>
-            <circle cx={cx} cy={130} r="20" fill="var(--panel-3)" stroke="var(--q)" />
-            <text x={cx} y={135} textAnchor="middle" fill="var(--q)" fontSize="13">x{i + 1}</text>
-            <rect x={cx - 20} y={185} width="40" height="32" rx="6" fill="var(--panel-3)" stroke="var(--hairline)" />
-            <text x={cx} y={205} textAnchor="middle" fill="var(--t2)" fontSize="12">b{i + 1}</text>
-            <path d={`M${cx},150 V182`} stroke="var(--t3)" strokeWidth="1.3" fill="none" markerEnd="url(#ah-r)" />
+            <circle cx={cx} cy={130} r="20" fill="#0c1430" stroke="#f5b042" />
+            <text x={cx} y={135} textAnchor="middle" fill="#f5b042" fontSize="13">x{i + 1}</text>
+            <rect x={cx - 20} y={185} width="40" height="32" rx="6" fill="#0c1430" stroke="rgba(255,255,255,0.08)" />
+            <text x={cx} y={205} textAnchor="middle" fill="#a9b4dc" fontSize="12">b{i + 1}</text>
+            <path d={`M${cx},150 V182`} stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-r)" />
           </g>
         ))}
-        <path d="M100,205 H155" stroke="var(--t3)" strokeWidth="1.3" fill="none" markerEnd="url(#ah-r)" />
-        <path d="M200,205 H255" stroke="var(--t3)" strokeWidth="1.3" fill="none" markerEnd="url(#ah-r)" />
-        <path d="M300,205 H355" stroke="var(--t3)" strokeWidth="1.3" fill="none" markerEnd="url(#ah-r)" />
+        <path d="M100,205 H155" stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-r)" />
+        <path d="M200,205 H255" stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-r)" />
+        <path d="M300,205 H355" stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-r)" />
         <text x="80" y="245" fill="#ff7a7a" fontSize="11">❌ 无法并行：b₂ 要等 b₁</text>
 
         <text x="510" y="40" fill="#c8d4ff" fontSize="15" fontWeight="700">Self-Attention：所有位置同时互相看见，可并行</text>
         {[540, 640, 740, 840].map((cx, i) => (
           <g key={`a-${cx}`}>
-            <circle cx={cx} cy={80} r="20" fill="var(--panel-3)" stroke="var(--v)" />
-            <text x={cx} y={85} textAnchor="middle" fill="var(--v)" fontSize="13">x{i + 1}</text>
-            <rect x={cx - 20} y={160} width="40" height="32" rx="6" fill="var(--panel-3)" stroke="var(--hairline)" />
-            <text x={cx} y={180} textAnchor="middle" fill="var(--out)" fontSize="12">b{i + 1}</text>
+            <circle cx={cx} cy={80} r="20" fill="#0c1430" stroke="#2dd4bf" />
+            <text x={cx} y={85} textAnchor="middle" fill="#2dd4bf" fontSize="13">x{i + 1}</text>
+            <rect x={cx - 20} y={160} width="40" height="32" rx="6" fill="#0c1430" stroke="rgba(255,255,255,0.08)" />
+            <text x={cx} y={180} textAnchor="middle" fill="#f472b6" fontSize="12">b{i + 1}</text>
           </g>
         ))}
-        <g stroke="var(--att)" strokeWidth="1" opacity="0.5" fill="none">
+        <g stroke="#38bdf8" strokeWidth="1" opacity="0.5" fill="none">
           {[540, 640, 740, 840].map((cx) =>
             [540, 640, 740, 840].map((tx) => <path key={`l-${cx}-${tx}`} d={`M${cx},100 Q${(cx + tx) / 2},130 ${tx},160`} />),
           )}
         </g>
-        <text x="640" y="225" fill="var(--ok)" fontSize="11">✅ 每个输出都看完整序列，且各 b 互不依赖、一起算</text>
+        <text x="640" y="225" fill="#34d399" fontSize="11">✅ 每个输出都看完整序列，且各 b 互不依赖、一起算</text>
       </svg>
       <div className="fig-cap">图 · 对应 PDF 图 1·2·3 — 处理序列数据的两种范式</div>
     </div>
@@ -487,11 +487,11 @@ export default function Home() {
           ))}
         </ol>
         <div className="legend">
-          <span><i style={{ background: "var(--q)" }} />Query 查询</span>
-          <span><i style={{ background: "var(--k)" }} />Key 键</span>
-          <span><i style={{ background: "var(--v)" }} />Value 值</span>
-          <span><i style={{ background: "var(--att)" }} />Attention</span>
-          <span><i style={{ background: "var(--out)" }} />Output</span>
+          <span><i style={{ background: "#f5b042" }} />Query 查询</span>
+          <span><i style={{ background: "#a78bfa" }} />Key 键</span>
+          <span><i style={{ background: "#2dd4bf" }} />Value 值</span>
+          <span><i style={{ background: "#38bdf8" }} />Attention</span>
+          <span><i style={{ background: "#f472b6" }} />Output</span>
         </div>
       </nav>
 
@@ -528,7 +528,7 @@ export default function Home() {
               </div>
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>算子视角的一句话</h3>
-                <p className="t3">Attention 的核心就是<b style={{ color: "var(--t1)" }}>三个矩阵乘法 + 一个 softmax</b>。这篇分享的目标，是让你在脑子里把这句话可视化出来。</p>
+                <p className="t3">Attention 的核心就是<b style={{ color: "#eef3ff" }}>三个矩阵乘法 + 一个 softmax</b>。这篇分享的目标，是让你在脑子里把这句话可视化出来。</p>
               </div>
             </div>
           </section>
@@ -536,7 +536,7 @@ export default function Home() {
           {/* ===== 矩阵乘法 ===== */}
           <section className="section" id="s1">
             <SecHead idx="01" title="热身：矩阵乘法到底怎么乘" />
-            <p className="sec-lead">Attention 的全部运算都是矩阵乘法。先抛开深度学习，用具体数字搞明白规则——<b style={{ color: "var(--out)" }}>点一下右边结果矩阵的任意格子</b>，左边高亮参与计算的行与列。</p>
+            <p className="sec-lead">Attention 的全部运算都是矩阵乘法。先抛开深度学习，用具体数字搞明白规则——<b style={{ color: "#f472b6" }}>点一下右边结果矩阵的任意格子</b>，左边高亮参与计算的行与列。</p>
             <div className="mbox">
               <div className="mcol">
                 <div className="mname"><b>A</b> (2×3)</div>
@@ -593,7 +593,7 @@ export default function Home() {
           {/* ===== RNN ===== */}
           <section className="section" id="s2">
             <SecHead idx="02" title="从 RNN 的痛点说起" />
-            <p className="sec-lead">在 Attention 之前，处理「一串词」的主力是 RNN。它最大的毛病：<b style={{ color: "var(--t1)" }}>只能一个一个往后算，算不出第 4 个就得等前 3 个</b>——无法并行，GPU 干着急。</p>
+            <p className="sec-lead">在 Attention 之前，处理「一串词」的主力是 RNN。它最大的毛病：<b style={{ color: "#eef3ff" }}>只能一个一个往后算，算不出第 4 个就得等前 3 个</b>——无法并行，GPU 干着急。</p>
             <FigRnnVsAtt />
             <div className="note">Self-Attention 的输入输出和 RNN <b>一模一样</b>（序列进、序列出），区别只在：每个输出 <Formula tex="b_i" /> 都<b>并行地</b>看过了整条序列。</div>
           </section>
@@ -606,7 +606,7 @@ export default function Home() {
               <span><i className="lk" />Key 键：我有什么可被匹配</span>
               <span><i className="lv" />Value 值：匹配上后拿走的内容</span>
             </div>
-            <p className="sec-lead">这是整篇的核心一张图。以「算出第 1 个输出 <Formula tex="b_1" />」为例分 4 步。先记住三个词：每个输入词 <Formula tex="x" /> 会变成三份不同身份——<b style={{ color: "var(--q)" }}>Q（去问别人）</b>、<b style={{ color: "var(--k)" }}>K（被别人问）</b>、<b style={{ color: "var(--v)" }}>V（真正的内容）</b>。</p>
+            <p className="sec-lead">这是整篇的核心一张图。以「算出第 1 个输出 <Formula tex="b_1" />」为例分 4 步。先记住三个词：每个输入词 <Formula tex="x" /> 会变成三份不同身份——<b style={{ color: "#f5b042" }}>Q（去问别人）</b>、<b style={{ color: "#a78bfa" }}>K（被别人问）</b>、<b style={{ color: "#2dd4bf" }}>V（真正的内容）</b>。</p>
             <FigAttentionSteps />
             <div className="steps">
               <article><b>① 生成 Q/K/V</b><p>每个词 x 乘三个可学习矩阵，得到身份三件套：去问、被问、内容。</p></article>
@@ -620,7 +620,7 @@ export default function Home() {
           {/* ===== 矩阵级 ===== */}
           <section className="section" id="s4">
             <SecHead idx="04" title="Self-Attention · 矩阵级（三步搞定）" />
-            <p className="sec-lead">把所有词的 q/k/v 堆成矩阵 <Formula tex="Q, K, V" />，整件事就坍缩成<b style={{ color: "var(--t1)" }}>三次矩阵乘法</b>——这正是 GPU 最擅长、能大规模并行的形态。</p>
+            <p className="sec-lead">把所有词的 q/k/v 堆成矩阵 <Formula tex="Q, K, V" />，整件事就坍缩成<b style={{ color: "#eef3ff" }}>三次矩阵乘法</b>——这正是 GPU 最擅长、能大规模并行的形态。</p>
             <div className="note"><b>记号约定（先说清楚，避免和代码对不上）</b>：本文用 PyTorch 行向量约定 <Formula tex={String.raw`Q=XW^Q`} />，所以是 <Formula tex={String.raw`QK^{\mathsf T}`} />；李宏毅 PDF 用列向量 <Formula tex={String.raw`Q=W^Q I`} />，对应 <Formula tex={String.raw`K^{\mathsf T}Q`} />。两者数学等价，只差一个转置——这也是代码里写 <code>key.transpose(-2, -1)</code> 的原因。</div>
             <FigAttentionMatrix />
             <div className="eq-box">
@@ -632,7 +632,7 @@ export default function Home() {
           {/* ===== 缩放 ===== */}
           <section className="section" id="s5">
             <SecHead idx="05" title={<>那个 <Formula tex={String.raw`\sqrt{d_k}`} /> 是干嘛的？</>} />
-            <p className="sec-lead">公式里多了一个「除以 <Formula tex={String.raw`\sqrt{d_k}`} />」，叫<b style={{ color: "var(--t1)" }}>缩放（Scale）</b>。原因一句：维度 <Formula tex="d_k" /> 越大，点积数值越大，softmax 会被推向极端（一个 1、其余 0），梯度消失训不动。</p>
+            <p className="sec-lead">公式里多了一个「除以 <Formula tex={String.raw`\sqrt{d_k}`} />」，叫<b style={{ color: "#eef3ff" }}>缩放（Scale）</b>。原因一句：维度 <Formula tex="d_k" /> 越大，点积数值越大，softmax 会被推向极端（一个 1、其余 0），梯度消失训不动。</p>
             <div className="grid2">
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>不缩放会怎样</h3>
@@ -640,7 +640,7 @@ export default function Home() {
               </div>
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>除以 <Formula tex={String.raw`\sqrt{d_k}`} /> 的效果</h3>
-                <p className="t3">把点积方差<b style={{ color: "var(--t1)" }}>拉回 1 附近</b>，让 softmax 处在温和区间，梯度健康。这是算子实现里最易漏、但必须有的细节。</p>
+                <p className="t3">把点积方差<b style={{ color: "#eef3ff" }}>拉回 1 附近</b>，让 softmax 处在温和区间，梯度健康。这是算子实现里最易漏、但必须有的细节。</p>
               </div>
             </div>
             <div className="note">
@@ -657,7 +657,7 @@ export default function Home() {
             <div className="card">
               <div style={{ display: "flex", gap: 22, flexWrap: "wrap", justifyContent: "center", alignItems: "center" }}>
                 <div style={{ textAlign: "center" }}>
-                  <div className="mname">scaled logits <span style={{ color: "var(--att)" }}>α = q·k/sqrt(d)</span></div>
+                  <div className="mname">scaled logits <span style={{ color: "#38bdf8" }}>α = q·k/sqrt(d)</span></div>
                   <div style={{ display: "flex", gap: 8 }}>
                     {attn.scaled.map((v, i) => (
                       <div key={i} style={{ textAlign: "center" }}>
@@ -669,11 +669,11 @@ export default function Home() {
                 </div>
                 <span className="msign">→</span>
                 <div style={{ textAlign: "center" }}>
-                  <div className="mname">权重 <span style={{ color: "var(--att)" }}>softmax → 和=1</span></div>
+                  <div className="mname">权重 <span style={{ color: "#38bdf8" }}>softmax → 和=1</span></div>
                   <div style={{ display: "flex", gap: 8 }}>
                     {attn.weights.map((v, i) => (
                       <div key={i} style={{ textAlign: "center" }}>
-                        <div className="mcell" style={{ cursor: "default", background: `rgba(56,189,248,${0.12 + v * 0.6})`, borderColor: "var(--att)" }}>{(v * 100).toFixed(0)}%</div>
+                        <div className="mcell" style={{ cursor: "default", background: `rgba(56,189,248,${0.12 + v * 0.6})`, borderColor: "#38bdf8" }}>{(v * 100).toFixed(0)}%</div>
                         <div className="mname" style={{ marginTop: 4 }}>k{i + 1}</div>
                       </div>
                     ))}
@@ -681,10 +681,10 @@ export default function Home() {
                 </div>
                 <span className="msign">→</span>
                 <div style={{ textAlign: "center" }}>
-                  <div className="mname">输出 <span style={{ color: "var(--out)" }}>z = Σ α̂·v</span></div>
+                  <div className="mname">输出 <span style={{ color: "#f472b6" }}>z = Σ α̂·v</span></div>
                   <div style={{ display: "flex", gap: 8 }}>
                     {attn.output.map((v, i) => (
-                      <div key={i} className="mcell" style={{ cursor: "default", color: "var(--out)", borderColor: "var(--out)" }}>{v.toFixed(2)}</div>
+                      <div key={i} className="mcell" style={{ cursor: "default", color: "#f472b6", borderColor: "#f472b6" }}>{v.toFixed(2)}</div>
                     ))}
                   </div>
                 </div>
@@ -695,7 +695,7 @@ export default function Home() {
           {/* ===== 多头 ===== */}
           <section className="section" id="s6">
             <SecHead idx="06" title="多头注意力（Multi-Head）" />
-            <p className="sec-lead">只做一次 attention 只能学到「一种关注方式」。拆成<b style={{ color: "var(--t1)" }}>多个头</b>，各自独立算 attention，等于从多个角度（语法、长程、局部……）同时看序列，最后拼回来。</p>
+            <p className="sec-lead">只做一次 attention 只能学到「一种关注方式」。拆成<b style={{ color: "#eef3ff" }}>多个头</b>，各自独立算 attention，等于从多个角度（语法、长程、局部……）同时看序列，最后拼回来。</p>
             <div className="eq-box">
               <Formula block tex={String.raw`\operatorname{head}_i=\operatorname{Attention}(QW_i^Q,\,KW_i^K,\,VW_i^V)`} />
               <Formula block tex={String.raw`\operatorname{MHA}=\operatorname{Concat}(\operatorname{head}_1,\ldots,\operatorname{head}_h)\,W^O`} />
@@ -714,18 +714,18 @@ export default function Home() {
                   <tbody>
                     <tr>
                       <td></td>
-                      {words.map((w) => <td key={w} style={{ textAlign: "center", fontFamily: "var(--mono)", fontSize: 12, color: "var(--t3)", width: 64 }}>{w}</td>)}
+                      {words.map((w) => <td key={w} style={{ textAlign: "center", fontFamily: "var(--mono)", fontSize: 12, color: "#6e7aab", width: 64 }}>{w}</td>)}
                     </tr>
                     {heads[headIdx].matrix.map((row, i) => (
                       <tr key={i}>
-                        <td style={{ textAlign: "right", paddingRight: 10, fontFamily: "var(--mono)", fontSize: 12, color: "var(--t3)" }}>{words[i]}</td>
+                        <td style={{ textAlign: "right", paddingRight: 10, fontFamily: "var(--mono)", fontSize: 12, color: "#6e7aab" }}>{words[i]}</td>
                         {row.map((v, j) => (
                           <td key={j}>
                             <div style={{
                               width: 58, height: 50, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center",
                               fontFamily: "var(--mono)", fontSize: 13, fontWeight: 700,
                               background: `rgba(56,189,248,${0.08 + v * 0.7})`, border: "1px solid rgba(56,189,248,0.3)",
-                              color: v > 0.4 ? "#fff" : "var(--t2)",
+                              color: v > 0.4 ? "#fff" : "#a9b4dc",
                             }}>{v.toFixed(2)}</div>
                           </td>
                         ))}
@@ -741,7 +741,7 @@ export default function Home() {
           {/* ===== 经典 Transformer ===== */}
           <section className="section" id="s7">
             <SecHead idx="07" title="经典 Transformer 全景图（论文 Figure 1）" />
-            <p className="sec-lead">把 Attention 装进完整模型长什么样？这就是被引用几万次的结构图——<b style={{ color: "var(--att)" }}>左 Encoder</b>、<b style={{ color: "var(--out)" }}>右 Decoder</b>，各堆叠 N 层。</p>
+            <p className="sec-lead">把 Attention 装进完整模型长什么样？这就是被引用几万次的结构图——<b style={{ color: "#38bdf8" }}>左 Encoder</b>、<b style={{ color: "#f472b6" }}>右 Decoder</b>，各堆叠 N 层。</p>
             <FigTransformer />
             <div className="grid2">
               <div className="note"><b>Encoder</b>：对源序列做 Self-Attention + FFN，逐层提炼表示，最后把 K、V 交给 Decoder。</div>
@@ -750,7 +750,7 @@ export default function Home() {
             <div className="note warn">这张图里 <b>Attention 出现了三次</b>（Encoder 自注意、Decoder 掩码自注意、Decoder 交叉注意）。我们前面学的那个公式，是这三处共用的同一个算子——这就是它"为什么重要"的最终答案。</div>
 
             <h3>为什么是 Add &amp; Norm，且用 LayerNorm</h3>
-            <p className="sec-lead">每个子层都套着 <b style={{ color: "var(--t1)" }}>残差连接 + 归一化</b>：<Formula tex={String.raw`y=\operatorname{LayerNorm}(x+\operatorname{Sublayer}(x))`} />。残差让深层可训，归一化稳定数值。而归一化为什么选 LayerNorm 而非更常见的 BatchNorm？</p>
+            <p className="sec-lead">每个子层都套着 <b style={{ color: "#eef3ff" }}>残差连接 + 归一化</b>：<Formula tex={String.raw`y=\operatorname{LayerNorm}(x+\operatorname{Sublayer}(x))`} />。残差让深层可训，归一化稳定数值。而归一化为什么选 LayerNorm 而非更常见的 BatchNorm？</p>
             <div className="grid2">
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>BatchNorm（跨样本）</h3>
@@ -758,23 +758,23 @@ export default function Home() {
               </div>
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>LayerNorm（单样本）</h3>
-                <p className="t3">对<b>单个 token 的全部特征维</b>统计，不依赖 batch 中其他样本。<b style={{ color: "var(--t1)" }}>序列长度、batch 大小都能变</b>，所以 Transformer 选它。</p>
+                <p className="t3">对<b>单个 token 的全部特征维</b>统计，不依赖 batch 中其他样本。<b style={{ color: "#eef3ff" }}>序列长度、batch 大小都能变</b>，所以 Transformer 选它。</p>
               </div>
             </div>
 
             <h3>Decoder 的 Mask：为什么训练能并行</h3>
-            <p className="sec-lead">Decoder 生成时要"看到过去、看不到未来"。实现上用一个<b style={{ color: "var(--q)" }}>下三角因果掩码（Causal Mask）</b>：第 i 个位置只允许看第 0..i 个 Key。</p>
+            <p className="sec-lead">Decoder 生成时要"看到过去、看不到未来"。实现上用一个<b style={{ color: "#f5b042" }}>下三角因果掩码（Causal Mask）</b>：第 i 个位置只允许看第 0..i 个 Key。</p>
 
             <div className="mask-grid">
               <table>
                 <tbody>
                   <tr>
                     <th></th>
-                    <th>k₀<br /><small style={{ color: "var(--t-dim)" }}>&lt;BOS&gt;</small></th>
-                    <th>k₁<br /><small style={{ color: "var(--t-dim)" }}>I</small></th>
-                    <th>k₂<br /><small style={{ color: "var(--t-dim)" }}>have</small></th>
-                    <th>k₃<br /><small style={{ color: "var(--t-dim)" }}>a</small></th>
-                    <th>k₄<br /><small style={{ color: "var(--t-dim)" }}>cat</small></th>
+                    <th>k₀<br /><small style={{ color: "#4d577f" }}>&lt;BOS&gt;</small></th>
+                    <th>k₁<br /><small style={{ color: "#4d577f" }}>I</small></th>
+                    <th>k₂<br /><small style={{ color: "#4d577f" }}>have</small></th>
+                    <th>k₃<br /><small style={{ color: "#4d577f" }}>a</small></th>
+                    <th>k₄<br /><small style={{ color: "#4d577f" }}>cat</small></th>
                   </tr>
                   <tr>
                     <th>q₀ &lt;BOS&gt;</th>
@@ -819,7 +819,7 @@ export default function Home() {
                 </tbody>
               </table>
             </div>
-            <div className="fig-cap">因果掩码矩阵：绿色 <b style={{ color: "var(--ok)" }}>0</b> = 允许看，红色 <b style={{ color: "var(--q)" }}>−∞</b> = 屏蔽。第 i 行只允许列 0..i</div>
+            <div className="fig-cap">因果掩码矩阵：绿色 <b style={{ color: "#34d399" }}>0</b> = 允许看，红色 <b style={{ color: "#f5b042" }}>−∞</b> = 屏蔽。第 i 行只允许列 0..i</div>
 
             <h3 style={{ marginTop: 30 }}>Mask 加在哪一步</h3>
             <div className="flow-chain">
@@ -838,18 +838,18 @@ export default function Home() {
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>推理（逐 token，串行）</h3>
                 <p className="t3" style={{ fontFamily: "var(--mono)", fontSize: 13 }}>
-                  输入 <b style={{ color: "var(--q)" }}>&lt;BOS&gt;</b> → 预测 I<br />
-                  输入 <b style={{ color: "var(--q)" }}>&lt;BOS&gt; I</b> → 预测 have<br />
-                  输入 <b style={{ color: "var(--q)" }}>&lt;BOS&gt; I have</b> → 预测 a<br />
-                  ……直到 <b style={{ color: "var(--q)" }}>&lt;end&gt;</b>
+                  输入 <b style={{ color: "#f5b042" }}>&lt;BOS&gt;</b> → 预测 I<br />
+                  输入 <b style={{ color: "#f5b042" }}>&lt;BOS&gt; I</b> → 预测 have<br />
+                  输入 <b style={{ color: "#f5b042" }}>&lt;BOS&gt; I have</b> → 预测 a<br />
+                  ……直到 <b style={{ color: "#f5b042" }}>&lt;end&gt;</b>
                 </p>
                 <p className="t3">每步只能用已生成的内容，天生串行。</p>
               </div>
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>训练（整句并行）</h3>
                 <p className="t3" style={{ fontFamily: "var(--mono)", fontSize: 13 }}>
-                  输入 <b style={{ color: "var(--v)" }}>&lt;BOS&gt; I have a cat</b>（右移一位）<br />
-                  目标 <b style={{ color: "var(--out)" }}>I have a cat &lt;end&gt;</b><br />
+                  输入 <b style={{ color: "#2dd4bf" }}>&lt;BOS&gt; I have a cat</b>（右移一位）<br />
+                  目标 <b style={{ color: "#f472b6" }}>I have a cat &lt;end&gt;</b><br />
                   一次前向 + 因果 Mask
                 </p>
                 <p className="t3">右移序列 + Causal Mask 让训练像 Encoder 一样并行，但每个位置"假装只看到过去"。</p>
@@ -860,7 +860,7 @@ export default function Home() {
           {/* ===== 位置编码 ===== */}
           <section className="section" id="s8">
             <h3>位置编码</h3>
-            <p className="sec-lead">Self-Attention 对「顺序」无感——「我打他」和「他打我」算出来一样。所以在输入 embedding 上<b style={{ color: "var(--t1)" }}>直接加一个位置向量</b>，把顺序信息喂回去。</p>
+            <p className="sec-lead">Self-Attention 对「顺序」无感——「我打他」和「他打我」算出来一样。所以在输入 embedding 上<b style={{ color: "#eef3ff" }}>直接加一个位置向量</b>，把顺序信息喂回去。</p>
             <div className="eq-box">
               <Formula block tex={String.raw`PE_{(pos,\,2i)} = \sin\!\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right),\quad PE_{(pos,\,2i+1)} = \cos\!\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right)`} />
             </div>
