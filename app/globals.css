@@ -529,6 +529,31 @@ p {
   font-size: 11.5px;
   color: var(--t3);
 }
+/* 图下方的 shape 流转标注 */
+.fig-shapes {
+  margin: 10px auto 2px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 11.5px;
+}
+.fig-shapes span {
+  padding: 4px 10px;
+  border-radius: 7px;
+  border: 1px solid var(--hairline);
+  background: var(--panel-3);
+  color: var(--t2);
+}
+.fig-shapes span b {
+  color: var(--accent);
+  font-weight: 600;
+}
+.fig-shapes em {
+  color: var(--t-dim);
+  font-style: normal;
+}
 
 /* ===== 代码块 ===== */
 pre {
@@ -683,6 +708,74 @@ pre code {
   border-color: var(--att);
   color: #fff;
   background: var(--att-soft);
+}
+
+/* ===== Mask 矩阵表 ===== */
+.mask-grid {
+  display: flex;
+  justify-content: center;
+  overflow-x: auto;
+  margin: 20px 0 6px;
+}
+.mask-grid table {
+  border-collapse: separate;
+  border-spacing: 4px;
+}
+.mask-grid th, .mask-grid td {
+  font-family: var(--mono);
+  font-size: 12px;
+  text-align: center;
+}
+.mask-grid th {
+  color: var(--t3);
+  font-weight: 600;
+  padding: 0 8px;
+}
+.mask-cell {
+  width: 54px;
+  height: 38px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--hairline);
+}
+.mask-cell.allow {
+  background: rgba(52, 211, 153, 0.14);
+  border-color: rgba(52, 211, 153, 0.45);
+  color: var(--ok);
+}
+.mask-cell.block {
+  background: rgba(255, 101, 68, 0.12);
+  border-color: rgba(255, 101, 68, 0.4);
+  color: var(--q);
+}
+/* 流程链条（Q·Kᵀ → ÷√dk → +Mask → softmax → ·V） */
+.flow-chain {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  margin: 18px 0;
+  font-family: var(--mono);
+  font-size: 13px;
+}
+.flow-chain b {
+  padding: 7px 13px;
+  border-radius: 8px;
+  border: 1px solid var(--hairline);
+  background: var(--panel-3);
+  color: var(--t2);
+}
+.flow-chain b.hi {
+  border-color: var(--q);
+  background: var(--q-soft);
+  color: var(--q);
+}
+.flow-chain em {
+  color: var(--t-dim);
+  font-style: normal;
 }
 
 /* ===== 步骤网格 ===== */

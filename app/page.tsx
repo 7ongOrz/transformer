@@ -201,6 +201,13 @@ function FigAttentionSteps() {
         <path d="M730,255 C760,255 770,210 778,205" stroke="var(--t3)" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
         <text x="815" y="235" fill="var(--out)" fontSize="10.5" textAnchor="middle">= Σ α̂·v</text>
       </svg>
+      <div className="fig-shapes">
+        <span><b>x</b> <em>[d]</em></span>
+        <span><b>q,k</b> <em>[d_k]</em></span>
+        <span><b>v</b> <em>[d_v]</em></span>
+        <span><b>α̂</b> <em>[N]</em></span>
+        <span><b>b</b> <em>[d_v]</em></span>
+      </div>
       <div className="fig-cap">图 · 对应 PDF 图 4–9 — 用 q₁ 算出 b₁ 的完整 4 步（b₂ b₃ b₄ 同理并行）</div>
     </div>
   );
@@ -265,6 +272,13 @@ function FigAttentionMatrix() {
           <text x="12" y="114" fill="var(--t3)" fontSize="9.5">三次矩阵乘法</text>
         </g>
       </svg>
+      <div className="fig-shapes">
+        <span><b>X</b> <em>[N,d]</em></span><em>→</em>
+        <span><b>Q,K,V</b> <em>[N,d_k/d_v]</em></span><em>→</em>
+        <span><b>A=QKᵀ</b> <em>[N,N]</em></span><em>→</em>
+        <span><b>Â</b> <em>[N,N]</em></span><em>→</em>
+        <span><b>O=ÂV</b> <em>[N,d_v]</em></span>
+      </div>
       <div className="fig-cap">图 · 对应 PDF 图 10–12 — 压成"一堆矩阵乘法"，可用 GPU 加速</div>
     </div>
   );
@@ -607,6 +621,7 @@ export default function Home() {
           <section className="section" id="s4">
             <SecHead idx="04" title="Self-Attention · 矩阵级（三步搞定）" />
             <p className="sec-lead">把所有词的 q/k/v 堆成矩阵 <Formula tex="Q, K, V" />，整件事就坍缩成<b style={{ color: "var(--t1)" }}>三次矩阵乘法</b>——这正是 GPU 最擅长、能大规模并行的形态。</p>
+            <div className="note"><b>记号约定（先说清楚，避免和代码对不上）</b>：本文用 PyTorch 行向量约定 <Formula tex={String.raw`Q=XW^Q`} />，所以是 <Formula tex={String.raw`QK^{\mathsf T}`} />；李宏毅 PDF 用列向量 <Formula tex={String.raw`Q=W^Q I`} />，对应 <Formula tex={String.raw`K^{\mathsf T}Q`} />。两者数学等价，只差一个转置——这也是代码里写 <code>key.transpose(-2, -1)</code> 的原因。</div>
             <FigAttentionMatrix />
             <div className="eq-box">
               <Formula block tex={String.raw`\text{Attention}(Q,K,V) = \mathrm{softmax}\!\left(\frac{QK^{\mathsf T}}{\sqrt{d_k}}\right)V`} />
@@ -733,6 +748,113 @@ export default function Home() {
               <div className="note"><b>Decoder</b>：先用 <b>Masked</b> Self-Attention（屏蔽未来位防作弊），再通过 <b>Cross-Attention</b> 读取编码器的 K/V，最后预测下一个词。</div>
             </div>
             <div className="note warn">这张图里 <b>Attention 出现了三次</b>（Encoder 自注意、Decoder 掩码自注意、Decoder 交叉注意）。我们前面学的那个公式，是这三处共用的同一个算子——这就是它"为什么重要"的最终答案。</div>
+
+            <h3>为什么是 Add &amp; Norm，且用 LayerNorm</h3>
+            <p className="sec-lead">每个子层都套着 <b style={{ color: "var(--t1)" }}>残差连接 + 归一化</b>：<Formula tex={String.raw`y=\operatorname{LayerNorm}(x+\operatorname{Sublayer}(x))`} />。残差让深层可训，归一化稳定数值。而归一化为什么选 LayerNorm 而非更常见的 BatchNorm？</p>
+            <div className="grid2">
+              <div className="card">
+                <h3 style={{ marginTop: 0 }}>BatchNorm（跨样本）</h3>
+                <p className="t3">对<b>同一特征、跨 batch 内所有样本</b>统计均值方差。依赖 batch 大小——batch 小或序列长度变化时，统计量不稳。</p>
+              </div>
+              <div className="card">
+                <h3 style={{ marginTop: 0 }}>LayerNorm（单样本）</h3>
+                <p className="t3">对<b>单个 token 的全部特征维</b>统计，不依赖 batch 中其他样本。<b style={{ color: "var(--t1)" }}>序列长度、batch 大小都能变</b>，所以 Transformer 选它。</p>
+              </div>
+            </div>
+
+            <h3>Decoder 的 Mask：为什么训练能并行</h3>
+            <p className="sec-lead">Decoder 生成时要"看到过去、看不到未来"。实现上用一个<b style={{ color: "var(--q)" }}>下三角因果掩码（Causal Mask）</b>：第 i 个位置只允许看第 0..i 个 Key。</p>
+
+            <div className="mask-grid">
+              <table>
+                <tbody>
+                  <tr>
+                    <th></th>
+                    <th>k₀<br /><small style={{ color: "var(--t-dim)" }}>&lt;BOS&gt;</small></th>
+                    <th>k₁<br /><small style={{ color: "var(--t-dim)" }}>I</small></th>
+                    <th>k₂<br /><small style={{ color: "var(--t-dim)" }}>have</small></th>
+                    <th>k₃<br /><small style={{ color: "var(--t-dim)" }}>a</small></th>
+                    <th>k₄<br /><small style={{ color: "var(--t-dim)" }}>cat</small></th>
+                  </tr>
+                  <tr>
+                    <th>q₀ &lt;BOS&gt;</th>
+                    <td><div className="mask-cell allow">0</div></td>
+                    <td><div className="mask-cell block">−∞</div></td>
+                    <td><div className="mask-cell block">−∞</div></td>
+                    <td><div className="mask-cell block">−∞</div></td>
+                    <td><div className="mask-cell block">−∞</div></td>
+                  </tr>
+                  <tr>
+                    <th>q₁ I</th>
+                    <td><div className="mask-cell allow">0</div></td>
+                    <td><div className="mask-cell allow">0</div></td>
+                    <td><div className="mask-cell block">−∞</div></td>
+                    <td><div className="mask-cell block">−∞</div></td>
+                    <td><div className="mask-cell block">−∞</div></td>
+                  </tr>
+                  <tr>
+                    <th>q₂ have</th>
+                    <td><div className="mask-cell allow">0</div></td>
+                    <td><div className="mask-cell allow">0</div></td>
+                    <td><div className="mask-cell allow">0</div></td>
+                    <td><div className="mask-cell block">−∞</div></td>
+                    <td><div className="mask-cell block">−∞</div></td>
+                  </tr>
+                  <tr>
+                    <th>q₃ a</th>
+                    <td><div className="mask-cell allow">0</div></td>
+                    <td><div className="mask-cell allow">0</div></td>
+                    <td><div className="mask-cell allow">0</div></td>
+                    <td><div className="mask-cell allow">0</div></td>
+                    <td><div className="mask-cell block">−∞</div></td>
+                  </tr>
+                  <tr>
+                    <th>q₄ cat</th>
+                    <td><div className="mask-cell allow">0</div></td>
+                    <td><div className="mask-cell allow">0</div></td>
+                    <td><div className="mask-cell allow">0</div></td>
+                    <td><div className="mask-cell allow">0</div></td>
+                    <td><div className="mask-cell allow">0</div></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div className="fig-cap">因果掩码矩阵：绿色 <b style={{ color: "var(--ok)" }}>0</b> = 允许看，红色 <b style={{ color: "var(--q)" }}>−∞</b> = 屏蔽。第 i 行只允许列 0..i</div>
+
+            <h3 style={{ marginTop: 30 }}>Mask 加在哪一步</h3>
+            <div className="flow-chain">
+              <b>Q·Kᵀ</b><em>→</em>
+              <b>÷ <Formula tex={String.raw`\sqrt{d_k}`} /></b><em>→</em>
+              <b className="hi">+ Mask（−∞）</b><em>→</em>
+              <b>softmax</b><em>→</em>
+              <b>· V</b>
+            </div>
+            <div className="eq-box">
+              <Formula block tex={String.raw`A=\operatorname{softmax}\!\left(\frac{QK^{\mathsf T}}{\sqrt{d_k}}+M\right)V,\quad M_{ij}=\begin{cases}0 & i\ge j\\ -\infty & i<j\end{cases}`} />
+            </div>
+            <div className="note warn"><b>实现陷阱</b>：Mask 必须在 softmax <b>之前</b>加 <code>−∞</code>（工程上用 <code>−1e9</code> 近似），不能在 softmax 之后乘 0——否则被屏蔽位 softmax 后仍会得到非零概率，导致"偷看未来"。</div>
+
+            <div className="grid2">
+              <div className="card">
+                <h3 style={{ marginTop: 0 }}>推理（逐 token，串行）</h3>
+                <p className="t3" style={{ fontFamily: "var(--mono)", fontSize: 13 }}>
+                  输入 <b style={{ color: "var(--q)" }}>&lt;BOS&gt;</b> → 预测 I<br />
+                  输入 <b style={{ color: "var(--q)" }}>&lt;BOS&gt; I</b> → 预测 have<br />
+                  输入 <b style={{ color: "var(--q)" }}>&lt;BOS&gt; I have</b> → 预测 a<br />
+                  ……直到 <b style={{ color: "var(--q)" }}>&lt;end&gt;</b>
+                </p>
+                <p className="t3">每步只能用已生成的内容，天生串行。</p>
+              </div>
+              <div className="card">
+                <h3 style={{ marginTop: 0 }}>训练（整句并行）</h3>
+                <p className="t3" style={{ fontFamily: "var(--mono)", fontSize: 13 }}>
+                  输入 <b style={{ color: "var(--v)" }}>&lt;BOS&gt; I have a cat</b>（右移一位）<br />
+                  目标 <b style={{ color: "var(--out)" }}>I have a cat &lt;end&gt;</b><br />
+                  一次前向 + 因果 Mask
+                </p>
+                <p className="t3">右移序列 + Causal Mask 让训练像 Encoder 一样并行，但每个位置"假装只看到过去"。</p>
+              </div>
+            </div>
           </section>
 
           {/* ===== 位置编码 ===== */}
