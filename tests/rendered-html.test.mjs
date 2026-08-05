@@ -67,3 +67,24 @@ test("keeps project metadata and generated assets clean", async () => {
   await assert.rejects(access(new URL("../.DS_Store", import.meta.url)));
   await assert.rejects(access(new URL("../app/_sites-preview", import.meta.url)));
 });
+
+test("keeps the PDF conversion complete and machine-readable", async () => {
+  const readableHtml = await readFile(
+    new URL("../reference/vision-transformer-pdf-readable.html", import.meta.url),
+    "utf8",
+  );
+
+  for (let figure = 1; figure <= 40; figure += 1) {
+    assert.match(readableHtml, new RegExp(`id="figure-${figure}"`));
+  }
+  for (let page = 1; page <= 5; page += 1) {
+    assert.match(readableHtml, new RegExp(`===== PDF PAGE ${page} =====`));
+  }
+
+  assert.match(readableHtml, /PDF column convention: Q=W\^Q I/);
+  assert.match(readableHtml, /Modern row-major: S=QK\^T/);
+  assert.match(readableHtml, /masked_logits = Q @ K\.T \/ sqrt\(d_k\) \+ M/);
+  assert.match(readableHtml, /Object Queries: \[100,B,256\]/);
+  assert.match(readableHtml, /Hungarian Matching 计算过程/);
+  assert.doesNotMatch(readableHtml, /<(?:img|canvas|svg)\b/i);
+});

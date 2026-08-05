@@ -1,0 +1,2089 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Vision Transformer PDF - 机器可读完整转换</title>
+  <meta name="description" content="将知乎 Vision Transformer 长文 PDF 的正文、公式和图 1-40 转换成无需识图即可读取的单文件 HTML。">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","name":"Vision Transformer PDF 机器可读转换","isBasedOn":"Vision Transformer 超详细解读 (原理分析+代码解读) (一) - 知乎.pdf","inLanguage":"zh-CN"}</script>
+  <style>
+    :root{--bg:#f4f1e9;--paper:#fffefa;--ink:#13272b;--muted:#65777b;--line:#d7d9d3;--q:#ef6a4b;--k:#28a9b3;--v:#7d6be8;--accent:#1d3f45;--soft:#eef4f2;--ok:#d8efe4;--bad:#ffe2dc;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;--sans:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+    *{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 var(--sans)}
+    a{color:inherit} code,pre{font-family:var(--mono)}
+    .top{padding:56px clamp(22px,6vw,88px);background:var(--accent);color:white}
+    .top .eyebrow{color:#82d9df;font:800 11px var(--mono);letter-spacing:.12em}
+    .top h1{max-width:920px;margin:14px 0 12px;font-size:clamp(38px,6vw,72px);line-height:1.04;letter-spacing:-.05em}
+    .top p{max-width:880px;margin:0;color:#c8d5d5;font-size:16px}
+    .machine-note{display:grid;max-width:1100px;margin:24px auto 0;padding:18px;border:1px solid #ffffff2a;border-radius:10px;background:#ffffff0c;grid-template-columns:repeat(3,1fr);gap:12px}
+    .machine-note div{padding:10px;background:#00000015} .machine-note b{display:block;color:#cce96f;font-size:12px} .machine-note span{color:#bfcccc;font-size:11px}
+    .toolbar{position:sticky;z-index:10;top:0;display:flex;padding:12px clamp(18px,5vw,70px);align-items:center;border-bottom:1px solid var(--line);background:#fffefaeb;backdrop-filter:blur(12px);gap:12px}
+    .toolbar input{width:min(480px,70vw);padding:10px 13px;border:1px solid var(--line);border-radius:6px;background:white;color:var(--ink);font:13px var(--sans)}
+    .toolbar span{margin-left:auto;color:var(--muted);font:11px var(--mono)}
+    main{max-width:1240px;margin:auto;padding:28px clamp(18px,4vw,50px) 80px}
+    .toc{margin-bottom:28px;padding:22px;border:1px solid var(--line);border-radius:12px;background:var(--paper)}
+    .toc h2{margin:0 0 12px} .toc .chapters{display:flex;flex-wrap:wrap;gap:8px} .toc .chapters a,.figure-index a{padding:6px 9px;border:1px solid var(--line);border-radius:4px;text-decoration:none;background:white;font-size:11px}
+    .figure-index{display:flex;margin-top:14px;flex-wrap:wrap;gap:5px}
+    .chapter{margin-top:26px;padding:26px;border:1px solid var(--line);border-radius:14px;background:var(--paper);box-shadow:0 16px 45px #1a353812}
+    .chapter-head{display:grid;margin-bottom:22px;padding-bottom:18px;align-items:start;border-bottom:2px solid var(--ink);grid-template-columns:170px 1fr;gap:18px}
+    .chapter-head>span{color:var(--q);font:800 10px var(--mono);letter-spacing:.1em} .chapter-head h2{margin:0;font-size:28px;line-height:1.2;letter-spacing:-.03em} .chapter-head p{margin:6px 0 0;color:var(--muted);font-size:12px}
+    .figure-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .figure-card{margin:0;padding:18px;border:1px solid var(--line);border-radius:9px;background:white}
+    .figure-card figcaption{display:grid;align-items:start;grid-template-columns:58px 1fr;gap:10px} .figure-number{display:grid;width:52px;height:36px;place-items:center;border-radius:6px;background:var(--ink);color:white;font:800 10px var(--mono)}
+    .figure-card h3{margin:0;font-size:16px;line-height:1.3} .figure-card figcaption small{color:var(--muted);font:9px var(--mono)}
+    .figure-summary{margin:13px 0;color:var(--muted);font-size:12px} .figure-steps{margin:0;padding-left:21px;font-size:12px} .figure-steps li+li{margin-top:4px}
+    .formula{margin:13px 0 0;padding:12px;overflow:auto;border-left:4px solid var(--q);border-radius:4px;background:#13272b;color:#bcebf0;font-size:11px;white-space:pre-wrap}
+    .shape-list{display:flex;margin:10px 0 0;padding:0;flex-wrap:wrap;gap:5px;list-style:none} .shape-list li{padding:4px 7px;border-radius:3px;background:var(--soft);font-size:10px}
+    .figure-note{margin:11px 0 0;padding:9px 11px;border-radius:4px;background:#fff2df;color:#76572b;font-size:10px}
+    .table-scroll{overflow:auto} table{width:100%;border-collapse:collapse;background:white} th,td{padding:10px;border:1px solid var(--line);text-align:left;vertical-align:top;font-size:11px} thead th{background:var(--ink);color:white} td code{color:#9e452f}
+    .mask-table th,.mask-table td{text-align:center} .mask-table .allow{background:var(--ok);color:#1a6842;font-weight:800} .mask-table .block{background:var(--bad);color:#9d3128;font-weight:800}
+    details.raw{margin-top:26px;border:1px solid var(--line);border-radius:12px;background:var(--paper)} details.raw summary{padding:18px 22px;cursor:pointer;font-weight:800} .raw pre{max-height:720px;margin:0;padding:22px;overflow:auto;border-top:1px solid var(--line);background:#14272b;color:#d5e4e3;font-size:10px;white-space:pre-wrap}
+    .source-note{margin-top:18px;padding:15px;border-left:4px solid var(--k);background:white;color:var(--muted);font-size:11px}
+    [hidden]{display:none!important}
+    @media(max-width:820px){.machine-note,.figure-grid{grid-template-columns:1fr}.chapter-head{grid-template-columns:1fr}.toolbar span{display:none}.chapter{padding:17px}}
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="eyebrow">MACHINE-READABLE PDF CONVERSION · FIGURES 1-40</div>
+    <h1>Vision Transformer PDF<br>完整机器可读转换</h1>
+    <p>源文件：Vision Transformer 超详细解读 (原理分析+代码解读) (一) - 知乎.pdf。本页不依赖图片识别：所有关键箭头、矩阵方向、公式、Mask、Shape 和图中结论均已写入普通 HTML 文本。</p>
+    <div class="machine-note">
+      <div><b>完整正文兜底</b><span>附录包含五页 PDF 的完整文本提取结果。</span></div>
+      <div><b>图 1-40 全部转写</b><span>每张图都有标题、节点、箭头顺序、公式和维度。</span></div>
+      <div><b>无像素依赖</b><span>核心信息不只存在于 CSS、Canvas、SVG 或图片中。</span></div>
+    </div>
+  </header>
+  <div class="toolbar"><input id="search" type="search" placeholder="搜索图号、Q/K/V、Mask、Shape、DETR..." aria-label="搜索转换内容"><span id="result-count">40 figures</span></div>
+  <main>
+    <nav class="toc" aria-label="目录">
+      <h2>目录</h2>
+      <div class="chapters">
+        <a href="#chapter-self-attention">Self-Attention</a><a href="#chapter-position">位置编码</a><a href="#chapter-transformer">Transformer</a><a href="#chapter-detr">DETR</a><a href="#equations">公式索引</a><a href="#shape-ledger">Shape 总表</a><a href="#raw-text">原始文本</a>
+      </div>
+      <div class="figure-index"><a href="#figure-1">图 1</a><a href="#figure-2">图 2</a><a href="#figure-3">图 3</a><a href="#figure-4">图 4</a><a href="#figure-5">图 5</a><a href="#figure-6">图 6</a><a href="#figure-7">图 7</a><a href="#figure-8">图 8</a><a href="#figure-9">图 9</a><a href="#figure-10">图 10</a><a href="#figure-11">图 11</a><a href="#figure-12">图 12</a><a href="#figure-13">图 13</a><a href="#figure-14">图 14</a><a href="#figure-15">图 15</a><a href="#figure-16">图 16</a><a href="#figure-17">图 17</a><a href="#figure-18">图 18</a><a href="#figure-19">图 19</a><a href="#figure-20">图 20</a><a href="#figure-21">图 21</a><a href="#figure-22">图 22</a><a href="#figure-23">图 23</a><a href="#figure-24">图 24</a><a href="#figure-25">图 25</a><a href="#figure-26">图 26</a><a href="#figure-27">图 27</a><a href="#figure-28">图 28</a><a href="#figure-29">图 29</a><a href="#figure-30">图 30</a><a href="#figure-31">图 31</a><a href="#figure-32">图 32</a><a href="#figure-33">图 33</a><a href="#figure-34">图 34</a><a href="#figure-35">图 35</a><a href="#figure-36">图 36</a><a href="#figure-37">图 37</a><a href="#figure-38">图 38</a><a href="#figure-39">图 39</a><a href="#figure-40">图 40</a></div>
+    </nav>
+
+    <section class="chapter" id="reading-guide">
+      <header class="chapter-head"><span>READING GUIDE</span><div><h2>给 GLM 的读取说明</h2><p>建议先读取图 4-14，再读取图 21、24-28，最后读取图 30-35。</p></div></header>
+      <ol>
+        <li>图卡中的有序列表就是原图箭头的执行顺序。</li>
+        <li><code>data-latex</code> 和公式代码块保存公式原文，不依赖 KaTeX。</li>
+        <li>PDF 使用 token 作为列的记法；本页在图 10-11 同时给出常见行向量记法，避免 QK 转置方向混淆。</li>
+        <li>图 24-26 的 Mask 已按实际算子实现解释为加负无穷，而不是简单乘 0。</li>
+        <li>末尾“原始提取正文”用于核对文章全部段落和代码；网页广告与评论可能仍按 PDF 提取顺序出现。</li>
+      </ol>
+    </section>
+
+
+      <section class="chapter" id="chapter-self-attention">
+        <header class="chapter-head">
+          <span>图 1-15</span>
+          <div><h2>一、Self-Attention：从连线图到矩阵</h2><p>先比较 RNN/CNN，再逐个 Query 展开 Q/K/V、点积、Softmax、Value 加权，最后收束成矩阵与 Multi-Head。</p></div>
+        </header>
+        <div class="figure-grid">
+      <figure class="figure-card" id="figure-1" data-figure="1" data-chapter="self-attention">
+        <figcaption>
+          <span class="figure-number">图 1</span>
+          <div><h3>RNN 与单层 CNN 处理序列</h3><small>PDF 页 1</small></div>
+        </figcaption>
+        <p class="figure-summary">同一组输入向量进入两类序列模型。RNN 拥有长程依赖但必须串行；CNN 可并行，但单层只看固定局部窗口。</p>
+        <ol class="figure-steps"><li>输入是向量序列 a1, a2, a3, a4，输出是同长度序列 b1, b2, b3, b4。</li><li>单向 RNN 的 b_i 依赖前一隐藏状态，因此 b4 必须等待 b1、b2、b3。</li><li>一维 CNN 的多个 filter 可同时滑过不同窗口，因此各位置输出可并行。</li><li>单层 CNN 的每个输出只由窗口内若干输入决定，不能直接看到整条序列。</li></ol>
+
+        <ul class="shape-list"><li><code>RNN/CNN: sequence[N,d_in] -&gt; sequence[N,d_out]</code></li></ul>
+
+      </figure>
+
+      <figure class="figure-card" id="figure-2" data-figure="2" data-chapter="self-attention">
+        <figcaption>
+          <span class="figure-number">图 2</span>
+          <div><h3>堆叠 CNN 扩大感受野</h3><small>PDF 页 1</small></div>
+        </figcaption>
+        <p class="figure-summary">上层 filter 接收下层多个局部输出，层数增加后可以间接覆盖更长的输入范围。</p>
+        <ol class="figure-steps"><li>第一层每个 filter 只覆盖相邻的少量 token。</li><li>第二层 filter 覆盖多个第一层输出，因此对应原始输入中的更长片段。</li><li>要获得全局依赖，需要继续堆层；路径长度随距离和层数增加。</li></ol>
+
+
+        <p class="figure-note"><strong>说明：</strong>图的比较重点不是 CNN 无法建模长程，而是需要更深层才能建立远距离连接。</p>
+      </figure>
+
+      <figure class="figure-card" id="figure-3" data-figure="3" data-chapter="self-attention">
+        <figcaption>
+          <span class="figure-number">图 3</span>
+          <div><h3>用 Self-Attention Layer 替代 RNN Layer</h3><small>PDF 页 1</small></div>
+        </figcaption>
+        <p class="figure-summary">Self-Attention 保持“序列进、序列出”的接口，但每个输出都能直接读取整个输入序列，并且所有输出可并行。</p>
+        <ol class="figure-steps"><li>输入 a1...aN 同时进入 Self-Attention Layer。</li><li>输出 b_i 由所有输入位置共同贡献，而不是只依赖前一时间步。</li><li>b1...bN 之间没有必须按时间顺序执行的前向依赖。</li></ol>
+
+        <ul class="shape-list"><li><code>A=[a1...aN]</code></li><li><code>B=[b1...bN]</code></li><li><code>length(B)=length(A)=N</code></li></ul>
+
+      </figure>
+
+      <figure class="figure-card" id="figure-4" data-figure="4" data-chapter="self-attention">
+        <figcaption>
+          <span class="figure-number">图 4</span>
+          <div><h3>每个输入生成 Query、Key、Value</h3><small>PDF 页 1</small></div>
+        </figcaption>
+        <p class="figure-summary">作者先把输入 x_i 映射成 embedding a_i，再用三组不同的可学习矩阵生成 q_i、k_i、v_i。</p>
+        <ol class="figure-steps"><li>x_i 乘 embedding 变换 W^x 得到 a_i。</li><li>a_i 乘 W^Q 得到 q_i：该位置用于发起匹配的查询表示。</li><li>a_i 乘 W^K 得到 k_i：该位置用于接受匹配的键表示。</li><li>a_i 乘 W^V 得到 v_i：匹配完成后真正被汇聚的内容表示。</li></ol>
+        <pre class="formula" data-latex="a_i = W^x x_i; q_i = W^Q a_i; k_i = W^K a_i; v_i = W^V a_i">a_i = W^x x_i; q_i = W^Q a_i; k_i = W^K a_i; v_i = W^V a_i</pre>
+        <ul class="shape-list"><li><code>a_i in R^(d_model)</code></li><li><code>q_i,k_i in R^(d_k)</code></li><li><code>v_i in R^(d_v)</code></li></ul>
+        <p class="figure-note"><strong>说明：</strong>PDF 采用列向量记法，所以权重矩阵写在向量左侧；常见 PyTorch 行向量记法会写成 X @ W。</p>
+      </figure>
+
+      <figure class="figure-card" id="figure-5" data-figure="5" data-chapter="self-attention">
+        <figcaption>
+          <span class="figure-number">图 5</span>
+          <div><h3>一个 Query 与所有 Key 做匹配</h3><small>PDF 页 1</small></div>
+        </figcaption>
+        <p class="figure-summary">以 q1 为例，图中从 q1 分别连向 k1、k2、k3、k4，得到 q1 对所有位置的相关性分数。</p>
+        <ol class="figure-steps"><li>固定查询 q1。</li><li>并行计算 q1 与每个 k_j 的内积。</li><li>用 sqrt(d_k) 缩放点积，避免维度增大导致分数方差过大。</li><li>得到该 Query 的一整行 logits: [alpha_1,1, ..., alpha_1,N]。</li></ol>
+        <pre class="formula" data-latex="alpha_(1,j) = (q_1^T k_j) / sqrt(d_k), for j=1...N">alpha_(1,j) = (q_1^T k_j) / sqrt(d_k), for j=1...N</pre>
+        <ul class="shape-list"><li><code>q1: [d_k]</code></li><li><code>K: [N,d_k]</code></li><li><code>logits_1: [N]</code></li></ul>
+
+      </figure>
+
+      <figure class="figure-card" id="figure-6" data-figure="6" data-chapter="self-attention">
+        <figcaption>
+          <span class="figure-number">图 6</span>
+          <div><h3>Softmax 把相关性分数变成注意力权重</h3><small>PDF 页 1</small></div>
+        </figcaption>
+        <p class="figure-summary">q1 的全部 logits 一起进入 Softmax，输出非负且总和为 1 的权重。</p>
+        <ol class="figure-steps"><li>对每个 alpha_(1,j) 取指数。</li><li>用该 Query 行所有指数之和做归一化。</li><li>权重 alpha_hat_(1,j) 表示生成 b1 时从位置 j 取多少信息。</li></ol>
+        <pre class="formula" data-latex="alpha_hat_(1,j) = exp(alpha_(1,j)) / sum_t exp(alpha_(1,t)); sum_j alpha_hat_(1,j)=1">alpha_hat_(1,j) = exp(alpha_(1,j)) / sum_t exp(alpha_(1,t)); sum_j alpha_hat_(1,j)=1</pre>
+        <ul class="shape-list"><li><code>logits row: [N]</code></li><li><code>attention weight row: [N]</code></li></ul>
+
+      </figure>
+
+      <figure class="figure-card" id="figure-7" data-figure="7" data-chapter="self-attention">
+        <figcaption>
+          <span class="figure-number">图 7</span>
+          <div><h3>用权重对 Value 加权求和得到 b1</h3><small>PDF 页 1</small></div>
+        </figcaption>
+        <p class="figure-summary">图中每个权重 alpha_hat_(1,j) 与对应 v_j 相乘，所有分支汇聚成第一个输出 b1。</p>
+        <ol class="figure-steps"><li>alpha_hat_(1,1) 乘 v1。</li><li>alpha_hat_(1,2) 乘 v2，依次处理所有位置。</li><li>把所有加权 Value 相加得到 b1。</li><li>因此 b1 可以包含整条序列的信息；接近 0 的权重等价于忽略对应分支。</li></ol>
+        <pre class="formula" data-latex="b_1 = sum_(j=1)^N alpha_hat_(1,j) v_j">b_1 = sum_(j=1)^N alpha_hat_(1,j) v_j</pre>
+        <ul class="shape-list"><li><code>weights_1: [N]</code></li><li><code>V: [N,d_v]</code></li><li><code>b1: [d_v]</code></li></ul>
+
+      </figure>
+
+      <figure class="figure-card" id="figure-8" data-figure="8" data-chapter="self-attention">
+        <figcaption>
+          <span class="figure-number">图 8</span>
+          <div><h3>换一个 Query 计算 b2</h3><small>PDF 页 1</small></div>
+        </figcaption>
+        <p class="figure-summary">把固定查询从 q1 换成 q2，重复点积、Softmax 和 Value 加权，即可得到第二个输出。</p>
+        <ol class="figure-steps"><li>q2 与所有 k_j 得到第二行 logits。</li><li>第二行 Softmax 得到 alpha_hat_(2,j)。</li><li>第二行权重对同一组 v_j 加权求和得到 b2。</li></ol>
+        <pre class="formula" data-latex="b_2 = sum_(j=1)^N softmax_j(q_2^T k_j / sqrt(d_k)) v_j">b_2 = sum_(j=1)^N softmax_j(q_2^T k_j / sqrt(d_k)) v_j</pre>
+
+
+      </figure>
+
+      <figure class="figure-card" id="figure-9" data-figure="9" data-chapter="self-attention">
+        <figcaption>
+          <span class="figure-number">图 9</span>
+          <div><h3>所有输出可并行计算</h3><small>PDF 页 1</small></div>
+        </figcaption>
+        <p class="figure-summary">每个 q_i 的计算结构完全相同，图中 b1、b2、b3、b4 同时从 Self-Attention Layer 输出。</p>
+        <ol class="figure-steps"><li>把所有 Query 堆成矩阵 Q。</li><li>一次 QK^T 同时产生所有 Query-Key 对的分数。</li><li>逐行 Softmax 后再一次矩阵乘 V，得到所有 b_i。</li></ol>
+        <pre class="formula" data-latex="B = softmax(Q K^T / sqrt(d_k)) V">B = softmax(Q K^T / sqrt(d_k)) V</pre>
+
+        <p class="figure-note"><strong>说明：</strong>这一步把前面逐个 Query 的连线图收束为矩阵运算，也是 GPU 并行的关键。</p>
+      </figure>
+
+      <figure class="figure-card" id="figure-10" data-figure="10" data-chapter="self-attention">
+        <figcaption>
+          <span class="figure-number">图 10</span>
+          <div><h3>Q、K、V 的矩阵化投影</h3><small>PDF 页 1</small></div>
+        </figcaption>
+        <p class="figure-summary">作者把 a1...aN 作为输入矩阵 I 的列，再分别左乘三组变换矩阵，得到 Q、K、V。</p>
+        <ol class="figure-steps"><li>列向量约定：I=[a1 a2 ... aN]，shape 为 [d_model,N]。</li><li>Q=W^Q I，K=W^K I，V=W^V I。</li><li>每个输出矩阵的第 i 列仍对应第 i 个 token。</li></ol>
+        <pre class="formula" data-latex="PDF column convention: Q=W^Q I, K=W^K I, V=W^V I
+Common row convention: Q=XW^Q, K=XW^K, V=XW^V">PDF column convention: Q=W^Q I, K=W^K I, V=W^V I
+Common row convention: Q=XW^Q, K=XW^K, V=XW^V</pre>
+        <ul class="shape-list"><li><code>column convention I: [d_model,N]</code></li><li><code>Q,K: [d_k,N]</code></li><li><code>V: [d_v,N]</code></li></ul>
+
+      </figure>
+
+      <figure class="figure-card" id="figure-11" data-figure="11" data-chapter="self-attention">
+        <figcaption>
+          <span class="figure-number">图 11</span>
+          <div><h3>注意力矩阵与输出矩阵的乘法方向</h3><small>PDF 页 1</small></div>
+        </figcaption>
+        <p class="figure-summary">图把所有 alpha_(i,j) 组成 N x N 注意力矩阵，再与 V 相乘，等价于同时执行所有 Value 加权求和。</p>
+        <ol class="figure-steps"><li>列向量画法中，K^T Q 的第 (j,i) 项是 k_j^T q_i。</li><li>对分数矩阵按每个 Query 对应的 Key 维做 Softmax，得到 A_hat。</li><li>列向量画法 O=V A_hat；O 的第 i 列就是 b_i。</li><li>行向量画法更常见：S=QK^T，A=softmax(S)，O=AV。</li></ol>
+        <pre class="formula" data-latex="PDF: A=K^T Q; A_hat=softmax(A); O=V A_hat
+Modern row-major: S=QK^T; A=softmax(S,dim=-1); O=AV">PDF: A=K^T Q; A_hat=softmax(A); O=V A_hat
+Modern row-major: S=QK^T; A=softmax(S,dim=-1); O=AV</pre>
+        <ul class="shape-list"><li><code>score/weight matrix: [N,N]</code></li><li><code>O: [d_v,N] in PDF or [N,d_v] in row-major</code></li></ul>
+        <p class="figure-note"><strong>说明：</strong>两套公式只是 token 放在行还是列的差别，计算含义相同。</p>
+      </figure>
+
+      <figure class="figure-card" id="figure-12" data-figure="12" data-chapter="self-attention">
+        <figcaption>
+          <span class="figure-number">图 12</span>
+          <div><h3>Self-Attention 是一条矩阵乘法流水线</h3><small>PDF 页 1</small></div>
+        </figcaption>
+        <p class="figure-summary">整张图把输入、三路投影、相关性矩阵、Softmax 和输出连接成一条可由 GPU 执行的流水线。</p>
+        <ol class="figure-steps"><li>I 分流为 Q、K、V。</li><li>Q 与 K 生成 N x N 的两两相关性矩阵。</li><li>Softmax 把每个 Query 的分数归一化。</li><li>权重矩阵与 V 相乘得到与输入长度一致的输出 O。</li></ol>
+        <pre class="formula" data-latex="Attention(Q,K,V)=softmax(QK^T/sqrt(d_k))V">Attention(Q,K,V)=softmax(QK^T/sqrt(d_k))V</pre>
+        <ul class="shape-list"><li><code>[N,d_model] -&gt; Q/K/V -&gt; [N,N] -&gt; [N,d_v]</code></li></ul>
+
+      </figure>
+
+      <figure class="figure-card" id="figure-13" data-figure="13" data-chapter="self-attention">
+        <figcaption>
+          <span class="figure-number">图 13</span>
+          <div><h3>两个 Head 的完整计算与输出投影</h3><small>PDF 页 1</small></div>
+        </figcaption>
+        <p class="figure-summary">每个原始 q_i、k_i、v_i 再投影到两个独立子空间，分别计算 b_i^1、b_i^2，然后拼接并乘 W^O。</p>
+        <ol class="figure-steps"><li>Head 1 使用 W_1^Q、W_1^K、W_1^V；Head 2 使用另一组独立参数。</li><li>每个 Head 独立完成 scaled dot-product attention。</li><li>同一位置 i 得到 head 输出 b_i^1 和 b_i^2。</li><li>Concat(b_i^1,b_i^2) 乘输出矩阵 W^O，恢复成模型维度 b_i。</li></ol>
+        <pre class="formula" data-latex="head_r=Attention(QW_r^Q,KW_r^K,VW_r^V)
+b_i=W^O concat(b_i^1,...,b_i^h)">head_r=Attention(QW_r^Q,KW_r^K,VW_r^V)
+b_i=W^O concat(b_i^1,...,b_i^h)</pre>
+        <ul class="shape-list"><li><code>d_model=h*d_head</code></li><li><code>each head: [N,d_head]</code></li><li><code>concat: [N,h*d_head]</code></li></ul>
+
+      </figure>
+
+      <figure class="figure-card" id="figure-14" data-figure="14" data-chapter="self-attention">
+        <figcaption>
+          <span class="figure-number">图 14</span>
+          <div><h3>Multi-Head 的 Split、并行、Concat、Linear</h3><small>PDF 页 1</small></div>
+        </figcaption>
+        <p class="figure-summary">输入 X 同时送入多个 Self-Attention Head，各自输出同长度矩阵，沿特征维拼接后做线性映射。</p>
+        <ol class="figure-steps"><li>X 经过多个独立的 Q/K/V 投影。</li><li>所有 Head 并行计算，不是在序列维串行堆叠。</li><li>输出结果沿最后一个特征维 Concat。</li><li>最终 Linear/W^O 混合各 Head 信息，并保持输入输出 d_model 一致。</li></ol>
+        <pre class="formula" data-latex="MultiHead(Q,K,V)=Concat(head_1,...,head_h)W^O">MultiHead(Q,K,V)=Concat(head_1,...,head_h)W^O</pre>
+
+
+      </figure>
+
+      <figure class="figure-card" id="figure-15" data-figure="15" data-chapter="self-attention">
+        <figcaption>
+          <span class="figure-number">图 15</span>
+          <div><h3>不同 Head 的注意力连线模式</h3><small>PDF 页 1</small></div>
+        </figcaption>
+        <p class="figure-summary">图中一组连线跨越较远位置，另一组集中在相邻位置，用来说明不同子空间可学习 global 与 local 关系。</p>
+        <ol class="figure-steps"><li>绿色 Head 出现较多跨长距离的粗连接，可解释为全局关系。</li><li>红色 Head 更多连接相邻 token，可解释为局部关系。</li><li>真实模型中的 Head 不保证拥有固定、唯一的语义；图只表达能力上的可能性。</li></ol>
+
+
+
+      </figure>
+    </div>
+      </section>
+
+      <section class="chapter" id="chapter-position">
+        <header class="chapter-head">
+          <span>图 16-20</span>
+          <div><h2>二、位置编码与视觉中的全局连接</h2><p>解释为什么无位置信息的 Self-Attention 无法区分顺序，以及位置编码、CNN 感受野和全局 Attention 的关系。</p></div>
+        </header>
+        <div class="figure-grid">
+      <figure class="figure-card" id="figure-16" data-figure="16" data-chapter="position">
+        <figcaption>
+          <span class="figure-number">图 16</span>
+          <div><h3>把位置编码加到输入表示</h3><small>PDF 页 2</small></div>
+        </figcaption>
+        <p class="figure-summary">Self-Attention 本身没有顺序概念，所以每个位置都有一个位置向量 e_i，并与内容向量 a_i 相加。</p>
+        <ol class="figure-steps"><li>为位置 i 构造 e_i，维度与 a_i 相同。</li><li>新输入 a_i&#x27;=a_i+e_i。</li><li>a_i&#x27; 再进入 Q/K/V 投影，使内容与位置信息共同影响注意力。</li></ol>
+        <pre class="formula" data-latex="a_i&#x27; = a_i + e_i">a_i&#x27; = a_i + e_i</pre>
+        <ul class="shape-list"><li><code>a_i,e_i,a_i&#x27;: [d_model]</code></li></ul>
+
+      </figure>
+
+      <figure class="figure-card" id="figure-17" data-figure="17" data-chapter="position">
+        <figcaption>
+          <span class="figure-number">图 17</span>
+          <div><h3>相加位置编码与拼接 One-Hot 的等价解释</h3><small>PDF 页 2</small></div>
+        </figcaption>
+        <p class="figure-summary">图把 token 表示与位置 One-Hot 先拼接，再乘分块矩阵；矩阵乘法可拆成内容投影与位置投影之和。</p>
+        <ol class="figure-steps"><li>构造扩展输入 [a_i ; onehot(i)]。</li><li>把线性层参数分成内容块 W^a 和位置块 W^p。</li><li>线性结果 W^a a_i + W^p onehot(i)。</li><li>W^p onehot(i) 正好选出位置 i 对应的列向量 e_i，因此得到 W^a a_i + e_i。</li></ol>
+        <pre class="formula" data-latex="W[a_i;onehot(i)] = W^a a_i + W^p onehot(i) = W^a a_i + e_i">W[a_i;onehot(i)] = W^a a_i + W^p onehot(i) = W^a a_i + e_i</pre>
+
+        <p class="figure-note"><strong>说明：</strong>这解释了为什么“相加”仍能保留位置资讯：后续线性层可以把内容和位置重新分解。</p>
+      </figure>
+
+      <figure class="figure-card" id="figure-18" data-figure="18" data-chapter="position">
+        <figcaption>
+          <span class="figure-number">图 18</span>
+          <div><h3>位置编码变体与 Seq2Seq 中的使用位置</h3><small>PDF 页 2</small></div>
+        </figcaption>
+        <p class="figure-summary">该编号在原文中重复使用：一组图比较不同位置编码模式，另一张图说明用 Self-Attention 替换 Encoder-Decoder 中的 RNN。</p>
+        <ol class="figure-steps"><li>固定正余弦编码：不同维度使用不同频率。</li><li>可学习绝对位置编码：每个位置对应一行 Embedding 参数。</li><li>FLOATER/RNN 等方法学习随位置变化的编码轨迹。</li><li>Seq2Seq 图中，Encoder 与 Decoder 的循环模块可被 Self-Attention/Transformer Block 替代。</li></ol>
+        <pre class="formula" data-latex="PE(pos,2i)=sin(pos/10000^(2i/d_model)); PE(pos,2i+1)=cos(pos/10000^(2i/d_model))">PE(pos,2i)=sin(pos/10000^(2i/d_model)); PE(pos,2i+1)=cos(pos/10000^(2i/d_model))</pre>
+
+
+      </figure>
+    </div>
+      </section>
+
+      <section class="chapter" id="chapter-transformer">
+        <header class="chapter-head">
+          <span>图 21-28</span>
+          <div><h2>三、经典 Transformer、Mask 与代码结构</h2><p>完整展开 Encoder、Decoder、残差与归一化，重点转写 Causal Mask 的矩阵过程和训练/推理解码差异。</p></div>
+        </header>
+        <div class="figure-grid">
+      <figure class="figure-card" id="figure-21" data-figure="21" data-chapter="transformer">
+        <figcaption>
+          <span class="figure-number">图 21</span>
+          <div><h3>经典 Transformer Encoder-Decoder 架构</h3><small>PDF 页 2/4</small></div>
+        </figcaption>
+        <p class="figure-summary">左侧 Encoder 堆叠 N 层，右侧 Decoder 堆叠 N 层；Decoder 额外包含 Masked Self-Attention 和读取 Encoder Memory 的 Cross-Attention。</p>
+        <ol class="figure-steps"><li>源 token -&gt; Input Embedding + Positional Encoding。</li><li>Encoder Layer: Multi-Head Self-Attention -&gt; Add &amp; Norm -&gt; FFN -&gt; Add &amp; Norm，重复 N 次。</li><li>目标 token 右移 -&gt; Output Embedding + Positional Encoding。</li><li>Decoder Layer: Masked Self-Attention -&gt; Add &amp; Norm -&gt; Cross-Attention -&gt; Add &amp; Norm -&gt; FFN -&gt; Add &amp; Norm，重复 N 次。</li><li>Decoder 顶部 Linear -&gt; Softmax -&gt; 下一 token 概率。</li><li>Cross-Attention 中 Q 来自 Decoder，K/V 来自 Encoder 输出。</li></ol>
+        <pre class="formula" data-latex="Encoder sublayer: y=LayerNorm(x+Sublayer(x))
+CrossAttention: Q=H_dec, K=V=H_enc">Encoder sublayer: y=LayerNorm(x+Sublayer(x))
+CrossAttention: Q=H_dec, K=V=H_enc</pre>
+        <ul class="shape-list"><li><code>source memory: [B,S_src,d_model]</code></li><li><code>decoder state: [B,S_tgt,d_model]</code></li><li><code>logits: [B,S_tgt,vocab]</code></li></ul>
+
+      </figure>
+
+      <figure class="figure-card" id="figure-22" data-figure="22" data-chapter="transformer">
+        <figcaption>
+          <span class="figure-number">图 22</span>
+          <div><h3>不同 Normalization 的归一化轴</h3><small>PDF 页 2</small></div>
+        </figcaption>
+        <p class="figure-summary">三维张量示意图用不同切片颜色表示 BatchNorm、LayerNorm、InstanceNorm、GroupNorm 分别跨哪些轴统计均值与方差。</p>
+        <ol class="figure-steps"><li>BatchNorm：对同一 channel 跨 batch 与空间位置统计。</li><li>LayerNorm：对单个样本的特征维统计，不依赖 batch 中其他样本。</li><li>InstanceNorm：通常对每个样本、每个 channel 的空间位置统计。</li><li>GroupNorm：把 channel 分组后分别统计。</li></ol>
+
+
+
+      </figure>
+
+      <figure class="figure-card" id="figure-23" data-figure="23" data-chapter="transformer">
+        <figcaption>
+          <span class="figure-number">图 23</span>
+          <div><h3>BatchNorm 与 LayerNorm 的二维直观比较</h3><small>PDF 页 2</small></div>
+        </figcaption>
+        <p class="figure-summary">蓝色圆点矩阵中，横向红框代表 BatchNorm 对同一特征跨样本归一化，纵向红框代表 LayerNorm 对同一样本跨特征归一化。</p>
+        <ol class="figure-steps"><li>BatchNorm 使 batch 中某个 channel 近似满足 mu=0、sigma=1。</li><li>LayerNorm 使单个 token/样本的所有 feature 近似满足 mu=0、sigma=1。</li><li>Transformer 常用 LayerNorm，因为序列长度和 batch 大小可变化。</li></ol>
+
+
+
+      </figure>
+
+      <figure class="figure-card" id="figure-24" data-figure="24" data-chapter="transformer">
+        <figcaption>
+          <span class="figure-number">图 24</span>
+          <div><h3>Mask 的位置：Scale 之后、Softmax 之前</h3><small>PDF 页 2</small></div>
+        </figcaption>
+        <p class="figure-summary">图把 Scaled Dot-Product Attention 画成 MatMul -&gt; Scale -&gt; Mask(opt) -&gt; Softmax -&gt; MatMul，Q/K 进入第一处 MatMul，V 进入最后一处。</p>
+        <ol class="figure-steps"><li>先计算 S=QK^T/sqrt(d_k)。</li><li>对未来位置或 padding 位置写入 -infinity。</li><li>再做 Softmax，使被屏蔽位置权重严格为 0。</li><li>最后 A@V 得到输出。</li></ol>
+        <pre class="formula" data-latex="A=softmax(QK^T/sqrt(d_k)+M); M_ij=0 if allowed, -infinity if blocked">A=softmax(QK^T/sqrt(d_k)+M); M_ij=0 if allowed, -infinity if blocked</pre>
+
+        <p class="figure-note"><strong>说明：</strong>原文部分文字写成与 0/1 Mask 相乘；实际实现应在 Softmax 前 masked_fill(-infinity)，否则被置 0 的 logit 仍会得到非零概率。</p>
+      </figure>
+
+      <figure class="figure-card" id="figure-25" data-figure="25" data-chapter="transformer">
+        <figcaption>
+          <span class="figure-number">图 25</span>
+          <div><h3>Decoder 训练与推理的时间流程</h3><small>PDF 页 2</small></div>
+        </figcaption>
+        <p class="figure-summary">翻译示例展示推理逐 token 生成，而训练使用右移的完整目标序列配合 Causal Mask 并行计算。</p>
+        <ol class="figure-steps"><li>推理第 1 步输入 &lt;Begin&gt;，输出 I。</li><li>第 2 步输入 &lt;Begin&gt;, I，输出 have；继续直到 &lt;end&gt;。</li><li>训练输入 &lt;Begin&gt;, I, have, a, cat，监督目标为 I, have, a, cat, &lt;end&gt;。</li><li>Causal Mask 保证位置 i 不能读取 i 之后的目标 token，因此并行训练不泄漏未来。</li></ol>
+
+
+
+      </figure>
+
+      <figure class="figure-card" id="figure-26" data-figure="26" data-chapter="transformer">
+        <figcaption>
+          <span class="figure-number">图 26</span>
+          <div><h3>Masked Multi-Head Self-Attention 的完整矩阵过程</h3><small>PDF 页 2</small></div>
+        </figcaption>
+        <p class="figure-summary">五个目标 token 的图把输入投影、下三角 Mask、按行 Softmax、多头拼接全部展开。</p>
+        <ol class="figure-steps"><li>输入 X 含 5 个 token，投影成 Q、K、V，shape 均为 [N,d]。</li><li>计算 N x N 分数矩阵；第 i 行表示 Query i 对所有 Key 的分数。</li><li>使用下三角允许矩阵：第 0 行只允许 key0，第 1 行允许 key0..1，依此类推。</li><li>禁止位置在 Softmax 前变为 -infinity，Softmax 后为 0；每个允许集合内的行和为 1。</li><li>每个 Head 得到 Z_h，Concat 后乘线性矩阵得到最终 Z。</li></ol>
+        <pre class="formula" data-latex="Z_h=softmax(Q_h K_h^T/sqrt(d_k)+M)V_h; Z=Concat(Z_1,...,Z_h)W^O">Z_h=softmax(Q_h K_h^T/sqrt(d_k)+M)V_h; Z=Concat(Z_1,...,Z_h)W^O</pre>
+        <ul class="shape-list"><li><code>X,Q,K,V: [N,d]</code></li><li><code>M,A: [N,N]</code></li><li><code>Z: [N,d_model]</code></li></ul>
+
+      </figure>
+
+      <figure class="figure-card" id="figure-27" data-figure="27" data-chapter="transformer">
+        <figcaption>
+          <span class="figure-number">图 27</span>
+          <div><h3>每个 Decoder 输出行预测下一个词</h3><small>PDF 页 2</small></div>
+        </figcaption>
+        <p class="figure-summary">Decoder 输出矩阵每一行经过 Linear 映射到词表维度，再通过 Softmax 得到相应位置的下一词概率。</p>
+        <ol class="figure-steps"><li>第 i 行隐藏状态 z_i 包含位置 0..i 的目标上下文以及 Encoder 信息。</li><li>Linear: logits_i = z_i W_vocab + b。</li><li>Softmax(logits_i) 得到词表分布。</li><li>训练时所有行并行产生；推理时只使用最后一行选择下一个 token。</li></ol>
+        <pre class="formula" data-latex="p(y_(i+1)|y_&lt;=i,x)=softmax(z_i W_vocab+b)">p(y_(i+1)|y_&lt;=i,x)=softmax(z_i W_vocab+b)</pre>
+
+
+      </figure>
+
+      <figure class="figure-card" id="figure-28" data-figure="28" data-chapter="transformer">
+        <figcaption>
+          <span class="figure-number">图 28</span>
+          <div><h3>Transformer 整体模块与代码类的对应关系</h3><small>PDF 页 3</small></div>
+        </figcaption>
+        <p class="figure-summary">图把 Embedding、位置编码、EncoderLayer/DecoderLayer 堆叠、输出投影连接起来，对应后文代码中的类。</p>
+        <ol class="figure-steps"><li>PositionalEncoding 先与源/目标 Embedding 相加。</li><li>Encoder 由 n_layers 个 EncoderLayer 顺序堆叠。</li><li>Decoder 由 n_layers 个 DecoderLayer 顺序堆叠，并接收 Encoder output。</li><li>padding mask 作用于源序列；目标 mask 同时包含 padding mask 与 subsequent/causal mask。</li><li>目标词表 Linear 与 Softmax 产生最终 logits/probability。</li></ol>
+
+        <ul class="shape-list"><li><code>d_model=512</code></li><li><code>n_layers=6</code></li><li><code>n_head=8</code></li><li><code>d_k=d_v=64</code></li><li><code>d_inner=2048</code></li></ul>
+
+      </figure>
+    </div>
+      </section>
+
+      <section class="chapter" id="chapter-vision">
+        <header class="chapter-head">
+          <span>图 19-20</span>
+          <div><h2>四、视觉补充</h2><p>图像 Self-Attention 与 CNN 的关系已放在位置编码章节，保留该分组供机器检索。</p></div>
+        </header>
+        <div class="figure-grid">
+      <figure class="figure-card" id="figure-19" data-figure="19" data-chapter="vision">
+        <figcaption>
+          <span class="figure-number">图 19</span>
+          <div><h3>图像上的全局 Self-Attention 与 CNN 局部感受野</h3><small>PDF 页 2</small></div>
+        </figcaption>
+        <p class="figure-summary">选定一个像素作为 Query，Self-Attention 会把它与全图所有像素的 Key 比较；CNN 只连接手工规定的局部窗口。</p>
+        <ol class="figure-steps"><li>Self-Attention 的候选 Key 范围是整张 feature map。</li><li>CNN 的候选范围由 kernel size 和 dilation 等超参数决定。</li><li>Attention 权重根据内容动态变化，相当于数据驱动的感受野。</li></ol>
+
+
+
+      </figure>
+
+      <figure class="figure-card" id="figure-20" data-figure="20" data-chapter="vision">
+        <figcaption>
+          <span class="figure-number">图 20</span>
+          <div><h3>CNN 可视为受约束的 Self-Attention 特例</h3><small>PDF 页 2</small></div>
+        </figcaption>
+        <p class="figure-summary">集合示意图把 CNN 放在 Self-Attention 的内部：固定局部连接与共享权重可以看作对更一般注意力机制施加约束。</p>
+        <ol class="figure-steps"><li>Self-Attention 允许任意位置两两交互。</li><li>CNN 只允许固定邻域交互，并共享卷积核参数。</li><li>更灵活的 Self-Attention 通常需要更多数据学习其连接模式。</li></ol>
+
+
+
+      </figure>
+    </div>
+      </section>
+
+      <section class="chapter" id="chapter-detr">
+        <header class="chapter-head">
+          <span>图 29-40</span>
+          <div><h2>五、DETR：Transformer 进入目标检测</h2><p>追踪 CNN feature、二维位置编码、Object Queries、Decoder 和 Hungarian Matching 的完整 shape 与数据流。</p></div>
+        </header>
+        <div class="figure-grid">
+      <figure class="figure-card" id="figure-29" data-figure="29" data-chapter="detr">
+        <figcaption>
+          <span class="figure-number">图 29</span>
+          <div><h3>DETR 用 CNN 与 Transformer 并行预测目标集合</h3><small>PDF 页 3</small></div>
+        </figcaption>
+        <p class="figure-summary">输入图像经 CNN 提取 feature map，Transformer 同时输出固定数量的 object predictions，不再依赖 anchor、proposal 或 NMS 流程。</p>
+        <ol class="figure-steps"><li>CNN backbone 把图像转换为低分辨率高通道 feature map。</li><li>Transformer Encoder 对所有空间位置建立全局关系。</li><li>Transformer Decoder 接收固定数量的可学习 Object Queries。</li><li>每个 Query 并行输出一个类别与一个 bounding box；无目标的槽位预测 no-object。</li></ol>
+
+        <ul class="shape-list"><li><code>N queries, with N much larger than objects in an image</code></li></ul>
+
+      </figure>
+
+      <figure class="figure-card" id="figure-30" data-figure="30" data-chapter="detr">
+        <figcaption>
+          <span class="figure-number">图 30</span>
+          <div><h3>DETR 四段流水线与关键 Shape</h3><small>PDF 页 3</small></div>
+        </figcaption>
+        <p class="figure-summary">图按 Backbone -&gt; Encoder -&gt; Decoder -&gt; FFN Heads 展示数据流，并在每一步标出维度。</p>
+        <ol class="figure-steps"><li>image x: [B,3,H0,W0]。</li><li>CNN feature f: [B,C,H,W]，通常 H=H0/32、W=W0/32。</li><li>1x1 Conv 压到 z0: [B,256,H,W]。</li><li>flatten spatial + permute -&gt; [HW,B,256]，与同 shape 的二维位置编码相加后进入 Encoder。</li><li>Encoder memory: [HW,B,256]。</li><li>Object Queries: [100,B,256]；Decoder 并行输出 [B,100,256]。</li><li>分类头 -&gt; [B,100,class+1]；框回归头 -&gt; [B,100,4]。</li></ol>
+
+        <ul class="shape-list"><li><code>COCO class+1=92</code></li><li><code>box=(cx,cy,w,h), normalized to [0,1]</code></li></ul>
+
+      </figure>
+
+      <figure class="figure-card" id="figure-31" data-figure="31" data-chapter="detr">
+        <figcaption>
+          <span class="figure-number">图 31</span>
+          <div><h3>Input Embedding 与二维位置编码如何相加</h3><small>PDF 页 3</small></div>
+        </figcaption>
+        <p class="figure-summary">原论文画法让两条支路看起来 shape 不同，作者用问号标出疑点；后续图 32/33 证明它们在 flatten 后都是 [HW,B,256]。</p>
+        <ol class="figure-steps"><li>图像 feature 先经 1x1 Conv 得到 [B,256,H,W]。</li><li>二维位置编码也生成 [B,256,H,W]。</li><li>两者各自 flatten H,W 并 permute 成 [HW,B,256]。</li><li>此时逐元素相加，shape 完全一致。</li></ol>
+
+
+
+      </figure>
+
+      <figure class="figure-card" id="figure-32" data-figure="32" data-chapter="detr">
+        <figcaption>
+          <span class="figure-number">图 32</span>
+          <div><h3>DETR 位置编码与特征序列的 Shape 全路径</h3><small>PDF 页 3</small></div>
+        </figcaption>
+        <p class="figure-summary">作者用方块表示每个张量，专门澄清二维 feature map、位置编码和 Transformer 序列之间的变换顺序。</p>
+        <ol class="figure-steps"><li>特征支路: [B,C,H,W] -&gt; 1x1 Conv -&gt; [B,256,H,W] -&gt; flatten+permute -&gt; [HW,B,256]。</li><li>位置支路: x/y 累积坐标 -&gt; 各生成 128 维 sin/cos -&gt; concat -&gt; [B,256,H,W]。</li><li>位置支路同样 flatten+permute -&gt; [HW,B,256]。</li><li>两支路相加，进入每个 Encoder Layer 的 Q/K 路径。</li></ol>
+        <pre class="formula" data-latex="pos(x,y)=concat(PE_x(x) in R^128, PE_y(y) in R^128) in R^256">pos(x,y)=concat(PE_x(x) in R^128, PE_y(y) in R^128) in R^256</pre>
+
+
+      </figure>
+
+      <figure class="figure-card" id="figure-33" data-figure="33" data-chapter="detr">
+        <figcaption>
+          <span class="figure-number">图 33</span>
+          <div><h3>Input Embedding 与 Positional Embedding Shape 一致</h3><small>PDF 页 3</small></div>
+        </figcaption>
+        <p class="figure-summary">图用同尺寸矩形强调：论文中的视觉宽窄只是画法，真正执行加法时两个张量完全同形。</p>
+        <ol class="figure-steps"><li>Input embedding: [HW,B,256]。</li><li>Positional embedding: [HW,B,256]。</li><li>逐元素相加后仍为 [HW,B,256]。</li></ol>
+
+
+
+      </figure>
+
+      <figure class="figure-card" id="figure-34" data-figure="34" data-chapter="detr">
+        <figcaption>
+          <span class="figure-number">图 34</span>
+          <div><h3>DETR Transformer 的详细 Q/K/V 来源与维度</h3><small>PDF 页 4</small></div>
+        </figcaption>
+        <p class="figure-summary">该图把每层 Encoder/Decoder、位置编码、Object Queries 和所有中间 shape 标在经典 Transformer 框图上。</p>
+        <ol class="figure-steps"><li>Encoder 每层：Q=K=memory+2D position，V=memory；输出保持 [HW,B,256]。</li><li>Decoder 第一个 Self-Attention：Q=K=tgt+object_queries，V=tgt，shape [100,B,256]。</li><li>Decoder Cross-Attention：Q=decoder_state+object_queries，K=encoder_memory+2D_position，V=encoder_memory。</li><li>Cross-Attention 的 Query 长度 100，Key/Value 长度 HW，因此权重矩阵为 [B,heads,100,HW]。</li><li>每个 Decoder Layer 输出保持 [100,B,256]，最终堆叠结果可表示为 [layers,B,100,256]。</li></ol>
+
+        <ul class="shape-list"><li><code>Encoder length=HW</code></li><li><code>Decoder query length=100</code></li><li><code>hidden_dim=256</code></li></ul>
+
+      </figure>
+
+      <figure class="figure-card" id="figure-35" data-figure="35" data-chapter="detr">
+        <figcaption>
+          <span class="figure-number">图 35</span>
+          <div><h3>DETR 中每处 Query/Key 的位置编码来源</h3><small>PDF 页 4</small></div>
+        </figcaption>
+        <p class="figure-summary">归纳图分别列出 Encoder Self-Attention、Decoder Self-Attention、Decoder Cross-Attention 的 Q/K/V 与位置编码组合。</p>
+        <ol class="figure-steps"><li>Encoder: Q=memory+pos, K=memory+pos, V=memory。</li><li>Decoder Self-Attention: Q=tgt+query_pos, K=tgt+query_pos, V=tgt。</li><li>Decoder Cross-Attention: Q=tgt+query_pos, K=memory+pos, V=memory。</li><li>Value 不加位置编码；位置只用于决定匹配权重。</li></ol>
+        <pre class="formula" data-latex="Encoder: (Q,K,V)=(x+pos,x+pos,x)
+Decoder self: (tgt+query_pos,tgt+query_pos,tgt)
+Cross: (tgt+query_pos,memory+pos,memory)">Encoder: (Q,K,V)=(x+pos,x+pos,x)
+Decoder self: (tgt+query_pos,tgt+query_pos,tgt)
+Cross: (tgt+query_pos,memory+pos,memory)</pre>
+
+
+      </figure>
+
+      <figure class="figure-card" id="figure-36" data-figure="36" data-chapter="detr">
+        <figcaption>
+          <span class="figure-number">图 36</span>
+          <div><h3>DETR 与 Faster R-CNN 性能对比</h3><small>PDF 页 4</small></div>
+        </figcaption>
+        <p class="figure-summary">表格比较不同 backbone/训练设置下的 AP、AP50、AP75、APS、APM、APL 与推理速度。</p>
+        <ol class="figure-steps"><li>DETR 的整体 AP 和运行时间与强 Faster R-CNN baseline 相当。</li><li>DETR 通常在大型目标 APL 上更强，在小目标 APS 上较弱。</li><li>该表用于说明端到端集合预测具备竞争力，而不是给出新的计算步骤。</li></ol>
+        <pre class="formula" data-latex="Model | GFLOPS/FPS | params | AP | AP50 | AP75 | APS | APM | APL
+Faster R-CNN-DC5 | 320/16 | 166M | 39.0 | 60.5 | 42.3 | 21.4 | 43.5 | 52.5
+Faster R-CNN-FPN | 180/26 | 42M | 40.2 | 61.0 | 43.8 | 24.2 | 43.5 | 52.0
+Faster R-CNN-R101-FPN | 246/20 | 60M | 42.0 | 62.5 | 45.9 | 25.2 | 45.6 | 54.6
+Faster R-CNN-DC5+ | 320/16 | 166M | 41.1 | 61.4 | 44.3 | 22.9 | 45.9 | 55.0
+Faster R-CNN-FPN+ | 180/26 | 42M | 42.0 | 62.1 | 45.5 | 26.6 | 45.4 | 53.4
+Faster R-CNN-R101-FPN+ | 246/20 | 60M | 44.0 | 63.9 | 47.8 | 27.2 | 48.1 | 56.0
+DETR | 86/28 | 41M | 42.0 | 62.4 | 44.2 | 20.5 | 45.8 | 61.1
+DETR-DC5 | 187/12 | 41M | 43.3 | 63.1 | 45.9 | 22.5 | 47.3 | 61.1
+DETR-R101 | 152/20 | 60M | 43.5 | 63.8 | 46.4 | 21.9 | 48.0 | 61.8
+DETR-DC5-R101 | 253/10 | 60M | 44.9 | 64.7 | 47.7 | 23.7 | 49.5 | 62.3">Model | GFLOPS/FPS | params | AP | AP50 | AP75 | APS | APM | APL
+Faster R-CNN-DC5 | 320/16 | 166M | 39.0 | 60.5 | 42.3 | 21.4 | 43.5 | 52.5
+Faster R-CNN-FPN | 180/26 | 42M | 40.2 | 61.0 | 43.8 | 24.2 | 43.5 | 52.0
+Faster R-CNN-R101-FPN | 246/20 | 60M | 42.0 | 62.5 | 45.9 | 25.2 | 45.6 | 54.6
+Faster R-CNN-DC5+ | 320/16 | 166M | 41.1 | 61.4 | 44.3 | 22.9 | 45.9 | 55.0
+Faster R-CNN-FPN+ | 180/26 | 42M | 42.0 | 62.1 | 45.5 | 26.6 | 45.4 | 53.4
+Faster R-CNN-R101-FPN+ | 246/20 | 60M | 44.0 | 63.9 | 47.8 | 27.2 | 48.1 | 56.0
+DETR | 86/28 | 41M | 42.0 | 62.4 | 44.2 | 20.5 | 45.8 | 61.1
+DETR-DC5 | 187/12 | 41M | 43.3 | 63.1 | 45.9 | 22.5 | 47.3 | 61.1
+DETR-R101 | 152/20 | 60M | 43.5 | 63.8 | 46.4 | 21.9 | 48.0 | 61.8
+DETR-DC5-R101 | 253/10 | 60M | 44.9 | 64.7 | 47.7 | 23.7 | 49.5 | 62.3</pre>
+
+        <p class="figure-note"><strong>说明：</strong>数值按 PDF 图 36 的表格逐行转写；粗体强调在纯文本中未保留。</p>
+      </figure>
+
+      <figure class="figure-card" id="figure-37" data-figure="37" data-chapter="detr">
+        <figcaption>
+          <span class="figure-number">图 37</span>
+          <div><h3>Encoder 层数与检测性能</h3><small>PDF 页 4</small></div>
+        </figcaption>
+        <p class="figure-summary">折线图展示 Encoder 层数增加时 AP 指标总体上升，作者据此采用 6 层 Encoder。</p>
+        <ol class="figure-steps"><li>横轴是 Encoder layers 数量。</li><li>纵轴是 COCO AP 系列指标。</li><li>更多 Encoder 层提供更充分的全局对象关系建模，曲线在约 6 层附近达到采用点。</li></ol>
+        <pre class="formula" data-latex="#layers | GFLOPS/FPS | params | AP | AP50 | APS | APM | APL
+0 | 76/28 | 33.4M | 36.7 | 57.4 | 16.8 | 39.6 | 54.2
+3 | 81/25 | 37.4M | 40.1 | 60.6 | 18.5 | 43.8 | 58.6
+6 | 86/23 | 41.3M | 40.6 | 61.6 | 19.9 | 44.3 | 60.2
+12 | 95/20 | 49.2M | 41.6 | 62.1 | 19.8 | 44.9 | 61.9">#layers | GFLOPS/FPS | params | AP | AP50 | APS | APM | APL
+0 | 76/28 | 33.4M | 36.7 | 57.4 | 16.8 | 39.6 | 54.2
+3 | 81/25 | 37.4M | 40.1 | 60.6 | 18.5 | 43.8 | 58.6
+6 | 86/23 | 41.3M | 40.6 | 61.6 | 19.9 | 44.3 | 60.2
+12 | 95/20 | 49.2M | 41.6 | 62.1 | 19.8 | 44.9 | 61.9</pre>
+
+        <p class="figure-note"><strong>说明：</strong>原文最终选择 6 层，是精度、计算量和参数量之间的折中，并非表中 AP 的绝对最大值。</p>
+      </figure>
+
+      <figure class="figure-card" id="figure-38" data-figure="38" data-chapter="detr">
+        <figcaption>
+          <span class="figure-number">图 38</span>
+          <div><h3>最后一个 Encoder Layer 的 Attention 可视化</h3><small>PDF 页 4</small></div>
+        </figcaption>
+        <p class="figure-summary">不同查询位置在图像上形成覆盖对象实例的全局注意区域，显示 Encoder 已开始分离实例。</p>
+        <ol class="figure-steps"><li>每张图叠加一个或多个 attention heatmap。</li><li>响应区域往往覆盖完整对象或与对象相关的上下文，而非只集中于一个局部点。</li><li>作者据此解释：Encoder 的全局交互简化了 Decoder 后续对象提取和定位。</li></ol>
+
+
+
+      </figure>
+
+      <figure class="figure-card" id="figure-39" data-figure="39" data-chapter="detr">
+        <figcaption>
+          <span class="figure-number">图 39</span>
+          <div><h3>Decoder 层数与 AP/AP50</h3><small>PDF 页 4</small></div>
+        </figcaption>
+        <p class="figure-summary">折线图比较每个 Decoder Layer 输出的性能，并展示把各层预测合并后做 NMS 的结果。</p>
+        <ol class="figure-steps"><li>随着 Decoder 层数增加，AP 与 AP50 整体提升。</li><li>浅层输出更容易对同一对象重复预测，因为单层尚未充分建模输出槽位之间关系。</li><li>后续层的 Decoder Self-Attention 可抑制重复；因此 NMS 带来的额外收益逐层减少。</li><li>最后几层使用 NMS 可能误删真阳性，导致小幅 AP 损失。</li></ol>
+
+
+
+      </figure>
+
+      <figure class="figure-card" id="figure-40" data-figure="40" data-chapter="detr">
+        <figcaption>
+          <span class="figure-number">图 40</span>
+          <div><h3>Decoder Attention 的局部对象部位响应</h3><small>PDF 页 4</small></div>
+        </figcaption>
+        <p class="figure-summary">不同颜色对应不同 Object Query 的注意力，响应常集中在对象头部、腿部或边界等局部极值区域。</p>
+        <ol class="figure-steps"><li>Encoder 已通过全局注意力分离实例。</li><li>Decoder Query 因而只需关注具有判别力的局部部位，提取类别和边界信息。</li><li>不同 Query 用不同颜色显示，说明固定查询槽位在图像 memory 上检索不同对象。</li></ol>
+
+
+
+      </figure>
+    </div>
+      </section>
+
+
+      <section class="chapter" id="mask-matrix">
+        <header class="chapter-head"><span>CORE RECONSTRUCTION</span><div><h2>图 24-26 的 Causal Mask 矩阵复原</h2><p>行是 Query，列是 Key。允许读取的位置加 0；未来位置加 -infinity，再执行 Softmax。</p></div></header>
+        <div class="table-scroll"><table class="mask-table"><thead><tr><th>Q / K</th><th>&lt;BOS&gt;</th><th>I</th><th>have</th><th>a</th><th>cat</th></tr></thead><tbody><tr><th>&lt;BOS&gt;</th><td class="allow">0</td><td class="block">-inf</td><td class="block">-inf</td><td class="block">-inf</td><td class="block">-inf</td></tr><tr><th>I</th><td class="allow">0</td><td class="allow">0</td><td class="block">-inf</td><td class="block">-inf</td><td class="block">-inf</td></tr><tr><th>have</th><td class="allow">0</td><td class="allow">0</td><td class="allow">0</td><td class="block">-inf</td><td class="block">-inf</td></tr><tr><th>a</th><td class="allow">0</td><td class="allow">0</td><td class="allow">0</td><td class="allow">0</td><td class="block">-inf</td></tr><tr><th>cat</th><td class="allow">0</td><td class="allow">0</td><td class="allow">0</td><td class="allow">0</td><td class="allow">0</td></tr></tbody></table></div>
+        <pre class="formula">masked_logits = Q @ K.T / sqrt(d_k) + M
+weights = softmax(masked_logits, dim=-1)
+output = weights @ V</pre>
+      </section>
+
+
+      <section class="chapter" id="equations">
+        <header class="chapter-head"><span>FORMULA INDEX</span><div><h2>公式索引</h2><p>所有关键公式均以纯文本形式存在，GLM 不需要识图或执行公式渲染器。</p></div></header>
+        <div class="table-scroll"><table class="equation-table"><thead><tr><th>ID</th><th>含义</th><th>机器可读公式</th></tr></thead><tbody><tr><th>E1</th><td>单个 Query-Key 分数</td><td><code>alpha_(i,j) = q_i^T k_j / sqrt(d_k)</code></td></tr><tr><th>E2</th><td>按 Key 维 Softmax</td><td><code>a_(i,j) = exp(alpha_(i,j)) / sum_t exp(alpha_(i,t))</code></td></tr><tr><th>E3</th><td>单位置输出</td><td><code>b_i = sum_j a_(i,j) v_j</code></td></tr><tr><th>E4</th><td>矩阵形式</td><td><code>Attention(Q,K,V) = softmax(QK^T / sqrt(d_k) + M)V</code></td></tr><tr><th>E5</th><td>Multi-Head</td><td><code>head_r=Attention(QW_r^Q,KW_r^K,VW_r^V); MHA=Concat(head_1,...,head_h)W^O</code></td></tr><tr><th>E6</th><td>正余弦位置编码</td><td><code>PE(pos,2i)=sin(pos/10000^(2i/d)); PE(pos,2i+1)=cos(pos/10000^(2i/d))</code></td></tr><tr><th>E7</th><td>经典 Post-LN Encoder 子层</td><td><code>y=LayerNorm(x+Sublayer(x))</code></td></tr><tr><th>E8</th><td>DETR 二维位置编码</td><td><code>pos(x,y)=concat(PE_x(x) in R^128, PE_y(y) in R^128) in R^256</code></td></tr><tr><th>E9</th><td>Hungarian 最优排列</td><td><code>sigma_hat = argmin_(sigma in Sigma_N) sum_i L_match(y_i, y_hat_(sigma(i)))</code></td></tr><tr><th>E10</th><td>匹配代价</td><td><code>L_match = -p_hat_(sigma(i))(c_i) + L_box(b_i,b_hat_(sigma(i))) for non-empty targets</code></td></tr><tr><th>E11</th><td>训练损失</td><td><code>L_Hungarian = sum_i[-log p_hat_(sigma_hat(i))(c_i) + 1_(c_i != empty)L_box]</code></td></tr><tr><th>E12</th><td>框损失</td><td><code>L_box=lambda_iou*L_giou + lambda_L1*||b_i-b_hat||_1</code></td></tr></tbody></table></div>
+      </section>
+
+
+      <section class="chapter" id="shape-ledger">
+        <header class="chapter-head"><span>SHAPE LEDGER</span><div><h2>张量 Shape 总表</h2><p>把 PDF 图 10-12、30-35 中分散的维度集中到一张机器可读表。</p></div></header>
+        <div class="table-scroll"><table class="equation-table"><thead><tr><th>阶段</th><th>张量</th><th>Shape</th></tr></thead><tbody><tr><td>标准 Attention</td><td><code>X</code></td><td><code>[B,S,d_model]</code></td></tr><tr><td>标准 Attention</td><td><code>Q,K,V after split</code></td><td><code>[B,H,S,d_head]</code></td></tr><tr><td>标准 Attention</td><td><code>scores/weights</code></td><td><code>[B,H,S_q,S_k]</code></td></tr><tr><td>标准 Attention</td><td><code>output before concat</code></td><td><code>[B,H,S_q,d_v]</code></td></tr><tr><td>DETR Backbone</td><td><code>image</code></td><td><code>[B,3,H0,W0]</code></td></tr><tr><td>DETR Backbone</td><td><code>CNN feature</code></td><td><code>[B,C,H,W]</code></td></tr><tr><td>DETR 1x1 Conv</td><td><code>projected feature</code></td><td><code>[B,256,H,W]</code></td></tr><tr><td>DETR Encoder</td><td><code>feature/position sequence</code></td><td><code>[HW,B,256]</code></td></tr><tr><td>DETR Decoder</td><td><code>object queries</code></td><td><code>[100,B,256]</code></td></tr><tr><td>DETR Cross-Attention</td><td><code>attention weights</code></td><td><code>[B,H,100,HW]</code></td></tr><tr><td>DETR Outputs</td><td><code>class logits</code></td><td><code>[B,100,class+1]</code></td></tr><tr><td>DETR Outputs</td><td><code>boxes</code></td><td><code>[B,100,4]</code></td></tr></tbody></table></div>
+      </section>
+
+
+    <section class="chapter" id="hungarian-example">
+      <header class="chapter-head"><span>DETR MATCHING</span><div><h2>图后文字中的 Hungarian Matching 计算过程</h2><p>该计算主要存在于正文和公式，不应在转换时丢失。</p></div></header>
+      <ol>
+        <li>模型固定输出 100 个 prediction；示例图像只有 3 个 GT：Car、Dog、Horse。</li>
+        <li>构造 <code>[100,3]</code> 代价矩阵。元素 <code>C[p,g]</code> 表示预测 p 与真值 g 的分类代价加框代价。</li>
+        <li><code>linear_sum_assignment</code> 在所有一对一排列中选总代价最小的匹配。</li>
+        <li>文章示例假设得到 prediction 23 -> Car、44 -> Dog、95 -> Horse。</li>
+        <li>只对匹配结果计算分类与 box loss；其余预测匹配 no-object，框回归分支忽略背景。</li>
+      </ol>
+      <pre class="formula">C[p,g] = -P_p(class_g) + lambda_L1 * L1(box_p, box_g) + lambda_giou * GIoU_loss(box_p, box_g)
+assignment = linear_sum_assignment(C)
+loss = classification_loss + box_L1_loss + generalized_IoU_loss</pre>
+    </section>
+
+    <details class="raw" id="raw-text">
+      <summary>原始提取正文：五页 PDF 完整文本（点击展开）</summary>
+      <pre>===== PDF PAGE 1 =====
+Vision Transformer 超详细解读 (原理分析+代码解读) (⼀)
+收录于 · Transformer和MLP⽇积⽉累
+4565 ⼈赞同了该⽂章
+清华⼤学 ⾃动化系硕⼠
+科技猛兽
+本系列已授权极市平台，未经允许不得⼆次转载，如有需要请私信作者。
+考虑到每篇⽂章字数的限制，每⼀篇⽂章将按照⽬录的编排包含三个⼩节，⽽且这个系列会随着
+Vision Transformer的发展⽽⻓期更新。
+⽬录
+Transformer 是 Google 的团队在 2017 年提出的⼀种 NLP 经典模型，现在⽐较⽕热的 Bert 也
+是基于 Transformer。Transformer 模型使⽤了 Self-Attention 机制，不采⽤ RNN 的顺序结构
+，使得模型可以并⾏化训练，⽽且能够拥有全局信息。
+1 ⼀切从Self-attention开始
+•  1.1 处理Sequence数据的模型：
+Transformer是⼀个Sequence to Sequence model，特别之处在于它⼤量⽤到了self-
+attention。
+要处理⼀个Sequence，最常想到的就是使⽤RNN，它的输⼊是⼀串vector sequence，输出是
+另⼀串vector sequence，如下图1左所示。
+如果假设是⼀个single directional的RNN，那当输出  时，默认  都已经看过
+了。如果假设是⼀个bi-directional的RNN，那当输出  时，默认  都已经看
+过了。RNN⾮常擅⻓于处理input是⼀个sequence的状况。
+那RNN有什么样的问题呢？它的问题就在于：RNN很不容易并⾏化 (hard to parallel)。
+为什么说RNN很不容易并⾏化呢？假设在single directional的RNN的情形下，你今天要算出
+ ，就必须要先看  再看  再看  再看  ，所以这个过程很难平⾏处理。
+所以今天就有⼈提出把CNN拿来取代RNN，如下图1右所示。其中，橘⾊的三⻆形表示⼀个
+filter，每次扫过3个向量  ，扫过⼀轮以后，就输出了⼀排结果，使⽤橘⾊的⼩圆点表示。
+这是第⼀个橘⾊的filter的过程，还有其他的filter，⽐如图2中的⻩⾊的filter，它经历着与橘⾊
+的filter相似的过程，⼜输出⼀排结果，使⽤⻩⾊的⼩圆点表示。
+图1：处理Sequence数据的模型
+图2：处理Sequence数据的模型
+所以，⽤CNN，你确实也可以做到跟RNN的输⼊输出类似的关系，也可以做到输⼊是⼀个
+sequence，输出是另外⼀个sequence。
+但是，表⾯上CNN和RNN可以做到相同的输⼊和输出，但是CNN只能考虑⾮常有限的内容。⽐
+如在我们右侧的图中CNN的filter只考虑了3个vector，不像RNN可以考虑之前的所有
+vector。但是CNN也不是没有办法考虑很⻓时间的dependency的，你只需要堆叠filter，多堆
+叠⼏层，上层的filter就可以考虑⽐较多的资讯，⽐如，第⼆层的filter (蓝⾊的三⻆形)看了6个
+vector，所以，只要叠很多层，就能够看很⻓时间的资讯。
+⽽CNN的⼀个好处是：它是可以并⾏化的 (can parallel)，不需要等待红⾊的filter算完，再算⻩
+⾊的filter。但是必须要叠很多层filter，才可以看到⻓时的资讯。所以今天有⼀个想法：self-
+attention，如下图3所示，⽬的是使⽤self-attention layer取代RNN所做的事情。
+图3：You can try to replace any thing that has been done by RNNwith self attention
+所以重点是：我们有⼀种新的layer，叫self-attention，它的输⼊和输出和RNN是⼀模⼀样的，
+输⼊⼀个sequence，输出⼀个sequence，它的每⼀个输出  都看过了整个的输⼊
+sequence，这⼀点与bi-directional RNN相同。但是神奇的地⽅是：它的每⼀个输出
+可以并⾏化计算。
+•  1.2 Self-attention：
+那么self-attention具体是怎么做的呢？
+图4：self-attention具体是怎么做的？
+⾸先假设我们的input是图4的  ，是⼀个sequence，每⼀个input (vector)先乘上⼀个
+矩阵  得到embedding，即向量  。接着这个embedding进⼊self-attention层，每
+⼀个向量  分别乘上3个不同的transformation matrix  ，以向量  为
+例，分别得到3个不同的向量  。
+图5：self-attention具体是怎么做的？
+接下来使⽤每个query  去对每个key  做attention，attention就是匹配这2个向量有多接近，
+⽐如我现在要对  和  做attention，我就可以把这2个向量做scaled inner product，得到
+ 。接下来你再拿  和  做attention，得到  ，你再拿  和  做attention，得到
+ ，你再拿  和  做attention，得到  。那这个scaled inner product具体是怎么计
+算的呢？
+式中，  是  跟  的维度。因为  的数值会随着dimension的增⼤⽽增⼤，所以要除以
+ 的值，相当于归⼀化的效果。
+接下来要做的事如图6所示，把计算得到的所有  值取  操作。
+图6：self-attention具体是怎么做的？
+取完  操作以后，我们得到了  ，我们⽤它和所有的  值进⾏相乘。具体来讲，把
+ 乘上  ，把  乘上  ，把  乘上  ，把  乘上  ，把结果通通加起来得到
+ ，所以，今天在产⽣  的过程中⽤了整个sequence的资讯 (Considering the whole
+sequence)。如果要考虑local的information，则只需要学习出相应的  ，  就不再带
+有那个对应分⽀的信息了；如果要考虑global的information，则只需要学习出相应的
+，  就带有全部的对应分⽀的信息了。
+图7：self-attention具体是怎么做的？
+同样的⽅法，也可以计算出  ，如下图8所示，  就是拿query 去对其他的  做
+attention，得到  ，再与value值  相乘取weighted sum得到的。
+图8：self-attention具体是怎么做的？
+经过了以上⼀连串计算，self-attention layer做的事情跟RNN是⼀样的，只是它可以并⾏的得到
+layer输出的结果，如图9所示。现在我们要⽤矩阵表示上述的计算过程。
+图9：self-attention的效果
+⾸先输⼊的embedding是  ，然后⽤  乘以transformation matrix
+得到  ，它的每⼀列代表着⼀个vector  。同理，⽤  乘以
+transformation matrix  得到  ，它的每⼀列代表着⼀个vector  。
+⽤  乘以transformation matrix  得到  ，它的每⼀列代表着⼀个
+vector  。
+图10：self-attention的矩阵计算过程
+接下来是  与  的attention过程，我们可以把vector  横过来变成⾏向量，与列向量  做内
+积，这⾥省略了  。这样，  就成为了  的矩阵，它由4个⾏向量拼成的矩阵和4个列
+向量拼成的矩阵做内积得到，如图11所示。
+在得到  以后，如上⽂所述，要得到 ， 就要使⽤  分别与  相乘再求和得到，所以
+要再左乘  矩阵。
+图11：self-attention的矩阵计算过程
+到这⾥你会发现这个过程可以被表示为，如图12所示：输⼊矩阵  分别乘上3个不
+同的矩阵  得到3个中间矩阵  。它们的维度
+是相同的。把  转置之后与  相乘得到Attention矩阵  ，代表每⼀个位置两
+两之间的attention。再将它取  操作得到  ，最后将它乘以  矩阵得
+到输出vector  。
+图12：self-attention就是⼀堆矩阵乘法，可以实现GPU加速
+•  1.3 Multi-head Self-attention：
+还有⼀种multi-head的self-attention，以2个head的情况为例：由  ⽣成的  进⼀步乘以2
+个转移矩阵变为  和  ，同理由  ⽣成的  进⼀步乘以2个转移矩阵变为  和  ，
+由  ⽣成的  进⼀步乘以2个转移矩阵变为  和  。接下来  再与  做
+attention，得到weighted sum的权重  ，再与  做weighted sum得到最终的
+ 。同理得到  。现在我们有了
+ 和  ，可以把它们
+concat起来，再通过⼀个transformation matrix调整维度，使之与刚才的
+ 维度⼀致(这步如图13所示)。
+图13：multi-head self-attention
+图13：调整b的维度
+从下图14可以看到 Multi-Head Attention 包含多个 Self-Attention 层，⾸先将输⼊  分别传递
+到 2个不同的 Self-Attention 中，计算得到 2 个输出结果。得到2个输出矩阵之后，Multi-Head
+Attention 将它们拼接在⼀起 (Concat)，然后传⼊⼀个Linear层，得到 Multi-Head Attention 最
+终的输出  。可以看到 Multi-Head Attention 输出的矩阵  与其输⼊的矩阵  的维度是⼀样
+的。
+图14：multi-head self-attention
+这⾥有⼀组Multi-head Self-attention的解果，其中绿⾊部分是⼀组query和key，红⾊部分是
+另外⼀组query和key，可以发现绿⾊部分其实更关注global的信息，⽽红⾊部分其实更关注
+local的信息。
+图15：Multi-head Self-attention的不同head分别关注了global和local的讯息
+•  1.4 Positional Encoding：
+以上是multi-head self-attention的原理，但是还有⼀个问题是：现在的self-attention中没有位
+置的信息，⼀个单词向量的“近在咫尺”位置的单词向量和“远在天涯”位置的单词向量效果是⼀样
+的，没有表示位置的信息(No position information in self attention)。所以你输⼊&quot;A打了B&quot;或
+者&quot;B打了A&quot;的效果其实是⼀样的，因为并没有考虑位置的信息。所以在self-attention原来的
+paper中，作者为了解决这个问题所做的事情是如下图16所示：
+任&quot;
+⼤家都在搜 换⼀换
+患癌妻⼦申请销毁婚外胚…
+ 热
+鸿蒙智⾏回应「⽵知了」…
+ 新
+同济⼤学取消教师⻓期聘任
+ 热
+瑞幸对嘴喷奶油员⼯已被…
+ 热
+⼈⽣选择模拟器
+ 活
+动
+⽵知了视频被投诉下架
+ 热
+宗馥莉同⽗异⺟兄弟成⽴…
+DeepSeek 被称为⼤模型…
+ 热
+美国制裁洽洽⽠⼦思念⽔饺
+ 热
+妈妈罚男孩⼀次性吃 3 0 袋…
+ 热
+449 万
+400 万
+352 万
+351 万
+339 万
+326 万
+312 万
+307 万
+294 万
+294 万
+Vision Transformer 超详细解读 (原理分析+代码解读) (⼀) ⾸发于
+Transformer和MLP⽇积⽉累 切换模式
+
+===== PDF PAGE 2 =====
+图16：self-attention中的位置编码
+具体的做法是：给每⼀个位置规定⼀个表示位置信息的向量  ，让它与  加在⼀起之后作为新
+的  参与后⾯的运算过程，但是这个向量  是由⼈⼯设定的，⽽不是神经⽹络学习出来的。
+每⼀个位置都有⼀个不同的  。
+那到这⾥⼀个⾃然⽽然的问题是：为什么是  与  相加？为什么不是concatenate？加起来以
+后，原来表示位置的资讯不就混到  ⾥⾯去了吗？不就很难被找到了吗？
+这⾥提供⼀种解答这个问题的思路：
+如图15所示，我们先给每⼀个位置的  append⼀个one-hot编码的向量
+ ，得到⼀个新的输⼊向量  ，这个向量作为新的输⼊，乘以
+⼀个transformation matrix  。那么：
+所以， 与  相加就等同于把原来的输⼊  concat⼀个表示位置的独热编码  ，再做
+transformation。
+这个与位置编码乘起来的矩阵  是⼿⼯设计的，如图17所示 (⿊⾊框代表⼀个位置的编码)。
+图17：与位置编码乘起来的转移矩阵WP
+Transformer 中除了单词的 Embedding，还需要使⽤位置 Embedding 表示单词出现在句⼦中的
+位置。因为 Transformer 不采⽤ RNN 的结构，⽽是使⽤全局信息，不能利⽤单词的顺序信息，
+⽽这部分信息对于 NLP 来说⾮常重要。所以 Transformer 中使⽤位置 Embedding 保存单词在
+序列中的相对或绝对位置。
+位置 Embedding ⽤ PE表示，PE 的维度与单词 Embedding 是⼀样的。PE 可以通过训练得到，
+也可以使⽤某种公式计算得到。在 Transformer 中采⽤了后者，计算公式如下：
+\begin{align}PE_{(pos, 2i)} = sin(pos/10000^{2i/d_{model}}) \\ PE_{(pos, 2i+1)} =
+cos(pos/10000^{2i/d_{model}}) \end{align}\tag{5}
+式中， pos 表示token在sequence中的位置，例如第⼀个token &quot;我&quot; 的 pos=0 。
+i ，或者准确意义上是 2i 和 2i+1 表示了Positional Encoding的维度，i 的取值范围是： \left[
+0,\ldots ,{{{d}_{model}}}/{2}\; \right) 。所以当 pos 为1时，对应的Positional Encoding可以写
+成：
+PE\left( 1 \right)=\left[ \sin \left( {1}/{{{10000}^{{0}/{512}\;}}}\; \right),\cos \left(
+{1}/{{{10000}^{{0}/{512}\;}}}\; \right),\sin \left( {1}/{{{10000}^{{2}/{512}\;}}}\; \right),\cos \left(
+{1}/{{{10000}^{{2}/{512}\;}}}\; \right),\ldots \right]
+式中， {{d}_{model}}=512。底数是10000。为什么要使⽤10000呢，这个就类似于⽞学了，原
+论⽂中完全没有提啊，这⾥不得不说说论⽂的readability的问题，即便是很多⾼引的⽂章，最基
+本的内容都讨论不清楚，所以才出现像上⾯提问⾥的讨论，说实话这些论⽂还远远没有做到easy
+to follow。这⾥我给出⼀个假想：{{10000}^{{1}/{512}}}是⼀个⽐较接近1的数（1.018），如果
+⽤100000，则是1.023。这⾥只是猜想⼀下，其实⼤家应该完全可以使⽤另⼀个底数。
+这个式⼦的好处是：
+•  每个位置有⼀个唯⼀的positional encoding。
+•  使 PE 能够适应⽐训练集⾥⾯所有句⼦更⻓的句⼦，假设训练集⾥⾯最⻓的句⼦是有 20 个单
+词，突然来了⼀个⻓度为 21 的句⼦，则使⽤公式计算的⽅法可以计算出第 21 位的
+Embedding。
+•  可以让模型容易地计算出相对位置，对于固定⻓度的间距 k ，任意位置的 PE_{pos+k} 都可以
+被 PE_{pos} 的线性函数表示，因为三⻆函数特性：
+cos(\alpha+\beta) = cos(\alpha)cos(\beta)-sin(\alpha)sin(\beta) \\
+sin(\alpha+\beta) = sin(\alpha)cos(\beta) + cos(\alpha)sins(\beta) \\
+除了以上的固定位置编码以外，还有其他的很多表示⽅法：
+⽐如下图18a就是sin-cos的固定位置编码。图b就是可学习的位置编码。图c和d分别
+FLOATER和RNN模型学习的位置编码。
+图18：其他的很多位置编码⽅法
+接下来我们看看self-attention在sequence2sequence model⾥⾯是怎么使⽤的，我们可以把
+Encoder-Decoder中的RNN⽤self-attention取代掉。
+图18：Seq2seq with Attention
+在self-attention的最后⼀部分我们来对⽐下self-attention和CNN的关系。如图19，今天在使
+⽤self-attention去处理⼀张图⽚的时候，1的那个pixel产⽣query，其他的各个pixel产⽣
+key。在做inner-product的时候，考虑的不是⼀个⼩的范围，⽽是⼀整张图⽚。
+但是在做CNN的时候是只考虑感受野红框⾥⾯的资讯，⽽不是图⽚的全局信息。所以CNN可以
+看作是⼀种简化版本的self-attention。
+或者可以反过来说，self-attention是⼀种复杂化的CNN，在做CNN的时候是只考虑感受野红框
+⾥⾯的资讯，⽽感受野的范围和⼤⼩是由⼈决定的。但是self-attention由attention找到相关的
+pixel，就好像是感受野的范围和⼤⼩是⾃动被学出来的，所以CNN可以看做是self-attention的
+特例，如图20所示。
+图19：CNN考虑感受野范围，⽽self-attention考虑的不是⼀个⼩的范围，⽽是⼀整张图⽚
+图20：CNN可以看做是self-attention的特例
+既然self-attention是更⼴义的CNN，则这个模型更加flexible。⽽我们认为，⼀个模型越
+flexible，训练它所需要的数据量就越多，所以在训练self-attention模型时就需要更多的数据，
+这⼀点在下⾯介绍的论⽂ ViT 中有印证，它需要的数据集是有3亿张图⽚的JFT-300，⽽如果
+不使⽤这么多数据⽽只使⽤ImageNet，则性能不如CNN。
+2 Transformer的实现和代码解读
+•  2.1 Transformer原理分析：
+图21：Transformer
+Encoder：
+这个图21讲的是⼀个seq2seq的model，左侧为 Encoder block，右侧为 Decoder block。红
+⾊圈中的部分为Multi-Head Attention，是由多个Self-Attention组成的，可以看到 Encoder
+block 包含⼀个 Multi-Head Attention，⽽ Decoder block 包含两个 Multi-Head Attention (其
+中有⼀个⽤到 Masked)。Multi-Head Attention 上⽅还包括⼀个 Add &amp; Norm 层，Add 表示残
+差连接 (Residual Connection) ⽤于防⽌⽹络退化，Norm 表示 Layer Normalization，⽤于对每
+⼀层的激活值进⾏归⼀化。⽐如说在Encoder Input处的输⼊是机器学习，在Decoder Input处
+的输⼊是&lt;BOS&gt;，输出是machine。再下⼀个时刻在Decoder Input处的输⼊是machine，输出
+是learning。不断重复知道输出是句点(.)代表翻译结束。
+接下来我们看看这个Encoder和Decoder⾥⾯分别都做了什么事情，先看左半部分的Encoder：
+⾸先输⼊ X\in R (n_x,N) 通过⼀个Input Embedding的转移矩阵 W^X\in R (d,n_x) 变为了⼀个
+张量，即上⽂所述的 I\in R (d,N) ，再加上⼀个表示位置的Positional Encoding E\in R (d,N) ，
+得到⼀个张量，去往后⾯的操作。
+它进⼊了这个绿⾊的block，这个绿⾊的block会重复 N 次。这个绿⾊的block⾥⾯有什么呢？
+它的第1层是⼀个上⽂讲的multi-head的attention。你现在⼀个sequence I\in R (d,N) ，经过
+⼀个multi-head的attention，你会得到另外⼀个sequence O\in R (d,N) 。
+下⼀个Layer是Add &amp; Norm，这个意思是说：把multi-head的attention的layer的输⼊ I\in R
+(d,N) 和输出 O\in R (d,N) 进⾏相加以后，再做Layer Normalization，⾄于Layer
+Normalization和我们熟悉的Batch Normalization的区别是什么，请参考图20和21。
+图22：不同Normalization⽅法的对⽐
+其中，Batch Normalization和Layer Normalization的对⽐可以概括为图22，Batch
+Normalization强⾏让⼀个batch的数据的某个channel的 \mu=0,\sigma=1 ，⽽Layer
+Normalization让⼀个数据的所有channel的 \mu=0,\sigma=1 。
+图23：Batch Normalization和Layer Normalization的对⽐
+接着是⼀个Feed Forward的前馈⽹络和⼀个Add &amp; Norm Layer。
+所以，这⼀个绿⾊的block的前2个Layer操作的表达式为：
+\color{darkgreen}{O_1}=\color{green}{\text{Layer Normalization}}(\color{teal}
+{I}+\color{crimson}{\text{Multi-head Self-Attention}}(\color{teal}{I}))\tag{6}
+这⼀个绿⾊的block的后2个Layer操作的表达式为：
+\color{darkgreen}{O_2}=\color{green}{\text{Layer Normalization}}(\color{teal}
+{O_1}+\color{crimson}{\text{Feed Forward Network}}(\color{teal}{O_1}))\tag{7}
+\color{green}{\text{Block}}(\color{teal}{I})=\color{green}{O_2} \tag{8}
+所以Transformer的Encoder的整体操作为：
+\color{purple}{\text{Encoder}}(\color{darkgreen}{I})=\color{darkgreen}{\text{Block}}
+(...\color{darkgreen}{\text{Block}}(\color{darkgreen}{\text{Block}})(\color{teal}{I}))\\\quad
+N\;times \tag{9}
+Decoder：
+现在来看Decoder的部分，输⼊包括2部分，下⽅是前⼀个time step的输出的embedding，即
+上⽂所述的 I\in R (d,N) ，再加上⼀个表示位置的Positional Encoding E\in R (d,N) ，得到⼀个
+张量，去往后⾯的操作。它进⼊了这个绿⾊的block，这个绿⾊的block会重复 N 次。这个绿⾊
+的block⾥⾯有什么呢？
+⾸先是Masked Multi-Head Self-attention，masked的意思是使attention只会attend on已经
+产⽣的sequence，这个很合理，因为还没有产⽣出来的东⻄不存在，就⽆法做attention。
+输出是：对应 \color{crimson}{i} 位置的输出词的概率分布。
+输⼊是： \color{purple}{Encoder} 的输出 和 对应 \color{crimson}{i-1} 位置decoder的输出。
+所以中间的attention不是self-attention，它的Key和Value来⾃encoder，Query来⾃上⼀位
+置 \color{crimson}{Decoder} 的输出。
+解码：这⾥要特别注意⼀下，编码可以并⾏计算，⼀次性全部Encoding出来，但解码不是⼀次
+把所有序列解出来的，⽽是像 RNN ⼀样⼀个⼀个解出来的，因为要⽤上⼀个位置的输⼊当作
+attention的query。
+明确了解码过程之后最上⾯的图就很好懂了，这⾥主要的不同就是新加的另外要说⼀下新加的
+attention多加了⼀个mask，因为训练时的output都是Ground Truth，这样可以确保预测第
+\color{crimson}{i} 个位置时不会接触到未来的信息。
+•  包含两个 Multi-Head Attention 层。
+•  第⼀个 Multi-Head Attention 层采⽤了 Masked 操作。
+•  第⼆个 Multi-Head Attention 层的Key，Value矩阵使⽤ Encoder 的编码信息矩阵 C 进⾏计
+算，⽽Query使⽤上⼀个 Decoder block 的输出计算。
+•  最后有⼀个 Softmax 层计算下⼀个翻译单词的概率。
+下⾯详细介绍下Masked Multi-Head Self-attention的具体操作，Masked在Scale操作之后，
+softmax操作之前。
+图24：Masked在Scale操作之后，softmax操作之前
+因为在翻译的过程中是顺序翻译的，即翻译完第 i 个单词，才可以翻译第 i+1 个单词。通过
+Masked 操作可以防⽌第 i 个单词知道第 i+1 个单词之后的信息。下⾯以 &quot;我有⼀只猫&quot; 翻译成 &quot;I
+have a cat&quot; 为例，了解⼀下 Masked 操作。在 Decoder 的时候，是需要根据之前的翻译，求解
+当前最有可能的翻译，如下图所示。⾸先根据输⼊ &quot;&lt;Begin&gt;&quot; 预测出第⼀个单词为 &quot;I&quot;，然后根
+据输⼊ &quot;&lt;Begin&gt; I&quot; 预测下⼀个单词 &quot;have&quot;。
+Decoder 可以在训练的过程中使⽤ Teacher Forcing 并且并⾏化训练，即将正确的单词序列
+(&lt;Begin&gt; I have a cat) 和对应输出 (I have a cat &lt;end&gt;) 传递到 Decoder。那么在预测第 i 个
+输出时，就要将第 i+1 之后的单词掩盖住，注意 Mask 操作是在 Self-Attention 的 Softmax 之前
+使⽤的，下⾯⽤ 0 1 2 3 4 5 分别表示 &quot;&lt;Begin&gt; I have a cat &lt;end&gt;&quot;。
+图25：Decoder过程
+注意这⾥transformer模型训练和测试的⽅法不同：
+测试时：
+1. 输⼊&lt;Begin&gt;，解码器输出 I 。
+2. 输⼊前⾯已经解码的&lt;Begin&gt;和 I，解码器输出have。
+3. 输⼊已经解码的&lt;Begin&gt;，I, have, a, cat，解码器输出解码结束标志位&lt;end&gt;，每次解码都会
+利⽤前⾯已经解码输出的所有单词嵌⼊信息。
+Transformer测试时的解码过程：
+训练时：
+不采⽤上述类似RNN的⽅法⼀个⼀个⽬标单词嵌⼊向量顺序输⼊训练，想采⽤类似编码器中的矩
+阵并⾏算法，⼀步就把所有⽬标单词预测出来。要实现这个功能就可以参考编码器的操作，把
+⽬标单词嵌⼊向量组成矩阵⼀次输⼊即可。即：并⾏化训练。
+但是在解码have时候，不能利⽤到后⾯单词a和cat的⽬标单词嵌⼊向量信息，否则这就是作弊
+(测试时候不可能能未⼘先知)。为此引⼊mask。具体是：在解码器中，self-attention层只被允
+许处理输出序列中更靠前的那些位置，在softmax步骤前，它会把后⾯的位置给隐去。
+Masked Multi-Head Self-attention的具体操作如图26所示。
+Step1：输⼊矩阵包含 &quot;&lt;Begin&gt; I have a cat&quot; (0, 1, 2, 3, 4) 五个单词的表示向量，Mask是⼀个
+5×5 的矩阵。在Mask可以发现单词 0 只能使⽤单词 0 的信息，⽽单词 1 可以使⽤单词 0, 1 的信
+息，即只能使⽤之前的信息。输⼊矩阵 X\in R_{N,d_x} 经过transformation matrix变为3个矩
+阵：Query Q\in R_{N,d} ，Key K\in R_{N,d} 和Value V\in R_{N,d} 。
+Step2： Q^T\cdot K 得到 Attention矩阵 A\in R_{N,N} ，此时先不急于做softmax的操作，⽽
+是先于⼀个 \text{Mask}\in R_{N,N} 矩阵相乘，使得attention矩阵的有些位置 归0，得到
+Masked Attention矩阵 \text{Mask Attention}\in R_{N,N} 。 \text{Mask}\in R_{N,N} 矩阵是个
+下三⻆矩阵，为什么这样设计？是因为想在计算 Z 矩阵的某⼀⾏时，只考虑它前⾯token的作
+⽤。即：在计算 Z 的第⼀⾏时，刻意地把 \text{Attention} 矩阵第⼀⾏的后⾯⼏个元素屏蔽掉，
+只考虑 \text{Attention}_{0,0} 。在产⽣have这个单词时，只考虑 I，不考虑之后的have a cat，
+即只会attend on已经产⽣的sequence，这个很合理，因为还没有产⽣出来的东⻄不存在，就⽆
+法做attention。
+Step3：Masked Attention矩阵进⾏ Softmax，每⼀⾏的和都为 1。但是单词 0 在单词 1, 2, 3, 4
+上的 attention score 都为 0。得到的结果再与 V 矩阵相乘得到最终的self-attention层的输出结
+果 Z_1\in R_{N,d} 。
+Step4： Z_1\in R_{N,d} 只是某⼀个head的结果，将多个head的结果concat在⼀起之后再最
+后进⾏Linear Transformation得到最终的Masked Multi-Head Self-attention的输出结果 Z\in
+R_{N,d} 。
+图26：Masked Multi-Head Self-attention的具体操作
+第1个Masked Multi-Head Self-attention的 \text{Query, Key, Value} 均来⾃Output
+Embedding。
+第2个Multi-Head Self-attention的 \text{Query} 来⾃第1个Self-attention layer的输出，
+\text{Key, Value} 来⾃Encoder的输出。
+为什么这么设计？这⾥提供⼀种个⼈的理解：
+\text{Key, Value} 来⾃Transformer Encoder的输出，所以可以看做句⼦(Sequence)/图⽚
+(image)的内容信息(content，⽐如句意是：&quot;我有⼀只猫&quot;，图⽚内容是：&quot;有⼏辆⻋，⼏个⼈等
+等&quot;)。
+\text{Query} 表达了⼀种诉求：希望得到什么，可以看做引导信息(guide)。
+通过Multi-Head Self-attention结合在⼀起的过程就相当于是把我们需要的内容信息指导表达出
+来。
+Decoder的最后是Softmax 预测输出单词。因为 Mask 的存在，使得单词 0 的输出 Z(0,) 只包含
+单词 0 的信息。Softmax 根据输出矩阵的每⼀⾏预测下⼀个单词，如下图27所示。
+图27：Softmax 根据输出矩阵的每⼀⾏预测下⼀个单词
+如下图28所示为Transformer的整体结构。
+
+===== PDF PAGE 3 =====
+图28：Transformer的整体结构
+•  2.2 Transformer代码解读：
+代码来⾃：
+ScaledDotProductAttention：
+实现的是图22的操作，先令 Q\cdot K^T ，再对结果按位乘以 \text{Mask} 矩阵，再做
+\text{Softmax} 操作，最后的结果与 V 相乘，得到self-attention的输出。
+class ScaledDotProductAttention(nn.Module):
+    &#x27;&#x27;&#x27; Scaled Dot-Product Attention &#x27;&#x27;&#x27;
+    def __init__(self, temperature, attn_dropout=0.1):
+        super().__init__()
+        self.temperature = temperature
+        self.dropout = nn.Dropout(attn_dropout)
+    def forward(self, q, k, v, mask=None):
+        attn = torch.matmul(q / self.temperature, k.transpose(2, 3))
+        if mask is not None:
+            attn = attn.masked_fill(mask == 0, -1e9)
+        attn = self.dropout(F.softmax(attn, dim=-1))
+        output = torch.matmul(attn, v)
+        return output, attn
+位置编码 PositionalEncoding：
+实现的是式(5)的位置编码。
+MultiHeadAttention：
+实现图13，14的多头self-attention。
+前向传播Feed Forward Network：
+class PositionwiseFeedForward(nn.Module):
+    &#x27;&#x27;&#x27; A two-feed-forward-layer module &#x27;&#x27;&#x27;
+    def __init__(self, d_in, d_hid, dropout=0.1):
+        super().__init__()
+        self.w_1 = nn.Linear(d_in, d_hid) # position-wise
+        self.w_2 = nn.Linear(d_hid, d_in) # position-wise
+        self.layer_norm = nn.LayerNorm(d_in, eps=1e-6)
+        self.dropout = nn.Dropout(dropout)
+    def forward(self, x):
+        residual = x
+        x = self.w_2(F.relu(self.w_1(x)))
+        x = self.dropout(x)
+        x += residual
+        x = self.layer_norm(x)
+        return x
+EncoderLayer：
+实现图26中的⼀个EncoderLayer，具体的结构如图19所示。
+DecoderLayer：
+实现图28中的⼀个DecoderLayer，具体的结构如图21所示。
+Encoder：
+实现图28,21左侧的Encoder：
+Decoder：
+实现图28,21右侧的Decoder：
+整体结构：
+实现图28,21整体的Transformer：
+产⽣Mask：
+src_mask = get_pad_mask(src_seq, self.src_pad_idx)
+⽤于产⽣Encoder的Mask，它是⼀列Bool值，负责把标点mask掉。
+trg_mask = get_pad_mask(trg_seq, self.trg_pad_idx) &amp;
+get_subsequent_mask(trg_seq)
+⽤于产⽣Decoder的Mask。它是⼀个矩阵，如图24中的Mask所示，功能已在上⽂介绍。
+3 Transformer+Detection：引⼊视觉领域的⾸创DETR
+论⽂名称：End-to-End Object Detection with Transformers
+论⽂地址：
+•  3.1 DETR原理分析：
+\color{indianred}{\text{⽹络架构部分解读:}}
+本⽂的任务是Object detection，⽤到的⼯具是Transformers，特点是End-to-end。
+⽬标检测的任务是要去预测⼀系列的Bounding Box的坐标以及Label， 现代⼤多数检测器通过
+定义⼀些proposal，anchor或者windows，把问题构建成为⼀个分类和回归问题来间接地完成
+这个任务。⽂章所做的⼯作，就是将transformers运⽤到了object detection领域，取代了现
+在的模型需要⼿⼯设计的⼯作，并且取得了不错的结果。在object detection上DETR准确率和
+运⾏时间上和Faster RCNN相当；将模型 generalize 到 panoptic segmentation 任务上，
+DETR表现甚⾄还超过了其他的baseline。DETR第⼀个使⽤End to End的⽅式解决检测问题，
+解决的⽅法是把检测问题视作是⼀个set prediction problem，如下图29所示。
+图29：DETR结合CNN和Transformer的结构，并⾏实现预测
+⽹络的主要组成是CNN和Transformer，Transformer借助第1节讲到的self-attention机制，可
+以显式地对⼀个序列中的所有elements两两之间的interactions进⾏建模，使得这类
+transformer的结构⾮常适合带约束的set prediction的问题。DETR的特点是：⼀次预测，端到
+端训练，set loss function和⼆分匹配。
+⽂章的主要有两个关键的部分。
+第⼀个是⽤transformer的encoder-decoder架构⼀次性⽣成 N 个box prediction。其中 N 是
+⼀个事先设定的、⽐远远⼤于image中object个数的⼀个整数。
+第⼆个是设计了bipartite matching loss，基于预测的boxex和ground truth boxes的⼆分图
+匹配计算loss的⼤⼩，从⽽使得预测的box的位置和类别更接近于ground truth。
+DETR整体结构可以分为四个部分：backbone，encoder，decoder和FFN，如下图30所示，
+以下分别解释这四个部分：
+图30：DETR整体结构
+1 ⾸先看backbone：CNN backbone处理 x_{\text{img}}\in B\times 3\times H_0 \times W_0
+维的图像，把它转换为f\in R^{B\times C\times H\times W}维的feature map（⼀般来说 C =
+2048或256, H = \frac{H_0}{32}, W = \frac{W_0}{32}），backbone只做这⼀件事。
+2 再看encoder：encoder的输⼊是f\in R^{B\times C\times H\times W}维的feature map，接
+下来依次进⾏以下过程：
+•  通道数压缩：先⽤ 1\times 1 convolution处理，将channels数量从 C 压缩到 d，即得到
+z_0\in R^{B\times d\times H\times W}维的新feature map。
+•  转化为序列化数据：将空间的维度（⾼和宽）压缩为⼀个维度，即把上⼀步得到的z_0\in
+R^{B\times d\times H\times W}(d=256)维的feature map通过reshape成(HW,B,256)维的
+feature map。
+•  位置编码：在得到了z_0\in R^{B\times d\times H\times W}维的feature map之后，正式输
+⼊encoder之前，需要进⾏Positional Encoding。这⼀步在第2节讲解transformer的时候已
+经提到过，因为在self-attention中需要有表示位置的信息，否则你的sequence = &quot;A打了B&quot;
+还是sequence = &quot;B打了A&quot;的效果是⼀样的。但是transformer encoder这个结构本身却⽆
+法体现出位置信息。也就是说，我们需要对这个 z_0\in R^{B\times d\times H\times W} 维的
+feature map做positional encoding。
+进⾏完位置编码以后根据paper中的图⽚会有个相加的过程，如下图问号处所示。很多读者有疑
+问的地⽅是：论⽂图31示中相加的2个张量，⼀个是input embedding，另⼀个是位置编码维度
+看上去不⼀致，是怎么相加的？后⾯会解答。
+图31：怎么相加的？
+原版Transformer和Vision Transformer (第4节讲述)的Positional Encoding的表达式为：
+\begin{align}PE_{(pos, 2i)} = sin(pos/10000^{2i/d}) \\ PE_{(pos, 2i+1)} =
+cos(pos/10000^{2i/d}) \end{align}\tag{10}
+式中， d 就是这个 d\times HW 维的feature map的第⼀维， pos\in [1,HW] 。表示token在
+sequence中的位置，sequence的⻓度是 HW ，例如第⼀个token 的 pos=0 。
+i ，或者准确意义上是 2i 和 2i+1 表示了Positional Encoding的维度，i 的取值范围是： \left[
+0,\ldots ,{{{d}}}/{2}\; \right) 。所以当 pos 为1时，对应的Positional Encoding可以写成：
+PE\left( 1 \right)=\left[ \sin \left( {1}/{{{10000}^{{0}/{256}\;}}}\; \right),\cos \left(
+{1}/{{{10000}^{{0}/{256}\;}}}\; \right),\sin \left( {1}/{{{10000}^{{2}/{256}\;}}}\; \right),\cos
+\left( {1}/{{{10000}^{{2}/{256}\;}}}\; \right),\ldots \right]
+式中， {{d}_{}}=256。
+第⼀点不同的是，原版Transformer只考虑 x ⽅向的位置编码，但是DETR考虑了 xy ⽅向的位置
+编码，因为图像特征是2-D特征。采⽤的依然是 \text{sin cos} 模式，但是需要考虑 xy 两个⽅
+向。不是类似vision transoformer做法简单的将其拉伸为 d\times HW ，然后从 [1,HW] 进⾏⻓
+度为256的位置编码，⽽是考虑了 xy ⽅向同时编码，每个⽅向各编码128维向量，这种编码⽅
+式更符合图像特点。
+Positional Encoding的输出张量是： (B,d,H,W),d=256 ，其中 d 代表位置编码的⻓度， H,W 代
+表张量的位置。意思是说，这个特征图上的任意⼀个点 (H_1,W_1) 有个位置编码，这个编码的⻓
+度是256，其中，前128维代表 H_1 的位置编码，后128维代表 W_1 的位置编码。
+\begin{align}a)\quad PE_{(pos_x, 2i)} = sin(pos_x/10000^{2i/128}) \\ b)\quad PE_{(pos_x,
+2i+1)} = cos(pos_x/10000^{2i/128}) \\c)\quad PE_{(pos_y, 2i)} =
+sin(pos_y/10000^{2i/128}) \\ d)\quad PE_{(pos_y, 2i+1)} = cos(pos_y/10000^{2i/128})
+\end{align}\tag{11}
+假设你想计算任意⼀个位置 (pos_x,pos_y),pos_x\in [1,HW],pos_y\in [1,HW] 的Positional
+Encoding，把 pos_x 代⼊(11)式的 a 式和 b 式可以计算得到128维的向量，它代表 pos_x 的位
+置编码，再把 pos_y 代⼊(11)式的 c 式和 d 式可以计算得到128维的向量，它代表 pos_y 的位
+置编码，把这2个128维的向量拼接起来，就得到了⼀个256维的向量，它代表 (pos_x,pos_y)
+的位置编码。
+计算所有位置的编码，就得到了 (256,H,W) 的张量，代表这个batch的位置编码。编码矩阵的维
+度是 (B,256,H,W) ，也把它序列化成维度为 (HW,B,256) 维的张量。
+准备与(HW,B,256) 维的feature map相加以后输⼊Encoder。
+值得注意的是，⽹上许多解读⽂章没有搞清楚 &quot;转化为序列化数据&quot;这⼀步和 &quot;位置编码&quot;的顺序关
+系，以及变量的shape到底是怎样变化的，这⾥我⽤⼀个图32表达，终结这个问题。
+图32：变量的shape的变化，变量⼀律使⽤⽅块表达。
+所以，了解了DETR的位置编码之后，你应该明⽩了其实input embedding和位置编码维度其实
+是⼀样的，只是论⽂图示为了突出⼆位编码所以画的不⼀样罢了，如下图33所示：
+图33：input embedding与positional embedding的shape是⼀致的
+另⼀点不同的是，原版Transformer只在Encoder之前使⽤了Positional Encoding，⽽且是在
+输⼊上进⾏Positional Encoding，再把输⼊经过transformation matrix变为Query，Key和
+Value这⼏个张量。但是DETR在Encoder的每⼀个Multi-head Self-attention之前都使⽤了
+Positional Encoding，且只对Query和Key使⽤了Positional Encoding，即：只把维度为
+(HW,B,256) 维的位置编码与维度为(HW,B,256) 维的Query和Key相加，⽽不与Value相加。
+如图34所示为DETR的Transformer的详细结构，读者可以对⽐下原版Transformer的结构，如
+图21所示，为了阅读的⽅便我把图21⼜贴在下⾯了。
+可以发现，除了Positional Encoding设置的不⼀样外，Encoder其他的结构是⼀致的。每个
+Encoder Layer包含⼀个multi-head self-attention 的module和⼀个前馈⽹络Feed Forward
+Network。
+Encoder最终输出的是 (H\cdot W,b,256) 维的编码矩阵Embedding，按照原版Transformer
+的做法，把这个东⻄给Decoder。
+总结下和原始transformer编码器不同的地⽅：
+•  输⼊编码器的位置编码需要考虑2-D空间位置。
+•  位置编码向量需要加⼊到每个Encoder Layer中。
+•  在编码器内部位置编码Positional Encoding仅仅作⽤于Query和Key，即只与Query和Key
+相加，Value不做任何处理。
+class PositionalEncoding(nn.Module):
+    def __init__(self, d_hid, n_position=200):
+        super(PositionalEncoding, self).__init__()
+        # Not a parameter
+        self.register_buffer(&#x27;pos_table&#x27;, self._get_sinusoid_encoding_table(n_position, d_hid))
+    def _get_sinusoid_encoding_table(self, n_position, d_hid):
+        &#x27;&#x27;&#x27; Sinusoid position encoding table &#x27;&#x27;&#x27;
+        # TODO: make it with torch instead of numpy
+        def get_position_angle_vec(position):
+            return [position / np.power(10000, 2 * (hid_j // 2) / d_hid) for hid_j in range(d_hid)]
+        sinusoid_table = np.array([get_position_angle_vec(pos_i) for pos_i in range(n_position)])
+        sinusoid_table[:, 0::2] = np.sin(sinusoid_table[:, 0::2])  # dim 2i
+        sinusoid_table[:, 1::2] = np.cos(sinusoid_table[:, 1::2])  # dim 2i+1
+        return torch.FloatTensor(sinusoid_table).unsqueeze(0)#(1,N,d)
+    def forward(self, x):
+        # x(B,N,d)
+        return x + self.pos_table[:, :x.size(1)].clone().detach()
+class MultiHeadAttention(nn.Module):
+    &#x27;&#x27;&#x27; Multi-Head Attention module &#x27;&#x27;&#x27;
+    def __init__(self, n_head, d_model, d_k, d_v, dropout=0.1):
+        super().__init__()
+        self.n_head = n_head
+        self.d_k = d_k
+        self.d_v = d_v
+        self.w_qs = nn.Linear(d_model, n_head * d_k, bias=False)
+        self.w_ks = nn.Linear(d_model, n_head * d_k, bias=False)
+        self.w_vs = nn.Linear(d_model, n_head * d_v, bias=False)
+        self.fc = nn.Linear(n_head * d_v, d_model, bias=False)
+        self.attention = ScaledDotProductAttention(temperature=d_k ** 0.5)
+        self.dropout = nn.Dropout(dropout)
+        self.layer_norm = nn.LayerNorm(d_model, eps=1e-6)
+    def forward(self, q, k, v, mask=None):
+        d_k, d_v, n_head = self.d_k, self.d_v, self.n_head
+        sz_b, len_q, len_k, len_v = q.size(0), q.size(1), k.size(1), v.size(1)
+        residual = q
+        # Pass through the pre-attention projection: b x lq x (n*dv)
+        # Separate different heads: b x lq x n x dv
+        q = self.w_qs(q).view(sz_b, len_q, n_head, d_k)
+        k = self.w_ks(k).view(sz_b, len_k, n_head, d_k)
+        v = self.w_vs(v).view(sz_b, len_v, n_head, d_v)
+        # Transpose for attention dot product: b x n x lq x dv
+        q, k, v = q.transpose(1, 2), k.transpose(1, 2), v.transpose(1, 2)
+        if mask is not None:
+            mask = mask.unsqueeze(1)   # For head axis broadcasting.
+        q, attn = self.attention(q, k, v, mask=mask)
+        #q (sz_b,n_head,N=len_q,d_k)
+        #k (sz_b,n_head,N=len_k,d_k)
+        #v (sz_b,n_head,N=len_v,d_v)
+        # Transpose to move the head dimension back: b x lq x n x dv
+        # Combine the last two dimensions to concatenate all the heads together: b x lq x (n*dv)
+        q = q.transpose(1, 2).contiguous().view(sz_b, len_q, -1)
+        #q (sz_b,len_q,n_head,N * d_k)
+        q = self.dropout(self.fc(q))
+        q += residual
+        q = self.layer_norm(q)
+        return q, attn
+class EncoderLayer(nn.Module):
+    &#x27;&#x27;&#x27; Compose with two layers &#x27;&#x27;&#x27;
+    def __init__(self, d_model, d_inner, n_head, d_k, d_v, dropout=0.1):
+        super(EncoderLayer, self).__init__()
+        self.slf_attn = MultiHeadAttention(n_head, d_model, d_k, d_v, dropout=dropout)
+        self.pos_ffn = PositionwiseFeedForward(d_model, d_inner, dropout=dropout)
+    def forward(self, enc_input, slf_attn_mask=None):
+        enc_output, enc_slf_attn = self.slf_attn(
+            enc_input, enc_input, enc_input, mask=slf_attn_mask)
+        enc_output = self.pos_ffn(enc_output)
+        return enc_output, enc_slf_attn
+class DecoderLayer(nn.Module):
+    &#x27;&#x27;&#x27; Compose with three layers &#x27;&#x27;&#x27;
+    def __init__(self, d_model, d_inner, n_head, d_k, d_v, dropout=0.1):
+        super(DecoderLayer, self).__init__()
+        self.slf_attn = MultiHeadAttention(n_head, d_model, d_k, d_v, dropout=dropout)
+        self.enc_attn = MultiHeadAttention(n_head, d_model, d_k, d_v, dropout=dropout)
+        self.pos_ffn = PositionwiseFeedForward(d_model, d_inner, dropout=dropout)
+    def forward(
+            self, dec_input, enc_output,
+            slf_attn_mask=None, dec_enc_attn_mask=None):
+        dec_output, dec_slf_attn = self.slf_attn(
+            dec_input, dec_input, dec_input, mask=slf_attn_mask)
+        dec_output, dec_enc_attn = self.enc_attn(
+            dec_output, enc_output, enc_output, mask=dec_enc_attn_mask)
+        dec_output = self.pos_ffn(dec_output)
+        return dec_output, dec_slf_attn, dec_enc_attn
+class Encoder(nn.Module):
+    &#x27;&#x27;&#x27; A encoder model with self attention mechanism. &#x27;&#x27;&#x27;
+    def __init__(
+            self, n_src_vocab, d_word_vec, n_layers, n_head, d_k, d_v,
+            d_model, d_inner, pad_idx, dropout=0.1, n_position=200):
+        super().__init__()
+        self.src_word_emb = nn.Embedding(n_src_vocab, d_word_vec, padding_idx=pad_idx)
+        self.position_enc = PositionalEncoding(d_word_vec, n_position=n_position)
+        self.dropout = nn.Dropout(p=dropout)
+        self.layer_stack = nn.ModuleList([
+            EncoderLayer(d_model, d_inner, n_head, d_k, d_v, dropout=dropout)
+            for _ in range(n_layers)])
+        self.layer_norm = nn.LayerNorm(d_model, eps=1e-6)
+    def forward(self, src_seq, src_mask, return_attns=False):
+        enc_slf_attn_list = []
+        # -- Forward
+
+        enc_output = self.dropout(self.position_enc(self.src_word_emb(src_seq)))
+        enc_output = self.layer_norm(enc_output)
+        for enc_layer in self.layer_stack:
+            enc_output, enc_slf_attn = enc_layer(enc_output, slf_attn_mask=src_mask)
+            enc_slf_attn_list += [enc_slf_attn] if return_attns else []
+        if return_attns:
+            return enc_output, enc_slf_attn_list
+        return enc_output,
+class Decoder(nn.Module):
+    &#x27;&#x27;&#x27; A decoder model with self attention mechanism. &#x27;&#x27;&#x27;
+    def forward(self, trg_seq, trg_mask, enc_output, src_mask, return_attns=False):
+        dec_slf_attn_list, dec_enc_attn_list = [], []
+        # -- Forward
+        dec_output = self.dropout(self.position_enc(self.trg_word_emb(trg_seq)))
+        dec_output = self.layer_norm(dec_output)
+        for dec_layer in self.layer_stack:
+            dec_output, dec_slf_attn, dec_enc_attn = dec_layer(
+                dec_output, enc_output, slf_attn_mask=trg_mask, dec_enc_attn_mask=src_mask)
+            dec_slf_attn_list += [dec_slf_attn] if return_attns else []
+            dec_enc_attn_list += [dec_enc_attn] if return_attns else []
+        if return_attns:
+            return dec_output, dec_slf_attn_list, dec_enc_attn_list
+        return dec_output,
+class Transformer(nn.Module):
+    &#x27;&#x27;&#x27; A sequence to sequence model with attention mechanism. &#x27;&#x27;&#x27;
+    def __init__(
+            self, n_src_vocab, n_trg_vocab, src_pad_idx, trg_pad_idx,
+            d_word_vec=512, d_model=512, d_inner=2048,
+            n_layers=6, n_head=8, d_k=64, d_v=64, dropout=0.1, n_position=200,
+            trg_emb_prj_weight_sharing=True, emb_src_trg_weight_sharing=True):
+        super().__init__()
+        self.src_pad_idx, self.trg_pad_idx = src_pad_idx, trg_pad_idx
+        self.encoder = Encoder(
+            n_src_vocab=n_src_vocab, n_position=n_position,
+            d_word_vec=d_word_vec, d_model=d_model, d_inner=d_inner,
+            n_layers=n_layers, n_head=n_head, d_k=d_k, d_v=d_v,
+            pad_idx=src_pad_idx, dropout=dropout)
+        self.decoder = Decoder(
+            n_trg_vocab=n_trg_vocab, n_position=n_position,
+            d_word_vec=d_word_vec, d_model=d_model, d_inner=d_inner,
+            n_layers=n_layers, n_head=n_head, d_k=d_k, d_v=d_v,
+            pad_idx=trg_pad_idx, dropout=dropout)
+        self.trg_word_prj = nn.Linear(d_model, n_trg_vocab, bias=False)
+        for p in self.parameters():
+            if p.dim() &gt; 1:
+                nn.init.xavier_uniform_(p)
+        assert d_model == d_word_vec, \
+        &#x27;To facilitate the residual connections, \
+         the dimensions of all module outputs shall be the same.&#x27;
+        self.x_logit_scale = 1.
+        if trg_emb_prj_weight_sharing:
+            # Share the weight between target word embedding &amp; last dense layer
+            self.trg_word_prj.weight = self.decoder.trg_word_emb.weight
+            self.x_logit_scale = (d_model ** -0.5)
+        if emb_src_trg_weight_sharing:
+            self.encoder.src_word_emb.weight = self.decoder.trg_word_emb.weight
+    def forward(self, src_seq, trg_seq):
+        src_mask = get_pad_mask(src_seq, self.src_pad_idx)
+        trg_mask = get_pad_mask(trg_seq, self.trg_pad_idx) &amp; get_subsequent_mask(trg_seq)
+        enc_output, *_ = self.encoder(src_seq, src_mask)
+        dec_output, *_ = self.decoder(trg_seq, trg_mask, enc_output, src_mask)
+        seq_logit = self.trg_word_prj(dec_output) * self.x_logit_scale
+        return seq_logit.view(-1, seq_logit.size(2))
+def get_pad_mask(seq, pad_idx):
+    return (seq != pad_idx).unsqueeze(-2)
+def get_subsequent_mask(seq):
+    &#x27;&#x27;&#x27; For masking out the subsequent info. &#x27;&#x27;&#x27;
+    sz_b, len_s = seq.size()
+    subsequent_mask = (1 - torch.triu(
+        torch.ones((1, len_s, len_s), device=seq.device), diagonal=1)).bool()
+    return subsequent_mask
+
+===== PDF PAGE 4 =====
+图34：Transformer详细结构。为了⽅便理解，我把每个变量的维度标在了图上。
+图21：Transformer整体结构
+3 再看decoder：
+DETR的Decoder和原版Transformer的decoder是不太⼀样的，如下图34和21所示。
+先回忆下原版Transformer，看下图21的decoder的最后⼀个框：output probability，代表我
+们⼀次只产⽣⼀个单词的softmax，根据这个softmax得到这个单词的预测结果。这个过程我们
+表达为：predicts the output sequence one element at a time。
+不同的是，DETR的Transformer Decoder是⼀次性处理全部的object queries，即⼀次性输出
+全部的predictions；⽽不像原始的Transformer是auto-regressive的，从左到右⼀个词⼀个词
+地输出。这个过程我们表达为：decodes the N objects in parallel at each decoder layer。
+DETR的Decoder主要有两个输⼊：
+1. Transformer Encoder输出的Embedding与 position encoding 之和。
+2. Object queries。
+其中，Embedding就是上⽂提到的 (H\cdot W,b,256) 的编码矩阵。这⾥着重讲⼀下Object
+queries。
+Object queries是⼀个维度为 (100,b,256) 维的张量，数值类型是nn.Embedding，说明这个张
+量是可以学习的，即：我们的Object queries是可学习的。Object queries矩阵内部通过学习建
+模了100个物体之间的全局关系，例如房间⾥⾯的桌⼦旁边(A类)⼀般是放椅⼦(B类)，⽽不会是
+放⼀头⼤象(C类)，那么在推理时候就可以利⽤该全局注意⼒更好的进⾏解码预测输出。
+Decoder的输⼊⼀开始也初始化成维度为 (100,b,256) 维的全部元素都为0的张量，和Object
+queries加在⼀起之后充当第1个multi-head self-attention的Query和Key。第⼀个multi-
+head self-attention的Value为Decoder的输⼊，也就是全0的张量。
+到了每个Decoder的第2个multi-head self-attention，它的Key和Value来⾃Encoder的输出
+张量，维度为 (hw,b,256) ，其中Key值还进⾏位置编码。Query值⼀部分来⾃第1个Add and
+Norm的输出，维度为 (100,b,256) 的张量，另⼀部分来⾃Object queries，充当可学习的位置
+编码。所以，第2个multi-head self-attention的Key和Value的维度为 (hw,b,256) ，⽽Query
+的维度为(100,b,256)。
+每个Decoder的输出维度为 (1,b,100,256) ，送⼊后⾯的前馈⽹络，具体的变量维度的变化⻅图
+30。
+到这⾥你会发现：Object queries充当的其实是位置编码的作⽤，只不过它是可以学习的位置编
+码，所以，我们对Encoder和Decoder的每个self-attention的Query和Key的位置编码做个归
+纳，如图35所示，Value没有位置编码：
+图35：Transformer的位置编码来⾃哪⾥？
+\color{indianred}{\text{损失函数部分解读:}}
+得到了Decoder的输出以后，如前⽂所述，应该是输出维度为 (b,100,256)的张量。接下来要送
+⼊2个前馈⽹络FFN得到class和Bounding Box。它们会得到 N=100 个预测⽬标，包含类别和
+Bounding Box，当然这个100肯定是⼤于图中的⽬标总数的。如果不够100，则采⽤背景填充，
+计算loss时候回归分⽀分⽀仅仅计算有物体位置，背景集合忽略。所以，DETR输出张量的维度
+为输出的张量的维度是 (b,100,\color{crimson}{\text{class}+1}) 和 (b,100,\color{purple}{4})。
+对应COCO数据集来说， \color{crimson}{\text{class}+1=92} ， \color{purple}{4} 指的是每个
+预测⽬标归⼀化的 (c_x,c_y,w,h) 。归⼀化就是除以图⽚宽⾼进⾏归⼀化。
+到这⾥我们了解了DETR的⽹络架构，我们发现，它输出的张量的维度是 分类分⽀：
+(b,100,\color{crimson}{\text{class}+1}) 和回归分⽀： (b,100,\color{purple}{4}) ，其中，前者
+是指100个预测框的类型，后者是指100个预测框的Bounding Box，但是读者可能会有疑问：
+预测框和真值是怎么⼀⼀对应的？换句话说：你怎么知道第47个预测框对应图⽚⾥的狗，第88
+个预测框对应图⽚⾥的⻋？等等。
+我们下⾯就来聊聊这个问题。
+相⽐Faster R-CNN等做法，DETR最⼤特点是将⽬标检测问题转化为⽆序集合预测问题(set
+prediction)。论⽂中特意指出Faster R-CNN这种设置⼀⼤堆anchor，然后基于anchor进⾏分
+类和回归其实属于代理做法即不是最直接做法，⽬标检测任务就是输出⽆序集合，⽽Faster R-
+CNN等算法通过各种操作，并结合复杂后处理最终才得到⽆序集合属于绕路了，⽽DETR就⽐
+较纯粹了。现在核⼼问题来了：输出的 (b,100) 个检测结果是⽆序的，如何和 GT \;
+\text{Bounding Box} 计算loss？这就需要⽤到经典的双边匹配算法了，也就是常说的匈⽛利算
+法，该算法⼴泛应⽤于最优分配问题。
+⼀幅图⽚，我们把第 i 个物体的真值表达为 y_i=(c_i,b_i) ，其中， c_i 表示它的
+\color{crimson}{\text{class}} ， b_i 表示它的 \color{purple}{\text{Bounding Box}} 。我们定义
+\hat y = \{\hat y_i\}_{i=1}^{N} 为⽹络输出的 N 个预测值。
+假设我们已经了解了什么是匈⽛利算法(先假装了解了)，对于第 i 个 GT ， \sigma(i) 为匈⽛利算
+法得到的与 GT_i 对应的prediction的索引。我举个栗⼦，⽐如 i=3,\sigma(i)=18 ，意思就是：
+与第3个真值对应的预测值是第18个。
+那我能根据 \color{green}{\text{匈⽛利算法}} ，找到 \color{green}{\text{与每个真值对应的预测
+值是哪个}} ，那究竟是如何找到呢？
+\begin{equation} \label{eq:matching} \hat{\sigma} = \arg\min_{\sigma\in\Sigma_N}
+\sum_{i}^{N} L_{match}(y_i, \hat y_{\sigma(i)}), \end{equation} \tag{12}
+我们看看这个表达式是甚么意思，对于某⼀个真值 y_i ，假设我们已经找到这个真值对应的预测
+值 \hat y_{\sigma(i)} ，这⾥的 \Sigma_N 是所有可能的排列，代表从真值索引到预测值索引的
+所有的映射，然后⽤ L_{match} 最⼩化 y_i 和 \hat y_{\sigma(i)} 的距离。这个 L_{match} 具体
+是：
+-\mathbb{1}_{\left\{ c_i\neq\varnothing \right\}}\hat p_{\sigma(i)}(c_i) + \mathbb{1}_{\left\{
+c_i\neq\varnothing \right\}} L_{box}({b_{i}, \hat b_{\sigma(i)}}) \tag{13}
+意思是：假设当前从真值索引到预测值索引的所有的映射为 \sigma ，对于图⽚中的每个真值 i ，
+先找到对应的预测值 \sigma(i) ，再看看分类⽹络的结果 \hat p_{\sigma(i)}(c_i) ，取反作为
+L_{match} 的第1部分。再计算回归⽹络的结果 \hat b_{\sigma(i)} 与真值的 \color{purple}
+{\text{Bounding Box}} 的差异，即 L_{box}({b_{i}, \hat b_{\sigma(i)}}) ，作为 L_{match} 的第
+2部分。
+所以，可以使得 L_{match} 最⼩的排列 \hat\sigma 就是我们要找的排列，即：对于图⽚中的每
+个真值 i 来讲， \hat\sigma(i) 就是这个真值所对应的预测值的索引。
+请读者细品这个 寻找匹配的过程 ，这就是匈⽛利算法的过程。是不是与Anchor或Proposal有异
+曲同⼯的地⽅，只是此时我们找的是⼀对⼀匹配。
+接下来就是使⽤上⼀步得到的排列 \hat\sigma ，计算匈⽛利损失：
+L_{\text{Hungarian}}({y, \hat y}) = \sum_{i=1}^N \left[-\log \hat p_{\hat{\sigma}(i)}(c_{i}) +
+\mathbb{1}_{\left\{ c_i\neq\varnothing \right\}} \ L_{box}{(b_{i}, \hat b_{\hat{\sigma}
+(i)}})\right] \tag{14}
+式中的 L_{box} 具体为：
+L_{box}{(b_{i}, \hat b_{\hat{\sigma}(i)}}) = \lambda_{\rm iou}L_{iou}({b_{i}, \hat
+b_{\sigma(i)}})+ \lambda_{\rm L1}||b_{i}- \hat b_{\sigma(i)}||_1 ,\; where \;\lambda_{\rm iou},
+\lambda_{\rm L1}\in R \tag{15}
+最常⽤的 L_1 \;loss 对于⼤⼩ \color{purple}{\text{Bounding Box}} 会有不同的标度，即使它们
+的相对误差是相似的。为了缓解这个问题，作者使⽤了 L_1 \;loss 和⼴义IoU损耗 L_{iou} 的线性
+组合，它是⽐例不变的。
+Hungarian意思就是匈⽛利，也就是前⾯的 L_{match} ，上述意思是需要计算 M 个
+\text{GT}\;\color{purple}{\text{Bounding Box}} 和 N 个输预测出集合两两之间的⼴义距离，距
+离越近表示越可能是最优匹配关系，也就是两者最密切。⼴义距离的计算考虑了分类分⽀和回归
+分⽀。
+最后，再概括⼀下DETR的End-to-End的原理，前⾯那么多段话就是为了讲明⽩这个事情，如
+果你对前⾯的论述还存在疑问的话，把下⾯⼀直到Experiments之前的这段话看懂就能解决你的
+困惑。
+DETR是怎么训练的？
+训练集⾥⾯的任何⼀张图⽚，假设第1张图⽚，我们通过模型产⽣100个预测框
+\text{Predict}\;\color{purple}{\text{Bounding Box}} ，假设这张图⽚有只3个
+\text{GT}\;\color{purple}{\text{Bounding Box}} ，它们分别是 \color{orange}
+{\text{Car}},\color{green}{\text{Dog}},\color{darkturquoise}{\text{Horse}} 。
+(\text{label}_{\color{orange}{\text{Car}}}=3,\text{label}_{\color{green}
+{\text{Dog}}}=24,\text{label}_{\color{orange}{\color{darkturquoise}{\text{Horse}}}}=75)\\
+问题是：我怎么知道这100个预测框哪个是对应 \color{orange}{\text{Car}} ，哪个是对应
+\color{green}{\text{Dog}} ，哪个是对应 \color{darkturquoise}{\text{Horse}} ？
+我们建⽴⼀个 (100,3) 的矩阵，矩阵⾥⾯的元素就是 (13) 式的计算结果，举个例⼦：⽐如左上⻆
+的 (1,1) 号元素的含义是：第1个预测框对应 \color{orange}{\text{Car}}(\text{label}=3) 的情况
+下的 L_{match} 值。我们⽤scipy.optimize 这个库中的 linear_sum_assignment 函数找到最优
+的匹配，这个过程我们称之为：&quot;匈⽛利算法 (Hungarian Algorithm)&quot;。
+假设linear_sum_assignment做完以后的结果是：第 23 个预测框对应 \color{orange}
+{\text{Car}} ，第 44 个预测框对应 \color{green}{\text{Dog}} ，第 95 个预测框对应
+\color{darkturquoise}{\text{Horse}} 。
+现在把第 23,44,95 个预测框挑出来，按照 (14) 式计算Loss，得到这个图⽚的Loss。
+把所有的图⽚按照这个模式去训练模型。
+训练完以后怎么⽤？
+训练完以后，你的模型学习到了⼀种能⼒，即：模型产⽣的100个预测框，它知道某个预测框该
+对应什么 \text{Object} ，⽐如，模型学习到：第1个 \text{Predict}\;\color{purple}
+{\text{Bounding Box}} 对应 \color{orange}{\text{Car}}(\text{label}=3) ，第2个
+\text{Predict}\;\color{purple}{\text{Bounding Box}} 对应 \color{chocolate}{\text{Bus}}
+(\text{label}=16) ，第3个 \text{Predict}\;\color{purple}{\text{Bounding Box}} 对应
+\color{lightskyblue}{\text{Sky}}(\text{label}=21) ，第4个 \text{Predict}\;\color{purple}
+{\text{Bounding Box}} 对应 \color{green}{\text{Dog}}(\text{label}=24) ，第5个
+\text{Predict}\;\color{purple}{\text{Bounding Box}} 对应 \color{darkturquoise}{\text{Horse}}
+(\text{label}=75) ，第6-100个 \text{Predict}\;\color{purple}{\text{Bounding Box}} 对应
+\color{dimgray}{\varnothing }(\text{label}=92) ，等等。
+以上只是我举的⼀个例⼦，意思是说：模型知道了⾃⼰的100个预测框每个该做什么事情，即：
+每个框该预测什么样的 \text{Object} 。
+为什么训练完以后，模型学习到了⼀种能⼒，即：模型产⽣的100个预测框，它知道某个预测框
+该对应什么 \text{Object} ？
+还记得前⾯说的Object queries吗？它是⼀个维度为 (100,b,256) 维的张量，初始时元素全为 0
+。实现⽅式是nn.Embedding(num_queries, hidden_dim)，这⾥num_queries=100，
+hidden_dim=256，它是可训练的。这⾥的 b 指的是batch size，我们考虑单张图⽚，所以假设
+Object queries是⼀个维度为 (100,256) 维的张量。我们训练完模型以后，这个张量已经训练完
+了，那此时的Object queries究竟代表什么？
+我们把此时的Object queries看成100个格⼦，每个格⼦是个256维的向量。训练完以后，这
+100个格⼦⾥⾯注⼊了不同 \text{Object} 的位置信息和类别信息。⽐如第1个格⼦⾥⾯的这个
+256维的向量代表着 \color{orange}{\text{Car}} 这种 \text{Object} 的位置信息，这种信息是通
+过训练，考虑了所有图⽚的某个位置附近的 \color{orange}{\text{Car}} 编码特征，属于和位置有
+关的全局 \color{orange}{\text{Car}} 统计信息。
+测试时，假设图⽚中有 \color{orange}{\text{Car}},\color{green}
+{\text{Dog}},\color{darkturquoise}{\text{Horse}} 三种物体，该图⽚会输⼊到编码器中进⾏特征
+编码，假设特征没有丢失，Decoder的Key和Value就是编码器输出的编码向量(如图30所
+示)，⽽Query就是Object queries，就是我们的100个格⼦。
+Query可以视作代表不同 \text{Object} 的信息，⽽Key和Value可以视作代表图像的全局信
+息。
+现在通过注意⼒模块将Query和Key计算，然后加权Value得到解码器输出。对于第1个格⼦的
+Query会和Key中的所有向量进⾏计算，⽬的是查找某个位置附近有没有 \color{orange}
+{\text{Car}} ，如果有那么该特征就会加权输出，对于第3个格⼦的Query会和Key中的所有向量
+进⾏计算，⽬的是查找某个位置附近有没有 \color{lightskyblue}{\text{Sky}} ，很遗憾，这个没
+有，所以输出的信息⾥⾯没有 \color{lightskyblue}{\text{Sky}} 。
+整个过程计算完成后就可以把编码向量中的 \color{orange}{\text{Car}},\color{green}
+{\text{Dog}},\color{darkturquoise}{\text{Horse}} 的编码嵌⼊信息提取出来，然后后⾯接 FFN
+进⾏分类和回归就⽐较容易，因为特征已经对⻬了。
+发现了吗？Object queries在训练过程中对于 N 个格⼦会压缩⼊对应的和位置和类别相关的统计
+信息，在测试阶段就可以利⽤该Query去和某个图像的编码特征Key，Value计算，若图⽚中刚
+好有Query想找的特征，⽐如 \color{orange}{\text{Car}} ，则这个特征就能提取出来，最后通
+过2个 FFN 进⾏分类和回归。所以前⾯才会说Object queries作⽤⾮常类似Faster R-CNN中的
+anchor，这个anchor是可学习的，由于维度⽐较⾼，故可以表征的东⻄丰富，当然维度越⾼，
+训练时⻓就会越⻓。
+这就是DETR的End-to-End的原理，可以简单归结为上⾯的⼏段话，你读懂了上⾯的话，也就
+明⽩了DETR以及End-to-End的Detection模型原理。
+Experiments：
+1. 性能对⽐：
+图36：DETR与Fast R-CNN的性能对⽐
+2. 编码器层数对⽐实验：
+图37：编码器数⽬与模型性能
+可以发现，编码器层数越多越好，最后就选择6。
+下图38为最后⼀个Encoder Layer的attention可视化，Encoder已经分离了instances，简化
+了Decoder的对象提取和定位。
+图38：最后⼀个Encoder Layer的attention可视化
+3. 解码器层数对⽐实验：
+图39：每个Decoder Layer后的AP和AP 50性能。
+可以发现，性能随着解码器层数的增加⽽提升，DETR本不需要NMS，但是作者也进⾏了，上图
+中的NMS操作是指DETR的每个解码层都可以输⼊⽆序集合，那么将所有解码器⽆序集合全部保
+留，然后进⾏NMS得到最终输出，可以发现性能稍微有提升，特别是AP50。这可以通过以下事
+实来解释：Transformer的单个Decoder Layer不能计算输出元素之间的任何互相关，因此它易
+于对同⼀对象进⾏多次预测。在第2个和随后的Decoder Layer中，self-attention允许模型抑制
+重复预测。所以NMS带来的改善随着Decoder Layer的增加⽽减少。在最后⼏层，作者观察到
+AP的⼀个⼩损失，因为NMS错误地删除了真实的positive prediction。
+图40： Decoder Layer的attention可视化
+类似于可视化编码器注意⼒，作者在图40中可视化解码器注意⼒，⽤不同的颜⾊给每个预测对象
+的注意⼒图着⾊。观察到，解码器的attention相当局部，这意味着它主要关注对象的四肢，如头
+部或腿部。我们假设，在编码器通过全局关注分离实例之后，解码器只需要关注极端来提取类和
+对象边界。
+•  3.2 DETR代码解读：
+分析都注释在了代码中。
+⼆维位置编码：
+DETR的⼆维位置编码：
+⾸先构造位置矩阵x_embed和y_embed，这⾥⽤到了python函数cumsum，作⽤是对⼀个
+矩阵的元素进⾏累加，那么累加以后最后⼀个元素就是所有累加元素的和，省去了求和的步
+骤，直接⽤这个和做归⼀化，对应x_embed[:, :, -1:]和y_embed[:, -1:, :]。
+这⾥我想着重强调下代码中⼀些变量的shape，⽅便读者掌握作者编程的思路：
+值得注意的是，tensor_list的类型是NestedTensor，内部⾃动附加了mask，⽤于表示动态
+shape，是pytorch中tensor新特性github.com/pytorch/nest...。全是false。
+x：(b,c,H,W)
+mask：(b,H,W)，全是False。
+not_mask：(b,H,W)，全是True。
+⾸先出现的y_embed：(b,H,W)，具体是1,1,1,1,......,2,2,2,2,......3,3,3,3,......
+⾸先出现的x_embed：(b,H,W)，具体是1,2,3,4,......,1,2,3,4,......1,2,3,4,......
+self.num_pos_feats = 128
+⾸先出现的dim_t = [0,1,2,3,.....,127]
+pos_x：(b,H,W,128)
+pos_y：(b,H,W,128)
+flatten后⾯的数字指的是：flatten()⽅法应从哪个轴开始展开操作。
+torch.stack((pos_x[:, :, :, 0::2].sin(), pos_x[:, :, :, 1::2].cos()), dim=4).flatten(3)
+pos_y = torch.stack((pos_y[:, :, :, 0::2].sin(), pos_y[:, :, :, 1::2].cos()), dim=4)
+这⼀步执⾏完以后变成(b,H,W,2,64)通过flatten()⽅法从第3个轴开始展平，变为：
+(b,H,W,128)
+torch.cat((pos_y, pos_x), dim=3)之后变为(b,H,W,256)，再最后permute为(b,256，
+H,W)。
+PositionEmbeddingSine类继承nn.Module类。
+作者定义了⼀种数据结构：NestedTensor，⾥⾯打包存了两个变量：x 和mask。
+NestedTensor：
+⾥⾯打包存了两个变量：x 和mask。
+to()函数：把变量移到GPU中。
+Backbone：
+把Backbone和之前的PositionEmbeddingSine连在⼀起：
+Backbone完以后输出(b,c,h,w)，再经过PositionEmbeddingSine输出(b,H,W,256)。
+Transformer的⼀个Encoder Layer：
+class PositionEmbeddingSine(nn.Module):
+    def forward(self, tensor_list: NestedTensor):
+#输⼊是b,c,h,w
+#tensor_list的类型是NestedTensor，内部⾃动附加了mask，
+#⽤于表示动态shape，是pytorch中tensor新特性https://github.com/pytorch/nestedtensor
+        x = tensor_list.tensors
+# 附加的mask，shape是b,h,w 全是false
+        mask = tensor_list.mask
+        assert mask is not None
+        not_mask = ~mask
+# 因为图像是2d的，所以位置编码也分为x,y⽅向
+# 1 1 1 1 ..  2 2 2 2... 3 3 3...
+        y_embed = not_mask.cumsum(1, dtype=torch.float32)
+# 1 2 3 4 ... 1 2 3 4...
+        x_embed = not_mask.cumsum(2, dtype=torch.float32)
+        if self.normalize:
+            eps = 1e-6
+            y_embed = y_embed / (y_embed[:, -1:, :] + eps) * self.scale
+            x_embed = x_embed / (x_embed[:, :, -1:] + eps) * self.scale
+# num_pos_feats = 128
+# 0~127 self.num_pos_feats=128,因为前⾯输⼊向量是256，编码是⼀半sin，⼀半cos
+        dim_t = torch.arange(self.num_pos_feats, dtype=torch.float32, device=x.device)
+        dim_t = self.temperature ** (2 * (dim_t // 2) / self.num_pos_feats)
+# 输出shape=b,h,w,128
+        pos_x = x_embed[:, :, :, None] / dim_t
+        pos_y = y_embed[:, :, :, None] / dim_t
+        pos_x = torch.stack((pos_x[:, :, :, 0::2].sin(), pos_x[:, :, :, 1::2].cos()), dim=4).flatten(3)
+        pos_y = torch.stack((pos_y[:, :, :, 0::2].sin(), pos_y[:, :, :, 1::2].cos()), dim=4).flatten(3)
+        pos = torch.cat((pos_y, pos_x), dim=3).permute(0, 3, 1, 2)
+# 每个特征图的xy位置都编码成256的向量，其中前128是y⽅向编码，⽽128是x⽅向编码
+        return pos
+# b,n=256,h,w
+class BackboneBase(nn.Module):
+    def __init__(self, backbone: nn.Module, train_backbone: bool, num_channels: int, return_interm_layers: bool):
+        super().__init__()
+        for name, parameter in backbone.named_parameters():
+            if not train_backbone or &#x27;layer2&#x27; not in name and &#x27;layer3&#x27; not in name and &#x27;layer4&#x27; not in name:
+                parameter.requires_grad_(False)
+        if return_interm_layers:
+            return_layers = {&quot;layer1&quot;: &quot;0&quot;, &quot;layer2&quot;: &quot;1&quot;, &quot;layer3&quot;: &quot;2&quot;, &quot;layer4&quot;: &quot;3&quot;}
+        else:
+            return_layers = {&#x27;layer4&#x27;: &quot;0&quot;}
+#作⽤的模型：定义BackboneBase时传⼊的nn.Moduleclass的backbone，返回的layer：来⾃bool变量return_interm_layers
+        self.body = IntermediateLayerGetter(backbone, return_layers=return_layers)
+        self.num_channels = num_channels
+    def forward(self, tensor_list: NestedTensor):
+#BackboneBase的输⼊是⼀个NestedTensor
+#xs中间层的输出，
+        xs = self.body(tensor_list.tensors)
+        out: Dict[str, NestedTensor] = {}
+        for name, x in xs.items():
+            m = tensor_list.mask
+            assert m is not None
+#F.interpolate上下采样，调整mask的size
+#to(torch.bool)  把mask转化为Bool型变量
+            mask = F.interpolate(m[None].float(), size=x.shape[-2:]).to(torch.bool)[0]
+            out[name] = NestedTensor(x, mask)
+        return out
+class Backbone(BackboneBase):
+    &quot;&quot;&quot;ResNet backbone with frozen BatchNorm.&quot;&quot;&quot;
+    def __init__(self, name: str,
+                 train_backbone: bool,
+                 return_interm_layers: bool,
+                 dilation: bool):
+#根据name选择backbone, num_channels, return_interm_layers等，传⼊BackboneBase初始化
+        backbone = getattr(torchvision.models, name)(
+            replace_stride_with_dilation=[False, False, dilation],
+            pretrained=is_main_process(), norm_layer=FrozenBatchNorm2d)
+        num_channels = 512 if name in (&#x27;resnet18&#x27;, &#x27;resnet34&#x27;) else 2048
+        super().__init__(backbone, train_backbone, num_channels, return_interm_layers)
+class Joiner(nn.Sequential):
+    def __init__(self, backbone, position_embedding):
+        super().__init__(backbone, position_embedding)
+    def forward(self, tensor_list: NestedTensor):
+        xs = self[0](tensor_list)
+        out: List[NestedTensor] = []
+        pos = []
+        for name, x in xs.items():
+            out.append(x)
+            # position encoding
+            pos.append(self[1](x).to(x.tensors.dtype))
+        return out, pos
+def build_backbone(args):
+#position_embedding是个nn.module
+    position_embedding = build_position_encoding(args)
+    train_backbone = args.lr_backbone &gt; 0
+    return_interm_layers = args.masks
+#backbone是个nn.module
+    backbone = Backbone(args.backbone, train_backbone, return_interm_layers, args.dilation)
+#nn.Sequential在⼀起
+    model = Joiner(backbone, position_embedding)
+    model.num_channels = backbone.num_channels
+    return model
+class TransformerEncoderLayer(nn.Module):
+    def __init__(self, d_model, nhead, dim_feedforward=2048, dropout=0.1,
+                 activation=&quot;relu&quot;, normalize_before=False):
+        super().__init__()
+        self.self_attn = nn.MultiheadAttention(d_model, nhead, dropout=dropout)
+        # Implementation of Feedforward model
+        self.linear1 = nn.Linear(d_model, dim_feedforward)
+        self.dropout = nn.Dropout(dropout)
+        self.linear2 = nn.Linear(dim_feedforward, d_model)
+        self.norm1 = nn.LayerNorm(d_model)
+        self.norm2 = nn.LayerNorm(d_model)
+        self.dropout1 = nn.Dropout(dropout)
+        self.dropout2 = nn.Dropout(dropout)
+        self.activation = _get_activation_fn(activation)
+        self.normalize_before = normalize_before
+    def with_pos_embed(self, tensor, pos: Optional[Tensor]):
+        return tensor if pos is None else tensor + pos
+    def forward_post(self,
+                     src,
+                     src_mask: Optional[Tensor] = None,
+                     src_key_padding_mask: Optional[Tensor] = None,
+                     pos: Optional[Tensor] = None):
+    # 和标准做法有点不⼀样，src加上位置编码得到q和k，但是v依然还是src，
+    # 也就是v和qk不⼀样
+        q = k = self.with_pos_embed(src, pos)
+        src2 = self.self_attn(q, k, value=src, attn_mask=src_mask,
+                              key_padding_mask=src_key_padding_mask)[0]
+#Add and Norm
+        src = src + self.dropout1(src2)
+        src = self.norm1(src)
+#FFN
+        src2 = self.linear2(self.dropout(self.activation(self.linear1(src))))
+#Add and Norm
+        src = src + self.dropout2(src2)
+        src = self.norm2(src)
+        return src
+    def forward_pre(self, src,
+                    src_mask: Optional[Tensor] = None,
+                    src_key_padding_mask: Optional[Tensor] = None,
+                    pos: Optional[Tensor] = None):
+        src2 = self.norm1(src)
+        q = k = self.with_pos_embed(src2, pos)
+        src2 = self.self_attn(q, k, value=src2, attn_mask=src_mask,
+                              key_padding_mask=src_key_padding_mask)[0]
+        src = src + self.dropout1(src2)
+        src2 = self.norm2(src)
+        src2 = self.linear2(self.dropout(self.activation(self.linear1(src2))))
+        src = src + self.dropout2(src2)
+        return src
+    def forward(self, src,
+                src_mask: Optional[Tensor] = None,
+                src_key_padding_mask: Optional[Tensor] = None,
+
+===== PDF PAGE 5 =====
+编辑于 2022-08-28 12:31
+⾖包 AI ⼯作任务模式-各类⽂件智能整理优化
+⾖包的⼴告
+有了⼀个Encoder Layer的定义，再看Transformer的整个Encoder：
+Object Queries：可学习的位置编码：
+注释中已经注明了变量的shape的变化过程，最终输出的是与Positional Encoding维度相同
+的位置编码，维度是(b,H,W,256)，只是现在这个位置编码是可学习的了。
+Transformer的⼀个Decoder Layer：
+注意变量的命名：
+object queries(query_pos)
+Encoder的位置编码(pos)
+Encoder的输出(memory)
+有了⼀个Decoder Layer的定义，再看Transformer的整个Decoder：
+然后是把Encoder和Decoder拼在⼀起，即总的Transformer结构的实现：
+此处考虑到字数限制，省略了代码。
+实现了Transformer，还剩后⾯的FFN：
+匈⽛利匹配HungarianMatcher类：
+这个类的⽬的是计算从targets到predictions的⼀种最优排列。
+predictions⽐targets的数量多，但我们要进⾏1-to-1 matching，所以多的predictions将与
+\varnothing 匹配。
+这个函数整体在构建(13)式，cost_class，cost_bbox，cost_giou，对应的就是(13)式中的⼏
+个损失函数，它们的维度都是(b,100,m)。
+m包含了这个batch内部所有的 \text{GT}\;\color{purple}{\text{Bounding Box}} 。
+在得到匹配关系后算loss就⽔到渠成了。loss_labels计算分类损失，loss_boxes计算回归损
+失，包含 \text{L_1 loss, iou loss} 。
+代码中的其他结构：
+SmoothedValue：
+⼀种⾃定义的数据结构，属于object类。它是deque类型的双向队列，通过update(value)进⾏
+更新。
+MetricLogger：
+⼀种⾃定义的数据结构，属于object类。它是字典，通过update(dict)进⾏更新。通过
+add_meter(name, meter)函数添加键值。
+log_every(data_loader, print_freq, header)打印⼀些中间结果。
+总结：
+本⽂介绍的是Transformer的基础，包含什么是Attention，什么是Transformer，以及在检测上
+的应⽤。其实在DETR之前已经有⼈尝试过把self-attention机制或者Transformer应⽤在视觉任
+务上⾯，但是关注不多。DETR的出现使得这个模型开始⼴泛应⽤在各种视觉任务上⾯，我也会
+在这个专栏的后续多多解读这些经典⼯作。
+参考⽂献：
+•  code：
+•  video：
+第1⼩节的部分插图和⽂字稿来⾃李宏毅⽼师PPT (如下链接) [侵删]。
+•  blog：
+                src_key_padding_mask: Optional[Tensor] = None,
+                pos: Optional[Tensor] = None):
+        if self.normalize_before:
+            return self.forward_pre(src, src_mask, src_key_padding_mask, pos)
+        return self.forward_post(src, src_mask, src_key_padding_mask, pos)
+class TransformerEncoder(nn.Module):
+    def __init__(self, encoder_layer, num_layers, norm=None):
+        super().__init__()
+        # 编码器copy6份
+        self.layers = _get_clones(encoder_layer, num_layers)
+        self.num_layers = num_layers
+        self.norm = norm
+    def forward(self, src,
+                mask: Optional[Tensor] = None,
+                src_key_padding_mask: Optional[Tensor] = None,
+                pos: Optional[Tensor] = None):
+        # 内部包括6个编码器，顺序运⾏
+        # src是图像特征输⼊，shape=hxw,b,256
+        output = src
+        for layer in self.layers:
+            # 第⼀个编码器输⼊来⾃图像特征，后⾯的编码器输⼊来⾃前⼀个编码器输出
+            output = layer(output, src_mask=mask,
+                           src_key_padding_mask=src_key_padding_mask, pos=pos)
+        return output
+class PositionEmbeddingLearned(nn.Module):
+    &quot;&quot;&quot;
+    Absolute pos embedding, learned.
+    &quot;&quot;&quot;
+    def __init__(self, num_pos_feats=256):
+        super().__init__()]
+#这⾥使⽤了nn.Embedding，这是⼀个矩阵类，⾥⾯初始化了⼀个随机矩阵，矩阵的⻓是字典的⼤⼩，宽是⽤来表示字典中每个元素的属性向量，
+# 向量的维度根据你想要表示的元素的复杂度⽽定。类实例化之后可以根据字典中元素的下标来查找元素对应的向量。输⼊下标0，输出就是embeds矩阵中第0⾏。
+        self.row_embed = nn.Embedding(50, num_pos_feats)
+        self.col_embed = nn.Embedding(50, num_pos_feats)
+        self.reset_parameters()
+    def reset_parameters(self):
+        nn.init.uniform_(self.row_embed.weight)
+        nn.init.uniform_(self.col_embed.weight)
+#输⼊依旧是NestedTensor
+    def forward(self, tensor_list: NestedTensor):
+        x = tensor_list.tensors
+        h, w = x.shape[-2:]
+        i = torch.arange(w, device=x.device)
+        j = torch.arange(h, device=x.device)
+#x_emb：(w, 128)
+#y_emb：(h, 128)
+        x_emb = self.col_embed(i)
+        y_emb = self.row_embed(j)
+        pos = torch.cat([
+            x_emb.unsqueeze(0).repeat(h, 1, 1),#(1,w,128) → (h,w,128)
+            y_emb.unsqueeze(1).repeat(1, w, 1),#(h,1,128) → (h,w,128)
+        ], dim=-1).permute(2, 0, 1).unsqueeze(0).repeat(x.shape[0], 1, 1, 1)
+#(h,w,256) → (256,h,w) → (1,256,h,w) → (b,256,h,w)
+        return pos
+def build_position_encoding(args):
+    N_steps = args.hidden_dim // 2
+    if args.position_embedding in (&#x27;v2&#x27;, &#x27;sine&#x27;):
+        # TODO find a better way of exposing other arguments
+        position_embedding = PositionEmbeddingSine(N_steps, normalize=True)
+    elif args.position_embedding in (&#x27;v3&#x27;, &#x27;learned&#x27;):
+        position_embedding = PositionEmbeddingLearned(N_steps)
+    else:
+        raise ValueError(f&quot;not supported {args.position_embedding}&quot;)
+    return position_embedding
+    def forward_post(self, tgt, memory,
+                     tgt_mask: Optional[Tensor] = None,
+                     memory_mask: Optional[Tensor] = None,
+                     tgt_key_padding_mask: Optional[Tensor] = None,
+                     memory_key_padding_mask: Optional[Tensor] = None,
+                     pos: Optional[Tensor] = None,
+                     query_pos: Optional[Tensor] = None):
+
+#query,key的输⼊是object queries(query_pos) + Decoder的输⼊(tgt),shape都是(100,b,256)
+#value的输⼊是Decoder的输⼊(tgt),shape = (100,b,256)
+        q = k = self.with_pos_embed(tgt, query_pos)
+#Multi-head self-attention
+        tgt2 = self.self_attn(q, k, value=tgt, attn_mask=tgt_mask,
+                              key_padding_mask=tgt_key_padding_mask)[0]
+#Add and Norm
+        tgt = tgt + self.dropout1(tgt2)
+        tgt = self.norm1(tgt)
+#query的输⼊是上⼀个attention的输出(tgt) + object queries(query_pos)
+#key的输⼊是Encoder的位置编码(pos) + Encoder的输出(memory)
+#value的输⼊是Encoder的输出(memory)
+        tgt2 = self.multihead_attn(query=self.with_pos_embed(tgt, query_pos),
+                                   key=self.with_pos_embed(memory, pos),
+                                   value=memory, attn_mask=memory_mask,
+                                   key_padding_mask=memory_key_padding_mask)[0]
+#Add and Norm
+        tgt = tgt + self.dropout2(tgt2)
+        tgt = self.norm2(tgt)
+#FFN
+        tgt2 = self.linear2(self.dropout(self.activation(self.linear1(tgt))))
+        tgt = tgt + self.dropout3(tgt2)
+        tgt = self.norm3(tgt)
+        return tgt
+    def forward_pre(self, tgt, memory,
+                    tgt_mask: Optional[Tensor] = None,
+                    memory_mask: Optional[Tensor] = None,
+                    tgt_key_padding_mask: Optional[Tensor] = None,
+                    memory_key_padding_mask: Optional[Tensor] = None,
+                    pos: Optional[Tensor] = None,
+                    query_pos: Optional[Tensor] = None):
+        tgt2 = self.norm1(tgt)
+        q = k = self.with_pos_embed(tgt2, query_pos)
+        tgt2 = self.self_attn(q, k, value=tgt2, attn_mask=tgt_mask,
+                              key_padding_mask=tgt_key_padding_mask)[0]
+        tgt = tgt + self.dropout1(tgt2)
+        tgt2 = self.norm2(tgt)
+        tgt2 = self.multihead_attn(query=self.with_pos_embed(tgt2, query_pos),
+                                   key=self.with_pos_embed(memory, pos),
+                                   value=memory, attn_mask=memory_mask,
+                                   key_padding_mask=memory_key_padding_mask)[0]
+        tgt = tgt + self.dropout2(tgt2)
+        tgt2 = self.norm3(tgt)
+        tgt2 = self.linear2(self.dropout(self.activation(self.linear1(tgt2))))
+        tgt = tgt + self.dropout3(tgt2)
+        return tgt
+    def forward(self, tgt, memory,
+                tgt_mask: Optional[Tensor] = None,
+                memory_mask: Optional[Tensor] = None,
+                tgt_key_padding_mask: Optional[Tensor] = None,
+                memory_key_padding_mask: Optional[Tensor] = None,
+                pos: Optional[Tensor] = None,
+                query_pos: Optional[Tensor] = None):
+        if self.normalize_before:
+            return self.forward_pre(tgt, memory, tgt_mask, memory_mask,
+                                    tgt_key_padding_mask, memory_key_padding_mask, pos, query_pos)
+        return self.forward_post(tgt, memory, tgt_mask, memory_mask,
+                                 tgt_key_padding_mask, memory_key_padding_mask, pos, query_pos)
+class TransformerDecoder(nn.Module):
+#值得注意的是：在使⽤TransformerDecoder时需要传⼊的参数有：
+# tgt：Decoder的输⼊，memory：Encoder的输出，pos：Encoder的位置编码的输出，query_pos：Object Queries，⼀堆mask
+    def forward(self, tgt, memory,
+                tgt_mask: Optional[Tensor] = None,
+                memory_mask: Optional[Tensor] = None,
+                tgt_key_padding_mask: Optional[Tensor] = None,
+                memory_key_padding_mask: Optional[Tensor] = None,
+                pos: Optional[Tensor] = None,
+                query_pos: Optional[Tensor] = None):
+        output = tgt
+# Decoder输⼊的tgt:(100, b, 256)
+        intermediate = []
+        for layer in self.layers:
+            output = layer(output, memory, tgt_mask=tgt_mask,
+                           memory_mask=memory_mask,
+                           tgt_key_padding_mask=tgt_key_padding_mask,
+                           memory_key_padding_mask=memory_key_padding_mask,
+                           pos=pos, query_pos=query_pos)
+            if self.return_intermediate:
+                intermediate.append(self.norm(output))
+        if self.norm is not None:
+            output = self.norm(output)
+            if self.return_intermediate:
+                intermediate.pop()
+                intermediate.append(output)
+        if self.return_intermediate:
+            return torch.stack(intermediate)
+        return output.unsqueeze(0)
+class MLP(nn.Module):
+    &quot;&quot;&quot; Very simple multi-layer perceptron (also called FFN)&quot;&quot;&quot;
+    def __init__(self, input_dim, hidden_dim, output_dim, num_layers):
+        super().__init__()
+        self.num_layers = num_layers
+        h = [hidden_dim] * (num_layers - 1)
+        self.layers = nn.ModuleList(nn.Linear(n, k) for n, k in zip([input_dim] + h, h + [output_dim]))
+    def forward(self, x):
+        for i, layer in enumerate(self.layers):
+            x = F.relu(layer(x)) if i &lt; self.num_layers - 1 else layer(x)
+        return x
+# pred_logits:[b,100,92]
+# pred_boxes:[b,100,4]
+# targets是个⻓度为b的list，其中的每个元素是个字典，共包含：labels-⻓度为(m,)的Tensor，元素是标签；boxes-⻓度为(m,4)的Tensor，元素是Bounding Box。
+# detr分类输出，num_queries=100，shape是(b,100,92)
+        bs, num_queries = outputs[&quot;pred_logits&quot;].shape[:2]
+        # We flatten to compute the cost matrices in a batch
+        out_prob = outputs[&quot;pred_logits&quot;].flatten(0, 1).softmax(-1)  # [batch_size * num_queries, num_classes] = [100b, 92]
+        out_bbox = outputs[&quot;pred_boxes&quot;].flatten(0, 1)  # [batch_size * num_queries, 4] = [100b, 4]
+# 准备分类target shape=(m,)⾥⾯存储的是类别索引，m包括了整个batch内部的所有gt bbox
+        # Also concat the target labels and boxes
+        tgt_ids = torch.cat([v[&quot;labels&quot;] for v in targets])# (m,)[3,6,7,9,5,9,3]
+# 准备bbox target shape=(m,4)，已经归⼀化了
+        tgt_bbox = torch.cat([v[&quot;boxes&quot;] for v in targets])# (m,4)
+#(100b,92)-&gt;(100b, m)，对于每个预测结果，把⽬前gt⾥⾯有的所有类别值提取出来，其余值不需要参与匹配
+#对应上述公式，类似于nll loss，但是更加简单
+        # Compute the classification cost. Contrary to the loss, we don&#x27;t use the NLL,
+        # but approximate it in 1 - proba[target class].
+        # The 1 is a constant that doesn&#x27;t change the matching, it can be ommitted.
+#⾏：取每⼀⾏；列：只取tgt_ids对应的m列
+        cost_class = -out_prob[:, tgt_ids]# (100b, m)
+        # Compute the L1 cost between boxes, 计算out_bbox和tgt_bbox两两之间的l1距离 (100b, m)
+        cost_bbox = torch.cdist(out_bbox, tgt_bbox, p=1)# (100b, m)
+        # Compute the giou cost betwen boxes, 额外多计算⼀个giou loss (100b, m)
+        cost_giou = -generalized_box_iou(box_cxcywh_to_xyxy(out_bbox), box_cxcywh_to_xyxy(tgt_bbox))
+#得到最终的⼴义距离(100b, m)，距离越⼩越可能是最优匹配
+        # Final cost matrix
+        C = self.cost_bbox * cost_bbox + self.cost_class * cost_class + self.cost_giou * cost_giou
+#(100b, m)--&gt; (b, 100, m)
+        C = C.view(bs, num_queries, -1).cpu()
+#计算每个batch内部有多少物体，后续计算时候按照单张图⽚进⾏匹配，没必要batch级别匹配,徒增计算
+        sizes = [len(v[&quot;boxes&quot;]) for v in targets]
+#匈⽛利最优匹配，返回匹配索引
+#enumerate(C.split(sizes, -1))]：(b,100,image1,image2,image3,...)
+        indices = [linear_sum_assignment(c[i]) for i, c in enumerate(C.split(sizes, -1))]
+        return [(torch.as_tensor(i, dtype=torch.int64), torch.as_tensor(j, dtype=torch.int64)) for i, j in indices]
+Transformer 计算机视觉 注意⼒机制
+从资料管理到内容⽣成，⽀持在本地电脑整理⽂件、处理⽂档，优化表格与 PPT，多类型办公需求
+均可⾼效满⾜。 查看详情
+未登录⽤户
+168 条评论 默认 最新
+评论内容由作者筛选后展示
+吾以為，以下三點剖析得甚是精闢：
+1. pos encoding為何採⽤相加的形式；
+2. 最後在模型使⽤時關於query key value之間關係的解讀；
+3. 對於可視化encoder和decoder注意⼒結果的解讀：前者趨向於全局，⽽後者在前者基
+礎上更傾向於局部
+相當精彩！受益匪淺，感恩！
+2021-01-08 回复
+谢谢~
+2021-01-08 回复
+查看全部 6 条回复
+讲真，这篇讲的是最好的。赞⼀个
+2021-07-29 回复
+⽃宗强者!!!!!!
+2021-01-29 回复
+2021-01-29 回复
+博主您好，图⼆⾥第⼆层的filter (蓝⾊的三⻆形)看了5个vector 吧
+2021-11-07 回复
+Detr中position encoding的posx和posy的取值范围应该是[1,W]和[1,H]吧，为什么统⼀
+是[1,HW]
+2021-02-27 回复
+展开其他 3 条回复
+COCO数据集的类别数+1不是等于81嘛？
+2021-05-15 回复
+感谢⼤佬分享，看完豁然开朗！不过关于DETR有个问题，如果他的N个object query在训
+练完之后，每个都有了⾃⼰对应的⽬标，⽐如car\sky\horse等，但是如果测试图中，有好
+多同⼀⽬标该怎么办？这时候的输出(N，class+1)与(N,4)该怎么输出多个同⼀⽬标？
+2021-03-10 回复
+&quot;N个object query在训练完之后，每个都有了⾃⼰对应的⽬标&quot;只是⼀种便于理解的
+⽅式，实际上也可能是多个query都能找到同样类型的object。⽐如第49,65个
+query都可以对应Car。
+但anyway，还是query个数多⼀点⽐较好，像Deformable DETR就⽤了N=300。
+2021-03-10 回复
+查看全部 6 条回复
+佬，图14multi-head self-attention，我看代码⾥都是在特征维度进⾏的拼接，⽽图⾥是在
+patch维度进⾏的拼接，是由什么不⼀样吗
+2022-06-04 回复
+作者，你好，你写的这个解释是我⻅过写过的最好的博客。但是关于DETR⽂章的解读，也
+就是DERT是怎么训练的这⾥我想请教⼀个地⽅，⽂章⾥说到“模型训练完之后，知道每个
+预测框应该预测什么样的⽬标”，如果这么说是不是不太恰当，如果说第⼀个框是⽤来预测
+car的，此时输⼊图像上存在多辆car的话也只能测出⼀辆了。但是实际情况并不是这样，
+因此我认为在Ouery Object中，每⼀个格⼦都蕴含了所有的⽬标信息和类别信息。
+2021-07-14 回复
+展开其他 3 条回复
+⽜哇，请问⼤佬⽤啥画图呀？图画的也太清楚和好看了吧
+2021-11-13 回复
+PPT~
+2021-11-13 回复
+CW不要無聊的⾵格
+69
+科技猛兽作者
+喜欢
+nobody
+14
+TheSource
+14
+科技猛兽作者
+1
+兜率⼯
+13
+秣陵别
+9
+⽅圆⼏⾥
+6
+是我
+4
+科技猛兽作者
+1
+光之喵
+3
+爱学术的⼤猴哥
+3
+Sophia W
+2
+科技猛兽作者
+2
+查看被折叠评论
+点击查看全部评论
+推荐阅读
+Vision Transformer 超详细解读
+(原理分析+代码解读) (⼋)
+科技猛兽 发表于Trans...
+Vision Transformer 超详细解读
+(原理分析+代码解读) (⼗四)
+科技猛兽 发表于Trans...
+Vision Transformer 超详细解读
+(原理分析+代码解读) (⼆⼗五)
+科技猛兽 发表于Trans...
+Vision Transformer 超详细解读
+(原理分析+代码解读) (⼆⼗九)
+科技猛兽 发表于Trans...
+未登录⽤户
+赞同 4565
+ 168 条评论 6408 852 申请转载分享
+登录即可查看 超5亿 专业优质内容
+超 5 千万创作者的优质提问、专业回答、深
+度⽂章和精彩视频尽在知乎。
+⽴即登录/注册
+</pre>
+    </details>
+    <p class="source-note"><strong>转换范围：</strong>文章正文、公式线索、代码文本、图 1-40 的机器可读转写。对于无法从截图可靠辨认的实验表格具体数字，只保留原图结论并明确标注，避免伪造数值。</p>
+  </main>
+  <script>
+    const search = document.getElementById('search');
+    const cards = [...document.querySelectorAll('.figure-card')];
+    const count = document.getElementById('result-count');
+    search.addEventListener('input', () => {
+      const query = search.value.trim().toLowerCase();
+      let visible = 0;
+      cards.forEach(card => {
+        const match = !query || card.textContent.toLowerCase().includes(query);
+        card.hidden = !match;
+        if (match) visible += 1;
+      });
+      count.textContent = `${visible} figures`;
+    });
+  </script>
+</body>
+</html>
