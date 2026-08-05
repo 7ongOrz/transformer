@@ -158,10 +158,6 @@ button {
   list-style: none;
   margin: 0;
   padding: 0;
-  counter-reset: nav;
-}
-.sidenav li {
-  counter-increment: nav;
 }
 .sidenav a {
   display: flex;
@@ -175,13 +171,6 @@ button {
   font-size: 13px;
   transition: 0.18s;
 }
-.sidenav a::before {
-  content: counter(nav, decimal-leading-zero);
-  color: var(--t-dim);
-  font-family: var(--mono);
-  font-size: 10.5px;
-  min-width: 20px;
-}
 .sidenav a:hover {
   background: rgba(56, 189, 248, 0.08);
   color: var(--t1);
@@ -190,9 +179,6 @@ button {
   background: linear-gradient(90deg, rgba(56, 189, 248, 0.18), transparent);
   color: var(--att);
   border-left-color: var(--att);
-}
-.sidenav a.active::before {
-  color: var(--att);
 }
 .sidenav .legend {
   margin-top: 28px;

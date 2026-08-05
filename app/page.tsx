@@ -1107,7 +1107,7 @@ function FigMatrixStage() {
             <span style={{ color: FMS_PAL.V.c }}>V</span> → 输出&nbsp;
             <span style={{ color: FMS_PAL.O.c }}>O</span>
           </span>
-          <span className="fms-stage-sub">每个 token 按权重拿走各 Value，融合成新表示</span>
+          <span className="fms-stage-sub">每个 token 按权重拿走各 Value，融合成新表示（用未舍入权重计算，表内保留三位小数）</span>
         </div>
         <div className="fms-chain">
           <FmsMatGrid name="A" shape="[4×4]" pal={FMS_PAL.A} data={FMS_DATA.A} heat
@@ -1115,7 +1115,7 @@ function FigMatrixStage() {
           <Op>×</Op>
           <FmsMatGrid name="V" shape="[4×2]" pal={FMS_PAL.V} data={FMS_DATA.V}
             rowLabels={FMS_WORDS} colLabels={["d₁", "d₂"]} cornerLabel="token＼维" digits={2} />
-          <Op>=</Op>
+          <Op>≈</Op>
           <FmsMatGrid name="O" shape="[4×2]" pal={FMS_PAL.O} data={FMS_DATA.O}
             rowLabels={FMS_WORDS} colLabels={["d₁", "d₂"]} cornerLabel="token＼维" digits={3} />
         </div>
