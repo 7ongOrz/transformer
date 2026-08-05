@@ -633,7 +633,7 @@ function FigStageSoftmax() {
 
         {/* 两行的列标签 */}
         <text x="160" y="92" textAnchor="middle" fill="#7dd3fc" fontSize="11" fontFamily="JetBrains Mono,monospace" fontWeight="700">
-          α₁,ⱼ = q₁·kⱼ / √d
+          α₁,ⱼ = q₁·kⱼ / √dₖ
         </text>
         <text x="764" y="92" textAnchor="middle" fill="#7dd3fc" fontSize="11" fontFamily="JetBrains Mono,monospace" fontWeight="700">
           α̂₁,ⱼ  （Σⱼ α̂₁,ⱼ ≈ 1）
@@ -911,7 +911,7 @@ const FMS_PAL: Record<string, { c: string; t: string }> = {
 };
 
 const transpose = (m: Mat): Mat => m[0].map((_, j) => m.map((r) => r[j]));
-const fmt = (v: number, d: number): string => Number(v.toFixed(d)).toString();
+const fmt = (v: number, d: number): string => (v === 0 ? 0 : v).toFixed(d);
 
 /* ---- 单个带行列标签的矩阵网格 ---- */
 function FmsMatGrid({
@@ -1018,31 +1018,31 @@ function FigMatrixStage() {
         </div>
         <div className="fms-stage1">
           <FmsMatGrid name="X" shape="[4×2]" pal={FMS_PAL.X} data={FMS_DATA.X}
-            rowLabels={FMS_WORDS} colLabels={["d₁", "d₂"]} cornerLabel="token＼维" digits={0} />
+            rowLabels={FMS_WORDS} colLabels={["d₁", "d₂"]} cornerLabel="token＼维" digits={2} />
           <div className="fms-branches">
             <div className="fms-chain">
               <Op>×</Op>
               <FmsMatGrid name="WQ" shape="[2×2]" pal={FMS_PAL.W} data={FMS_DATA.WQ}
-                rowLabels={["d₁", "d₂"]} colLabels={["d₁", "d₂"]} cornerLabel="维＼维" digits={0} />
+                rowLabels={["d₁", "d₂"]} colLabels={["d₁", "d₂"]} cornerLabel="维＼维" digits={2} />
               <Op>=</Op>
               <FmsMatGrid name="Q" shape="[4×2]" pal={FMS_PAL.Q} data={FMS_DATA.Q}
-                rowLabels={FMS_WORDS} colLabels={["d₁", "d₂"]} cornerLabel="token＼维" digits={0} />
+                rowLabels={FMS_WORDS} colLabels={["d₁", "d₂"]} cornerLabel="token＼维" digits={2} />
             </div>
             <div className="fms-chain">
               <Op>×</Op>
               <FmsMatGrid name="WK" shape="[2×2]" pal={FMS_PAL.W} data={FMS_DATA.WK}
-                rowLabels={["d₁", "d₂"]} colLabels={["d₁", "d₂"]} cornerLabel="维＼维" digits={0} />
+                rowLabels={["d₁", "d₂"]} colLabels={["d₁", "d₂"]} cornerLabel="维＼维" digits={2} />
               <Op>=</Op>
               <FmsMatGrid name="K" shape="[4×2]" pal={FMS_PAL.K} data={FMS_DATA.K}
-                rowLabels={FMS_WORDS} colLabels={["d₁", "d₂"]} cornerLabel="token＼维" digits={0} />
+                rowLabels={FMS_WORDS} colLabels={["d₁", "d₂"]} cornerLabel="token＼维" digits={2} />
             </div>
             <div className="fms-chain">
               <Op>×</Op>
               <FmsMatGrid name="WV" shape="[2×2]" pal={FMS_PAL.W} data={FMS_DATA.WV}
-                rowLabels={["d₁", "d₂"]} colLabels={["d₁", "d₂"]} cornerLabel="维＼维" digits={0} />
+                rowLabels={["d₁", "d₂"]} colLabels={["d₁", "d₂"]} cornerLabel="维＼维" digits={2} />
               <Op>=</Op>
               <FmsMatGrid name="V" shape="[4×2]" pal={FMS_PAL.V} data={FMS_DATA.V}
-                rowLabels={FMS_WORDS} colLabels={["d₁", "d₂"]} cornerLabel="token＼维" digits={0} />
+                rowLabels={FMS_WORDS} colLabels={["d₁", "d₂"]} cornerLabel="token＼维" digits={2} />
             </div>
           </div>
         </div>
@@ -1063,10 +1063,10 @@ function FigMatrixStage() {
         </div>
         <div className="fms-chain">
           <FmsMatGrid name="Q" shape="[4×2]" pal={FMS_PAL.Q} data={FMS_DATA.Q}
-            rowLabels={FMS_WORDS} colLabels={["d₁", "d₂"]} cornerLabel="token＼维" digits={0} />
+            rowLabels={FMS_WORDS} colLabels={["d₁", "d₂"]} cornerLabel="token＼维" digits={2} />
           <Op>×</Op>
           <FmsMatGrid name="Kᵀ" shape="[2×4]" pal={FMS_PAL.K} data={KT}
-            rowLabels={["d₁", "d₂"]} colLabels={FMS_WORDS} cornerLabel="维＼token" digits={0} />
+            rowLabels={["d₁", "d₂"]} colLabels={FMS_WORDS} cornerLabel="维＼token" digits={2} />
           <Op kind="fn">÷ √dₖ</Op>
           <Op>=</Op>
           <FmsMatGrid name="S" shape="[4×4]" pal={FMS_PAL.S} data={FMS_DATA.S} heat
@@ -1114,7 +1114,7 @@ function FigMatrixStage() {
             rowLabels={FMS_WORDS} colLabels={FMS_WORDS} cornerLabel="Q＼K" digits={3} />
           <Op>×</Op>
           <FmsMatGrid name="V" shape="[4×2]" pal={FMS_PAL.V} data={FMS_DATA.V}
-            rowLabels={FMS_WORDS} colLabels={["d₁", "d₂"]} cornerLabel="token＼维" digits={0} />
+            rowLabels={FMS_WORDS} colLabels={["d₁", "d₂"]} cornerLabel="token＼维" digits={2} />
           <Op>=</Op>
           <FmsMatGrid name="O" shape="[4×2]" pal={FMS_PAL.O} data={FMS_DATA.O}
             rowLabels={FMS_WORDS} colLabels={["d₁", "d₂"]} cornerLabel="token＼维" digits={3} />
@@ -1284,7 +1284,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const ids = ["s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8"];
+    const ids = ["s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9"];
     const onScroll = () => {
       const y = window.scrollY + 130;
       let cur = ids[0];
@@ -1321,7 +1321,8 @@ export default function Home() {
     ["s5", "缩放点积公式"],
     ["s6", "多头注意力"],
     ["s7", "经典 Transformer"],
-    ["s8", "代码与测试"],
+    ["s8", "位置编码"],
+    ["s9", "经典代码"],
   ];
 
   return (
@@ -1382,7 +1383,7 @@ export default function Home() {
               </div>
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>算子视角的一句话</h3>
-                <p className="t3">Attention 的核心就是<b style={{ color: "#eef3ff" }}>三个矩阵乘法 + 一个 softmax</b>。这篇分享的目标，是让你在脑子里把这句话可视化出来。</p>
+                <p className="t3">Attention 的核心就是<b style={{ color: "#eef3ff" }}>两次矩阵乘法（QKᵀ 算分、AV 取值）+ 一个 softmax</b>；算上三个投影 W 是五次，工程常融合成三次 GEMM。这篇分享的目标，是让你在脑子里把这句话可视化出来。</p>
               </div>
             </div>
           </section>
