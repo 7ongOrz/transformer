@@ -210,7 +210,7 @@ const DEMO_S = [[2.83, 4.95], [4.95, 4.24]];
 const DEMO_A = [[0.11, 0.89], [0.67, 0.33]];
 const DEMO_O = [[3.89, 2.79], [3.33, 1.66]];
 
-function NumMatrix({ data, heat, warm }: { data: number[][]; heat?: boolean; warm?: boolean }) {
+function NumMatrix({ data, heat, warm, digits = 2 }: { data: number[][]; heat?: boolean; warm?: boolean; digits?: number }) {
   const cls = heat ? "heat" : warm ? "warm" : "";
   return (
     <table className={`nm ${cls}`}>
@@ -228,7 +228,7 @@ function NumMatrix({ data, heat, warm }: { data: number[][]; heat?: boolean; war
               }
               return (
                 <td key={j} style={bg ? { background: bg, color } : undefined}>
-                  {v.toFixed(2)}
+                  {v.toFixed(digits)}
                 </td>
               );
             })}
@@ -316,7 +316,7 @@ function FigNumPipeline() {
       {/* 第 2 行：QKᵀ → S → softmax → A */}
       <div className="pipeline-row" style={{ marginTop: 26 }}>
         <div className="pl-step">
-          <div className="pl-title">分数 <b>S = QKᵀ/√d</b></div>
+          <div className="pl-title">分数 <b>S = QKᵀ/√dₖ</b></div>
           <NumMatrix data={DEMO_S} heat />
           <div className="pl-shape">[2,2]</div>
         </div>
@@ -762,7 +762,7 @@ export default function Home() {
             >
               <div className="pl-step">
                 <div className="pl-title">权重 <b style={{ color: "#38bdf8" }}>α̂₁</b>（和=1）</div>
-                <NumMatrix data={[[0.107, 0.893]]} heat />
+                <NumMatrix data={[[0.107, 0.893]]} heat digits={3} />
               </div>
             </StepCard>
 
