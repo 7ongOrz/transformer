@@ -59,24 +59,24 @@ const matrixC = matrixA.map((row) =>
 );
 
 /* ---------- Attention 演示数据（与 s3/s4 主线统一：我/爱/深/度，d=2） ---------- */
-const words = ["我", "爱", "深", "度"];
+const words = ["token₁", "token₂", "token₃", "token₄"];
 const queries = [
-  [1, 1],
-  [0, 2],
-  [2, 3],
-  [1, 2],
+  [0.04, 1.16],
+  [1.41, 0.99],
+  [0.53, 1.12],
+  [0.65, 1.75],
 ];
 const keys = [
-  [1, 0],
-  [2, 2],
-  [3, 1],
-  [2, 1],
+  [0.56, 1.16],
+  [1.26, -0.27],
+  [0.82, 0.67],
+  [1.18, 1.21],
 ];
 const values = [
-  [2, 0],
-  [0, 2],
-  [4, 1],
-  [2, 1],
+  [0.4, 1.28],
+  [1.08, 0.6],
+  [0.65, 1.06],
+  [0.92, 1.72],
 ];
 
 function softmax(values: number[]) {
@@ -121,76 +121,6 @@ const heads = [
   },
 ];
 
-/* ============================================================
- * SVG 图：矩阵级 Self-Attention（对应 PDF 图10-12）
- * ============================================================ */
-function FigAttentionMatrix() {
-  return (
-    <div className="fig">
-      <svg viewBox="0 0 920 340" width="920" role="img" aria-label="self-attention 矩阵级三步">
-        <defs>
-          <linearGradient id="gq-m" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="#f5b042" stopOpacity=".5" /><stop offset="1" stopColor="#f5b042" stopOpacity=".1" /></linearGradient>
-          <linearGradient id="gk-m" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="#a78bfa" stopOpacity=".5" /><stop offset="1" stopColor="#a78bfa" stopOpacity=".1" /></linearGradient>
-          <linearGradient id="gv-m" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="#2dd4bf" stopOpacity=".5" /><stop offset="1" stopColor="#2dd4bf" stopOpacity=".1" /></linearGradient>
-          <linearGradient id="ga-m" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="#38bdf8" stopOpacity=".55" /><stop offset="1" stopColor="#38bdf8" stopOpacity=".12" /></linearGradient>
-          <linearGradient id="go-m" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="#f472b6" stopOpacity=".55" /><stop offset="1" stopColor="#f472b6" stopOpacity=".12" /></linearGradient>
-          <marker id="ah-m" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#6e7aab" /></marker>
-        </defs>
-        <text x="20" y="24" fill="#c8d4ff" fontSize="14" fontWeight="700">把向量堆成矩阵后，整个过程 = 三次矩阵乘法</text>
-        <rect x="20" y="110" width="60" height="120" rx="8" fill="#0c1430" stroke="rgba(255,255,255,0.08)" />
-        <text x="50" y="175" textAnchor="middle" fill="#eef3ff" fontSize="15" fontWeight="700">I</text>
-        <text x="50" y="248" textAnchor="middle" fill="#6e7aab" fontSize="10">(n×d)</text>
-        <path d="M80,140 H120" stroke="#f5b042" strokeWidth="1.4" fill="none" markerEnd="url(#ah-m)" />
-        <path d="M80,170 H120" stroke="#a78bfa" strokeWidth="1.4" fill="none" markerEnd="url(#ah-m)" />
-        <path d="M80,200 H120" stroke="#2dd4bf" strokeWidth="1.4" fill="none" markerEnd="url(#ah-m)" />
-        <text x="84" y="133" fill="#f5b042" fontSize="10">×Wᵠ</text>
-        <text x="84" y="164" fill="#a78bfa" fontSize="10">×Wᵏ</text>
-        <text x="84" y="216" fill="#2dd4bf" fontSize="10">×Wᵛ</text>
-        <rect x="120" y="125" width="56" height="34" rx="6" fill="url(#gq-m)" stroke="#f5b042" /><text x="148" y="147" textAnchor="middle" fill="#f5b042" fontWeight="700">Q</text>
-        <rect x="120" y="163" width="56" height="34" rx="6" fill="url(#gk-m)" stroke="#a78bfa" /><text x="148" y="185" textAnchor="middle" fill="#a78bfa" fontWeight="700">K</text>
-        <rect x="120" y="201" width="56" height="34" rx="6" fill="url(#gv-m)" stroke="#2dd4bf" /><text x="148" y="223" textAnchor="middle" fill="#2dd4bf" fontWeight="700">V</text>
-        <text x="215" y="152" fill="#a9b4dc" fontSize="12">Q · Kᵀ</text>
-        <text x="215" y="170" fill="#6e7aab" fontSize="10">两两相关度</text>
-        <path d="M176,152 H210" stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-m)" />
-        <path d="M176,190 H210" stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-m)" />
-        <rect x="295" y="110" width="90" height="120" rx="8" fill="url(#ga-m)" stroke="#38bdf8" />
-        <text x="340" y="175" textAnchor="middle" fill="#38bdf8" fontWeight="700" fontSize="14">A=QKᵀ</text>
-        <text x="340" y="248" textAnchor="middle" fill="#6e7aab" fontSize="10">(n×n)</text>
-        <path d="M245,158 C270,158 275,175 293,178" stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-m)" />
-        <rect x="420" y="110" width="80" height="120" rx="8" fill="#0c1430" stroke="#38bdf8" />
-        <text x="460" y="170" textAnchor="middle" fill="#38bdf8" fontWeight="700" fontSize="13">softmax</text>
-        <text x="460" y="188" textAnchor="middle" fill="#38bdf8" fontWeight="700" fontSize="13">按行</text>
-        <text x="460" y="248" textAnchor="middle" fill="#6e7aab" fontSize="10">→ 权重 Â</text>
-        <path d="M385,170 H418" stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-m)" />
-        <rect x="540" y="110" width="60" height="120" rx="8" fill="url(#ga-m)" stroke="#38bdf8" />
-        <text x="570" y="175" textAnchor="middle" fill="#38bdf8" fontWeight="700" fontSize="14">Â</text>
-        <text x="570" y="248" textAnchor="middle" fill="#6e7aab" fontSize="10">(n×n)</text>
-        <path d="M500,170 H538" stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-m)" />
-        <path d="M176,228 C400,300 470,300 538,210" stroke="#2dd4bf" strokeWidth="1.3" fill="none" strokeDasharray="4 3" markerEnd="url(#ah-m)" />
-        <rect x="660" y="110" width="70" height="120" rx="8" fill="url(#go-m)" stroke="#f472b6" />
-        <text x="695" y="175" textAnchor="middle" fill="#f472b6" fontWeight="700" fontSize="15">O</text>
-        <text x="695" y="248" textAnchor="middle" fill="#6e7aab" fontSize="10">(n×d) 输出</text>
-        <path d="M600,170 H658" stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-m)" />
-        <g transform="translate(760,110)">
-          <rect x="0" y="0" width="140" height="120" rx="9" fill="#070b18" stroke="rgba(255,255,255,0.08)" />
-          <text x="70" y="24" textAnchor="middle" fill="#5eead4" fontWeight="700" fontSize="12">整个过程 =</text>
-          <text x="12" y="52" fill="#a9b4dc" fontSize="11">① I×W → Q,K,V</text>
-          <text x="12" y="74" fill="#a9b4dc" fontSize="11">② QKᵀ → softmax</text>
-          <text x="12" y="96" fill="#a9b4dc" fontSize="11">③ Â×V → O</text>
-          <text x="12" y="114" fill="#6e7aab" fontSize="9.5">三次矩阵乘法</text>
-        </g>
-      </svg>
-      <div className="fig-shapes">
-        <span><b>X</b> <em>[N,d]</em></span><em>→</em>
-        <span><b>Q,K,V</b> <em>[N,d_k/d_v]</em></span><em>→</em>
-        <span><b>A=QKᵀ</b> <em>[N,N]</em></span><em>→</em>
-        <span><b>Â</b> <em>[N,N]</em></span><em>→</em>
-        <span><b>O=ÂV</b> <em>[N,d_v]</em></span>
-      </div>
-      <div className="fig-cap">图 · 向量级推导收束成矩阵乘法，可用 GPU 并行加速</div>
-    </div>
-  );
-}
 
 /* ============================================================
  * 数值矩阵流水线：用真实小数值从 X 一步步算到 O
@@ -368,14 +298,14 @@ function QKVMat({
 }
 
 function FigStageQKV() {
-  const WORDS = ["我", "爱", "深", "度"];
-  const X = [[1, 0], [0, 2], [2, 1], [1, 1]];
-  const WQ = [[1, 1], [0, 1]];
-  const WK = [[1, 0], [1, 1]];
-  const WV = [[2, 0], [0, 1]];
-  const Q = [[1, 1], [0, 2], [2, 3], [1, 2]];
-  const K = [[1, 0], [2, 2], [3, 1], [2, 1]];
-  const V = [[2, 0], [0, 2], [4, 1], [2, 1]];
+  const WORDS = ["token₁", "token₂", "token₃", "token₄"];
+  const X = [[0.4, 1.2], [1.5, 0.3], [0.8, 0.9], [1.1, 1.5]];
+  const WQ = [[1, 0.5], [-0.3, 0.8]];
+  const WK = [[0.8, -0.4], [0.2, 1.1]];
+  const WV = [[0.7, 0.2], [0.1, 1]];
+  const Q = [[0.04, 1.16], [1.41, 0.99], [0.53, 1.12], [0.65, 1.75]];
+  const K = [[0.56, 1.16], [1.26, -0.27], [0.82, 0.67], [1.18, 1.21]];
+  const V = [[0.4, 1.28], [1.08, 0.6], [0.65, 1.06], [0.92, 1.72]];
 
   const CQ = "#f5b042"; // --q
   const CK = "#a78bfa"; // --k
@@ -481,6 +411,8 @@ function FigStageQKV() {
                 border: `1px solid ${r.color}40`,
               }}
             >
+              <span style={{ fontSize: 16, color: "var(--t2)", fontWeight: 700, fontFamily: "var(--mono)" }}>X</span>
+              <span style={{ fontSize: 20, color: "var(--t3)", fontWeight: 600, fontFamily: "var(--mono)" }}>×</span>
               <QKVMat data={r.W} accent={r.color} label={r.wlabel} sub="[2×2]" />
               <span style={{ fontSize: 20, color: "var(--t3)", fontWeight: 600, fontFamily: "var(--mono)" }}>=</span>
               <QKVMat data={r.R} accent={r.color} label={r.key} sub="[4×2]" heroRow={r.key === "Q" ? 0 : -1} heroColor={r.color} />
@@ -502,7 +434,7 @@ function FigStageQKV() {
         </div>
       </div>
 
-      {/* 逐项演算示例（以 x₁=[1,0] 为例，呼应主角 q₁）*/}
+      {/* 逐项演算示例（以 x₁=[0.4,1.2] 为例，呼应主角 q₁）*/}
       <div
         style={{
           marginTop: 16,
@@ -515,14 +447,14 @@ function FigStageQKV() {
           fontFamily: "var(--mono)",
         }}
       >
-        <span>例：x₁ = [1,0]</span>
-        <span style={{ color: CQ }}>→ q₁ = [1×1+0×0, 1×1+0×1] = [1,1] ★</span>
-        <span style={{ color: CK }}>→ k₁ = [1×1+0×1, 1×0+0×1] = [1,0]</span>
-        <span style={{ color: CV }}>→ v₁ = [1×2+0×0, 1×0+0×1] = [2,0]</span>
+        <span>例：x₁ = [0.4,1.2]</span>
+        <span style={{ color: CQ }}>→ q₁ = [0.4×1.0+1.2×(-0.3), 0.4×0.5+1.2×0.8] = [0.04,1.16] ★</span>
+        <span style={{ color: CK }}>→ k₁ = [0.4×0.8+1.2×0.2, 0.4×(-0.4)+1.2×1.1] = [0.56,1.16]</span>
+        <span style={{ color: CV }}>→ v₁ = [0.4×0.7+1.2×0.1, 0.4×0.2+1.2×1.0] = [0.40,1.28]</span>
       </div>
       <div style={{ textAlign: "center", color: "var(--t3)", fontSize: 12, marginTop: 10 }}>
         图 · 同一组输入 <b style={{ color: "var(--t2)" }}>X</b> 经三个独立可学习的权重矩阵，投影成 Q / K / V；
-        下一章将固定第 1 行的 <b style={{ color: CQ }}>q₁ = [1,1]</b> 作为主角，追踪它如何算出 b₁。
+        下一章将固定第 1 行的 <b style={{ color: CQ }}>q₁ = [0.04,1.16]</b> 作为主角，追踪它如何算出 b₁。
       </div>
     </div>
   );
@@ -530,20 +462,20 @@ function FigStageQKV() {
 
 /* ============================================================
  * 向量阶段图2：固定 q₁ 扇出打分（FigStageScore）
- * 主角 q₁=[1,1] 固定左侧（★），向 k₁..k₄ 扇出橙色连线，
+ * 主角 q₁ 固定左侧（★），向 k₁..k₄ 扇出橙色连线，
  * 每条连线终点标注点积分数 α₁,ⱼ；关键连线上写出 q₁·kⱼ 的乘加过程。
  * 数据全程使用统一 4-token（我/爱/深/度，d=2）。
  * ============================================================ */
 function FigStageScore() {
-  // —— 统一数据（我/爱/深/度，d=2，√d≈1.414）——
-  const q1: [number, number] = [1, 1];
+  // —— 统一数据（token₁/token₂/token₃/token₄，d=2，√dₖ≈1.414）——
+  const q1: [number, number] = [0.04, 1.16];
   const ks: { label: string; word: string; v: [number, number]; a: number; calc: string }[] = [
-    { label: "k₁", word: "我", v: [1, 0], a: 0.707, calc: "(1×1 + 1×0)/√2" },
-    { label: "k₂", word: "爱", v: [2, 2], a: 2.828, calc: "(1×2 + 1×2)/√2" },
-    { label: "k₃", word: "深", v: [3, 1], a: 2.828, calc: "(1×3 + 1×1)/√2" },
-    { label: "k₄", word: "度", v: [2, 1], a: 2.121, calc: "(1×2 + 1×1)/√2" },
+    { label: "k₁", word: "token₁", v: [0.56, 1.16], a: 0.967, calc: "(0.04×0.56 + 1.16×1.16)/√2" },
+    { label: "k₂", word: "token₂", v: [1.26, -0.27], a: -0.186, calc: "(0.04×1.26 + 1.16×-0.27)/√2" },
+    { label: "k₃", word: "token₃", v: [0.82, 0.67], a: 0.573, calc: "(0.04×0.82 + 1.16×0.67)/√2" },
+    { label: "k₄", word: "token₄", v: [1.18, 1.21], a: 1.026, calc: "(0.04×1.18 + 1.16×1.21)/√2" },
   ];
-  const MAX_A = 2.828;
+  const MAX_A = 1.026;
 
   // —— 布局坐标 ——
   const YS = [100, 225, 350, 475]; // 4 个 k 块中心 y
@@ -566,7 +498,7 @@ function FigStageScore() {
           固定 q₁，向所有 k 扇出打分
         </text>
         <text x="30" y="55" fill="#a9b4dc" fontSize="12.5">
-          α₁,ⱼ = q₁ · kⱼ / √d　（d=2，√d≈1.414）　点积越大 → 越像 → 注意力分数越高
+          α₁,ⱼ = q₁ · kⱼ / √dₖ　（d=2，√dₖ≈1.414）　点积越大 → 越像 → 注意力分数越高
         </text>
 
         {/* 扇出连线（先画线，后画块以遮住端点） */}
@@ -591,7 +523,7 @@ function FigStageScore() {
           <rect x="40" y={qY - 54} width="150" height="108" rx="14" fill="rgba(245,176,66,0.2)" stroke="#f5b042" strokeWidth="2.4" />
           <text x="115" y={qY - 20} textAnchor="middle" fill="#f5b042" fontSize="22" fontWeight="800" fontFamily="JetBrains Mono, monospace">q₁ ★</text>
           <text x="115" y={qY + 8} textAnchor="middle" fill="#fbbf24" fontSize="15" fontFamily="JetBrains Mono, monospace" fontWeight="700">[ {q1[0]}, {q1[1]} ]</text>
-          <text x="115" y={qY + 33} textAnchor="middle" fill="#a9b4dc" fontSize="11.5">主角 Query · 我</text>
+          <text x="115" y={qY + 33} textAnchor="middle" fill="#a9b4dc" fontSize="11.5">主角 Query · token₁</text>
         </g>
 
         {/* k 块 + 分数药丸 + 乘加过程 */}
@@ -645,7 +577,7 @@ function FigStageScore() {
 
         {/* 底部一句话结论 */}
         <text x="470" y="555" textAnchor="middle" fill="#6e7aab" fontSize="12.5">
-          q₁ 与 <tspan fill="#a78bfa" fontWeight="700">k₂</tspan>、<tspan fill="#a78bfa" fontWeight="700">k₃</tspan> 最像（分数最高 2.828）→ softmax 后会重点看向「爱」「深」
+          q₁ 与 <tspan fill="#a78bfa" fontWeight="700">token₄</tspan> 最像（分数最高 1.026）→ softmax 后会重点看向「token₄」
         </text>
       </svg>
       <div className="fig-cap">图 · 向量阶段 ② 打分：固定主角 q₁ 向所有 k 扇出，点积分数量化「谁更像我」</div>
@@ -656,14 +588,14 @@ function FigStageScore() {
 /* ============================================================
  * 向量阶段图3：整行 softmax（row-wise softmax）
  * 强调：4 个分数作为「一整行」联合归一化，而非 4 个独立操作
- * 数据：q1 主角行 alphas=[0.707,2.828,2.828,2.121]  ahats=[0.046,0.383,0.383,0.189]
+ * 数据：q1 主角行 alphas=[0.967,-0.186,0.573,1.026]  ahats=[0.328,0.103,0.221,0.348]
  * ============================================================ */
 function FigStageSoftmax() {
   // 分数用 3 位小数（与矩阵级 S、e^α 计算口径一致）
-  const alphas = [0.707, 2.828, 2.828, 2.121];
-  const ahats = [0.046, 0.383, 0.383, 0.189];
-  const exps = ["2.03", "16.91", "16.91", "8.34"];
-  const Z = "44.19";
+  const alphas = [0.967, -0.186, 0.573, 1.026];
+  const ahats = [0.328, 0.103, 0.221, 0.348];
+  const exps = ["2.63", "0.83", "1.77", "2.79"];
+  const Z = "8.02";
 
   // 单元格几何
   const cellW = 56;
@@ -752,7 +684,7 @@ function FigStageSoftmax() {
         })}
         {/* 权重行下方括号：强调「一整行 · 和为 1」 */}
         <path d="M634,200 L634,208 L894,208 L894,200" fill="none" stroke="#6e7aab" strokeWidth="1.2" />
-        <text x="764" y="224" textAnchor="middle" fill="#a9b4dc" fontSize="10.5">整行 4 个权重 · 三位小数近似，和 ≈ 1</text>
+        <text x="764" y="224" textAnchor="middle" fill="#a9b4dc" fontSize="10.5">整行 4 个权重 · 三位小数近似，和 = 1</text>
       </svg>
 
       {/* 数值代入（softmax 层下方）*/}
@@ -776,10 +708,10 @@ function FigStageSoftmax() {
 
         <div style={{ marginTop: 12, display: "block", maxWidth: "100%" }}>
           <div style={{ marginBottom: 6, overflowX: "auto", overflowY: "hidden" }}>
-            <Formula block tex={"\\hat\\alpha_{1,j}=\\dfrac{e^{\\alpha_{1,j}}}{Z}=\\dfrac{e^{\\alpha_{1,j}}}{\\sum_{j=1}^{4}e^{\\alpha_{1,j}}},\\qquad Z=2.03+16.91+16.91+8.34\\approx 44.19"} />
+            <Formula block tex={"\\hat\\alpha_{1,j}=\\dfrac{e^{\\alpha_{1,j}}}{Z}=\\dfrac{e^{\\alpha_{1,j}}}{\\sum_{j=1}^{4}e^{\\alpha_{1,j}}},\\qquad Z=2.63+0.83+1.77+2.79\\approx 8.02"} />
           </div>
           <div style={{ overflowX: "auto", overflowY: "hidden" }}>
-            <Formula block tex={"\\hat\\alpha_{1,:}=\\dfrac{[\\,2.03,\\ 16.91,\\ 16.91,\\ 8.34\\,]}{44.19}\\approx[\\,0.046,\\ 0.383,\\ 0.383,\\ 0.189\\,],\\qquad \\sum_{j}\\hat\\alpha_{1,j}\\approx 1\\ (\\text{三位小数近似})"} />
+            <Formula block tex={"\\hat\\alpha_{1,:}=\\dfrac{[\\,2.63,\\ 0.83,\\ 1.77,\\ 2.79\\,]}{8.02}\\approx[\\,0.328,\\ 0.103,\\ 0.221,\\ 0.348\\,],\\qquad \\sum_{j}\\hat\\alpha_{1,j}\\approx 1\\ (\\text{三位小数近似})"} />
           </div>
         </div>
 
@@ -799,14 +731,14 @@ function FigStageSoftmax() {
 
 function FigStageAggregate() {
   // 统一数据：q1 主角路径，权重用三位小数近似
-  const ahats3 = [0.046, 0.383, 0.383, 0.189];
-  const vvals = ["[2,0]", "[0,2]", "[4,1]", "[2,1]"];
+  const ahats3 = [0.328, 0.103, 0.221, 0.348];
+  const vvals = ["[0.40,1.28]", "[1.08,0.60]", "[0.65,1.06]", "[0.92,1.72]"];
   // 乘积 α̂·v（保留 2 位便于标注；最终 b1 用三位小数近似权重算）
   const products = [
-    ["0.09", "0"],
-    ["0", "0.77"],
-    ["1.53", "0.38"],
-    ["0.38", "0.19"],
+    ["0.13", "0.42"],
+    ["0.11", "0.06"],
+    ["0.14", "0.23"],
+    ["0.32", "0.60"],
   ];
   const ys = [150, 230, 310, 390];
   const b1y = (ys[0] + ys[3]) / 2; // 270 扇入汇聚点
@@ -899,7 +831,7 @@ function FigStageAggregate() {
         {/* b1 输出块（显示精确值，与 s4 矩阵 O 第一行一致） */}
         <rect x={830} y={b1y - 40} width={150} height={80} rx={12} fill="rgba(244,114,182,0.2)" stroke="#f472b6" strokeWidth={2.2} />
         <text x={905} y={b1y - 10} textAnchor="middle" fontSize="16" fill="#f9a8d4" fontFamily="JetBrains Mono,monospace" fontWeight="700">b₁ ★</text>
-        <text x={905} y={b1y + 16} textAnchor="middle" fontSize="15" fill="#f9a8d4" fontFamily="JetBrains Mono,monospace" fontWeight="700">[2.000, 1.337]</text>
+        <text x={905} y={b1y + 16} textAnchor="middle" fontSize="15" fill="#f9a8d4" fontFamily="JetBrains Mono,monospace" fontWeight="700">[0.71, 1.31]</text>
 
         {/* 底部导引 */}
         <text x={520} y={455} textAnchor="middle" fill="#6e7aab" fontSize="11.5" fontFamily="JetBrains Mono,monospace">
@@ -911,31 +843,31 @@ function FigStageAggregate() {
       <div style={workoutWrap}>
         <div style={line}>
           <span style={lbl}>b₁ =</span>
-          <span style={{ color: "#7dd3fc" }}>0.046·[2,0]</span>
+          <span style={{ color: "#7dd3fc" }}>0.328·[0.40,1.28]</span>
           <span style={op}>+</span>
-          <span style={{ color: "#7dd3fc" }}>0.383·[0,2]</span>
+          <span style={{ color: "#7dd3fc" }}>0.103·[1.08,0.60]</span>
           <span style={op}>+</span>
-          <span style={{ color: "#7dd3fc" }}>0.383·[4,1]</span>
+          <span style={{ color: "#7dd3fc" }}>0.221·[0.65,1.06]</span>
           <span style={op}>+</span>
-          <span style={{ color: "#7dd3fc" }}>0.189·[2,1]</span>
+          <span style={{ color: "#7dd3fc" }}>0.348·[0.92,1.72]</span>
         </div>
         <div style={line}>
           <span style={lbl}>　 =</span>
-          <span style={{ color: "#2dd4bf" }}>[0.092, 0]</span>
+          <span style={{ color: "#2dd4bf" }}>[0.131, 0.420]</span>
           <span style={op}>+</span>
-          <span style={{ color: "#2dd4bf" }}>[0, 0.766]</span>
+          <span style={{ color: "#2dd4bf" }}>[0.111, 0.062]</span>
           <span style={op}>+</span>
-          <span style={{ color: "#2dd4bf" }}>[1.532, 0.383]</span>
+          <span style={{ color: "#2dd4bf" }}>[0.144, 0.234]</span>
           <span style={op}>+</span>
-          <span style={{ color: "#2dd4bf" }}>[0.378, 0.189]</span>
+          <span style={{ color: "#2dd4bf" }}>[0.320, 0.599]</span>
         </div>
         <div style={line}>
           <span style={lbl}>　 =</span>
-          <span style={{ color: "#f472b6", fontWeight: 700 }}>[2.002, 1.338] ≈ [2.000, 1.337]</span>
+          <span style={{ color: "#f472b6", fontWeight: 700 }}>[0.706, 1.314] ≈ [0.71, 1.31]</span>
         </div>
         <div style={note}>
-          注：连线上的乘积用<b style={{ color: "#a9b4dc" }}>三位小数近似</b>权重（0.046 / 0.383 / 0.383 / 0.189）计算；
-          上方 b₁ 显示的是<b style={{ color: "#a9b4dc" }}>未舍入权重</b>算出的精确值 [2.000, 1.337]，与矩阵级 O 的第一行一致。
+          注：连线上的乘积与 b₁ 均用<b style={{ color: "#a9b4dc" }}>三位小数近似</b>权重（0.328 / 0.103 / 0.221 / 0.348）计算；
+          若用未舍入权重，结果为 [0.706, 1.314]（即矩阵级 O 的第一行）。
         </div>
       </div>
     </div>
@@ -952,18 +884,18 @@ function FigStageAggregate() {
 type Mat = number[][];
 
 /* ---- 统一数据（我/爱/深/度，d=2；禁止改值）---- */
-const FMS_WORDS = ["我", "爱", "深", "度"];
+const FMS_WORDS = ["token₁", "token₂", "token₃", "token₄"];
 const FMS_DATA: { X: Mat; WQ: Mat; WK: Mat; WV: Mat; Q: Mat; K: Mat; V: Mat; S: Mat; A: Mat; O: Mat } = {
-  X:  [[1, 0], [0, 2], [2, 1], [1, 1]],
-  WQ: [[1, 1], [0, 1]],
-  WK: [[1, 0], [1, 1]],
-  WV: [[2, 0], [0, 1]],
-  Q:  [[1, 1], [0, 2], [2, 3], [1, 2]],
-  K:  [[1, 0], [2, 2], [3, 1], [2, 1]],
-  V:  [[2, 0], [0, 2], [4, 1], [2, 1]],
-  S:  [[0.707, 2.828, 2.828, 2.121], [0, 2.828, 1.414, 1.414], [1.414, 7.071, 6.364, 4.95], [0.707, 4.243, 3.536, 2.828]],
-  A:  [[0.046, 0.383, 0.383, 0.189], [0.038, 0.647, 0.157, 0.157], [0.002, 0.619, 0.305, 0.074], [0.017, 0.566, 0.279, 0.138]],
-  O:  [[2, 1.337], [1.02, 1.609], [1.373, 1.616], [1.426, 1.55]],
+  X:  [[0.4, 1.2], [1.5, 0.3], [0.8, 0.9], [1.1, 1.5]],
+  WQ: [[1, 0.5], [-0.3, 0.8]],
+  WK: [[0.8, -0.4], [0.2, 1.1]],
+  WV: [[0.7, 0.2], [0.1, 1]],
+  Q:  [[0.04, 1.16], [1.41, 0.99], [0.53, 1.12], [0.65, 1.75]],
+  K:  [[0.56, 1.16], [1.26, -0.27], [0.82, 0.67], [1.18, 1.21]],
+  V:  [[0.4, 1.28], [1.08, 0.6], [0.65, 1.06], [0.92, 1.72]],
+  S:  [[0.967, -0.186, 0.573, 1.026], [1.37, 1.067, 1.287, 2.024], [1.129, 0.258, 0.838, 1.4], [1.693, 0.245, 1.206, 2.04]],
+  A:  [[0.328, 0.103, 0.221, 0.348], [0.218, 0.161, 0.201, 0.42], [0.287, 0.12, 0.215, 0.377], [0.306, 0.072, 0.188, 0.433]],
+  O:  [[0.706, 1.314], [0.778, 1.311], [0.732, 1.317], [0.721, 1.38]],
 };
 
 /* 配色（字面色值，行内 style 用）——与全局 Q/K/V/Att/Out 一致 */
@@ -1424,11 +1356,11 @@ export default function Home() {
           <section className="hero" id="s0">
             <span className="kicker">// Operator Deep-Dive</span>
             <h1>Attention 算子<br /><em>到底在算什么？</em></h1>
-            <p className="lead">从「矩阵乘法怎么乘」一路讲到经典 Transformer 全景图。每个公式配数值演示，每个结构都用 SVG 逐格重绘——这张图你今天一定能看懂。</p>
+            <p className="lead">从矩阵乘法一路讲到经典 Transformer 全景图：投影、点积、缩放、softmax、加权汇聚，每一步都用真实数值矩阵演示。</p>
             <div className="chips">
               <span>从矩阵乘法起步</span>
               <span><b>Q · K · V</b> 全程配色一致</span>
-              <span>含 PyTorch 经典代码 + 算子测试要点</span>
+              <span>含 PyTorch 经典代码</span>
             </div>
 
             <div className="hero-card">
@@ -1575,7 +1507,7 @@ export default function Home() {
             <div className="card">
               <div style={{ display: "flex", gap: 22, flexWrap: "wrap", justifyContent: "center", alignItems: "center" }}>
                 <div style={{ textAlign: "center" }}>
-                  <div className="mname">scaled logits <span style={{ color: "#38bdf8" }}>α = q·k/sqrt(d)</span></div>
+                  <div className="mname">scaled logits <span style={{ color: "#38bdf8" }}>α = q·k/sqrt(d_k)</span></div>
                   <div style={{ display: "flex", gap: 8 }}>
                     {attn.scaled.map((v, i) => (
                       <div key={i} style={{ textAlign: "center" }}>
@@ -1787,7 +1719,7 @@ export default function Home() {
 
           {/* ===== 代码 ===== */}
           <section className="section" id="s9">
-            <SecHead idx="08" title="经典代码 + 算子测试要点" />
+            <SecHead idx="08" title="经典代码实现" />
             <p className="sec-lead">原理看懂了，落到代码就几十行。下面是哈佛 The Annotated Transformer 的经典实现，逐行对应步骤。</p>
 
             <div className="code-title">① 缩放点积注意力 — 对应 softmax(QKᵀ/sqrt(dk))V</div>
@@ -1813,15 +1745,7 @@ export default function Home() {
         x = x.transpose(1, 2).contiguous().view(nbatches, -1, self.h * self.d_k)
         return self.linears[-1](x)`}</code></pre>
 
-            <h3>算子测试要点</h3>
-            <div className="grid2">
-              <div className="card"><h3 style={{ marginTop: 0 }}>数值正确性</h3><p className="t3">小矩阵手算 softmax(QKᵀ/sqrt(dk))V 比对；验证每行和=1、padding 权重≈0。</p></div>
-              <div className="card"><h3 style={{ marginTop: 0 }}>形状与边界</h3><p className="t3">校验 (B,h,n,dₖ) 变换；d_model 不能被 h 整除时报错、空序列、单 token。</p></div>
-              <div className="card"><h3 style={{ marginTop: 0 }}>mask 正确性</h3><p className="t3">因果 mask 为下三角（含主对角线）；屏蔽位 softmax 后为 0，不受未来影响。</p></div>
-              <div className="card"><h3 style={{ marginTop: 0 }}>性能与精度</h3><p className="t3">fp32/fp16/bf16 相对误差（&lt;1e-3）；显存与耗时随 seq/heads/dₖ 的曲线。</p></div>
-            </div>
-
-            <div className="note ok"><b>一句话总结</b>：Attention 把「每个位置该关注谁」变成 <Formula tex={String.raw`QK^{\mathsf T}\!/\sqrt{d_k}`} /> 算分、softmax 变权重、再乘 <Formula tex="V" /> 取内容——三步矩阵乘法。多头扩展视角，加位置编码补顺序，组装成 Encoder/Decoder，就是撑起所有现代大模型的 Transformer。</div>
+            <div className="note ok"><b>一句话总结</b>：Attention 把「每个位置该关注谁」变成 <Formula tex={String.raw`QK^{\mathsf T}\!/\sqrt{d_k}`} /> 算分、softmax 变权重、再乘 <Formula tex="V" /> 取内容——矩阵乘法 + softmax。多头扩展视角，加位置编码补顺序，组装成 Encoder/Decoder，就是撑起所有现代大模型的 Transformer。</div>
           </section>
 
           <div className="foot">
