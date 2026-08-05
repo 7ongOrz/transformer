@@ -389,7 +389,7 @@ function FigRnnVsAtt() {
 }
 
 /* ---------- 章节头 ---------- */
-function SecHead({ idx, title }: { idx: string; title: string }) {
+function SecHead({ idx, title }: { idx: string; title: React.ReactNode }) {
   return (
     <div className="sec-head">
       <span className="idx">{idx}</span>
@@ -464,7 +464,7 @@ export default function Home() {
           <span className="glyph">A</span>
           <b>Attention</b>
         </div>
-        <div className="sub">Transformer 核心算子<br />面向零基础讲解</div>
+        <div className="sub">Transformer 核心算子<br />从矩阵乘法讲到大模型全景</div>
         <ol>
           {navItems.map(([id, label]) => (
             <li key={id}>
@@ -490,7 +490,7 @@ export default function Home() {
             <h1>Attention 算子<br /><em>到底在算什么？</em></h1>
             <p className="lead">从「矩阵乘法怎么乘」一路讲到经典 Transformer 全景图。每个公式配数值演示，每个结构都用 SVG 逐格重绘——这张图你今天一定能看懂。</p>
             <div className="chips">
-              <span>零基础起点</span>
+              <span>从矩阵乘法起步</span>
               <span><b>Q · K · V</b> 全程配色一致</span>
               <span>含 PyTorch 经典代码 + 算子测试要点</span>
             </div>
@@ -514,14 +514,14 @@ export default function Home() {
               </div>
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>算子视角的一句话</h3>
-                <p className="t3">Attention 的核心就是<b style={{ color: "var(--t1)" }}>三个矩阵乘法 + 一个 softmax</b>。整堂课的目标，是让你在脑子里把这句话可视化出来。</p>
+                <p className="t3">Attention 的核心就是<b style={{ color: "var(--t1)" }}>三个矩阵乘法 + 一个 softmax</b>。这篇分享的目标，是让你在脑子里把这句话可视化出来。</p>
               </div>
             </div>
           </section>
 
           {/* ===== 矩阵乘法 ===== */}
           <section className="section" id="s1">
-            <SecHead idx="01" title="零基础热身：矩阵乘法到底怎么乘" />
+            <SecHead idx="01" title="热身：矩阵乘法到底怎么乘" />
             <p className="sec-lead">Attention 的全部运算都是矩阵乘法。先抛开深度学习，用具体数字搞明白规则——<b style={{ color: "var(--out)" }}>点一下右边结果矩阵的任意格子</b>，左边高亮参与计算的行与列。</p>
             <div className="mbox">
               <div className="mcol">
@@ -592,7 +592,7 @@ export default function Home() {
               <span><i className="lk" />Key 键：我有什么可被匹配</span>
               <span><i className="lv" />Value 值：匹配上后拿走的内容</span>
             </div>
-            <p className="sec-lead">这是整堂课的核心一张图。以「算出第 1 个输出 <Formula tex="b_1" />」为例分 4 步。先记住三个词：每个输入词 <Formula tex="x" /> 会变成三份不同身份——<b style={{ color: "var(--q)" }}>Q（去问别人）</b>、<b style={{ color: "var(--k)" }}>K（被别人问）</b>、<b style={{ color: "var(--v)" }}>V（真正的内容）</b>。</p>
+            <p className="sec-lead">这是整篇的核心一张图。以「算出第 1 个输出 <Formula tex="b_1" />」为例分 4 步。先记住三个词：每个输入词 <Formula tex="x" /> 会变成三份不同身份——<b style={{ color: "var(--q)" }}>Q（去问别人）</b>、<b style={{ color: "var(--k)" }}>K（被别人问）</b>、<b style={{ color: "var(--v)" }}>V（真正的内容）</b>。</p>
             <FigAttentionSteps />
             <div className="steps">
               <article><b>① 生成 Q/K/V</b><p>每个词 x 乘三个可学习矩阵，得到身份三件套：去问、被问、内容。</p></article>
@@ -616,7 +616,7 @@ export default function Home() {
 
           {/* ===== 缩放 ===== */}
           <section className="section" id="s5">
-            <SecHead idx="05" title="那个 √dₖ 是干嘛的？" />
+            <SecHead idx="05" title={<>那个 <Formula tex={String.raw`\sqrt{d_k}`} /> 是干嘛的？</>} />
             <p className="sec-lead">公式里多了一个「除以 <Formula tex={String.raw`\sqrt{d_k}`} />」，叫<b style={{ color: "var(--t1)" }}>缩放（Scale）</b>。原因一句：维度 <Formula tex="d_k" /> 越大，点积数值越大，softmax 会被推向极端（一个 1、其余 0），梯度消失训不动。</p>
             <div className="grid2">
               <div className="card">
@@ -624,12 +624,12 @@ export default function Home() {
                 <p className="t3">点积是 <Formula tex="d_k" /> 个乘积之和。<Formula tex="d_k" /> 大 → 点积方差大 → softmax 近似 one-hot → 梯度接近 0 → 训练停滞。</p>
               </div>
               <div className="card">
-                <h3 style={{ marginTop: 0 }}>除以 √dₖ 的效果</h3>
+                <h3 style={{ marginTop: 0 }}>除以 <Formula tex={String.raw`\sqrt{d_k}`} /> 的效果</h3>
                 <p className="t3">把点积方差<b style={{ color: "var(--t1)" }}>拉回 1 附近</b>，让 softmax 处在温和区间，梯度健康。这是算子实现里最易漏、但必须有的细节。</p>
               </div>
             </div>
             <div className="note">
-              <Formula tex={String.raw`\operatorname{Var}(q_i k_j^{\mathsf T})\approx d_k\quad\Rightarrow\quad \operatorname{Var}\!\left(\frac{q_i k_j^{\mathsf T}}{\sqrt{d_k}}\right)\approx1`} />
+              <Formula block tex={String.raw`\operatorname{Var}(q_i k_j^{\mathsf T})\approx d_k\quad\Rightarrow\quad \operatorname{Var}\!\left(\frac{q_i k_j^{\mathsf T}}{\sqrt{d_k}}\right)\approx1`} />
             </div>
 
             {/* 数值演示：选 Query 看权重 */}
@@ -642,7 +642,7 @@ export default function Home() {
             <div className="card">
               <div style={{ display: "flex", gap: 22, flexWrap: "wrap", justifyContent: "center", alignItems: "center" }}>
                 <div style={{ textAlign: "center" }}>
-                  <div className="mname">scaled logits <span style={{ color: "var(--att)" }}>α = q·k/√d</span></div>
+                  <div className="mname">scaled logits <span style={{ color: "var(--att)" }}>α = q·k/sqrt(d)</span></div>
                   <div style={{ display: "flex", gap: 8 }}>
                     {attn.scaled.map((v, i) => (
                       <div key={i} style={{ textAlign: "center" }}>
@@ -750,7 +750,7 @@ export default function Home() {
             <SecHead idx="08" title="经典代码 + 算子测试要点" />
             <p className="sec-lead">原理看懂了，落到代码就几十行。下面是哈佛 The Annotated Transformer 的经典实现，逐行对应步骤。</p>
 
-            <div className="code-title">① 缩放点积注意力 — 对应 softmax(QKᵀ/√dk)V</div>
+            <div className="code-title">① 缩放点积注意力 — 对应 softmax(QKᵀ/sqrt(dk))V</div>
             <pre><code>{`def attention(query, key, value, mask=None):
     d_k = query.size(-1)
     scores = torch.matmul(query, key.transpose(-2, -1)) / math.sqrt(d_k)
@@ -775,18 +775,18 @@ export default function Home() {
 
             <h3>算子测试要点（leader 关心的）</h3>
             <div className="grid2">
-              <div className="card"><h3 style={{ marginTop: 0 }}>数值正确性</h3><p className="t3">小矩阵手算 softmax(QKᵀ/√dk)V 比对；验证每行和=1、padding 权重≈0。</p></div>
+              <div className="card"><h3 style={{ marginTop: 0 }}>数值正确性</h3><p className="t3">小矩阵手算 softmax(QKᵀ/sqrt(dk))V 比对；验证每行和=1、padding 权重≈0。</p></div>
               <div className="card"><h3 style={{ marginTop: 0 }}>形状与边界</h3><p className="t3">校验 (B,h,n,dₖ) 变换；dₖ 不整除头数报错、空序列、单 token。</p></div>
               <div className="card"><h3 style={{ marginTop: 0 }}>mask 正确性</h3><p className="t3">因果 mask 严格下三角；屏蔽位 softmax 后为 0，不受未来影响。</p></div>
               <div className="card"><h3 style={{ marginTop: 0 }}>性能与精度</h3><p className="t3">fp32/fp16/bf16 相对误差（&lt;1e-3）；显存与耗时随 seq/heads/dₖ 的曲线。</p></div>
             </div>
 
-            <div className="note ok"><b>一句话总结整堂课</b>：Attention 把「每个位置该关注谁」变成 <Formula tex={String.raw`QK^{\mathsf T}\!/\sqrt{d_k}`} /> 算分、softmax 变权重、再乘 <Formula tex="V" /> 取内容——三步矩阵乘法。多头扩展视角，加位置编码补顺序，组装成 Encoder/Decoder，就是撑起所有现代大模型的 Transformer。</div>
+            <div className="note ok"><b>一句话总结</b>：Attention 把「每个位置该关注谁」变成 <Formula tex={String.raw`QK^{\mathsf T}\!/\sqrt{d_k}`} /> 算分、softmax 变权重、再乘 <Formula tex="V" /> 取内容——三步矩阵乘法。多头扩展视角，加位置编码补顺序，组装成 Encoder/Decoder，就是撑起所有现代大模型的 Transformer。</div>
           </section>
 
           <div className="foot">
-            参考：李宏毅 Self-Attention 讲解（PDF 图 1–15）· Vaswani et al. <i>Attention Is All You Need</i>（Figure 1）· The Annotated Transformer。<br />
-            全篇 Q/K/V/Attention/Output 配色一致，SVG 可自由放大讲解。
+            参考：李宏毅 Self-Attention 资料（PDF 图 1–15）· Vaswani et al. <i>Attention Is All You Need</i>（Figure 1）· The Annotated Transformer。<br />
+            全篇 Q/K/V/Attention/Output 配色一致，SVG 可自由放大查看。
           </div>
 
         </div>

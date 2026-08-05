@@ -159,7 +159,7 @@
 <!-- ============ 导航 ============ -->
 <nav class="nav" id="nav">
   <div class="brand">Attention<span class="dot">.</span></div>
-  <div class="sub">Transformer 核心算子讲义<br/>面向零基础 · ~18 min</div>
+  <div class="sub">Transformer 核心算子<br/>从矩阵乘法讲到大模型全景</div>
   <ol>
     <li><a href="#s0">为什么重要</a></li>
     <li><a href="#s1">先搞懂矩阵乘法</a></li>
@@ -183,8 +183,8 @@
   <h1>Attention 算子<br/>到底在算什么？</h1>
   <p class="lead">从「矩阵乘法怎么乘」一路讲到经典 Transformer 全景图。每个公式配可交互的数值演示，每个结构都用 SVG 逐格重绘——这张图你今天一定能看懂。</p>
   <div class="meta">
-    <span class="chip"><b>~18 分钟</b> 讲解</span>
-    <span class="chip">零基础起点</span>
+    <span class="chip">从矩阵乘法起步</span>
+    <span class="chip">从矩阵乘法起步</span>
     <span class="chip">Q · K · V 全程配色一致</span>
     <span class="chip">含 PyTorch 经典代码 + 算子测试要点</span>
   </div>
@@ -192,7 +192,7 @@
 
 <!-- ============ S0 为什么重要 ============ -->
 <section id="s0">
-  <div class="sec-head"><span class="idx">00</span><h2>先回答：这个算子为什么这么重要？</h2><span class="timer">讲解 <b>1 min</b></span></div>
+  <div class="sec-head"><span class="idx">00</span><h2>先回答：这个算子为什么这么重要？</h2></div>
   <p class="lead2">一句话：<b>Attention 是几乎所有现代大模型（GPT / LLaMA / Claude / 文生图、文生视频）的共同骨架</b>。掌握它，等于拿到理解整个生成式 AI 的钥匙。</p>
   <div class="grid2">
     <div class="card">
@@ -204,12 +204,12 @@
       <p class="t3">没有"必须从头算到尾"的依赖链，<b style="color:var(--t1)">天然可并行</b>，于是能堆上千层、吃海量数据，撑起超大规模训练。</p>
     </div>
   </div>
-  <div class="note">算子视角：Attention 的核心就是<b>三个矩阵乘法 + 一个 softmax</b>。整堂课的目标，就是让你在脑子里把这句话"可视化"出来。</div>
+  <div class="note">算子视角：Attention 的核心就是<b>三个矩阵乘法 + 一个 softmax</b>。这篇分享的目标，就是让你在脑子里把这句话"可视化"出来。</div>
 </section>
 
 <!-- ============ S1 矩阵乘法 ============ -->
 <section id="s1">
-  <div class="sec-head"><span class="idx">01</span><h2>零基础热身：矩阵乘法到底怎么乘</h2><span class="timer">讲解 <b>2 min</b></span></div>
+  <div class="sec-head"><span class="idx">01</span><h2>热身：矩阵乘法到底怎么乘</h2></div>
   <p class="lead2">Attention 的全部运算都是矩阵乘法。我们先抛开深度学习，把"乘法规则"用具体数字搞明白——<b>点一下右边结果矩阵里的任意格子</b>，左边会高亮参与计算的那一行和一列。</p>
 
   <div class="fig">
@@ -248,7 +248,7 @@
 
 <!-- ============ S2 RNN 痛点 ============ -->
 <section id="s2">
-  <div class="sec-head"><span class="idx">02</span><h2>从 RNN 的痛点说起</h2><span class="timer">讲解 <b>1 min</b></span></div>
+  <div class="sec-head"><span class="idx">02</span><h2>从 RNN 的痛点说起</h2></div>
   <p class="lead2">在 Attention 之前，处理"一串词"的主力是 <b>RNN</b>。它最大的毛病：<b>只能一个一个往后算，算不出第 4 个就得等前 3 个</b>——无法并行，GPU 干着急。</p>
 
   <div class="fig">
@@ -299,13 +299,13 @@
 
 <!-- ============ S3 向量级 ============ -->
 <section id="s3">
-  <div class="sec-head"><span class="idx">03</span><h2>Self-Attention · 向量级（一步一步算）</h2><span class="timer">讲解 <b>3 min</b></span></div>
+  <div class="sec-head"><span class="idx">03</span><h2>Self-Attention · 向量级（一步一步算）</h2></div>
   <div class="legend">
     <span><i class="l-q"></i>Query 查询：我想找什么</span>
     <span><i class="l-k"></i>Key 键：我有什么可被匹配</span>
     <span><i class="l-v"></i>Value 值：匹配上后实际拿走的内容</span>
   </div>
-  <p class="lead2">这是整堂课的<b>核心一张图</b>。我们以"算出第 1 个输出 $b_1$"为例，分 4 步走。先记住三个词：每个输入词 $x$ 会变成三份不同身份——<b>Q（去问别人）、K（被别人问）、V（真正的内容）</b>。</p>
+  <p class="lead2">这是整篇的<b>核心一张图</b>。我们以"算出第 1 个输出 $b_1$"为例，分 4 步走。先记住三个词：每个输入词 $x$ 会变成三份不同身份——<b>Q（去问别人）、K（被别人问）、V（真正的内容）</b>。</p>
 
   <div class="fig">
     <svg viewBox="0 0 920 430" width="920">
@@ -399,7 +399,7 @@
 
 <!-- ============ S4 矩阵级 ============ -->
 <section id="s4">
-  <div class="sec-head"><span class="idx">04</span><h2>Self-Attention · 矩阵级（三步搞定）</h2><span class="timer">讲解 <b>2 min</b></span></div>
+  <div class="sec-head"><span class="idx">04</span><h2>Self-Attention · 矩阵级（三步搞定）</h2></div>
   <p class="lead2">上一节我们是一个向量一个向量地算。如果把所有词的 q/k/v 堆成<b>矩阵</b> $Q, K, V$，整件事就坍缩成<b>三次矩阵乘法</b>——这正是 GPU 最擅长、能大规模并行的形态。</p>
 
   <div class="fig">
@@ -485,7 +485,7 @@
 
 <!-- ============ S5 缩放 ============ -->
 <section id="s5">
-  <div class="sec-head"><span class="idx">05</span><h2>那个 $\sqrt{d_k}$ 是干嘛的？</h2><span class="timer">讲解 <b>1 min</b></span></div>
+  <div class="sec-head"><span class="idx">05</span><h2>那个 $\sqrt{d_k}$ 是干嘛的？</h2></div>
   <p class="lead2">公式里多了一个"除以 $\sqrt{d_k}$"，叫<b>缩放（Scale）</b>。原因一句话：维度 $d_k$ 越大，点积 $QK^{\mathsf T}$ 的数值就越大，softmax 会被推向极端（一个 1、其余 0），梯度消失，训不动。</p>
   <div class="grid2">
     <div class="card">
@@ -501,7 +501,7 @@
 
 <!-- ============ S6 多头 ============ -->
 <section id="s6">
-  <div class="sec-head"><span class="idx">06</span><h2>多头注意力（Multi-Head）</h2><span class="timer">讲解 <b>3 min</b></span></div>
+  <div class="sec-head"><span class="idx">06</span><h2>多头注意力（Multi-Head）</h2></div>
   <p class="lead2">只做一次 attention，模型只能学到"一种关注方式"。把它拆成<b>多个头（head）</b>，各自独立算 attention，等于让模型从多个角度（语法、长程、局部……）同时看序列，最后拼回来。</p>
 
   <div class="fig">
@@ -596,7 +596,7 @@
 
 <!-- ============ S7 经典 Transformer 全貌 ============ -->
 <section id="s7">
-  <div class="sec-head"><span class="idx">07</span><h2>经典 Transformer 全景图（论文 Figure 1）</h2><span class="timer">讲解 <b>3 min</b></span></div>
+  <div class="sec-head"><span class="idx">07</span><h2>经典 Transformer 全景图（论文 Figure 1）</h2></div>
   <p class="lead2">把 Attention 装进完整模型长什么样？这就是原论文那张被引用了几万次的结构图——<b>左 Encoder（编码器）、右 Decoder（解码器）</b>，各堆叠 N 层。我们逐块拆。</p>
 
   <div class="fig">
@@ -737,7 +737,7 @@
 
 <!-- ============ S8 位置编码 ============ -->
 <section id="s8">
-  <div class="sec-head"><span class="idx">08</span><h2>补一块拼图：位置编码</h2><span class="timer">讲解 <b>1 min</b></span></div>
+  <div class="sec-head"><span class="idx">08</span><h2>补一块拼图：位置编码</h2></div>
   <p class="lead2">Self-Attention 对"顺序"是无感的——"我打他"和"他打我"算出来一样。所以在输入 embedding 上<b>直接加一个位置向量</b>，把顺序信息喂回去。</p>
   <div class="formula">
   $$PE_{(pos,\,2i)} = \sin\!\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right),\quad PE_{(pos,\,2i+1)} = \cos\!\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right)$$
@@ -747,7 +747,7 @@
 
 <!-- ============ S9 代码 ============ -->
 <section id="s9">
-  <div class="sec-head"><span class="idx">09</span><h2>经典代码（the Annotated Transformer）+ 算子测试要点</h2><span class="timer">讲解 <b>2 min</b></span></div>
+  <div class="sec-head"><span class="idx">09</span><h2>经典代码（the Annotated Transformer）+ 算子测试要点</h2></div>
   <p class="lead2">原理看懂了，落到代码就几十行。下面是哈佛 <b>The Annotated Transformer</b> 的经典实现，逐行对应我们讲过的步骤。</p>
 
   <div class="code-title">① 缩放点积注意力 —— 对应公式 $\mathrm{softmax}(QK^\mathsf{T}/\sqrt{d_k})V$</div>
@@ -803,12 +803,12 @@
     </div>
   </div>
 
-  <div class="note"><b>一句话总结整堂课</b>：Attention 把"序列中每个位置该关注谁"这件事，变成了 $QK^\mathsf T\!/\sqrt{d_k}$ 算分、softmax 变权重、再乘 $V$ 取内容——三步矩阵乘法。多头扩展视角，加上位置编码补顺序，组装成 Encoder/Decoder，就是撑起所有现代大模型的 Transformer。</div>
+  <div class="note"><b>一句话总结</b>：Attention 把"序列中每个位置该关注谁"这件事，变成了 $QK^\mathsf T\!/\sqrt{d_k}$ 算分、softmax 变权重、再乘 $V$ 取内容——三步矩阵乘法。多头扩展视角，加上位置编码补顺序，组装成 Encoder/Decoder，就是撑起所有现代大模型的 Transformer。</div>
 </section>
 
 <div class="foot">
-  讲义参考：李宏毅 Self-Attention 讲解（PDF 图 1–15）· Vaswani et al. <i>Attention Is All You Need</i>（Figure 1）· The Annotated Transformer 代码。<br/>
-  全篇 Q/K/V/Attention/Output 配色一致，SVG 可自由放大讲解。
+  参考：李宏毅 Self-Attention 资料（PDF 图 1–15）· Vaswani et al. <i>Attention Is All You Need</i>（Figure 1）· The Annotated Transformer 代码。<br/>
+  全篇 Q/K/V/Attention/Output 配色一致，SVG 可自由放大查看。
 </div>
 
 </div>

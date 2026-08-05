@@ -32,7 +32,7 @@ test("server-renders the Attention teaching page", async () => {
   assert.match(html, /<html lang="zh-CN">/i);
   assert.match(html, /<title>Attention｜Transformer 核心算子详解<\/title>/i);
   assert.match(html, /Attention 算子/);
-  assert.match(html, /零基础热身：矩阵乘法到底怎么乘/);
+  assert.match(html, /热身：矩阵乘法到底怎么乘/);
   assert.match(html, /从 RNN 的痛点说起/);
   assert.match(html, /Self-Attention · 向量级/);
   assert.match(html, /Self-Attention · 矩阵级/);
