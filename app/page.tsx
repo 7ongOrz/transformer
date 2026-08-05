@@ -511,12 +511,12 @@ function FigStageScore() {
   // —— 统一数据（我/爱/深/度，d=2，√d≈1.414）——
   const q1: [number, number] = [1, 1];
   const ks: { label: string; word: string; v: [number, number]; a: number; calc: string }[] = [
-    { label: "k₁", word: "我", v: [1, 0], a: 0.71, calc: "(1×1 + 1×0)/√2" },
-    { label: "k₂", word: "爱", v: [2, 2], a: 2.83, calc: "(1×2 + 1×2)/√2" },
-    { label: "k₃", word: "深", v: [3, 1], a: 2.83, calc: "(1×3 + 1×1)/√2" },
-    { label: "k₄", word: "度", v: [2, 1], a: 2.12, calc: "(1×2 + 1×1)/√2" },
+    { label: "k₁", word: "我", v: [1, 0], a: 0.707, calc: "(1×1 + 1×0)/√2" },
+    { label: "k₂", word: "爱", v: [2, 2], a: 2.828, calc: "(1×2 + 1×2)/√2" },
+    { label: "k₃", word: "深", v: [3, 1], a: 2.828, calc: "(1×3 + 1×1)/√2" },
+    { label: "k₄", word: "度", v: [2, 1], a: 2.121, calc: "(1×2 + 1×1)/√2" },
   ];
-  const MAX_A = 2.83;
+  const MAX_A = 2.828;
 
   // —— 布局坐标 ——
   const YS = [100, 225, 350, 475]; // 4 个 k 块中心 y
@@ -603,13 +603,13 @@ function FigStageScore() {
                 strokeWidth={isTop ? 1.9 : 1.2}
               />
               <text x={pillX} y={pillY + 5} textAnchor="middle" fill="#7dd3fc" fontSize="14" fontFamily="JetBrains Mono, monospace" fontWeight="700">
-                α₁,{i + 1} = {k.a.toFixed(2)}
+                α₁,{i + 1} = {k.a.toFixed(3)}
               </text>
 
               {/* 乘加过程（仅 k₁、k₂） */}
               {showCalc && (
                 <text x={pillX} y={pillY + 32} textAnchor="middle" fill="#a9b4dc" fontSize="11.5" fontFamily="JetBrains Mono, monospace">
-                  {k.calc} = {k.a.toFixed(2)}
+                  {k.calc} = {k.a.toFixed(3)}
                 </text>
               )}
             </g>
@@ -618,7 +618,7 @@ function FigStageScore() {
 
         {/* 底部一句话结论 */}
         <text x="470" y="555" textAnchor="middle" fill="#6e7aab" fontSize="12.5">
-          q₁ 与 <tspan fill="#a78bfa" fontWeight="700">k₂</tspan>、<tspan fill="#a78bfa" fontWeight="700">k₃</tspan> 最像（分数最高 2.83）→ softmax 后会重点看向「爱」「深」
+          q₁ 与 <tspan fill="#a78bfa" fontWeight="700">k₂</tspan>、<tspan fill="#a78bfa" fontWeight="700">k₃</tspan> 最像（分数最高 2.828）→ softmax 后会重点看向「爱」「深」
         </text>
       </svg>
       <div className="fig-cap">图 · 向量阶段 ② 打分：固定主角 q₁ 向所有 k 扇出，点积分数量化「谁更像我」</div>
@@ -629,14 +629,14 @@ function FigStageScore() {
 /* ============================================================
  * 向量阶段图3：整行 softmax（row-wise softmax）
  * 强调：4 个分数作为「一整行」联合归一化，而非 4 个独立操作
- * 数据：q1 主角行 alphas=[0.71,2.83,2.83,2.12]  ahats=[0.05,0.38,0.38,0.19]
+ * 数据：q1 主角行 alphas=[0.707,2.828,2.828,2.121]  ahats=[0.046,0.383,0.383,0.189]
  * ============================================================ */
 function FigStageSoftmax() {
   // 分数用 3 位小数（与矩阵级 S、e^α 计算口径一致）
   const alphas = [0.707, 2.828, 2.828, 2.121];
   const ahats = [0.046, 0.383, 0.383, 0.189];
   const exps = ["2.03", "16.92", "16.92", "8.34"];
-  const Z = "44.2";
+  const Z = "44.21";
 
   // 单元格几何
   const cellW = 56;
@@ -677,7 +677,7 @@ function FigStageSoftmax() {
           α₁,ⱼ = q₁·kⱼ / √d
         </text>
         <text x="764" y="92" textAnchor="middle" fill="#7dd3fc" fontSize="11" fontFamily="JetBrains Mono,monospace" fontWeight="700">
-          α̂₁,ⱼ  （Σⱼ α̂₁,ⱼ = 1）
+          α̂₁,ⱼ  （Σⱼ α̂₁,ⱼ ≈ 1）
         </text>
 
         {/* 分数行容器（整行） */}
@@ -725,7 +725,7 @@ function FigStageSoftmax() {
         })}
         {/* 权重行下方括号：强调「一整行 · 和为 1」 */}
         <path d="M634,200 L634,208 L894,208 L894,200" fill="none" stroke="#6e7aab" strokeWidth="1.2" />
-        <text x="764" y="224" textAnchor="middle" fill="#a9b4dc" fontSize="10.5">整行 4 个权重 · 和为 1</text>
+        <text x="764" y="224" textAnchor="middle" fill="#a9b4dc" fontSize="10.5">整行 4 个权重 · 三位小数近似，和 ≈ 1</text>
       </svg>
 
       {/* 数值代入（softmax 层下方）*/}
@@ -747,9 +747,9 @@ function FigStageSoftmax() {
           </div>
         </div>
 
-        <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 6, alignItems: "center" }}>
-          <Formula block tex={"\\hat\\alpha_{1,j}=\\dfrac{e^{\\alpha_{1,j}}}{Z}=\\dfrac{e^{\\alpha_{1,j}}}{\\sum_{j=1}^{4}e^{\\alpha_{1,j}}},\\qquad Z=2.03+16.92+16.92+8.34\\approx 44.2"} />
-          <Formula block tex={"\\hat\\alpha_{1,:}=\\dfrac{[\\,2.03,\\ 16.9,\\ 16.9,\\ 8.3\\,]}{44.2}=[\\,0.05,\\ 0.38,\\ 0.38,\\ 0.19\\,],\\qquad \\sum_{j}\\hat\\alpha_{1,j}=1"} />
+        <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 6, alignItems: "center", overflowX: "auto", maxWidth: "100%", padding: "4px 0" }}>
+          <Formula block tex={"\\hat\\alpha_{1,j}=\\dfrac{e^{\\alpha_{1,j}}}{Z}=\\dfrac{e^{\\alpha_{1,j}}}{\\sum_{j=1}^{4}e^{\\alpha_{1,j}}},\\qquad Z=2.03+16.92+16.92+8.34\\approx 44.21"} />
+          <Formula block tex={"\\hat\\alpha_{1,:}=\\dfrac{[\\,2.03,\\ 16.92,\\ 16.92,\\ 8.34\\,]}{44.21}\\approx[\\,0.046,\\ 0.383,\\ 0.383,\\ 0.189\\,],\\qquad \\sum_{j}\\hat\\alpha_{1,j}\\approx 1\\ (\\text{三位小数近似})"} />
         </div>
 
         <div style={{ marginTop: 10, color: "var(--t2)", fontSize: 12, lineHeight: 1.6 }}>
