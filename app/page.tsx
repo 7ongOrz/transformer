@@ -290,6 +290,141 @@ function AttnGrid({ data, rowColor, digits = 2 }: { data: number[][]; rowColor: 
   );
 }
 
+/* ============================================================
+ * 向量信息流图：以 q₁ 为主角，扇出连向所有 k → 分数 → softmax →
+ * 权重连向 v → 扇入汇聚成 b₁。读者可顺着连线追踪整条路径。
+ * ============================================================ */
+function VBlock({ x, y, label, value, fill, stroke, lc, star }: {
+  x: number; y: number; label: string; value: string; fill: string; stroke: string; lc: string; star?: boolean;
+}) {
+  return (
+    <g>
+      <rect x={x} y={y} width={70} height={34} rx={7} fill={fill} stroke={stroke} strokeWidth={star ? 2 : 1} />
+      <text x={x + 35} y={y + 15} textAnchor="middle" fontSize="11" fill={lc} fontFamily="JetBrains Mono,monospace" fontWeight="700">{label}{star ? " ★" : ""}</text>
+      <text x={x + 35} y={y + 28} textAnchor="middle" fontSize="9.5" fill={lc} fontFamily="JetBrains Mono,monospace" opacity="0.85">{value}</text>
+    </g>
+  );
+}
+
+function FigInfoFlow() {
+  // 4 个 token 的 Y 坐标
+  const ys = [130, 190, 250, 310];
+  const words = ["我", "爱", "深", "度"];
+  // q1 路径数值
+  const alphas = [0.71, 2.83, 2.83, 2.12];
+  const ahats = [0.05, 0.38, 0.38, 0.19];
+  const qvals = ["[1,1]", "[2,2]", "[3,1]", "[2,1]"];
+  const kvals = ["[1,0]", "[2,2]", "[3,1]", "[2,1]"];
+  const vvals = ["[2,0]", "[0,2]", "[4,1]", "[2,1]"];
+  const arrow = (d: string, color = "#6e7aab", w = 1.3, dash?: string) => (
+    <path d={d} stroke={color} strokeWidth={w} fill="none" markerEnd="url(#if-ah)" strokeDasharray={dash} />
+  );
+  return (
+    <div className="infoflow">
+      <svg viewBox="0 0 960 420" width="960" role="img" aria-label="向量级信息流：q1 追踪到 b1">
+        <defs>
+          <marker id="if-ah" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+            <path d="M0,0 L7,4 L0,8 z" fill="#6e7aab" />
+          </marker>
+          <marker id="if-ahq" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+            <path d="M0,0 L7,4 L0,8 z" fill="#f5b042" />
+          </marker>
+          <marker id="if-ahv" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+            <path d="M0,0 L7,4 L0,8 z" fill="#2dd4bf" />
+          </marker>
+        </defs>
+
+        {/* 阶段标题 */}
+        <text x="55" y="40" textAnchor="middle" fill="#c8d4ff" fontSize="12.5" fontWeight="700">① 输入</text>
+        <text x="175" y="40" textAnchor="middle" fill="#c8d4ff" fontSize="12.5" fontWeight="700">② 投影得 q/k/v</text>
+        <text x="400" y="40" textAnchor="middle" fill="#c8d4ff" fontSize="12.5" fontWeight="700">③ q₁ 扇出打分</text>
+        <text x="560" y="40" textAnchor="middle" fill="#c8d4ff" fontSize="12.5" fontWeight="700">④ softmax</text>
+        <text x="740" y="40" textAnchor="middle" fill="#c8d4ff" fontSize="12.5" fontWeight="700">⑤ 权重×v</text>
+        <text x="880" y="40" textAnchor="middle" fill="#c8d4ff" fontSize="12.5" fontWeight="700">⑥ 汇聚 b₁</text>
+
+        {/* 列1：输入 x */}
+        {ys.map((y, i) => (
+          <g key={`x${i}`}>
+            <VBlock x={20} y={y} label={`x${i + 1}`} value={words[i]} fill="#0c1430" stroke="rgba(255,255,255,0.16)" lc="#a9b4dc" />
+          </g>
+        ))}
+
+        {/* 列2：每个 x 投影出 q/k/v（紧凑三连） */}
+        {ys.map((y, i) => (
+          <g key={`proj${i}`}>
+            {/* x → 投影 */}
+            {arrow(`M90,${y + 17} H118`)}
+            {/* q */}
+            <rect x={120} y={y - 16} width={58} height={20} rx={5} fill={i === 0 ? "rgba(245,176,66,0.22)" : "rgba(245,176,66,0.08)"} stroke="#f5b042" strokeWidth={i === 0 ? 1.6 : 1} />
+            <text x={149} y={y - 2} textAnchor="middle" fontSize="9.5" fill="#f5b042" fontFamily="JetBrains Mono,monospace" fontWeight="700">q{i + 1}{i === 0 ? "★" : ""}</text>
+            {/* k */}
+            <rect x={120} y={y + 8} width={58} height={20} rx={5} fill="rgba(167,139,250,0.1)" stroke="#a78bfa" />
+            <text x={149} y={y + 22} textAnchor="middle" fontSize="9.5" fill="#a78bfa" fontFamily="JetBrains Mono,monospace" fontWeight="700">k{i + 1}</text>
+            {/* v */}
+            <rect x={120} y={y + 32} width={58} height={20} rx={5} fill="rgba(45,212,191,0.1)" stroke="#2dd4bf" />
+            <text x={149} y={y + 46} textAnchor="middle" fontSize="9.5" fill="#2dd4bf" fontFamily="JetBrains Mono,monospace" fontWeight="700">v{i + 1}</text>
+          </g>
+        ))}
+
+        {/* 列3：q1 扇出连向所有 k，得分数 α1,j */}
+        {/* q1 中心点：(149, 114) 即 q1 块中心 */}
+        {/* k1..k4 中心：149, y+18 */}
+        {ys.map((y, i) => (
+          <g key={`score${i}`}>
+            {/* q1 → k_{i+1} 连线（扇出）*/}
+            <path d={`M180,114 C260,114 300,${y + 18} 350,${y + 18}`} stroke="#f5b042" strokeWidth={1.4} fill="none" markerEnd="url(#if-ahq)" opacity={i === 0 ? 0.4 : 0.85} />
+            {/* 分数块 */}
+            <rect x={352} y={y + 6} width={74} height={26} rx={6} fill="rgba(56,189,248,0.12)" stroke="#38bdf8" />
+            <text x={389} y={y + 19} textAnchor="middle" fontSize="10" fill="#7dd3fc" fontFamily="JetBrains Mono,monospace" fontWeight="700">α₁,{i + 1}={alphas[i].toFixed(2)}</text>
+            <text x={389} y={y + 29} textAnchor="middle" fontSize="8" fill="#6e7aab" fontFamily="JetBrains Mono,monospace">q₁·k{i + 1}/√d</text>
+          </g>
+        ))}
+        {/* 标注 q1 主角 */}
+        <text x={200} y={105} fill="#f5b042" fontSize="10" fontFamily="JetBrains Mono,monospace" fontWeight="700">q₁ 主角 ↓</text>
+
+        {/* 列4：softmax → 权重 */}
+        {ys.map((y, i) => (
+          <g key={`sm${i}`}>
+            {arrow(`M426,${y + 19} H470`, "#38bdf8")}
+            <rect x={472} y={y + 6} width={74} height={26} rx={6} fill="rgba(56,189,248,0.18)" stroke="#38bdf8" strokeWidth={1.4} />
+            <text x={509} y={y + 19} textAnchor="middle" fontSize="10" fill="#7dd3fc" fontFamily="JetBrains Mono,monospace" fontWeight="700">α̂₁,{i + 1}={ahats[i].toFixed(2)}</text>
+            <text x={509} y={y + 29} textAnchor="middle" fontSize="8" fill="#6e7aab" fontFamily="JetBrains Mono,monospace">softmax</text>
+          </g>
+        ))}
+        <text x={448} y={120} textAnchor="middle" fill="#38bdf8" fontSize="9.5" fontFamily="JetBrains Mono,monospace" fontWeight="700" transform="rotate(0,448,120)">softmax</text>
+
+        {/* 列5：权重连向 v_{i+1}，列6：汇聚 b1 */}
+        {ys.map((y, i) => (
+          <g key={`agg${i}`}>
+            {/* 权重 → v 连线 */}
+            <path d={`M546,${y + 19} C610,${y + 19} 640,${y + 42} 700,${y + 42}`} stroke="#2dd4bf" strokeWidth={1.3} fill="none" markerEnd="url(#if-ahv)" opacity={0.85} />
+            {/* v 块（重画，强调）*/}
+            <rect x={702} y={y + 32} width={58} height={20} rx={5} fill="rgba(45,212,191,0.14)" stroke="#2dd4bf" />
+            <text x={731} y={y + 46} textAnchor="middle" fontSize="9.5" fill="#2dd4bf" fontFamily="JetBrains Mono,monospace" fontWeight="700">v{i + 1}={vvals[i]}</text>
+            {/* v → b1 汇聚连线（扇入）*/}
+            <path d={`M762,${y + 42} C820,${y + 42} 840,225 858,225`} stroke="#f472b6" strokeWidth={1.2} fill="none" markerEnd="url(#if-ahv)" opacity={0.5} strokeDasharray="3 2" />
+          </g>
+        ))}
+
+        {/* b1 输出块 */}
+        <rect x={858} y={205} width={80} height={40} rx={9} fill="rgba(244,114,182,0.18)" stroke="#f472b6" strokeWidth={2} />
+        <text x={898} y={223} textAnchor="middle" fontSize="13" fill="#f9a8d4" fontFamily="JetBrains Mono,monospace" fontWeight="700">b₁ ★</text>
+        <text x={898} y={237} textAnchor="middle" fontSize="10" fill="#f9a8d4" fontFamily="JetBrains Mono,monospace">[2.0, 1.34]</text>
+
+        {/* 底部读法提示 */}
+        <text x={480} y={400} textAnchor="middle" fill="#6e7aab" fontSize="10.5" fontFamily="JetBrains Mono,monospace">
+          追踪路径：x₁ → q₁★ → 扇出连向 k₁..k₄ 得分数 α₁,ⱼ → softmax 成权重 α̂₁,ⱼ → 连向 v₁..v₄ 加权汇聚 → b₁
+        </text>
+      </svg>
+      <div className="if-cap">
+        <b>读法</b>：高亮的 <b style={{ color: "#f5b042" }}>q₁</b> 是主角。它向所有 <b style={{ color: "#a78bfa" }}>k</b> 扇出连线（橙）得到分数，
+        经 softmax 成权重，再连向各 <b style={{ color: "#2dd4bf" }}>v</b> 加权汇聚成 <b style={{ color: "#f472b6" }}>b₁</b>。
+        换 q₂、q₃、q₄ 走同样路径，就得 b₂、b₃、b₄——这就是向量级 attention 的完整信息流。
+      </div>
+    </div>
+  );
+}
+
 /* ---------- 逐图步骤卡片（向量级，对应文章图4-8 的颗粒度）---------- */
 type StepCardProps = {
   num: string;
@@ -712,7 +847,11 @@ export default function Home() {
               <span><i className="lk" />Key 键：我有什么可被匹配</span>
               <span><i className="lv" />Value 值：匹配上后拿走的内容</span>
             </div>
-            <p className="sec-lead">这是整篇的核心。以「算出第 1 个输出 <Formula tex="b_1" />」为例分 4 步——每步配真实数值，跟着算一遍就懂。先记住三个词：每个输入词 <Formula tex="x" /> 会变成三份不同身份——<b style={{ color: "#f5b042" }}>Q（去问别人）</b>、<b style={{ color: "#a78bfa" }}>K（被别人问）</b>、<b style={{ color: "#2dd4bf" }}>V（真正的内容）</b>。</p>
+            <p className="sec-lead">这是整篇的核心。<b style={{ color: "#eef3ff" }}>先看下面这张信息流图</b>——顺着高亮的 <b style={{ color: "#f5b042" }}>q₁</b>，追踪它如何一路走到 <b style={{ color: "#f472b6" }}>b₁</b>。每个输入词 <Formula tex="x" /> 会变成三份不同身份：<b style={{ color: "#f5b042" }}>q（去查询）</b>、<b style={{ color: "#a78bfa" }}>k（被匹配）</b>、<b style={{ color: "#2dd4bf" }}>v（被汇聚的内容）</b>。图后面是每一步的数值演算。</p>
+
+            <FigInfoFlow />
+
+            <h3 style={{ marginTop: 36 }}>逐步数值演算</h3>
 
             <StepCard
               num="1"
