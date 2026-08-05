@@ -710,6 +710,181 @@ pre code {
   background: var(--att-soft);
 }
 
+/* ===== 逐图步骤卡片（向量级）===== */
+.step-card {
+  background: linear-gradient(180deg, var(--panel), var(--panel-3));
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  margin: 18px 0;
+}
+.step-card .sc-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.step-card .sc-num {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 14px;
+  color: #1a0f00;
+}
+.step-card .sc-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #dce6ff;
+}
+.step-card .sc-summary {
+  color: var(--t2);
+  font-size: 14px;
+  margin: 0 0 14px;
+}
+.step-card .sc-body {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.step-card .sc-mat {
+  flex: 0 0 auto;
+}
+.step-card .sc-right {
+  flex: 1 1 280px;
+  min-width: 240px;
+}
+.step-card .sc-steps {
+  margin: 0 0 12px;
+  padding-left: 18px;
+  color: var(--t2);
+  font-size: 13px;
+  line-height: 1.7;
+}
+.step-card .sc-steps li {
+  margin: 3px 0;
+}
+.step-card .sc-formula {
+  background: var(--panel-3);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin: 8px 0;
+  text-align: center;
+}
+.step-card .sc-shapes {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.step-card .sc-shapes span {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--t3);
+  padding: 3px 9px;
+  border-radius: 6px;
+  border: 1px solid var(--hairline);
+  background: var(--panel-3);
+}
+.step-card .sc-note {
+  font-size: 12.5px;
+  color: var(--t3);
+  border-left: 2px solid var(--warn);
+  padding: 6px 12px;
+  margin-top: 10px;
+  background: rgba(251, 191, 36, 0.06);
+  border-radius: 0 6px 6px 0;
+}
+
+/* ===== 数值矩阵流水线（X→Q/K/V→S→A→O）===== */
+.pipeline {
+  margin: 24px 0 10px;
+}
+.pipeline-row {
+  display: flex;
+  gap: 22px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+.pl-step {
+  text-align: center;
+}
+.pl-step .pl-title {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--t3);
+  margin-bottom: 8px;
+}
+.pl-step .pl-title b {
+  color: var(--t1);
+}
+.pl-step .pl-shape {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--t-dim);
+  margin-top: 6px;
+}
+.pl-op {
+  font-family: var(--mono);
+  font-size: 20px;
+  color: var(--t3);
+  align-self: center;
+  padding: 0 2px;
+}
+/* 数值矩阵单元格 */
+.nm {
+  border-collapse: separate;
+  border-spacing: 3px;
+  margin: 0 auto;
+}
+.nm td {
+  width: 46px;
+  height: 36px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 13px;
+  border-radius: 6px;
+  border: 1px solid var(--hairline);
+  background: var(--panel-3);
+  color: var(--t2);
+}
+/* 分数矩阵：按值深浅着色（蓝色阶）*/
+.nm.heat td {
+  color: #fff;
+}
+.nm.warm td {
+  color: var(--q);
+  border-color: rgba(245, 176, 66, 0.35);
+  background: rgba(245, 176, 66, 0.1);
+}
+/* 输入/权重矩阵标签列 */
+.nm-caption {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--t3);
+  text-align: center;
+  margin-top: 5px;
+}
+.pl-note {
+  font-size: 13px;
+  color: var(--t3);
+  text-align: center;
+  margin: 14px 0 4px;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+.pl-note b {
+  color: var(--t2);
+}
+
 /* ===== Mask 矩阵表 ===== */
 .mask-grid {
   display: flex;

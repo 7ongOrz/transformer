@@ -122,98 +122,6 @@ const heads = [
 ];
 
 /* ============================================================
- * SVG 图：向量级 Self-Attention 四步推导（对应 PDF 图4-9）
- * ============================================================ */
-function FigAttentionSteps() {
-  const cell = (x: number, y: number, w: number, fill: string, stroke: string, label: string, fc: string) => (
-    <g key={`c-${x}-${y}-${label}`}>
-      <rect x={x} y={y} width={w} height={30} rx={6} fill={fill} stroke={stroke} />
-      <text x={x + w / 2} y={y + 19} textAnchor="middle" fill={fc} fontFamily="JetBrains Mono, SF Mono, Consolas, monospace" fontSize="12">{label}</text>
-    </g>
-  );
-  return (
-    <div className="fig">
-      <svg viewBox="0 0 920 420" width="920" role="img" aria-label="self-attention 向量级四步推导">
-        <defs>
-          <marker id="ah-s" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
-            <path d="M0,0 L7,4 L0,8 z" fill="#6e7aab" />
-          </marker>
-        </defs>
-
-        <text x="150" y="24" fill="#c8d4ff" fontSize="13" fontWeight="700" textAnchor="middle">① 生成 Q / K / V</text>
-        {cell(20, 70, 40, "#0c1430", "rgba(255,255,255,0.08)", "x₁", "#a9b4dc")}
-        {cell(20, 120, 40, "#0c1430", "rgba(255,255,255,0.08)", "x₂", "#a9b4dc")}
-        {cell(20, 170, 40, "#0c1430", "rgba(255,255,255,0.08)", "x₃", "#a9b4dc")}
-        {cell(20, 220, 40, "#0c1430", "rgba(255,255,255,0.08)", "x₄", "#a9b4dc")}
-        {cell(150, 70, 44, "rgba(245,176,66,0.14)", "#f5b042", "q₁", "#f5b042")}
-        {cell(150, 120, 44, "rgba(167,139,250,0.14)", "#a78bfa", "k₁", "#a78bfa")}
-        {cell(150, 170, 44, "rgba(167,139,250,0.14)", "#a78bfa", "k₂", "#a78bfa")}
-        {cell(150, 220, 44, "rgba(167,139,250,0.14)", "#a78bfa", "k₃", "#a78bfa")}
-        {cell(240, 120, 44, "rgba(45,212,191,0.14)", "#2dd4bf", "v₁", "#2dd4bf")}
-        {cell(240, 170, 44, "rgba(45,212,191,0.14)", "#2dd4bf", "v₂", "#2dd4bf")}
-        {cell(240, 220, 44, "rgba(45,212,191,0.14)", "#2dd4bf", "v₃", "#2dd4bf")}
-        <text x="172" y="62" fill="#f5b042" fontSize="10.5" textAnchor="middle">Wᵠ·x</text>
-        <text x="172" y="278" fill="#a78bfa" fontSize="10.5" textAnchor="middle">Wᵏ·x</text>
-        <text x="262" y="278" fill="#2dd4bf" fontSize="10.5" textAnchor="middle">Wᵛ·x</text>
-        <path d="M60,85 H148" stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
-        <path d="M60,135 H148" stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
-        <path d="M60,185 H148" stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
-        <path d="M60,235 H148" stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
-        <path d="M60,135 H238" stroke="#6e7aab" strokeWidth="1.2" fill="none" strokeDasharray="3 3" markerEnd="url(#ah-s)" />
-        <text x="92" y="78" fill="#6e7aab" fontSize="10">×Wᵠ</text>
-
-        <text x="398" y="24" fill="#c8d4ff" fontSize="13" fontWeight="700" textAnchor="middle">② 点积打分</text>
-        {cell(370, 120, 56, "#0c1430", "rgba(255,255,255,0.08)", "α₁,₁", "#38bdf8")}
-        {cell(370, 160, 56, "#0c1430", "rgba(255,255,255,0.08)", "α₁,₂", "#38bdf8")}
-        {cell(370, 200, 56, "#0c1430", "rgba(255,255,255,0.08)", "α₁,₃", "#38bdf8")}
-        {cell(370, 240, 56, "#0c1430", "rgba(255,255,255,0.08)", "α₁,₄", "#38bdf8")}
-        <text x="398" y="290" fill="#6e7aab" fontSize="10.5" textAnchor="middle">q₁·kⱼ</text>
-        <path d="M194,85 C300,85 330,135 368,135" stroke="#f5b042" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
-        <path d="M194,185 C290,185 320,175 368,175" stroke="#a78bfa" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
-        <path d="M194,235 C300,235 330,215 368,215" stroke="#a78bfa" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
-        <path d="M194,135 C300,135 330,255 368,255" stroke="#a78bfa" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
-
-        <text x="520" y="24" fill="#c8d4ff" fontSize="13" fontWeight="700" textAnchor="middle">③ softmax</text>
-        {cell(490, 120, 60, "rgba(56,189,248,0.14)", "#38bdf8", "α̂₁,₁", "#38bdf8")}
-        {cell(490, 160, 60, "rgba(56,189,248,0.14)", "#38bdf8", "α̂₁,₂", "#38bdf8")}
-        {cell(490, 200, 60, "rgba(56,189,248,0.14)", "#38bdf8", "α̂₁,₃", "#38bdf8")}
-        {cell(490, 240, 60, "rgba(56,189,248,0.14)", "#38bdf8", "α̂₁,₄", "#38bdf8")}
-        <text x="520" y="290" fill="#6e7aab" fontSize="10.5" textAnchor="middle">Σ=1.0</text>
-        {[135, 175, 215, 255].map((y) => (
-          <path key={`s3-${y}`} d={`M426,${y} H488`} stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
-        ))}
-
-        <text x="670" y="24" fill="#c8d4ff" fontSize="13" fontWeight="700" textAnchor="middle">④ 加权求和</text>
-        {cell(610, 120, 120, "#0c1430", "rgba(255,255,255,0.08)", "α̂₁,₁·v₁", "#2dd4bf")}
-        {cell(610, 160, 120, "#0c1430", "rgba(255,255,255,0.08)", "α̂₁,₂·v₂", "#2dd4bf")}
-        {cell(610, 200, 120, "#0c1430", "rgba(255,255,255,0.08)", "α̂₁,₃·v₃", "#2dd4bf")}
-        {cell(610, 240, 120, "#0c1430", "rgba(255,255,255,0.08)", "α̂₁,₄·v₄", "#2dd4bf")}
-        {[135, 175, 215, 255].map((y) => (
-          <path key={`s4-${y}`} d={`M550,${y} H608`} stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
-        ))}
-        <path d="M284,135 C450,135 500,135 608,135" stroke="#2dd4bf" strokeWidth="1.2" fill="none" strokeDasharray="3 3" markerEnd="url(#ah-s)" />
-
-        <rect x="780" y="175" width="70" height="40" rx="9" fill="rgba(244,114,182,0.14)" stroke="#f472b6" strokeWidth="1.6" />
-        <text x="815" y="201" textAnchor="middle" fill="#f472b6" fontFamily="JetBrains Mono, SF Mono, Consolas, monospace" fontSize="16" fontWeight="700">b₁</text>
-        <path d="M730,135 C760,135 770,180 778,188" stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
-        <path d="M730,175 H778" stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
-        <path d="M730,215 C760,215 770,200 778,198" stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
-        <path d="M730,255 C760,255 770,210 778,205" stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
-        <text x="815" y="235" fill="#f472b6" fontSize="10.5" textAnchor="middle">= Σ α̂·v</text>
-      </svg>
-      <div className="fig-shapes">
-        <span><b>x</b> <em>[d]</em></span>
-        <span><b>q,k</b> <em>[d_k]</em></span>
-        <span><b>v</b> <em>[d_v]</em></span>
-        <span><b>α̂</b> <em>[N]</em></span>
-        <span><b>b</b> <em>[d_v]</em></span>
-      </div>
-      <div className="fig-cap">图 · 对应 PDF 图 4–9 — 用 q₁ 算出 b₁ 的完整 4 步（b₂ b₃ b₄ 同理并行）</div>
-    </div>
-  );
-}
-
-/* ============================================================
  * SVG 图：矩阵级 Self-Attention（对应 PDF 图10-12）
  * ============================================================ */
 function FigAttentionMatrix() {
@@ -280,6 +188,155 @@ function FigAttentionMatrix() {
         <span><b>O=ÂV</b> <em>[N,d_v]</em></span>
       </div>
       <div className="fig-cap">图 · 对应 PDF 图 10–12 — 压成"一堆矩阵乘法"，可用 GPU 加速</div>
+    </div>
+  );
+}
+
+/* ============================================================
+ * 数值矩阵流水线：用真实小数值从 X 一步步算到 O
+ * （N=2, d=2；为演示构造的小矩阵，非真实模型权重）
+ * ============================================================ */
+const DEMO = {
+  X: [[1, 2], [3, 1]],
+  WQ: [[1, 0], [0, 1]],
+  WK: [[0, 1], [1, 0]],
+  WV: [[1, 1], [1, 0]],
+};
+// 预计算（与 Python 验证一致）
+const DEMO_Q = [[1, 2], [3, 1]];
+const DEMO_K = [[2, 1], [1, 3]];
+const DEMO_V = [[3, 1], [4, 3]];
+const DEMO_S = [[2.83, 4.95], [4.95, 4.24]];
+const DEMO_A = [[0.11, 0.89], [0.67, 0.33]];
+const DEMO_O = [[3.89, 2.79], [3.33, 1.66]];
+
+function NumMatrix({ data, heat, warm }: { data: number[][]; heat?: boolean; warm?: boolean }) {
+  const cls = heat ? "heat" : warm ? "warm" : "";
+  return (
+    <table className={`nm ${cls}`}>
+      <tbody>
+        {data.map((row, i) => (
+          <tr key={i}>
+            {row.map((v, j) => {
+              let bg: string | undefined;
+              let color = "#fff";
+              if (heat) {
+                // 按值映射蓝色阶
+                const t = Math.min(1, Math.max(0, v));
+                bg = `rgba(56,189,248,${0.15 + t * 0.7})`;
+                color = t > 0.45 ? "#fff" : "#a9b4dc";
+              }
+              return (
+                <td key={j} style={bg ? { background: bg, color } : undefined}>
+                  {v.toFixed(2)}
+                </td>
+              );
+            })}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+/* ---------- 逐图步骤卡片（向量级，对应文章图4-8 的颗粒度）---------- */
+type StepCardProps = {
+  num: string;
+  title: string;
+  summary: string;
+  color: string; // 编号底色
+  steps: string[];
+  tex: string;
+  shapes: string[];
+  note?: string;
+  children?: React.ReactNode; // 数值矩阵展示区
+};
+
+function StepCard({ num, title, summary, color, steps, tex, shapes, note, children }: StepCardProps) {
+  return (
+    <div className="step-card">
+      <div className="sc-head">
+        <span className="sc-num" style={{ background: color }}>{num}</span>
+        <span className="sc-title">{title}</span>
+      </div>
+      <p className="sc-summary">{summary}</p>
+      <div className="sc-body">
+        <div className="sc-mat">{children}</div>
+        <div className="sc-right">
+          <ol className="sc-steps">
+            {steps.map((s, i) => <li key={i}>{s}</li>)}
+          </ol>
+          <div className="sc-formula">
+            <Formula tex={tex} />
+          </div>
+          <div className="sc-shapes">
+            {shapes.map((s, i) => <span key={i}>{s}</span>)}
+          </div>
+        </div>
+      </div>
+      {note ? <div className="sc-note">{note}</div> : null}
+    </div>
+  );
+}
+
+function FigNumPipeline() {
+  return (
+    <div className="pipeline">
+      <div className="pl-note">
+        下面用一组<b>真实小数值</b>（N=2 个 token、d=2 维，为演示构造、非真实权重）把整条流水线走一遍。
+        每一步矩阵都标注了维度，箭头串起计算顺序。
+      </div>
+
+      {/* 第 1 行：X → Q,K,V */}
+      <div className="pipeline-row">
+        <div className="pl-step">
+          <div className="pl-title">输入 <b>X</b></div>
+          <NumMatrix data={DEMO.X} />
+          <div className="pl-shape">[2,2]</div>
+        </div>
+        <div className="pl-op">→×Wᵠ→</div>
+        <div className="pl-step">
+          <div className="pl-title">查询 <b style={{ color: "#f5b042" }}>Q</b></div>
+          <NumMatrix data={DEMO_Q} />
+          <div className="pl-shape">[2,2]</div>
+        </div>
+        <div className="pl-step">
+          <div className="pl-title">键 <b style={{ color: "#a78bfa" }}>K</b></div>
+          <NumMatrix data={DEMO_K} />
+          <div className="pl-shape">[2,2]</div>
+        </div>
+        <div className="pl-step">
+          <div className="pl-title">值 <b style={{ color: "#2dd4bf" }}>V</b></div>
+          <NumMatrix data={DEMO_V} />
+          <div className="pl-shape">[2,2]</div>
+        </div>
+      </div>
+
+      {/* 第 2 行：QKᵀ → S → softmax → A */}
+      <div className="pipeline-row" style={{ marginTop: 26 }}>
+        <div className="pl-step">
+          <div className="pl-title">分数 <b>S = QKᵀ/√d</b></div>
+          <NumMatrix data={DEMO_S} heat />
+          <div className="pl-shape">[2,2]</div>
+        </div>
+        <div className="pl-op">→softmax→</div>
+        <div className="pl-step">
+          <div className="pl-title">权重 <b style={{ color: "#38bdf8" }}>A</b>（每行和=1）</div>
+          <NumMatrix data={DEMO_A} heat />
+          <div className="pl-shape">[2,2]</div>
+        </div>
+        <div className="pl-op">→×V→</div>
+        <div className="pl-step">
+          <div className="pl-title">输出 <b style={{ color: "#f472b6" }}>O = AV</b></div>
+          <NumMatrix data={DEMO_O} warm />
+          <div className="pl-shape">[2,2]</div>
+        </div>
+      </div>
+
+      <div className="pl-note">
+        读法：第 1 个 token 的权重是 <b>[0.11, 0.89]</b>——它把 89% 注意力分给了第 2 个 token，
+        于是输出 <b>O₁ = 0.11·V₁ + 0.89·V₂</b>。这就是"该关注谁、拿走什么"的数值化呈现。
+      </div>
     </div>
   );
 }
@@ -606,15 +663,91 @@ export default function Home() {
               <span><i className="lk" />Key 键：我有什么可被匹配</span>
               <span><i className="lv" />Value 值：匹配上后拿走的内容</span>
             </div>
-            <p className="sec-lead">这是整篇的核心一张图。以「算出第 1 个输出 <Formula tex="b_1" />」为例分 4 步。先记住三个词：每个输入词 <Formula tex="x" /> 会变成三份不同身份——<b style={{ color: "#f5b042" }}>Q（去问别人）</b>、<b style={{ color: "#a78bfa" }}>K（被别人问）</b>、<b style={{ color: "#2dd4bf" }}>V（真正的内容）</b>。</p>
-            <FigAttentionSteps />
-            <div className="steps">
-              <article><b>① 生成 Q/K/V</b><p>每个词 x 乘三个可学习矩阵，得到身份三件套：去问、被问、内容。</p></article>
-              <article><b>② 点积打分</b><p>q₁ 与所有人的 k 点积，得到相关度分数 α，越像分数越高。</p></article>
-              <article><b>③ softmax 变权重</b><p>分数过 softmax，变成加起来=1 的权重，即注意力分配。</p></article>
-              <article><b>④ 加权求和</b><p>权重去加权所有人的 v，求和得到融合全局信息的 b₁。</p></article>
-            </div>
-            <div className="note warn">关键直觉：<b>Q 和 K 决定"该关注谁"，V 决定"被关注后拿走的内容"</b>。点积大 = 两个词语义相关 = 权重大 = b 里这部分 v 占比高。</div>
+            <p className="sec-lead">这是整篇的核心。以「算出第 1 个输出 <Formula tex="b_1" />」为例分 4 步——每步配真实数值，跟着算一遍就懂。先记住三个词：每个输入词 <Formula tex="x" /> 会变成三份不同身份——<b style={{ color: "#f5b042" }}>Q（去问别人）</b>、<b style={{ color: "#a78bfa" }}>K（被别人问）</b>、<b style={{ color: "#2dd4bf" }}>V（真正的内容）</b>。</p>
+
+            <StepCard
+              num="1"
+              title="生成 Q / K / V"
+              color="#f5b042"
+              summary="每个输入向量 x 分别乘三个可学习矩阵，得到它的查询 q、键 k、值 v（身份三件套）。"
+              steps={[
+                "输入 x₁=[1,2]、x₂=[3,1]（2 个 token，2 维）。",
+                "xᵢ 乘 Wᵠ 得 qᵢ：发起匹配用的查询表示。",
+                "xᵢ 乘 Wᵏ 得 kᵢ：被别人匹配的键表示。",
+                "xᵢ 乘 Wᵛ 得 vᵢ：匹配后真正被汇聚的内容。",
+              ]}
+              tex={String.raw`q_i = x_i W^Q,\quad k_i = x_i W^K,\quad v_i = x_i W^V`}
+              shapes={["x: [d]", "q,k: [d_k]", "v: [d_v]"]}
+              note="三个 W 都是可学习参数，训练时更新。同一组 x 经过不同 W，变成三种不同角色。"
+            >
+              <div className="pl-step">
+                <div className="pl-title">输入 <b>X</b></div>
+                <NumMatrix data={DEMO.X} />
+                <div className="nm-caption">×Wᵠ/Wᵏ/Wᵛ ↓</div>
+              </div>
+            </StepCard>
+
+            <StepCard
+              num="2"
+              title="点积打分"
+              color="#a78bfa"
+              summary="拿 q₁ 去和每个 k 做点积，得到「相关度分数」α——两个向量越像，分数越高。"
+              steps={[
+                "固定查询 q₁=[1,2]。",
+                "算 q₁·k₁、q₁·k₂ 的内积，再除以 √d_k 缩放。",
+                "得到第 1 个 Query 的一行分数：[2.83, 4.95]。",
+                "q₁ 与 k₂ 更像（4.95 > 2.83），所以更关注第 2 个 token。",
+              ]}
+              tex={String.raw`\alpha_{1,j} = \frac{q_1^{\mathsf T} k_j}{\sqrt{d_k}}`}
+              shapes={["q₁: [d_k]", "K: [N,d_k]", "logits: [N]"]}
+              note="除以 √d_k 是为了防止维度增大时分数过大、softmax 饱和（第 05 节详述）。"
+            >
+              <div className="pl-step">
+                <div className="pl-title">分数 <b>α₁,₁ / α₁,₂</b></div>
+                <NumMatrix data={[[2.83, 4.95]]} heat />
+              </div>
+            </StepCard>
+
+            <StepCard
+              num="3"
+              title="softmax → 权重"
+              color="#38bdf8"
+              summary="把这行分数过 softmax，变成非负、加起来等于 1 的「注意力权重」。"
+              steps={[
+                "对每个分数取指数。",
+                "用这行所有指数之和做归一化。",
+                "得到权重 α̂=[0.11, 0.89]：q₁ 把 89% 注意力分给了 k₂。",
+                "权重代表「生成 b₁ 时从每个位置取多少信息」。",
+              ]}
+              tex={String.raw`\hat\alpha_{1,j} = \frac{\exp(\alpha_{1,j})}{\sum_t \exp(\alpha_{1,t})},\quad \sum_j \hat\alpha_{1,j}=1`}
+              shapes={["logits: [N]", "weights: [N]"]}
+            >
+              <div className="pl-step">
+                <div className="pl-title">权重 <b style={{ color: "#38bdf8" }}>α̂₁</b>（和=1）</div>
+                <NumMatrix data={[[0.11, 0.89]]} heat />
+              </div>
+            </StepCard>
+
+            <StepCard
+              num="4"
+              title="加权求和 → b₁"
+              color="#2dd4bf"
+              summary="用权重去乘对应的 v，全部加起来，就得到融合了整个序列信息的第一个输出 b₁。"
+              steps={[
+                "α̂₁,₁=0.11 乘 v₁=[3,1]。",
+                "α̂₁,₂=0.89 乘 v₂=[4,3]。",
+                "两者相加：b₁ = 0.11·v₁ + 0.89·v₂ = [3.89, 2.79]。",
+                "换 q₂ 重复步骤 2-4，就得到 b₂——所有 b 可并行计算。",
+              ]}
+              tex={String.raw`b_1 = \sum_{j=1}^{N} \hat\alpha_{1,j}\, v_j`}
+              shapes={["weights: [N]", "V: [N,d_v]", "b₁: [d_v]"]}
+              note="关键直觉：Q 和 K 决定「该关注谁」，V 决定「被关注后拿走的内容」。权重大的位置，它的 v 在 b 里占比就高。"
+            >
+              <div className="pl-step">
+                <div className="pl-title">输出 <b style={{ color: "#f472b6" }}>b₁</b></div>
+                <NumMatrix data={[[3.89, 2.79]]} warm />
+              </div>
+            </StepCard>
           </section>
 
           {/* ===== 矩阵级 ===== */}
@@ -626,7 +759,8 @@ export default function Home() {
             <div className="eq-box">
               <Formula block tex={String.raw`\text{Attention}(Q,K,V) = \mathrm{softmax}\!\left(\frac{QK^{\mathsf T}}{\sqrt{d_k}}\right)V`} />
             </div>
-            <div className="note">现在这句公式对你不再是一串符号：<Formula tex={String.raw`QK^{\mathsf T}`} /> 是「两两算相关度」，softmax 是「分数变权重」，乘 <Formula tex={String.raw`V`} /> 是「按权重取内容」。</div>
+            <FigNumPipeline />
+            <div className="note">现在这句公式对你不再是一串符号：<Formula tex={String.raw`QK^{\mathsf T}`} /> 是「两两算相关度」，softmax 是「分数变权重」，乘 <Formula tex={String.raw`V`} /> 是「按权重取内容」。上面这组数值，正是把向量级 4 步压成矩阵后一次性算出的结果。</div>
           </section>
 
           {/* ===== 缩放 ===== */}
