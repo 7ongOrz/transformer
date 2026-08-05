@@ -249,10 +249,11 @@ type StepCardProps = {
   tex: string;
   shapes: string[];
   note?: string;
+  workout?: React.ReactNode; // 逐项演算展开式
   children?: React.ReactNode; // 数值矩阵展示区
 };
 
-function StepCard({ num, title, summary, color, steps, tex, shapes, note, children }: StepCardProps) {
+function StepCard({ num, title, summary, color, steps, tex, shapes, note, workout, children }: StepCardProps) {
   return (
     <div className="step-card">
       <div className="sc-head">
@@ -274,6 +275,7 @@ function StepCard({ num, title, summary, color, steps, tex, shapes, note, childr
           </div>
         </div>
       </div>
+      {workout ? <div className="sc-workout">{workout}</div> : null}
       {note ? <div className="sc-note">{note}</div> : null}
     </div>
   );
@@ -294,21 +296,20 @@ function FigNumPipeline() {
           <NumMatrix data={DEMO.X} />
           <div className="pl-shape">[2,2]</div>
         </div>
-        <div className="pl-op">→×Wᵠ→</div>
-        <div className="pl-step">
-          <div className="pl-title">查询 <b style={{ color: "#f5b042" }}>Q</b></div>
-          <NumMatrix data={DEMO_Q} />
-          <div className="pl-shape">[2,2]</div>
-        </div>
-        <div className="pl-step">
-          <div className="pl-title">键 <b style={{ color: "#a78bfa" }}>K</b></div>
-          <NumMatrix data={DEMO_K} />
-          <div className="pl-shape">[2,2]</div>
-        </div>
-        <div className="pl-step">
-          <div className="pl-title">值 <b style={{ color: "#2dd4bf" }}>V</b></div>
-          <NumMatrix data={DEMO_V} />
-          <div className="pl-shape">[2,2]</div>
+        <div className="pl-op">→</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <div className="pl-step" style={{ textAlign: "center" }}>
+            <div className="pl-title">×Wᵠ → 查询 <b style={{ color: "#f5b042" }}>Q</b></div>
+            <NumMatrix data={DEMO_Q} />
+          </div>
+          <div className="pl-step" style={{ textAlign: "center" }}>
+            <div className="pl-title">×Wᵏ → 键 <b style={{ color: "#a78bfa" }}>K</b></div>
+            <NumMatrix data={DEMO_K} />
+          </div>
+          <div className="pl-step" style={{ textAlign: "center" }}>
+            <div className="pl-title">×Wᵛ → 值 <b style={{ color: "#2dd4bf" }}>V</b></div>
+            <NumMatrix data={DEMO_V} />
+          </div>
         </div>
       </div>
 
@@ -671,19 +672,42 @@ export default function Home() {
               color="#f5b042"
               summary="每个输入向量 x 分别乘三个可学习矩阵，得到它的查询 q、键 k、值 v（身份三件套）。"
               steps={[
-                "输入 x₁=[1,2]、x₂=[3,1]（2 个 token，2 维）。",
-                "xᵢ 乘 Wᵠ 得 qᵢ：发起匹配用的查询表示。",
-                "xᵢ 乘 Wᵏ 得 kᵢ：被别人匹配的键表示。",
-                "xᵢ 乘 Wᵛ 得 vᵢ：匹配后真正被汇聚的内容。",
+                "输入 X=[[1,2],[3,1]]（2 个 token，2 维）。",
+                "X 乘 Wᵠ 得 Q，乘 Wᵏ 得 K，乘 Wᵛ 得 V——三组独立权重。",
+                "每个 W 都是可学习参数，训练时更新。",
               ]}
-              tex={String.raw`q_i = x_i W^Q,\quad k_i = x_i W^K,\quad v_i = x_i W^V`}
-              shapes={["x: [d]", "q,k: [d_k]", "v: [d_v]"]}
-              note="三个 W 都是可学习参数，训练时更新。同一组 x 经过不同 W，变成三种不同角色。"
+              tex={String.raw`Q = XW^Q,\quad K = XW^K,\quad V = XW^V`}
+              shapes={["X: [N,d]", "W: [d,d]", "Q,K,V: [N,d]"]}
+              note="同一组 X 经过不同 W，变成三种不同角色。这里为演示用了具体的 W 值。"
+              workout={
+                <>
+                  <div className="wo-title">逐项演算（以 x₁=[1,2] 为例）</div>
+                  <div className="wo-line">Wᵠ = [[1,0],[0,1]]　Wᵏ = [[0,1],[1,0]]　Wᵛ = [[1,1],[1,0]]</div>
+                  <div className="wo-line">q₁ = x₁·Wᵠ = [1,2]·[[1,0],[0,1]] = <b>[1, 2]</b></div>
+                  <div className="wo-line">k₁ = x₁·Wᵏ = [1,2]·[[0,1],[1,0]] = <b>[2, 1]</b></div>
+                  <div className="wo-line">v₁ = x₁·Wᵛ = [1,2]·[[1,1],[1,0]] = <b>[3, 1]</b></div>
+                  <div className="wo-line">同理 x₂=[3,1] → q₂=[3,1], k₂=[1,3], v₂=[4,3]</div>
+                </>
+              }
             >
               <div className="pl-step">
                 <div className="pl-title">输入 <b>X</b></div>
                 <NumMatrix data={DEMO.X} />
-                <div className="nm-caption">×Wᵠ/Wᵏ/Wᵛ ↓</div>
+                <div className="nm-caption">×Wᵠ / Wᵏ / Wᵛ ↓ 三分支</div>
+                <div style={{ display: "flex", gap: 10, marginTop: 8, justifyContent: "center" }}>
+                  <div className="pl-step" style={{ margin: 0 }}>
+                    <NumMatrix data={DEMO_Q} />
+                    <div className="nm-caption" style={{ color: "#f5b042" }}>Q</div>
+                  </div>
+                  <div className="pl-step" style={{ margin: 0 }}>
+                    <NumMatrix data={DEMO_K} />
+                    <div className="nm-caption" style={{ color: "#a78bfa" }}>K</div>
+                  </div>
+                  <div className="pl-step" style={{ margin: 0 }}>
+                    <NumMatrix data={DEMO_V} />
+                    <div className="nm-caption" style={{ color: "#2dd4bf" }}>V</div>
+                  </div>
+                </div>
               </div>
             </StepCard>
 
@@ -695,12 +719,18 @@ export default function Home() {
               steps={[
                 "固定查询 q₁=[1,2]。",
                 "算 q₁·k₁、q₁·k₂ 的内积，再除以 √d_k 缩放。",
-                "得到第 1 个 Query 的一行分数：[2.83, 4.95]。",
                 "q₁ 与 k₂ 更像（4.95 > 2.83），所以更关注第 2 个 token。",
               ]}
-              tex={String.raw`\alpha_{1,j} = \frac{q_1^{\mathsf T} k_j}{\sqrt{d_k}}`}
+              tex={String.raw`\alpha_{1,j} = \frac{q_1 \cdot k_j}{\sqrt{d_k}}`}
               shapes={["q₁: [d_k]", "K: [N,d_k]", "logits: [N]"]}
               note="除以 √d_k 是为了防止维度增大时分数过大、softmax 饱和（第 05 节详述）。"
+              workout={
+                <>
+                  <div className="wo-title">逐项演算（d_k=2，√2≈1.414）</div>
+                  <div className="wo-line">α₁,₁ = (1×2 + 2×1) / √2 = 4 / 1.414 = <span className="hl">2.83</span></div>
+                  <div className="wo-line">α₁,₂ = (1×1 + 2×3) / √2 = 7 / 1.414 = <span className="hl">4.95</span></div>
+                </>
+              }
             >
               <div className="pl-step">
                 <div className="pl-title">分数 <b>α₁,₁ / α₁,₂</b></div>
@@ -716,15 +746,23 @@ export default function Home() {
               steps={[
                 "对每个分数取指数。",
                 "用这行所有指数之和做归一化。",
-                "得到权重 α̂=[0.11, 0.89]：q₁ 把 89% 注意力分给了 k₂。",
                 "权重代表「生成 b₁ 时从每个位置取多少信息」。",
               ]}
               tex={String.raw`\hat\alpha_{1,j} = \frac{\exp(\alpha_{1,j})}{\sum_t \exp(\alpha_{1,t})},\quad \sum_j \hat\alpha_{1,j}=1`}
               shapes={["logits: [N]", "weights: [N]"]}
+              workout={
+                <>
+                  <div className="wo-title">数值代入</div>
+                  <div className="wo-line">e^2.83 ≈ 16.919　　e^4.95 ≈ 141.139</div>
+                  <div className="wo-line">总和 = 16.919 + 141.139 = <b>158.058</b></div>
+                  <div className="wo-line">α̂₁,₁ = 16.919 / 158.058 = <span className="hl">0.107</span></div>
+                  <div className="wo-line">α̂₁,₂ = 141.139 / 158.058 = <span className="hl">0.893</span></div>
+                </>
+              }
             >
               <div className="pl-step">
                 <div className="pl-title">权重 <b style={{ color: "#38bdf8" }}>α̂₁</b>（和=1）</div>
-                <NumMatrix data={[[0.11, 0.89]]} heat />
+                <NumMatrix data={[[0.107, 0.893]]} heat />
               </div>
             </StepCard>
 
@@ -734,14 +772,21 @@ export default function Home() {
               color="#2dd4bf"
               summary="用权重去乘对应的 v，全部加起来，就得到融合了整个序列信息的第一个输出 b₁。"
               steps={[
-                "α̂₁,₁=0.11 乘 v₁=[3,1]。",
-                "α̂₁,₂=0.89 乘 v₂=[4,3]。",
-                "两者相加：b₁ = 0.11·v₁ + 0.89·v₂ = [3.89, 2.79]。",
+                "用步骤 3 的权重 α̂₁=[0.107, 0.893] 乘对应的 v。",
+                "逐维相加得到 b₁。",
                 "换 q₂ 重复步骤 2-4，就得到 b₂——所有 b 可并行计算。",
               ]}
               tex={String.raw`b_1 = \sum_{j=1}^{N} \hat\alpha_{1,j}\, v_j`}
               shapes={["weights: [N]", "V: [N,d_v]", "b₁: [d_v]"]}
               note="关键直觉：Q 和 K 决定「该关注谁」，V 决定「被关注后拿走的内容」。权重大的位置，它的 v 在 b 里占比就高。"
+              workout={
+                <>
+                  <div className="wo-title">逐维演算（用未舍入权重）</div>
+                  <div className="wo-line">b₁[0] = 0.107×3 + 0.893×4 = 0.321 + 3.572 = <span className="res">3.893</span></div>
+                  <div className="wo-line">b₁[1] = 0.107×1 + 0.893×3 = 0.107 + 2.679 = <span className="res">2.786</span></div>
+                  <div className="wo-line">∴ b₁ = [<span className="res">3.89, 2.79</span>]</div>
+                </>
+              }
             >
               <div className="pl-step">
                 <div className="pl-title">输出 <b style={{ color: "#f472b6" }}>b₁</b></div>

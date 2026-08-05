@@ -800,6 +800,38 @@ pre code {
   background: rgba(251, 191, 36, 0.06);
   border-radius: 0 6px 6px 0;
 }
+/* 逐项演算展开式 */
+.step-card .sc-workout {
+  margin-top: 14px;
+  padding: 14px 16px;
+  background: var(--bg);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.9;
+  color: var(--t2);
+  overflow-x: auto;
+}
+.step-card .sc-workout .wo-title {
+  color: var(--accent);
+  font-size: 11px;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+.step-card .sc-workout .wo-line {
+  white-space: pre;
+}
+.step-card .sc-workout .wo-line b {
+  color: var(--t1);
+}
+.step-card .sc-workout .wo-line .hl {
+  color: var(--att);
+}
+.step-card .sc-workout .wo-line .res {
+  color: var(--out);
+  font-weight: 700;
+}
 
 /* ===== 数值矩阵流水线（X→Q/K/V→S→A→O）===== */
 .pipeline {
