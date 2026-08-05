@@ -58,25 +58,25 @@ const matrixC = matrixA.map((row) =>
   ),
 );
 
-/* ---------- Attention 演示数据 ---------- */
-const words = ["The", "cat", "sat", "here"];
+/* ---------- Attention 演示数据（与 s3/s4 主线统一：我/爱/深/度，d=2） ---------- */
+const words = ["我", "爱", "深", "度"];
 const queries = [
-  [1.2, 0.1],
-  [0.6, 1.0],
-  [1.1, 0.5],
-  [0.4, 1.2],
+  [1, 1],
+  [0, 2],
+  [2, 3],
+  [1, 2],
 ];
 const keys = [
-  [1.1, 0.2],
-  [0.5, 1.1],
-  [1.0, 0.4],
-  [0.3, 1.3],
+  [1, 0],
+  [2, 2],
+  [3, 1],
+  [2, 1],
 ];
 const values = [
-  [1.0, 0.2],
-  [0.2, 0.9],
-  [0.8, 0.5],
-  [0.1, 1.0],
+  [2, 0],
+  [0, 2],
+  [4, 1],
+  [2, 1],
 ];
 
 function softmax(values: number[]) {
@@ -240,13 +240,18 @@ function QKVMat({
   label,
   sub,
   rowLabels,
+  heroRow = -1,
+  heroColor,
 }: {
   data: number[][];
   accent: string;
   label?: string;
   sub?: string;
   rowLabels?: string[];
+  heroRow?: number;   // 高亮的主角行下标，-1 表示无
+  heroColor?: string;
 }) {
+  const hc = heroColor ?? accent;
   const cellStyle: React.CSSProperties = {
     width: 54,
     minWidth: 54,
@@ -291,7 +296,8 @@ function QKVMat({
                       verticalAlign: "middle",
                       fontFamily: "var(--mono)",
                       fontSize: 13,
-                      color: "var(--t2)",
+                      color: i === heroRow ? hc : "var(--t2)",
+                      fontWeight: i === heroRow ? 800 : 400,
                       border: "1px solid transparent",
                       boxSizing: "border-box",
                     }}
@@ -320,7 +326,20 @@ function QKVMat({
             {data.map((row, i) => (
               <tr key={i}>
                 {row.map((v, j) => (
-                  <td key={j} style={cellStyle}>
+                  <td
+                    key={j}
+                    style={
+                      i === heroRow
+                        ? {
+                            ...cellStyle,
+                            fontWeight: 800,
+                            color: "#fff",
+                            border: `1px solid ${hc}`,
+                            background: `${hc}33`,
+                          }
+                        : cellStyle
+                    }
+                  >
                     {v}
                   </td>
                 ))}
@@ -412,12 +431,13 @@ function FigStageQKV() {
         borderRadius: 14,
         padding: "20px 18px",
         margin: "20px 0",
+        overflowX: "auto",
       }}
     >
       {/* 标题 + 公式条 */}
       <div style={{ textAlign: "center", marginBottom: 16 }}>
         <div style={{ color: "var(--t1)", fontWeight: 700, fontSize: 15, marginBottom: 10 }}>
-          向量阶段 · 投影：<span style={{ color: "var(--t2)" }}>X</span> 分别乘三个权重矩阵，得到{" "}
+          向量阶段 · 投影：同一份 <span style={{ color: "var(--t2)" }}>X</span> 乘三个权重矩阵，得到{" "}
           <span style={{ color: CQ }}>Q</span> / <span style={{ color: CK }}>K</span> /{" "}
           <span style={{ color: CV }}>V</span>
         </div>
@@ -436,46 +456,53 @@ function FigStageQKV() {
         </div>
       </div>
 
-      {/* 三个等式行 */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-        {rows.map((r) => (
-          <div
-            key={r.key}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 14,
-              flexWrap: "wrap",
-              padding: "14px 12px",
-              borderRadius: 10,
-              background: `${r.color}0d`,
-              border: `1px solid ${r.color}40`,
-            }}
-          >
-            <QKVMat data={X} accent={NEUTRAL} label="X" sub="[4×2] 输入" rowLabels={WORDS} />
-            <span style={{ fontSize: 22, color: "var(--t3)", fontWeight: 600, fontFamily: "var(--mono)" }}>×</span>
-            <QKVMat data={r.W} accent={r.color} label={r.wlabel} sub="[2×2] 权重" />
-            <span style={{ fontSize: 22, color: "var(--t3)", fontWeight: 600, fontFamily: "var(--mono)" }}>=</span>
-            <QKVMat data={r.R} accent={r.color} label={r.key} sub="[4×2] 结果" />
+      {/* 共享 X + 三个投影分支 */}
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "center", gap: 20, flexWrap: "wrap" }}>
+        {/* 左侧：共享输入 X（只出现一次） */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, paddingTop: 36 }}>
+          <QKVMat data={X} accent={NEUTRAL} label="X" sub="[4×2] 共享输入" rowLabels={WORDS} heroRow={0} heroColor={CQ} />
+          <div style={{ color: "var(--t3)", fontSize: 11, fontFamily: "var(--mono)" }}>同一份输入，同时送入三路 ↓</div>
+        </div>
+
+        {/* 右侧：三个投影分支 */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {rows.map((r) => (
             <div
+              key={r.key}
               style={{
-                borderLeft: "1px solid var(--hairline)",
-                paddingLeft: 14,
                 display: "flex",
-                flexDirection: "column",
-                gap: 6,
-                minWidth: 168,
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 12,
+                flexWrap: "wrap",
+                padding: "12px 12px",
+                borderRadius: 10,
+                background: `${r.color}0d`,
+                border: `1px solid ${r.color}40`,
               }}
             >
-              <Formula block tex={r.tex} />
-              <div style={{ fontSize: 11.5, color: "var(--t3)", lineHeight: 1.55 }}>{r.note}</div>
+              <QKVMat data={r.W} accent={r.color} label={r.wlabel} sub="[2×2]" />
+              <span style={{ fontSize: 20, color: "var(--t3)", fontWeight: 600, fontFamily: "var(--mono)" }}>=</span>
+              <QKVMat data={r.R} accent={r.color} label={r.key} sub="[4×2]" heroRow={r.key === "Q" ? 0 : -1} heroColor={r.color} />
+              <div
+                style={{
+                  borderLeft: "1px solid var(--hairline)",
+                  paddingLeft: 12,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 4,
+                  minWidth: 168,
+                }}
+              >
+                <Formula block tex={r.tex} />
+                <div style={{ fontSize: 11.5, color: "var(--t3)", lineHeight: 1.5 }}>{r.note}</div>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
-      {/* 逐项演算示例（以 x₃=[2,1] 为例）*/}
+      {/* 逐项演算示例（以 x₁=[1,0] 为例，呼应主角 q₁）*/}
       <div
         style={{
           marginTop: 16,
@@ -488,14 +515,14 @@ function FigStageQKV() {
           fontFamily: "var(--mono)",
         }}
       >
-        <span>例：x₃ = [2,1]</span>
-        <span style={{ color: CQ }}>→ q₃ = [2×1+1×0, 2×1+1×1] = [2,3]</span>
-        <span style={{ color: CK }}>→ k₃ = [2×1+1×1, 2×0+1×1] = [3,1]</span>
-        <span style={{ color: CV }}>→ v₃ = [2×2+1×0, 2×0+1×1] = [4,1]</span>
+        <span>例：x₁ = [1,0]</span>
+        <span style={{ color: CQ }}>→ q₁ = [1×1+0×0, 1×1+0×1] = [1,1] ★</span>
+        <span style={{ color: CK }}>→ k₁ = [1×1+0×1, 1×0+0×1] = [1,0]</span>
+        <span style={{ color: CV }}>→ v₁ = [1×2+0×0, 1×0+0×1] = [2,0]</span>
       </div>
       <div style={{ textAlign: "center", color: "var(--t3)", fontSize: 12, marginTop: 10 }}>
-        图 · 同一组输入 <b style={{ color: "var(--t2)" }}>X</b>，经三个独立可学习的权重矩阵，投影成 Q / K / V
-        三种角色——这是 attention 的第一步。
+        图 · 同一组输入 <b style={{ color: "var(--t2)" }}>X</b> 经三个独立可学习的权重矩阵，投影成 Q / K / V；
+        下一章将固定第 1 行的 <b style={{ color: CQ }}>q₁ = [1,1]</b> 作为主角，追踪它如何算出 b₁。
       </div>
     </div>
   );
@@ -869,10 +896,10 @@ function FigStageAggregate() {
         {/* Σ 汇聚标注 */}
         <text x={685} y={b1y - 20} textAnchor="middle" fill="#f472b6" fontSize="13" fontFamily="JetBrains Mono,monospace" fontWeight="700">Σ 加权求和 ↓</text>
 
-        {/* b1 输出块 */}
+        {/* b1 输出块（显示精确值，与 s4 矩阵 O 第一行一致） */}
         <rect x={830} y={b1y - 40} width={150} height={80} rx={12} fill="rgba(244,114,182,0.2)" stroke="#f472b6" strokeWidth={2.2} />
         <text x={905} y={b1y - 10} textAnchor="middle" fontSize="16" fill="#f9a8d4" fontFamily="JetBrains Mono,monospace" fontWeight="700">b₁ ★</text>
-        <text x={905} y={b1y + 16} textAnchor="middle" fontSize="16" fill="#f9a8d4" fontFamily="JetBrains Mono,monospace" fontWeight="700">[2.0, 1.34]</text>
+        <text x={905} y={b1y + 16} textAnchor="middle" fontSize="15" fill="#f9a8d4" fontFamily="JetBrains Mono,monospace" fontWeight="700">[2.000, 1.337]</text>
 
         {/* 底部导引 */}
         <text x={520} y={455} textAnchor="middle" fill="#6e7aab" fontSize="11.5" fontFamily="JetBrains Mono,monospace">
@@ -904,11 +931,11 @@ function FigStageAggregate() {
         </div>
         <div style={line}>
           <span style={lbl}>　 =</span>
-          <span style={{ color: "#f472b6", fontWeight: 700 }}>[2.002, 1.338] ≈ [2.0, 1.34]</span>
+          <span style={{ color: "#f472b6", fontWeight: 700 }}>[2.002, 1.338] ≈ [2.000, 1.337]</span>
         </div>
         <div style={note}>
-          注：连线上的乘积与最终 b₁ 均用<b style={{ color: "#a9b4dc" }}>三位小数近似</b>权重
-          （0.046 / 0.383 / 0.383 / 0.189）计算；图中标注为可读性取 2–3 位。
+          注：连线上的乘积用<b style={{ color: "#a9b4dc" }}>三位小数近似</b>权重（0.046 / 0.383 / 0.383 / 0.189）计算；
+          上方 b₁ 显示的是<b style={{ color: "#a9b4dc" }}>未舍入权重</b>算出的精确值 [2.000, 1.337]，与矩阵级 O 的第一行一致。
         </div>
       </div>
     </div>
