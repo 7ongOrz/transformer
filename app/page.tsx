@@ -140,7 +140,7 @@ function FigAttentionSteps() {
           </marker>
         </defs>
 
-        <text x="10" y="24" fill="#c8d4ff" fontSize="14" fontWeight="700">① 线性变换：每个 x 得到 q / k / v</text>
+        <text x="150" y="24" fill="#c8d4ff" fontSize="13" fontWeight="700" textAnchor="middle">① 生成 Q / K / V</text>
         {cell(20, 70, 40, "#0c1430", "rgba(255,255,255,0.08)", "x₁", "#a9b4dc")}
         {cell(20, 120, 40, "#0c1430", "rgba(255,255,255,0.08)", "x₂", "#a9b4dc")}
         {cell(20, 170, 40, "#0c1430", "rgba(255,255,255,0.08)", "x₃", "#a9b4dc")}
@@ -162,7 +162,7 @@ function FigAttentionSteps() {
         <path d="M60,135 H238" stroke="#6e7aab" strokeWidth="1.2" fill="none" strokeDasharray="3 3" markerEnd="url(#ah-s)" />
         <text x="92" y="78" fill="#6e7aab" fontSize="10">×Wᵠ</text>
 
-        <text x="360" y="24" fill="#c8d4ff" fontSize="14" fontWeight="700">② q₁ 与每个 k 点积 → 相关性 α</text>
+        <text x="398" y="24" fill="#c8d4ff" fontSize="13" fontWeight="700" textAnchor="middle">② 点积打分</text>
         {cell(370, 120, 56, "#0c1430", "rgba(255,255,255,0.08)", "α₁,₁", "#38bdf8")}
         {cell(370, 160, 56, "#0c1430", "rgba(255,255,255,0.08)", "α₁,₂", "#38bdf8")}
         {cell(370, 200, 56, "#0c1430", "rgba(255,255,255,0.08)", "α₁,₃", "#38bdf8")}
@@ -173,7 +173,7 @@ function FigAttentionSteps() {
         <path d="M194,235 C300,235 330,215 368,215" stroke="#a78bfa" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
         <path d="M194,135 C300,135 330,255 368,255" stroke="#a78bfa" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
 
-        <text x="470" y="24" fill="#c8d4ff" fontSize="14" fontWeight="700">③ softmax → 权重（和=1）</text>
+        <text x="520" y="24" fill="#c8d4ff" fontSize="13" fontWeight="700" textAnchor="middle">③ softmax</text>
         {cell(490, 120, 60, "rgba(56,189,248,0.14)", "#38bdf8", "α̂₁,₁", "#38bdf8")}
         {cell(490, 160, 60, "rgba(56,189,248,0.14)", "#38bdf8", "α̂₁,₂", "#38bdf8")}
         {cell(490, 200, 60, "rgba(56,189,248,0.14)", "#38bdf8", "α̂₁,₃", "#38bdf8")}
@@ -183,7 +183,7 @@ function FigAttentionSteps() {
           <path key={`s3-${y}`} d={`M426,${y} H488`} stroke="#6e7aab" strokeWidth="1.3" fill="none" markerEnd="url(#ah-s)" />
         ))}
 
-        <text x="600" y="24" fill="#c8d4ff" fontSize="14" fontWeight="700">④ 权重 × v 求和 → b₁</text>
+        <text x="670" y="24" fill="#c8d4ff" fontSize="13" fontWeight="700" textAnchor="middle">④ 加权求和</text>
         {cell(610, 120, 120, "#0c1430", "rgba(255,255,255,0.08)", "α̂₁,₁·v₁", "#2dd4bf")}
         {cell(610, 160, 120, "#0c1430", "rgba(255,255,255,0.08)", "α̂₁,₂·v₂", "#2dd4bf")}
         {cell(610, 200, 120, "#0c1430", "rgba(255,255,255,0.08)", "α̂₁,₃·v₃", "#2dd4bf")}
