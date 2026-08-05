@@ -1084,7 +1084,7 @@ function FigMatrixStage() {
             归一化 · 对 <span style={{ color: FMS_PAL.S.c }}>S</span> 按行 softmax → 权重&nbsp;
             <span style={{ color: FMS_PAL.A.c }}>A</span>
           </span>
-          <span className="fms-stage-sub">每行和 = 1，即注意力分配比例</span>
+          <span className="fms-stage-sub">未舍入时每行和 = 1（表内为三位小数近似，少数行和为 0.999）</span>
         </div>
         <div className="fms-chain">
           <FmsMatGrid name="S" shape="[4×4]" pal={FMS_PAL.S} data={FMS_DATA.S} heat
