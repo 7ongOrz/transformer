@@ -832,7 +832,7 @@ export default function Home() {
             <div className="eq-box">
               <Formula block tex={String.raw`A=\operatorname{softmax}\!\left(\frac{QK^{\mathsf T}}{\sqrt{d_k}}+M\right)V,\quad M_{ij}=\begin{cases}0 & i\ge j\\ -\infty & i<j\end{cases}`} />
             </div>
-            <div className="note warn"><b>实现陷阱</b>：Mask 必须在 softmax <b>之前</b>加 <code>−∞</code>（工程上用 <code>−1e9</code> 近似），不能在 softmax 之后乘 0——否则被屏蔽位 softmax 后仍会得到非零概率，导致"偷看未来"。</div>
+            <div className="note warn"><b>实现陷阱</b>：Mask 必须在 softmax <b>之前</b>加 <code>−∞</code>。若在 softmax 后再乘 0，屏蔽位虽然归零，但剩余权重之和不再为 1，输出尺度会出错。</div>
 
             <div className="grid2">
               <div className="card">
@@ -877,7 +877,7 @@ export default function Home() {
     d_k = query.size(-1)
     scores = torch.matmul(query, key.transpose(-2, -1)) / math.sqrt(d_k)
     if mask is not None:
-        scores = scores.masked_fill(mask == 0, -1e9)
+        scores = scores.masked_fill(mask == 0, float("-inf"))
     p_attn = scores.softmax(dim=-1)
     return torch.matmul(p_attn, value), p_attn`}</code></pre>
 
@@ -898,8 +898,8 @@ export default function Home() {
             <h3>算子测试要点</h3>
             <div className="grid2">
               <div className="card"><h3 style={{ marginTop: 0 }}>数值正确性</h3><p className="t3">小矩阵手算 softmax(QKᵀ/sqrt(dk))V 比对；验证每行和=1、padding 权重≈0。</p></div>
-              <div className="card"><h3 style={{ marginTop: 0 }}>形状与边界</h3><p className="t3">校验 (B,h,n,dₖ) 变换；dₖ 不整除头数报错、空序列、单 token。</p></div>
-              <div className="card"><h3 style={{ marginTop: 0 }}>mask 正确性</h3><p className="t3">因果 mask 严格下三角；屏蔽位 softmax 后为 0，不受未来影响。</p></div>
+              <div className="card"><h3 style={{ marginTop: 0 }}>形状与边界</h3><p className="t3">校验 (B,h,n,dₖ) 变换；d_model 不能被 h 整除时报错、空序列、单 token。</p></div>
+              <div className="card"><h3 style={{ marginTop: 0 }}>mask 正确性</h3><p className="t3">因果 mask 为下三角（含主对角线）；屏蔽位 softmax 后为 0，不受未来影响。</p></div>
               <div className="card"><h3 style={{ marginTop: 0 }}>性能与精度</h3><p className="t3">fp32/fp16/bf16 相对误差（&lt;1e-3）；显存与耗时随 seq/heads/dₖ 的曲线。</p></div>
             </div>
 
