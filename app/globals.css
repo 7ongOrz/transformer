@@ -435,6 +435,11 @@ p {
   overflow-y: hidden;
   padding: 2px 0;
 }
+/* 长公式左对齐，避免窄窗居中导致左侧被裁且无法滚动回 */
+.math-block .katex-display {
+  text-align: left;
+  margin: 0;
+}
 .math.math-error {
   color: var(--warn);
   font-family: var(--mono);

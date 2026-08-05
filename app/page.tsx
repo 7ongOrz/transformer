@@ -635,8 +635,8 @@ function FigStageSoftmax() {
   // 分数用 3 位小数（与矩阵级 S、e^α 计算口径一致）
   const alphas = [0.707, 2.828, 2.828, 2.121];
   const ahats = [0.046, 0.383, 0.383, 0.189];
-  const exps = ["2.03", "16.92", "16.92", "8.34"];
-  const Z = "44.21";
+  const exps = ["2.03", "16.91", "16.91", "8.34"];
+  const Z = "44.19";
 
   // 单元格几何
   const cellW = 56;
@@ -747,9 +747,13 @@ function FigStageSoftmax() {
           </div>
         </div>
 
-        <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 6, alignItems: "center", overflowX: "auto", maxWidth: "100%", padding: "4px 0" }}>
-          <Formula block tex={"\\hat\\alpha_{1,j}=\\dfrac{e^{\\alpha_{1,j}}}{Z}=\\dfrac{e^{\\alpha_{1,j}}}{\\sum_{j=1}^{4}e^{\\alpha_{1,j}}},\\qquad Z=2.03+16.92+16.92+8.34\\approx 44.21"} />
-          <Formula block tex={"\\hat\\alpha_{1,:}=\\dfrac{[\\,2.03,\\ 16.92,\\ 16.92,\\ 8.34\\,]}{44.21}\\approx[\\,0.046,\\ 0.383,\\ 0.383,\\ 0.189\\,],\\qquad \\sum_{j}\\hat\\alpha_{1,j}\\approx 1\\ (\\text{三位小数近似})"} />
+        <div style={{ marginTop: 12, display: "block", maxWidth: "100%" }}>
+          <div style={{ marginBottom: 6, overflowX: "auto", overflowY: "hidden" }}>
+            <Formula block tex={"\\hat\\alpha_{1,j}=\\dfrac{e^{\\alpha_{1,j}}}{Z}=\\dfrac{e^{\\alpha_{1,j}}}{\\sum_{j=1}^{4}e^{\\alpha_{1,j}}},\\qquad Z=2.03+16.91+16.91+8.34\\approx 44.19"} />
+          </div>
+          <div style={{ overflowX: "auto", overflowY: "hidden" }}>
+            <Formula block tex={"\\hat\\alpha_{1,:}=\\dfrac{[\\,2.03,\\ 16.91,\\ 16.91,\\ 8.34\\,]}{44.19}\\approx[\\,0.046,\\ 0.383,\\ 0.383,\\ 0.189\\,],\\qquad \\sum_{j}\\hat\\alpha_{1,j}\\approx 1\\ (\\text{三位小数近似})"} />
+          </div>
         </div>
 
         <div style={{ marginTop: 10, color: "var(--t2)", fontSize: 12, lineHeight: 1.6 }}>
@@ -872,11 +876,11 @@ function FigStageAggregate() {
 
         {/* 底部导引 */}
         <text x={520} y={455} textAnchor="middle" fill="#6e7aab" fontSize="11.5" fontFamily="JetBrains Mono,monospace">
-          每个 α̂₁,ⱼ 乘对应 vⱼ 得一份贡献，4 份相加 → b₁（用 3 位高精度权重算）
+          每个 α̂₁,ⱼ 乘对应 vⱼ 得一份贡献，4 份相加 → b₁（用三位小数近似权重算）
         </text>
       </svg>
 
-      {/* 下方加权求和展开（用 3 位高精度权重） */}
+      {/* 下方加权求和展开（用三位小数近似权重） */}
       <div style={workoutWrap}>
         <div style={line}>
           <span style={lbl}>b₁ =</span>
@@ -903,7 +907,7 @@ function FigStageAggregate() {
           <span style={{ color: "#f472b6", fontWeight: 700 }}>[2.002, 1.338] ≈ [2.0, 1.34]</span>
         </div>
         <div style={note}>
-          注：连线上的乘积与最终 b₁ 均用<b style={{ color: "#a9b4dc" }}>3 位高精度</b>权重
+          注：连线上的乘积与最终 b₁ 均用<b style={{ color: "#a9b4dc" }}>三位小数近似</b>权重
           （0.046 / 0.383 / 0.383 / 0.189）计算；图中标注为可读性取 2–3 位。
         </div>
       </div>
