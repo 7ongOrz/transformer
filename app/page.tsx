@@ -773,7 +773,7 @@ export default function Home() {
         x = x.transpose(1, 2).contiguous().view(nbatches, -1, self.h * self.d_k)
         return self.linears[-1](x)`}</code></pre>
 
-            <h3>算子测试要点（leader 关心的）</h3>
+            <h3>算子测试要点</h3>
             <div className="grid2">
               <div className="card"><h3 style={{ marginTop: 0 }}>数值正确性</h3><p className="t3">小矩阵手算 softmax(QKᵀ/sqrt(dk))V 比对；验证每行和=1、padding 权重≈0。</p></div>
               <div className="card"><h3 style={{ marginTop: 0 }}>形状与边界</h3><p className="t3">校验 (B,h,n,dₖ) 变换；dₖ 不整除头数报错、空序列、单 token。</p></div>

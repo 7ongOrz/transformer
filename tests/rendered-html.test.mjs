@@ -57,7 +57,7 @@ test("keeps project metadata and generated assets clean", async () => {
   assert.match(page, /def attention\(query, key, value, mask=None\)/);
   assert.match(page, /class MultiHeadedAttention\(nn\.Module\)/);
   assert.match(page, /function FigTransformer/);
-  assert.match(page, /算子测试要点（leader 关心的）/);
+  assert.match(page, /算子测试要点/);
   assert.match(layout, /Transformer 核心算子详解/);
   assert.doesNotMatch(`${page}\n${layout}`, /20\s*(?:分钟|MIN)|20:00/i);
   assert.match(packageJson, /"name": "attention-operator-lab"/);
