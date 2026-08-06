@@ -465,7 +465,7 @@ function FigStageScore() {
           固定 q₁，向所有 k 扇出打分
         </text>
         <text x="30" y="55" fill="#a9b4dc" fontSize="12.5">
-          α₁,ⱼ = q₁ · kⱼ / √dₖ　（d=2，√dₖ≈1.414）　点积越大 → 越像 → 注意力分数越高
+          α₁,ⱼ = q₁ · kⱼ / √dₖ　（d=2，√dₖ≈1.414）　点积越大 → 越匹配 → 注意力分数越高
         </text>
 
         {/* 扇出连线（先画线，后画块以遮住端点） */}
@@ -544,10 +544,10 @@ function FigStageScore() {
 
         {/* 底部一句话结论 */}
         <text x="470" y="555" textAnchor="middle" fill="#6e7aab" fontSize="12.5">
-          q₁ 与 <tspan fill="#a78bfa" fontWeight="700">token₄</tspan> 最像（分数最高 1.026）→ softmax 后会重点看向「token₄」
+          q₁ 与 <tspan fill="#a78bfa" fontWeight="700">token₄</tspan> 匹配度最高（分数 1.026）→ softmax 后会重点看向「token₄」
         </text>
       </svg>
-      <div className="fig-cap">图 · 向量阶段 ② 打分：固定主角 q₁ 向所有 k 扇出，点积分数量化「谁更像我」</div>
+      <div className="fig-cap">图 · 向量阶段 ② 打分：固定主角 q₁ 向所有 k 扇出，点积量化「与谁更匹配」的兼容度</div>
     </div>
   );
 }
@@ -661,12 +661,15 @@ function FigStageSoftmax() {
         </div>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
           {alphas.map((a, i) => (
-            <div key={`e${i}`} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: 92, height: 60, borderRadius: 10, background: "rgba(56,189,248,0.08)", border: "1px solid var(--hairline)" }}>
-              <span style={{ color: "var(--t3)", fontSize: 11, fontFamily: "JetBrains Mono,monospace" }}>e^{a.toFixed(3)}</span>
-              <span style={{ color: "var(--att)", fontSize: 15, fontWeight: 700, fontFamily: "JetBrains Mono,monospace" }}>≈ {exps[i]}</span>
+            <div key={`e${i}`} style={{ display: "contents" }}>
+              {i > 0 && <span style={{ color: "var(--t3)", fontSize: 18, fontWeight: 700 }}>+</span>}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: 92, height: 60, borderRadius: 10, background: "rgba(56,189,248,0.08)", border: "1px solid var(--hairline)" }}>
+                <span style={{ color: "var(--t3)", fontSize: 11, fontFamily: "JetBrains Mono,monospace" }}>e^{a.toFixed(3)}</span>
+                <span style={{ color: "var(--att)", fontSize: 15, fontWeight: 700, fontFamily: "JetBrains Mono,monospace" }}>≈ {exps[i]}</span>
+              </div>
             </div>
           ))}
-          <span style={{ color: "var(--t3)", fontSize: 18, fontWeight: 700 }}>+</span>
+          <span style={{ color: "var(--t3)", fontSize: 18, fontWeight: 700 }}>=</span>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: 112, height: 60, borderRadius: 10, background: "rgba(56,189,248,0.16)", border: "1.5px solid var(--att)" }}>
             <span style={{ color: "var(--t2)", fontSize: 11, fontFamily: "JetBrains Mono,monospace" }}>Z = Σ e^α</span>
             <span style={{ color: "var(--att)", fontSize: 16, fontWeight: 700, fontFamily: "JetBrains Mono,monospace" }}>≈ {Z}</span>
@@ -1373,9 +1376,9 @@ export default function Home() {
                 <Formula block tex={String.raw`\operatorname{Attention}(Q,K,V)=\operatorname{softmax}\!\left(\frac{QK^{\mathsf T}}{\sqrt{d_k}}\right)V`} />
               </div>
               <div className="shapes">
-                <b className="q">Q [B,H,S_q,D]</b>
-                <b className="k">K [B,H,Sₖ,D]</b>
-                <b className="v">V [B,H,Sₖ,D]</b>
+                <b className="q">Q [B,H,L_q,d_k]</b>
+                <b className="k">K [B,H,L_k,d_k]</b>
+                <b className="v">V [B,H,L_k,d_v]</b>
               </div>
             </div>
 
@@ -1456,14 +1459,14 @@ export default function Home() {
               <span><i className="lk" />Key 键：我有什么可被匹配</span>
               <span><i className="lv" />Value 值：匹配上后拿走的内容</span>
             </div>
-            <p className="sec-lead">在 Attention 之前，处理序列的主力是 RNN——但它<b style={{ color: "#eef3ff" }}>只能逐个往后算，算不出第 4 个就得等前 3 个</b>，无法并行。Self-Attention 换了个思路：在没有 causal mask 时，所有位置<b>同时互相看见</b>，每个输出都直接看完整序列、彼此不依赖。下面是整篇的核心——固定主角 <b style={{ color: "#f5b042" }}>q₁</b>，用<b style={{ color: "#eef3ff" }}>四张连续的图</b>追踪它如何一步步走到 <b style={{ color: "#f472b6" }}>b₁</b>：① 投影得 q/k/v → ② q₁ 向所有 k 扇出打分 → ③ 整行 softmax → ④ 权重乘 v 汇聚成 b₁。每个输入词 <Formula tex="x" /> 会变成三份不同身份：<b style={{ color: "#f5b042" }}>q（去查询）</b>、<b style={{ color: "#a78bfa" }}>k（被匹配）</b>、<b style={{ color: "#2dd4bf" }}>v（被汇聚的内容）</b>。</p>
+            <p className="sec-lead">在 Attention 之前，处理序列的主力是 RNN——但它<b style={{ color: "#eef3ff" }}>只能逐个往后算，算不出第 4 个就得等前 3 个</b>，无法并行。Self-Attention 换了个思路：在没有 causal mask 时，所有位置<b>同时互相看见</b>，每个输出都直接看完整序列、各位置计算不存在递归的时间步依赖，因此可以并行。下面是整篇的核心——固定主角 <b style={{ color: "#f5b042" }}>q₁</b>，用<b style={{ color: "#eef3ff" }}>四张连续的图</b>追踪它如何一步步走到 <b style={{ color: "#f472b6" }}>b₁</b>：① 投影得 q/k/v → ② q₁ 向所有 k 扇出打分 → ③ 整行 softmax → ④ 权重乘 v 汇聚成 b₁。每个输入词 <Formula tex="x" /> 会变成三份不同身份：<b style={{ color: "#f5b042" }}>q（去查询）</b>、<b style={{ color: "#a78bfa" }}>k（被匹配）</b>、<b style={{ color: "#2dd4bf" }}>v（被汇聚的内容）</b>。</p>
 
             <FigStageQKV />
             <FigStageScore />
             <FigStageSoftmax />
             <FigStageAggregate />
 
-            <div className="note">换 q₂、q₃、q₄ 走同样路径，就得 b₂、b₃、b₄——所有位置可并行计算。下一节把这套向量运算收束成矩阵形式。</div>
+            <div className="note">换 q₂、q₃、q₄ 走同样路径，就得 b₂、b₃、b₄——各位置计算无递归依赖，可并行。下一节把这套向量运算收束成矩阵形式。</div>
           </section>
 
           {/* ===== 矩阵级 ===== */}
@@ -1490,6 +1493,7 @@ export default function Home() {
               </div>
             </div>
             <div className="note">
+              在各维近似独立、均值 0、方差 1 的假设下：
               <Formula block tex={String.raw`\operatorname{Var}(q_i k_j^{\mathsf T})\approx d_k\quad\Rightarrow\quad \operatorname{Var}\!\left(\frac{q_i k_j^{\mathsf T}}{\sqrt{d_k}}\right)\approx1`} />
             </div>
 
@@ -1610,7 +1614,7 @@ export default function Home() {
             </div>
             <div className="note warn"><b>实现陷阱</b>：Mask 必须在 softmax <b>之前</b>加 <code>−∞</code>。若在 softmax 后再乘 0，屏蔽位虽然归零，但剩余权重之和不再为 1，输出尺度会出错。</div>
 
-            <h3 style={{ marginTop: 24 }}>同一个 Mask，两种用法</h3>
+            <h3 style={{ marginTop: 24 }}>同一个因果约束，两种执行方式</h3>
             <div className="grid2">
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>推理（逐 token，串行）</h3>
@@ -1620,7 +1624,7 @@ export default function Home() {
                   输入 <b style={{ color: "#f5b042" }}>&lt;BOS&gt; I have</b> → 预测 a<br />
                   ……直到 <b style={{ color: "#f5b042" }}>&lt;end&gt;</b>
                 </p>
-                <p className="t3">每步只能用已生成的内容，天生串行。</p>
+                <p className="t3">每步只能用已生成的内容，天生串行；配合 KV cache 时 Key 本身就只有历史前缀，不一定需要显式的完整三角 mask。</p>
               </div>
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>训练（整句并行）</h3>
@@ -1629,7 +1633,7 @@ export default function Home() {
                   目标 <b style={{ color: "#f472b6" }}>I have a cat &lt;end&gt;</b><br />
                   一次前向 + 因果 Mask
                 </p>
-                <p className="t3">右移序列 + Causal Mask 让训练像 Encoder 一样并行，但每个位置"假装只看到过去"。</p>
+                <p className="t3">训练靠 causal mask 一次性实现整句并行，每个位置"假装只看到过去"——因果约束由 mask 显式施加。</p>
               </div>
             </div>
           </section>
@@ -1689,8 +1693,8 @@ export default function Home() {
               <Formula block tex={String.raw`O=\operatorname{softmax}\!\left(\frac{QK^{\mathsf T}}{\sqrt{d_k}}+M\right)V`} />
             </div>
 
-            <h3>瓶颈在显存，不在算力</h3>
-            <p className="sec-lead">GPU 的<b>计算</b>极快，慢在<b>显存搬运</b>。朴素 Attention 会把整张 <Formula tex="N\times N" /> 的分数矩阵 <Formula tex="S" /> 和权重矩阵 <Formula tex="P" /> 写进 HBM（显存）再读回，序列一长，显存读写就成墙——而 HBM 带宽远低于片上 SRAM。FlashAttention 的做法：<b style={{ color: "#2dd4bf" }}>把 Q/K/V 切成小块，分批搬进 SRAM，在片上算、在线更新，只写回最终输出 O 与每行统计量（<Formula tex="m, l" />，反向需要）</b>——中间的 <Formula tex="N\times N" /> 矩阵从不在显存物化。</p>
+            <h3>长序列朴素 Attention 常受 HBM 访存限制</h3>
+            <p className="sec-lead">朴素 Attention 会把整张 <Formula tex="N\times N" /> 的分数矩阵 <Formula tex="S" /> 和权重矩阵 <Formula tex="P" /> 写进 HBM（显存）再读回，序列一长，<b>显存读写</b>就成了主要开销——而 HBM 带宽远低于片上 SRAM（具体瓶颈取决于序列长度、head dimension、硬件和实现）。FlashAttention 重点优化这个 IO 瓶颈：<b style={{ color: "#2dd4bf" }}>把 Q/K/V 切成小块，分批搬进 SRAM，在片上算、在线更新，只写回最终输出 O 与每行统计量（<Formula tex="m, l" />，反向需要）</b>——中间的 <Formula tex="N\times N" /> 矩阵从不在显存物化。</p>
 
             <FigFlashCompare />
 
@@ -1751,6 +1755,21 @@ export default function Home() {
 # with torch.nn.attention.sdpa_kernel(SDPBackend.FLASH_ATTENTION): ...`}</code></pre>
             <div className="note"><b>F.scaled_dot_product_attention</b>（SDPA）根据输入形状、数据类型、设备和可用内核，在 math 后端与 Flash、Memory-Efficient 等 fused 后端里选一个可用的——FlashAttention 是其中之一，不满足限制时会回退到 math，并非保证命中 flash、也不是实测后选"最快"（后端种类随版本演进，新版还有 cuDNN 等）。可用 <code>sdpa_kernel</code> 强制指定后端做对照验证。它与参考实现实数等价；<b>只有命中 fused 后端时</b>才能避免/减少完整注意力矩阵的显存物化，回退到 math 则和参考实现一样会物化中间量。</div>
 
+            <div className="code-title">③ 多头注意力 — reshape → transpose → SDPA → concat → Wᴼ</div>
+            <pre><code>{`class MultiHeadAttention(nn.Module):
+    def forward(self, x, mask=None):
+        B, L, _ = x.shape
+        # 投影 + 拆头: (B, L, d_model) -> (B, h, L, d_k)
+        q = self.wq(x).view(B, L, self.h, self.d_k).transpose(1, 2)
+        k = self.wk(x).view(B, L, self.h, self.d_k).transpose(1, 2)
+        v = self.wv(x).view(B, L, self.h, self.d_k).transpose(1, 2)
+        # 每个头独立做 SDPA（后端由框架选）: (B, h, L, d_k)
+        out = F.scaled_dot_product_attention(q, k, v, attn_mask=mask)
+        # 拼头: (B, h, L, d_k) -> (B, L, d_model)
+        out = out.transpose(1, 2).contiguous().view(B, L, self.h * self.d_k)
+        return self.wo(out)`}</code></pre>
+            <div className="note">多头的工程本质就是<b>投影 → reshape/transpose 拆头 → 对每个头调 SDPA → 拼头 → 输出投影</b>。拆头靠 reshape + transpose 改变维度排布，让 <Formula tex="h" /> 个头作为独立 batch 维度并行计算，无需循环。</div>
+
             <h3>算子测试，重点看这五类</h3>
             <div className="grid3">
               <div className="card">
@@ -1789,8 +1808,24 @@ export default function Home() {
             </div>
             <div className="note warn">这张图里 <b>Attention 出现了三次</b>（Encoder 自注意、Decoder 掩码自注意、Decoder 交叉注意）——是同一个算子的三种调用。这一节只为定位：讲清楚 Attention 在整个模型里扮演什么角色。</div>
 
+            <h3>现代大模型怎么取舍</h3>
+            <div className="grid3">
+              <div className="card">
+                <h3 style={{ marginTop: 0 }}>原始 Transformer</h3>
+                <p className="t3">Encoder–Decoder 完整结构，用于翻译等 seq2seq 任务。</p>
+              </div>
+              <div className="card">
+                <h3 style={{ marginTop: 0 }}>BERT（Encoder-only）</h3>
+                <p className="t3">只保留 Encoder，双向自注意力，擅长理解类任务（分类、抽取）。</p>
+              </div>
+              <div className="card">
+                <h3 style={{ marginTop: 0 }}>GPT / LLaMA（Decoder-only）</h3>
+                <p className="t3">只保留 Decoder，主要用 causal self-attention 自回归生成——没有独立 Encoder 和 Cross-Attention。</p>
+              </div>
+            </div>
+
             <h3>位置编码：把"顺序"补回去</h3>
-            <p className="sec-lead">Self-Attention 对「顺序」无感——所以在输入 embedding 上<b style={{ color: "#eef3ff" }}>直接加一个位置向量</b>，把顺序信息喂回去。</p>
+            <p className="sec-lead">Self-Attention 对「顺序」无感——所以在输入 embedding 上<b style={{ color: "#eef3ff" }}>直接加一个位置向量</b>，把顺序信息喂回去。下面是<b>原始 Transformer 的正余弦方案</b>（现代 LLM 也常用可学习位置编码或 RoPE/ALiBi 等）。</p>
             <div className="eq-box">
               <Formula block tex={String.raw`PE_{(pos,\,2i)} = \sin\!\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right),\quad PE_{(pos,\,2i+1)} = \cos\!\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right)`} />
             </div>
