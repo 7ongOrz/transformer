@@ -33,12 +33,13 @@ test("server-renders the Attention teaching page", async () => {
   assert.match(html, /<title>Attention｜Transformer 核心算子详解<\/title>/i);
   assert.match(html, /Attention 算子/);
   assert.match(html, /热身：矩阵乘法到底怎么乘/);
-  assert.match(html, /从 RNN 的痛点说起/);
   assert.match(html, /Self-Attention · 向量级/);
   assert.match(html, /Self-Attention · 矩阵级/);
+  assert.match(html, /与 Mask/);
   assert.match(html, /多头注意力（Multi-Head）/);
-  assert.match(html, /经典 Transformer 全景图（论文 Figure 1）/);
-  assert.match(html, /经典代码实现/);
+  assert.match(html, /FlashAttention：不改变数学/);
+  assert.match(html, /代码与算子测试：从原理到真实算子/);
+  assert.match(html, /Transformer 全景：Attention 被装在哪里/);
   assert.match(html, /<svg\b/i);
   assert.match(html, /katex/);
   assert.doesNotMatch(html, /20\s*(?:分钟|MIN)|TOTAL\s*·\s*20:00|20:00/i);
@@ -54,10 +55,11 @@ test("keeps project metadata and generated assets clean", async () => {
   ]);
 
   assert.match(page, /katex\.renderToString/);
-  assert.match(page, /def attention\(query, key, value, mask=None\)/);
-  assert.match(page, /class MultiHeadedAttention\(nn\.Module\)/);
+  assert.match(page, /def attention_ref/);
+  assert.match(page, /scaled_dot_product_attention/);
   assert.match(page, /function FigTransformer/);
-  assert.match(page, /经典代码实现/);
+  assert.match(page, /function FigFlashCompare/);
+  assert.match(page, /代码与算子测试：从原理到真实算子/);
   assert.match(layout, /Transformer 核心算子详解/);
   assert.doesNotMatch(`${page}\n${layout}`, /20\s*(?:分钟|MIN)|20:00/i);
   assert.match(packageJson, /"name": "attention-operator-lab"/);

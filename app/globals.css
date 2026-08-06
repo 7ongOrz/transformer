@@ -18,8 +18,8 @@
   /* 文字 */
   --t1: #eef3ff;
   --t2: #a9b4dc;
-  --t3: #6e7aab;
-  --t-dim: #4d577f;
+  --t3: #7e8ac0;
+  --t-dim: #64708f;
 
   /* Q/K/V 语义色（全站统一） */
   --q: #f5b042;   /* Query  琥珀 */
@@ -702,320 +702,6 @@ pre code {
   background: var(--att-soft);
 }
 
-/* ===== 逐图步骤卡片（向量级）===== */
-.step-card {
-  background: linear-gradient(180deg, var(--panel), var(--panel-3));
-  border: 1px solid var(--hairline);
-  border-radius: var(--radius);
-  padding: 22px 24px;
-  margin: 18px 0;
-}
-.step-card .sc-head {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 10px;
-}
-.step-card .sc-num {
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  font-family: var(--mono);
-  font-weight: 700;
-  font-size: 14px;
-  color: #1a0f00;
-}
-.step-card .sc-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: #dce6ff;
-}
-.step-card .sc-summary {
-  color: var(--t2);
-  font-size: 14px;
-  margin: 0 0 14px;
-}
-.step-card .sc-body {
-  display: flex;
-  gap: 24px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-.step-card .sc-mat {
-  flex: 0 0 auto;
-}
-.step-card .sc-right {
-  flex: 1 1 280px;
-  min-width: 240px;
-}
-.step-card .sc-steps {
-  margin: 0 0 12px;
-  padding-left: 18px;
-  color: var(--t2);
-  font-size: 13px;
-  line-height: 1.7;
-}
-.step-card .sc-steps li {
-  margin: 3px 0;
-}
-.step-card .sc-formula {
-  background: var(--panel-3);
-  border: 1px solid var(--hairline);
-  border-radius: var(--radius-sm);
-  padding: 10px 14px;
-  margin: 8px 0;
-  text-align: center;
-}
-.step-card .sc-shapes {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 8px;
-}
-.step-card .sc-shapes span {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--t3);
-  padding: 3px 9px;
-  border-radius: 6px;
-  border: 1px solid var(--hairline);
-  background: var(--panel-3);
-}
-.step-card .sc-note {
-  font-size: 12.5px;
-  color: var(--t3);
-  border-left: 2px solid var(--warn);
-  padding: 6px 12px;
-  margin-top: 10px;
-  background: rgba(251, 191, 36, 0.06);
-  border-radius: 0 6px 6px 0;
-}
-/* 逐项演算展开式 */
-.step-card .sc-workout {
-  margin-top: 14px;
-  padding: 14px 16px;
-  background: var(--bg);
-  border: 1px solid var(--hairline);
-  border-radius: var(--radius-sm);
-  font-family: var(--mono);
-  font-size: 13px;
-  line-height: 1.9;
-  color: var(--t2);
-  overflow-x: auto;
-}
-.step-card .sc-workout .wo-title {
-  color: var(--accent);
-  font-size: 11px;
-  letter-spacing: 1px;
-  margin-bottom: 6px;
-}
-.step-card .sc-workout .wo-line {
-  white-space: pre;
-}
-.step-card .sc-workout .wo-line b {
-  color: var(--t1);
-}
-.step-card .sc-workout .wo-line .hl {
-  color: var(--att);
-}
-.step-card .sc-workout .wo-line .res {
-  color: var(--out);
-  font-weight: 700;
-}
-
-/* ===== 向量信息流图（FigInfoFlow）===== */
-.infoflow {
-  background:
-    radial-gradient(700px 360px at 50% 0%, rgba(56,189,248,0.05), transparent 70%),
-    var(--panel-3);
-  border: 1px solid var(--hairline);
-  border-radius: var(--radius);
-  padding: 22px 18px 14px;
-  margin: 22px 0;
-  overflow-x: auto;
-}
-.infoflow svg {
-  display: block;
-  margin: 0 auto;
-  width: 100%;
-  min-width: 720px;
-  height: auto;
-}
-.if-cap {
-  margin-top: 12px;
-  text-align: center;
-  font-family: var(--mono);
-  font-size: 11.5px;
-  color: var(--t3);
-  line-height: 1.7;
-}
-.if-cap b { color: var(--t2); }
-
-/* ===== 注意力大网格矩阵（带行列标签，仿 mask-table）===== */
-.attn-grid {
-  margin: 22px auto;
-  max-width: 100%;
-  overflow-x: auto;
-}
-.attn-grid table {
-  border-collapse: separate;
-  border-spacing: 4px;
-  margin: 0 auto;
-}
-.attn-grid th, .attn-grid td {
-  text-align: center;
-  font-family: var(--mono);
-}
-.attn-grid th {
-  color: var(--t3);
-  font-size: 12px;
-  font-weight: 600;
-  padding: 0 6px;
-}
-.attn-grid .corner {
-  color: var(--t-dim);
-  font-size: 10.5px;
-}
-.attn-grid td.cell {
-  width: 60px;
-  height: 46px;
-  border-radius: 7px;
-  border: 1px solid var(--hairline);
-  font-size: 13.5px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-/* 行首标签（Query 词）*/
-.attn-grid th.rowlab {
-  text-align: right;
-  color: var(--q);
-  padding-right: 10px;
-}
-/* 列标签（Key 词）*/
-.attn-grid th.collab {
-  color: var(--k);
-  padding-bottom: 6px;
-}
-.attn-grid .axis {
-  font-size: 10px;
-  color: var(--t-dim);
-  text-align: center;
-  margin-top: 8px;
-  font-family: var(--mono);
-}
-.attn-pair {
-  display: flex;
-  gap: 36px;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: flex-start;
-}
-.attn-block {
-  text-align: center;
-}
-.attn-block .ab-title {
-  font-family: var(--mono);
-  font-size: 13px;
-  color: var(--t2);
-  margin-bottom: 10px;
-}
-.attn-block .ab-title b {
-  color: var(--att);
-}
-.attn-block .ab-eq {
-  font-size: 12px;
-  color: var(--t3);
-  margin-top: 10px;
-  max-width: 320px;
-}
-
-/* ===== 数值矩阵流水线（X→Q/K/V→S→A→O）===== */
-.pipeline {
-  margin: 24px 0 10px;
-}
-.pipeline-row {
-  display: flex;
-  gap: 22px;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-}
-.pl-step {
-  text-align: center;
-}
-.pl-step .pl-title {
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--t3);
-  margin-bottom: 8px;
-}
-.pl-step .pl-title b {
-  color: var(--t1);
-}
-.pl-step .pl-shape {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  color: var(--t-dim);
-  margin-top: 6px;
-}
-.pl-op {
-  font-family: var(--mono);
-  font-size: 20px;
-  color: var(--t3);
-  align-self: center;
-  padding: 0 2px;
-}
-/* 数值矩阵单元格 */
-.nm {
-  border-collapse: separate;
-  border-spacing: 3px;
-  margin: 0 auto;
-}
-.nm td {
-  width: 46px;
-  height: 36px;
-  text-align: center;
-  font-family: var(--mono);
-  font-size: 13px;
-  border-radius: 6px;
-  border: 1px solid var(--hairline);
-  background: var(--panel-3);
-  color: var(--t2);
-}
-/* 分数矩阵：按值深浅着色（蓝色阶）*/
-.nm.heat td {
-  color: #fff;
-}
-.nm.warm td {
-  color: var(--q);
-  border-color: rgba(245, 176, 66, 0.35);
-  background: rgba(245, 176, 66, 0.1);
-}
-/* 输入/权重矩阵标签列 */
-.nm-caption {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--t3);
-  text-align: center;
-  margin-top: 5px;
-}
-.pl-note {
-  font-size: 13px;
-  color: var(--t3);
-  text-align: center;
-  margin: 14px 0 4px;
-  max-width: 720px;
-  margin-left: auto;
-  margin-right: auto;
-  line-height: 1.6;
-}
-.pl-note b {
-  color: var(--t2);
-}
 
 /* ===== Mask 矩阵表 ===== */
 .mask-grid {
@@ -1083,6 +769,65 @@ pre code {
 .flow-chain em {
   color: var(--t-dim);
   font-style: normal;
+}
+
+/* ===== FlashAttention 对照图 ===== */
+.fc-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+@media (max-width: 720px) {
+  .fc-cols { grid-template-columns: 1fr; }
+}
+.fc-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  align-items: stretch;
+}
+.fc-col-h {
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 8px 10px;
+  border-radius: 9px 9px 0 0;
+  margin-bottom: 4px;
+}
+.fc-col-h.bad { color: var(--q); background: var(--q-soft); }
+.fc-col-h.good { color: var(--v); background: rgba(45, 212, 191, 0.12); }
+.fc-line {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+}
+.fc-step {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--hairline);
+  background: var(--panel-3);
+  color: var(--t2);
+  text-align: center;
+}
+.fc-step.bad {
+  border-color: var(--q);
+  background: rgba(245, 176, 66, 0.12);
+  color: var(--q);
+}
+.fc-step.good {
+  border-color: var(--v);
+  background: rgba(45, 212, 191, 0.12);
+  color: var(--v);
+}
+.fc-dn {
+  text-align: center;
+  color: var(--t-dim);
+  font-size: 13px;
+  line-height: 18px;
 }
 
 /* ===== 步骤网格 ===== */
