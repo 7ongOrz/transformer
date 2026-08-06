@@ -91,7 +91,7 @@ function softmax(values: number[]) {
 const heads = [
   {
     name: "Head 1 · 长程",
-    note: "权重大量出现在非对角线位置 → 擅长捕捉长距离依赖。",
+    note: "权重大量出现在非对角线位置 → 可能形成长距离关注。",
     matrix: [
       [0.58, 0.12, 0.22, 0.08],
       [0.18, 0.16, 0.12, 0.54],
@@ -101,7 +101,7 @@ const heads = [
   },
   {
     name: "Head 2 · 局部",
-    note: "权重集中在主对角线附近 → 只关注相邻词。",
+    note: "权重集中在主对角线附近 → 可能形成局部关注。",
     matrix: [
       [0.62, 0.27, 0.07, 0.04],
       [0.24, 0.48, 0.22, 0.06],
@@ -111,7 +111,7 @@ const heads = [
   },
   {
     name: "Head h · 全局",
-    note: "权重分布很平均 → 保留全局统计，近似看整句。",
+    note: "权重分布较平均 → 可能形成全局关注。",
     matrix: [
       [0.28, 0.24, 0.25, 0.23],
       [0.23, 0.29, 0.22, 0.26],
@@ -1205,7 +1205,7 @@ function FigFlashCompare() {
     { t: "片上算局部分数" },
     { t: "在线更新 m / l / o", good: true },
     { t: "处理下一个 K/V 块" },
-    { t: "只写出最终 O" },
+    { t: "写出最终 O 与每行统计量 m, l" },
   ];
   const Step = ({ t, tone }: { t: string; tone?: "bad" | "good" }) => (
     <div className={`fc-step ${tone ?? ""}`}>{t}</div>
@@ -1223,7 +1223,7 @@ function FigFlashCompare() {
           ))}
         </div>
         <div className="fc-col">
-          <div className="fc-col-h good">FlashAttention · 分块进片上，只写最终 O</div>
+          <div className="fc-col-h good">FlashAttention · 分块进片上，只写最终 O 与每行统计量</div>
           {flash.map((s, i) => (
             <div key={i} className="fc-line">
               <Step t={s.t} tone={s.good ? "good" : undefined} />
@@ -1250,7 +1250,7 @@ function SecHead({ idx, title }: { idx: string; title: React.ReactNode }) {
 export default function Home() {
   const [scroll, setScroll] = useState(0);
   const [selCell, setSelCell] = useState<[number, number]>([0, 0]);
-  const [qIdx, setQIdx] = useState(2);
+  const [qIdx, setQIdx] = useState(0);
   const [headIdx, setHeadIdx] = useState(0);
   const [activeNav, setActiveNav] = useState("s0");
 
@@ -1368,7 +1368,7 @@ export default function Home() {
                 <Formula block tex={String.raw`\operatorname{Attention}(Q,K,V)=\operatorname{softmax}\!\left(\frac{QK^{\mathsf T}}{\sqrt{d_k}}\right)V`} />
               </div>
               <div className="shapes">
-                <b className="q">Q [B,H,Sₚ,D]</b>
+                <b className="q">Q [B,H,S_q,D]</b>
                 <b className="k">K [B,H,Sₖ,D]</b>
                 <b className="v">V [B,H,Sₖ,D]</b>
               </div>
@@ -1451,7 +1451,7 @@ export default function Home() {
               <span><i className="lk" />Key 键：我有什么可被匹配</span>
               <span><i className="lv" />Value 值：匹配上后拿走的内容</span>
             </div>
-            <p className="sec-lead">在 Attention 之前，处理序列的主力是 RNN——但它<b style={{ color: "#eef3ff" }}>只能逐个往后算，算不出第 4 个就得等前 3 个</b>，无法并行。Self-Attention 换了个思路：让所有位置<b>同时互相看见</b>，每个输出都直接看完整序列、彼此不依赖。下面是整篇的核心——固定主角 <b style={{ color: "#f5b042" }}>q₁</b>，用<b style={{ color: "#eef3ff" }}>四张连续的图</b>追踪它如何一步步走到 <b style={{ color: "#f472b6" }}>b₁</b>：① 投影得 q/k/v → ② q₁ 向所有 k 扇出打分 → ③ 整行 softmax → ④ 权重乘 v 汇聚成 b₁。每个输入词 <Formula tex="x" /> 会变成三份不同身份：<b style={{ color: "#f5b042" }}>q（去查询）</b>、<b style={{ color: "#a78bfa" }}>k（被匹配）</b>、<b style={{ color: "#2dd4bf" }}>v（被汇聚的内容）</b>。</p>
+            <p className="sec-lead">在 Attention 之前，处理序列的主力是 RNN——但它<b style={{ color: "#eef3ff" }}>只能逐个往后算，算不出第 4 个就得等前 3 个</b>，无法并行。Self-Attention 换了个思路：在没有 causal mask 时，所有位置<b>同时互相看见</b>，每个输出都直接看完整序列、彼此不依赖。下面是整篇的核心——固定主角 <b style={{ color: "#f5b042" }}>q₁</b>，用<b style={{ color: "#eef3ff" }}>四张连续的图</b>追踪它如何一步步走到 <b style={{ color: "#f472b6" }}>b₁</b>：① 投影得 q/k/v → ② q₁ 向所有 k 扇出打分 → ③ 整行 softmax → ④ 权重乘 v 汇聚成 b₁。每个输入词 <Formula tex="x" /> 会变成三份不同身份：<b style={{ color: "#f5b042" }}>q（去查询）</b>、<b style={{ color: "#a78bfa" }}>k（被匹配）</b>、<b style={{ color: "#2dd4bf" }}>v（被汇聚的内容）</b>。</p>
 
             <FigStageQKV />
             <FigStageScore />
@@ -1473,11 +1473,11 @@ export default function Home() {
           {/* ===== Scale 与 Mask ===== */}
           <section className="section" id="s4">
             <SecHead idx="04" title={<>缩放 <Formula tex={String.raw`\sqrt{d_k}`} /> 与 Mask</>} />
-            <p className="sec-lead">公式里多了一个「除以 <Formula tex={String.raw`\sqrt{d_k}`} />」，叫<b style={{ color: "#eef3ff" }}>缩放（Scale）</b>。原因一句：维度 <Formula tex="d_k" /> 越大，点积数值越大，softmax 会被推向极端（一个 1、其余 0），梯度消失训不动。</p>
+            <p className="sec-lead">公式里多了一个「除以 <Formula tex={String.raw`\sqrt{d_k}`} />」，叫<b style={{ color: "#eef3ff" }}>缩放（Scale）</b>。原因一句：维度 <Formula tex="d_k" /> 越大，点积数值越大，softmax 更易饱和（趋于一个 1、其余 0），梯度可能变得很小。</p>
             <div className="grid2">
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>不缩放会怎样</h3>
-                <p className="t3">点积是 <Formula tex="d_k" /> 个乘积之和。<Formula tex="d_k" /> 大 → 点积方差大 → softmax 近似 one-hot → 梯度接近 0 → 训练停滞。</p>
+                <p className="t3">点积是 <Formula tex="d_k" /> 个乘积之和。<Formula tex="d_k" /> 大 → 点积方差大 → softmax 更易饱和近似 one-hot → 梯度可能变得很小。</p>
               </div>
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>除以 <Formula tex={String.raw`\sqrt{d_k}`} /> 的效果</h3>
@@ -1601,7 +1601,7 @@ export default function Home() {
               <b>· V</b>
             </div>
             <div className="eq-box">
-              <Formula block tex={String.raw`A=\operatorname{softmax}\!\left(\frac{QK^{\mathsf T}}{\sqrt{d_k}}+M\right)V,\quad M_{ij}=\begin{cases}0 & i\ge j\\ -\infty & i<j\end{cases}`} />
+              <Formula block tex={String.raw`O=\operatorname{softmax}\!\left(\frac{QK^{\mathsf T}}{\sqrt{d_k}}+M\right)V,\quad M_{ij}=\begin{cases}0 & i\ge j\\ -\infty & i<j\end{cases}`} />
             </div>
             <div className="note warn"><b>实现陷阱</b>：Mask 必须在 softmax <b>之前</b>加 <code>−∞</code>。若在 softmax 后再乘 0，屏蔽位虽然归零，但剩余权重之和不再为 1，输出尺度会出错。</div>
 
@@ -1632,14 +1632,14 @@ export default function Home() {
           {/* ===== 多头 ===== */}
           <section className="section" id="s5">
             <SecHead idx="05" title="多头注意力（Multi-Head）" />
-            <p className="sec-lead">只做一次 attention 只能学到「一种关注方式」。拆成<b style={{ color: "#eef3ff" }}>多个头</b>，各自独立算 attention，等于从多个角度（语法、长程、局部……）同时看序列，最后拼回来。</p>
+            <p className="sec-lead">只做一次 attention 只能学到「一种关注方式」。拆成<b style={{ color: "#eef3ff" }}>多个头</b>，每个头用各自独立的可学习矩阵把输入<b>投影到不同子空间</b>再算 attention，等于从多个角度同时看序列，最后拼回来。</p>
             <div className="eq-box">
               <Formula block tex={String.raw`\operatorname{head}_i=\operatorname{Attention}(QW_i^Q,\,KW_i^K,\,VW_i^V)`} />
               <Formula block tex={String.raw`\operatorname{MHA}=\operatorname{Concat}(\operatorname{head}_1,\ldots,\operatorname{head}_h)\,W^O`} />
             </div>
-            <div className="note">实践要点：每个头把维度 <Formula tex="d" /> 切成 <Formula tex="d/h" />，主 FLOPs 量级与单头接近、表达能力更强；但投影层、显存占用与调度开销并不为零，并非真的"免费"。</div>
+            <div className="note">实践要点：通常取 <Formula tex={String.raw`d_k=d_v=d_{\text{model}}/h`} />，所以主 FLOPs 量级与单头接近、表达能力更强；但投影层、显存占用与调度开销并不为零，并非真的"免费"。</div>
 
-            <h3>不同头学到了不同的关注方式</h3>
+            <h3>不同头可能形成不同的关注模式</h3>
             <div className="tabs">
               {heads.map((h, i) => (
                 <button key={h.name} className={`tab ${headIdx === i ? "active" : ""}`} onClick={() => setHeadIdx(i)}>{h.name}</button>
@@ -1671,7 +1671,7 @@ export default function Home() {
                   </tbody>
                 </table>
               </div>
-              <div className="fig-cap">{heads[headIdx].note} · 行=Query（谁在问）· 列=Key（看谁）</div>
+              <div className="fig-cap"><b>人工示意</b>（非真实训练结果）：{heads[headIdx].note} · 行=Query（谁在问）· 列=Key（看谁）</div>
             </div>
           </section>
 
@@ -1685,13 +1685,14 @@ export default function Home() {
             </div>
 
             <h3>瓶颈在显存，不在算力</h3>
-            <p className="sec-lead">GPU 的<b>计算</b>极快，慢在<b>显存搬运</b>。朴素 Attention 会把整张 <Formula tex="N\times N" /> 的分数矩阵 <Formula tex="S" /> 和权重矩阵 <Formula tex="P" /> 写进 HBM（显存）再读回，序列一长，显存读写就成墙——而 HBM 带宽远低于片上 SRAM。FlashAttention 的做法：<b style={{ color: "#2dd4bf" }}>把 Q/K/V 切成小块，分批搬进 SRAM，在片上算、在线更新，只写回最终输出</b>。</p>
+            <p className="sec-lead">GPU 的<b>计算</b>极快，慢在<b>显存搬运</b>。朴素 Attention 会把整张 <Formula tex="N\times N" /> 的分数矩阵 <Formula tex="S" /> 和权重矩阵 <Formula tex="P" /> 写进 HBM（显存）再读回，序列一长，显存读写就成墙——而 HBM 带宽远低于片上 SRAM。FlashAttention 的做法：<b style={{ color: "#2dd4bf" }}>把 Q/K/V 切成小块，分批搬进 SRAM，在片上算、在线更新，只写回最终输出 O 与每行统计量（<Formula tex="m, l" />，反向需要）</b>——中间的 <Formula tex="N\times N" /> 矩阵从不在显存物化。</p>
 
             <FigFlashCompare />
 
             <h3>在线 softmax：不存全矩阵也能归一化</h3>
-            <p className="sec-lead">难点在 softmax 的分母 <Formula tex="l=\sum_j e^{s_j}" /> 需要"看到整行"。分块后，新块的分数可能含更大的值，旧的累加值必须按新最大值<b style={{ color: "#eef3ff" }}>重新缩放</b>——这就是"在线 softmax"的核心。每处理一个 K/V 块，维护三个量：行最大值 <Formula tex="m" />、归一化系数 <Formula tex="l" />、输出累加 <Formula tex="o" />。</p>
+            <p className="sec-lead">难点在 softmax 的分母 <Formula tex="l=\sum_j e^{s_j}" /> 需要"看到整行"。分块后，新块的分数可能含更大的值，旧的累加值必须按新最大值<b style={{ color: "#eef3ff" }}>重新缩放</b>——这就是"在线 softmax"的核心。<Formula tex="m" />、<Formula tex="l" />、<Formula tex="o" /> 都<b>按 Query 行维护</b>（是长度为 <Formula tex="L_q" /> 的向量），每处理一个 K/V 块更新一次。</p>
             <div className="eq-box">
+              <Formula block tex={String.raw`S_t=Q_iK_t^{\mathsf T}/\sqrt{d_k}+M_t,\qquad m_0=-\infty,\ l_0=0,\ o_0=0`} />
               <Formula block tex={String.raw`m_\text{new}=\max\!\left(m,\,\operatorname{rowmax}(S_t)\right)`} />
               <Formula block tex={String.raw`l_\text{new}=e^{m-m_\text{new}}\,l+\operatorname{rowsum}\!\left(e^{S_t-m_\text{new}}\right)`} />
               <Formula block tex={String.raw`o_\text{new}=e^{m-m_\text{new}}\,o+e^{S_t-m_\text{new}}\,V_t`} />
@@ -1702,7 +1703,7 @@ export default function Home() {
             <div className="grid3">
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>精确，不是近似</h3>
-                <p className="t3">FlashAttention 与朴素 Attention 数学上等价，输出一致——它不是稀疏或低秩近似。</p>
+                <p className="t3">FlashAttention 与朴素 Attention 的实数数学定义等价——它不是稀疏或低秩近似。只是浮点归约顺序不同，结果在误差容限内一致，不保证逐位相等。</p>
               </div>
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>省的是显存与读写</h3>
@@ -1726,12 +1727,15 @@ export default function Home() {
     scores = q @ k.transpose(-2, -1)          # QK^T
     scores = scores / math.sqrt(q.size(-1))   # / sqrt(d_k)
     if mask is not None:
-        scores = scores + mask                # + M (causal/padding)
+        # 这里只支持 additive float mask（屏蔽位 = -inf）。
+        # 布尔 mask 语义相反：True=允许参与，需先转成
+        # additive：mask = torch.where(bool_mask, 0.0, float("-inf"))
+        scores = scores + mask
     weights = torch.softmax(scores, dim=-1)   # softmax 按行
     return weights @ v                         # · V`}</code></pre>
             <div className="note">这几行就是前面所有图的代码化身。它<b>正确但不够快</b>：会把整张分数矩阵物化到显存，长序列下又慢又费显存。生产里用下面这行替代。</div>
 
-            <div className="code-title">② 真实算子 — PyTorch SDPA（自动选 FlashAttention 后端）</div>
+            <div className="code-title">② 真实算子 — PyTorch SDPA（按输入与设备选可用后端）</div>
             <pre><code>{`output = F.scaled_dot_product_attention(
     q, k, v,
     attn_mask=mask,     # causal / padding / 自定义
@@ -1740,13 +1744,13 @@ export default function Home() {
 )
 # 需要对照不同后端时，可强制选择内核：
 # with torch.nn.attention.sdpa_kernel(SDPBackend.FLASH_ATTENTION): ...`}</code></pre>
-            <div className="note"><b>F.scaled_dot_product_attention</b>（SDPA）根据输入形状、数据类型和硬件，自动在 math / mem-efficient / flash 三种后端里选最快的——FlashAttention 就是其中之一。数学上它与参考实现等价，但避免了中间矩阵的显存物化。</div>
+            <div className="note"><b>F.scaled_dot_product_attention</b>（SDPA）根据输入形状、数据类型、设备和可用内核，在 math / mem-efficient / flash 三种后端里选一个可用的——FlashAttention 是其中之一，不满足限制时会回退，并非保证命中 flash、也不是实测后选"最快"。可用 <code>sdpa_kernel</code> 强制指定后端做对照验证。它与参考实现实数等价，但避免了中间矩阵的显存物化。</div>
 
-            <h3>算子测试，只看这五件事</h3>
+            <h3>算子测试，重点看这五类</h3>
             <div className="grid3">
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>① 前向正确性</h3>
-                <p className="t3">Flash / SDPA 输出与透明参考实现逐元素比对。</p>
+                <p className="t3">Flash / SDPA 输出与透明参考实现逐元素比对；覆盖不同 shape、广播（如 key_padding 向 batch 头广播）、<Formula tex={String.raw`L_q\ne L_k`} /> 的 cross-attention、非连续内存等输入组合。</p>
               </div>
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>② 反向正确性</h3>
@@ -1785,7 +1789,7 @@ export default function Home() {
             <div className="eq-box">
               <Formula block tex={String.raw`PE_{(pos,\,2i)} = \sin\!\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right),\quad PE_{(pos,\,2i+1)} = \cos\!\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right)`} />
             </div>
-            <div className="note">用不同频率的正余弦，让每个位置拿到<b>唯一</b>编码；且对任意固定间距 <Formula tex="k" />，<Formula tex={String.raw`PE_{pos+k}`} /> 是 <Formula tex={String.raw`PE_{pos}`} /> 的线性函数——模型因此能泛化到比训练更长的序列。</div>
+            <div className="note">用不同频率的正余弦，让每个位置拿到<b>唯一</b>编码；且对任意固定间距 <Formula tex="k" />，<Formula tex={String.raw`PE_{pos+k}`} /> 是 <Formula tex={String.raw`PE_{pos}`} /> 的线性函数——论文认为这可能有利于外推到比训练更长的序列。</div>
           </section>
 
           <div className="foot">
