@@ -1382,7 +1382,7 @@ export default function Home() {
             <div className="grid2" style={{ marginTop: 28 }}>
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>这个算子为什么重要</h3>
-                <p className="t3">它是几乎所有现代大模型（GPT / LLaMA / Claude / 文生图、文生视频）的共同骨架。掌握它，等于拿到理解整个生成式 AI 的钥匙。</p>
+                <p className="t3">它是多数主流大模型（GPT / LLaMA / Claude，以及大量文生图、文生视频模型）的共同骨架。掌握它，等于拿到理解生成式 AI 主流路线的钥匙。</p>
               </div>
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>算子视角的一句话</h3>
@@ -1637,7 +1637,7 @@ export default function Home() {
           {/* ===== 多头 ===== */}
           <section className="section" id="s5">
             <SecHead idx="05" title="多头注意力（Multi-Head）" />
-            <p className="sec-lead">只做一次 attention 只能学到「一种关注方式」。拆成<b style={{ color: "#eef3ff" }}>多个头</b>，每个头用各自独立的可学习矩阵把输入<b>投影到不同子空间</b>再算 attention，等于从多个角度同时看序列，最后拼回来。</p>
+            <p className="sec-lead">单头 attention 只在一组 <Formula tex="Q/K/V" /> 投影子空间里建模关系。拆成<b style={{ color: "#eef3ff" }}>多个头</b>，每个头用各自独立的可学习矩阵把输入<b>投影到不同子空间</b>再算 attention，就允许多个子空间并行捕捉不同关系，最后拼回来。</p>
             <div className="eq-box">
               <Formula block tex={String.raw`\operatorname{head}_i=\operatorname{Attention}(XW_i^Q,\,XW_i^K,\,XW_i^V)`} />
               <Formula block tex={String.raw`\operatorname{MHA}=\operatorname{Concat}(\operatorname{head}_1,\ldots,\operatorname{head}_h)\,W^O`} />
@@ -1749,7 +1749,7 @@ export default function Home() {
 )
 # 需要对照不同后端时，可强制选择内核：
 # with torch.nn.attention.sdpa_kernel(SDPBackend.FLASH_ATTENTION): ...`}</code></pre>
-            <div className="note"><b>F.scaled_dot_product_attention</b>（SDPA）根据输入形状、数据类型、设备和可用内核，在 math / mem-efficient / flash 三种后端里选一个可用的——FlashAttention 是其中之一，不满足限制时会回退，并非保证命中 flash、也不是实测后选"最快"。可用 <code>sdpa_kernel</code> 强制指定后端做对照验证。它与参考实现实数等价，但避免了中间矩阵的显存物化。</div>
+            <div className="note"><b>F.scaled_dot_product_attention</b>（SDPA）根据输入形状、数据类型、设备和可用内核，在 math 后端与 Flash、Memory-Efficient 等 fused 后端里选一个可用的——FlashAttention 是其中之一，不满足限制时会回退到 math，并非保证命中 flash、也不是实测后选"最快"（后端种类随版本演进，新版还有 cuDNN 等）。可用 <code>sdpa_kernel</code> 强制指定后端做对照验证。它与参考实现实数等价；<b>只有命中 fused 后端时</b>才能避免/减少完整注意力矩阵的显存物化，回退到 math 则和参考实现一样会物化中间量。</div>
 
             <h3>算子测试，重点看这五类</h3>
             <div className="grid3">
@@ -1775,7 +1775,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="note ok"><b>一句话总结</b>：Attention 把「每个位置该关注谁」变成 <Formula tex={String.raw`QK^{\mathsf T}\!/\sqrt{d_k}`} /> 算分、softmax 变权重、再乘 <Formula tex="V" /> 取内容；多头扩展视角，FlashAttention 换算的方式不换数学，配上位置编码装进 Encoder/Decoder，就是撑起所有现代大模型的 Transformer。</div>
+            <div className="note ok"><b>一句话总结</b>：Attention 把「每个位置该关注谁」变成 <Formula tex={String.raw`QK^{\mathsf T}\!/\sqrt{d_k}`} /> 算分、softmax 变权重、再乘 <Formula tex="V" /> 取内容；多头扩展视角，FlashAttention 换算的方式不换数学，配上位置编码装进 Encoder/Decoder，就是撑起多数主流大模型的 Transformer。</div>
           </section>
 
           {/* ===== 代码 ===== */}
