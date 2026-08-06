@@ -929,7 +929,7 @@ function FmsMatGrid({
                 {row.map((v, j) => {
                   const t = heat ? v / max : 0;
                   const bg = heat
-                    ? `rgba(56,189,248,${0.1 + t * 0.75})`
+                    ? `rgba(56,189,248,${(0.1 + t * 0.75).toFixed(3)})`
                     : pal.t;
                   const color = heat ? (t > 0.4 ? "#ffffff" : "#a9b4dc") : "#eef3ff";
                   const border = heat
@@ -1147,8 +1147,9 @@ function FigTransformer() {
         <Box x={120} y={278} w={210} h={50} fill="rgba(45,212,191,0.14)" stroke="#2dd4bf" label="Feed-Forward Network" sub="两层 MLP（逐位置作用）" lc="#2dd4bf" sc="#6e7aab" />
         <Box x={150} y={346} w={150} h={36} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
         <Arrow d="M225,204 V218" /><Arrow d="M225,258 V274" /><Arrow d="M225,328 V342" />
-        <Arrow d="M120,170 H100 V410 H225" color="#f5b042" dash="4 3" />
-        <text x="92" y="395" fill="#f5b042" fontSize="9">残差</text>
+        <Arrow d="M120,177 H100 V240 H150" color="#f5b042" dash="4 3" />
+        <Arrow d="M120,303 H100 V364 H150" color="#f5b042" dash="4 3" />
+        <text x="88" y="300" fill="#f5b042" fontSize="9">残差×2</text>
         <Box x={150} y={405} w={150} h={34} fill="rgba(244,114,182,0.14)" stroke="#f472b6" label="编码器输出 Memory" lc="#f472b6" />
         <Arrow d="M215,100 V150" />
 
@@ -1167,6 +1168,10 @@ function FigTransformer() {
         <Box x={575} y={386} w={240} h={44} fill="rgba(45,212,191,0.14)" stroke="#2dd4bf" label="Feed-Forward Network" lc="#2dd4bf" />
         <Box x={620} y={442} w={150} h={32} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
         <Arrow d="M695,200 V212" /><Arrow d="M695,250 V264" /><Arrow d="M695,318 V330" /><Arrow d="M695,368 V382" /><Arrow d="M695,430 V438" />
+        <Arrow d="M575,177 H555 V233 H620" color="#f5b042" dash="4 3" />
+        <Arrow d="M575,293 H555 V351 H620" color="#f5b042" dash="4 3" />
+        <Arrow d="M575,408 H555 V458 H620" color="#f5b042" dash="4 3" />
+        <text x="543" y="300" fill="#f5b042" fontSize="9">残差×3</text>
         <Arrow d="M300,422 C440,422 460,293 573,293" color="#a78bfa" dash="4 3" />
         <text x="430" y="360" fill="#a78bfa" fontSize="10">编码器 Memory → 投影成 K/V</text>
         <Arrow d="M695,474 V492" />
@@ -1514,7 +1519,7 @@ export default function Home() {
                   <div style={{ display: "flex", gap: 8 }}>
                     {attn.weights.map((v, i) => (
                       <div key={i} style={{ textAlign: "center" }}>
-                        <div className="mcell" style={{ cursor: "default", background: `rgba(56,189,248,${0.12 + v * 0.6})`, borderColor: "#38bdf8" }}>{(v * 100).toFixed(0)}%</div>
+                        <div className="mcell" style={{ cursor: "default", backgroundColor: `rgba(56,189,248,${(0.12 + v * 0.6).toFixed(3)})`, borderColor: "#38bdf8" }}>{(v * 100).toFixed(0)}%</div>
                         <div className="mname" style={{ marginTop: 4 }}>k{i + 1}</div>
                       </div>
                     ))}
@@ -1634,7 +1639,7 @@ export default function Home() {
             <SecHead idx="05" title="多头注意力（Multi-Head）" />
             <p className="sec-lead">只做一次 attention 只能学到「一种关注方式」。拆成<b style={{ color: "#eef3ff" }}>多个头</b>，每个头用各自独立的可学习矩阵把输入<b>投影到不同子空间</b>再算 attention，等于从多个角度同时看序列，最后拼回来。</p>
             <div className="eq-box">
-              <Formula block tex={String.raw`\operatorname{head}_i=\operatorname{Attention}(QW_i^Q,\,KW_i^K,\,VW_i^V)`} />
+              <Formula block tex={String.raw`\operatorname{head}_i=\operatorname{Attention}(XW_i^Q,\,XW_i^K,\,XW_i^V)`} />
               <Formula block tex={String.raw`\operatorname{MHA}=\operatorname{Concat}(\operatorname{head}_1,\ldots,\operatorname{head}_h)\,W^O`} />
             </div>
             <div className="note">实践要点：通常取 <Formula tex={String.raw`d_k=d_v=d_{\text{model}}/h`} />，所以主 FLOPs 量级与单头接近、表达能力更强；但投影层、显存占用与调度开销并不为零，并非真的"免费"。</div>
@@ -1661,7 +1666,7 @@ export default function Home() {
                             <div style={{
                               width: 58, height: 50, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center",
                               fontFamily: "var(--mono)", fontSize: 13, fontWeight: 700,
-                              background: `rgba(56,189,248,${0.08 + v * 0.7})`, border: "1px solid rgba(56,189,248,0.3)",
+                              background: `rgba(56,189,248,${(0.08 + v * 0.7).toFixed(3)})`, border: "1px solid rgba(56,189,248,0.3)",
                               color: v > 0.4 ? "#fff" : "#a9b4dc",
                             }}>{v.toFixed(2)}</div>
                           </td>
@@ -1690,7 +1695,7 @@ export default function Home() {
             <FigFlashCompare />
 
             <h3>在线 softmax：不存全矩阵也能归一化</h3>
-            <p className="sec-lead">难点在 softmax 的分母 <Formula tex="l=\sum_j e^{s_j}" /> 需要"看到整行"。分块后，新块的分数可能含更大的值，旧的累加值必须按新最大值<b style={{ color: "#eef3ff" }}>重新缩放</b>——这就是"在线 softmax"的核心。<Formula tex="m" />、<Formula tex="l" />、<Formula tex="o" /> 都<b>按 Query 行维护</b>（是长度为 <Formula tex="L_q" /> 的向量），每处理一个 K/V 块更新一次。</p>
+            <p className="sec-lead">难点在 softmax 的分母 <Formula tex="l=\sum_j e^{s_j}" /> 需要"看到整行"。分块后，新块的分数可能含更大的值，旧的累加值必须按新最大值<b style={{ color: "#eef3ff" }}>重新缩放</b>——这就是"在线 softmax"的核心。三者都<b>按 Query 行维护</b>：行最大值 <Formula tex={String.raw`m\in\mathbb R^{L_q}`} />、归一化系数 <Formula tex={String.raw`l\in\mathbb R^{L_q}`} /> 是向量，输出累加 <Formula tex={String.raw`o\in\mathbb R^{L_q\times d_v}`} /> 是矩阵；每处理一个 K/V 块更新一次。</p>
             <div className="eq-box">
               <Formula block tex={String.raw`S_t=Q_iK_t^{\mathsf T}/\sqrt{d_k}+M_t,\qquad m_0=-\infty,\ l_0=0,\ o_0=0`} />
               <Formula block tex={String.raw`m_\text{new}=\max\!\left(m,\,\operatorname{rowmax}(S_t)\right)`} />
@@ -1710,8 +1715,8 @@ export default function Home() {
                 <p className="t3">中间 <Formula tex="S/P" /> 不落地 HBM，显存占用从 <Formula tex={String.raw`O(N^2)`} /> 降到 <Formula tex="O(N)" />，HBM 访问量大幅减少。</p>
               </div>
               <div className="card">
-                <h3 style={{ marginTop: 0 }}>计算量不变</h3>
-                <p className="t3">仍是 <Formula tex={String.raw`O(N^2d)`} /> 乘法；省下的全是访存与中间存储。序列越长收益越大。</p>
+                <h3 style={{ marginTop: 0 }}>渐进复杂度不变</h3>
+                <p className="t3">仍是 <Formula tex={String.raw`O(N^2d)`} /> 量级；但在线归一化有额外运算、反向可能靠重算换显存，实际运算条数并非完全不变。省下的是访存与中间存储，收益随 shape/dtype/硬件/mask 变化。</p>
               </div>
             </div>
             <div className="note">参考：FlashAttention（Dao 等，2022）、FlashAttention-2（Dao，2023）在分块与并行划分上进一步优化。下一节看它如何对应到真实的算子调用与测试。</div>
@@ -1750,7 +1755,7 @@ export default function Home() {
             <div className="grid3">
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>① 前向正确性</h3>
-                <p className="t3">Flash / SDPA 输出与透明参考实现逐元素比对；覆盖不同 shape、广播（如 key_padding 向 batch 头广播）、<Formula tex={String.raw`L_q\ne L_k`} /> 的 cross-attention、非连续内存等输入组合。</p>
+                <p className="t3">Flash / SDPA 输出与透明参考实现逐元素比对；覆盖不同 shape、<Formula tex={String.raw`[B,1,1,L_k]`} /> 等可广播到 <Formula tex={String.raw`[B,H,L_q,L_k]`} /> 的 mask、<Formula tex={String.raw`L_q\ne L_k`} /> 的 cross-attention、非连续内存等输入组合。</p>
               </div>
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>② 反向正确性</h3>
