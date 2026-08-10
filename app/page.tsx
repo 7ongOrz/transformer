@@ -58,8 +58,8 @@ const matrixC = matrixA.map((row) =>
   ),
 );
 
-/* ---------- Attention 演示数据（与 s3/s4 主线统一：我/爱/深/度，d=2） ---------- */
-const words = ["token₁", "token₂", "token₃", "token₄"];
+/* ---------- Attention 演示数据（全页统一使用 4 个位置标签，d=2） ---------- */
+const tokenLabels = ["token₁", "token₂", "token₃", "token₄"];
 const queries = [
   [0.04, 1.16],
   [1.41, 0.99],
@@ -123,12 +123,12 @@ const heads = [
 
 
 /* ============================================================
- * 向量级四阶段图 + 矩阵级收束（统一 4-token 数据：我/爱/深/度，d=2）
+ * 向量级四阶段图 + 矩阵级收束（统一 4-token 数据，d=2）
  * ============================================================ */
 
 /* ============================================================
  * 向量阶段图1：X → Q/K/V 投影
- * 统一数据：我/爱/深/度，d=2
+ * 统一数据：token₁/token₂/token₃/token₄，d=2
  * ============================================================ */
 
 function QKVMat({
@@ -288,8 +288,159 @@ function QKVMat({
   );
 }
 
+function AttentionSetupGuide() {
+  return (
+    <div className="setup-guide">
+      <div className="setup-guide-head">
+        <span>计算前置</span>
+        <b>先把 Token、x、X、q₁ 放回同一条链路</b>
+        <p>本页只用 <code>Token 1～4</code> 表示序列中的四个位置，不把它们映射成具体词语；后面的每一行矩阵都与这四个位置一一对应。</p>
+      </div>
+
+      <div className="setup-flow">
+        <article className="setup-node">
+          <span className="setup-step">1</span>
+          <strong>分词后的四个位置</strong>
+          <div className="setup-tokens">
+            {tokenLabels.map((token, i) => (
+              <span key={token}><b>Token {i + 1}</b><small>位置 {i + 1}</small></span>
+            ))}
+          </div>
+          <p>真实文本先经 tokenizer 变成离散的 token ID。这里省略具体文本，只保留位置标签。</p>
+        </article>
+
+        <article className="setup-node">
+          <span className="setup-step">2</span>
+          <strong>每个位置得到输入向量 xᵢ</strong>
+          <Formula block tex={String.raw`e_i=E[\operatorname{tokenId}_i]`} />
+          <Formula block tex={String.raw`x_i=e_i+p_i`} />
+          <p>首层通常由 token embedding 与位置信息组成；后续层的 xᵢ 来自上一层输出。现代模型也可能用 RoPE 等方式注入位置。</p>
+        </article>
+
+        <article className="setup-node">
+          <span className="setup-step">3</span>
+          <strong>按位置堆叠成输入矩阵 X</strong>
+          <Formula block tex={String.raw`X=\begin{bmatrix}x_1\\x_2\\x_3\\x_4\end{bmatrix}=\begin{bmatrix}0.4&1.2\\1.5&0.3\\0.8&0.9\\1.1&1.5\end{bmatrix}`} />
+          <p><Formula tex={String.raw`X\in\mathbb{R}^{4\times2}`} />：4 表示四个位置，2 表示每个位置暂用两个数描述。</p>
+        </article>
+
+        <article className="setup-node">
+          <span className="setup-step">4</span>
+          <strong>X 经三组参数投影为 Q / K / V</strong>
+          <Formula block tex={String.raw`\begin{aligned}Q&=XW^Q\\K&=XW^K\\V&=XW^V\end{aligned}`} />
+          <Formula block tex={String.raw`q_1=x_1W^Q`} />
+          <p>q₁ 不是额外生成的变量：它就是 Q 的第一行，对应 Token 1。k₁、v₁ 同理。</p>
+        </article>
+      </div>
+
+      <div className="setup-dimension-note">
+        <b>为什么只有二维？</b>
+        <span>为了能在页面上完整展开每一次乘法，本例设 <Formula tex={String.raw`d_{model}=d_k=d_v=2`} />。真实模型通常是数百到数千维，算法完全相同，只是矩阵更大。</span>
+      </div>
+
+      <div className="setup-table-wrap">
+        <table className="setup-table">
+          <thead>
+            <tr><th>符号</th><th>本页中表示什么</th><th>从哪里来</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>Token i</th>
+              <td>序列中的第 i 个位置标签；它本身不是向量</td>
+              <td>tokenizer 输出 token ID 序列后，由它在序列中的索引确定</td>
+            </tr>
+            <tr>
+              <th><Formula tex="x_i" /></th>
+              <td>第 i 个位置送入当前 Attention 层的行向量</td>
+              <td>首层来自 embedding 与位置信息；后续层来自上一层</td>
+            </tr>
+            <tr>
+              <th><Formula tex="X" /></th>
+              <td>把 <Formula tex={String.raw`x_1,\ldots,x_4`} /> 按行堆叠后的输入矩阵</td>
+              <td>本例 <Formula tex={String.raw`X\in\mathbb{R}^{4\times2}`} /></td>
+            </tr>
+            <tr>
+              <th><Formula tex={String.raw`W^Q,W^K,W^V`} /></th>
+              <td>三组独立的线性投影参数；一般 Q/K 投到 dₖ 维、V 投到 dᵥ 维，本例均为 2×2</td>
+              <td>训练开始时初始化，训练中由反向传播学习；推理时保持固定</td>
+            </tr>
+            <tr>
+              <th><Formula tex={String.raw`q_i,k_i,v_i`} /></th>
+              <td>位置 i 的 Query、Key、Value 行向量</td>
+              <td><Formula tex={String.raw`q_i=x_iW^Q,\ k_i=x_iW^K,\ v_i=x_iW^V`} /></td>
+            </tr>
+            <tr>
+              <th><Formula tex={String.raw`S,A`} /></th>
+              <td>缩放后的相关分数矩阵、softmax 后的权重矩阵</td>
+              <td><Formula tex={String.raw`S=QK^{\mathsf T}/\sqrt{d_k},\quad A=\operatorname{softmax}(S)`} /></td>
+            </tr>
+            <tr>
+              <th><Formula tex={String.raw`b_i,O`} /></th>
+              <td>bᵢ 是位置 i 的新表示；四行堆起来就是输出矩阵 O</td>
+              <td><Formula tex={String.raw`b_i=\sum_j A_{ij}v_j,\quad O=AV`} /></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div className="setup-types">
+        <div><b>可训练参数</b><span>Embedding 表 E、WQ、WK、WV：训练初始通常随机，随后被学习；推理时不再重新随机。</span></div>
+        <div><b>前向中间量</b><span>X、Q、K、V、S、A、O：随输入变化，每次前向重新计算，不是模型单独保存的参数。</span></div>
+        <div><b>本页固定数字</b><span>为便于手算而选定的教学样例；它们不是从某个真实模型中导出的数值，也不会在刷新页面时重新随机。</span></div>
+      </div>
+    </div>
+  );
+}
+
+function ScoreMatrixReadingGuide() {
+  return (
+    <div className="score-reading-guide">
+      <div className="score-reading-head">
+        <b>得到的 4×4 矩阵，可以这样理解</b>
+        <span>行表示哪个 Query 在发起匹配，列表示它正在匹配哪个 Key。</span>
+      </div>
+      <div className="score-reading-table-wrap">
+        <table className="score-reading-table">
+          <thead>
+            <tr>
+              <th className="score-reading-corner">Query ＼ Key</th>
+              {tokenLabels.map((token, j) => (
+                <th key={token}>
+                  <b>Key {j + 1}</b>
+                  <small>Token {j + 1}</small>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {tokenLabels.map((token, i) => (
+              <tr key={token}>
+                <th>
+                  <b>Query {i + 1}</b>
+                  <small>Token {i + 1}</small>
+                </th>
+                {tokenLabels.map((keyToken, j) => (
+                  <td key={keyToken} className={i === 0 ? "score-reading-focus" : ""}>
+                    <Formula tex={String.raw`S_{${i + 1},${j + 1}}`} />
+                    <small>Token {i + 1} 看 Token {j + 1}</small>
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="score-reading-rules">
+        <span><b>一行</b>：同一个 Token 发出的 Query，对全部 Key 的四个分数</span>
+        <span><b>一列</b>：全部 Query 对同一个 Token 的 Key 的匹配分数</span>
+        <span><b>一个格子</b>：<Formula tex={String.raw`S_{ij}=q_i k_j^{\mathsf T}/\sqrt{d_k}`} />；softmax 后变为权重 Aᵢⱼ</span>
+      </div>
+    </div>
+  );
+}
+
 function FigStageQKV() {
-  const WORDS = ["token₁", "token₂", "token₃", "token₄"];
+  const WORDS = tokenLabels;
   const X = [[0.4, 1.2], [1.5, 0.3], [0.8, 0.9], [1.1, 1.5]];
   const WQ = [[1, 0.5], [-0.3, 0.8]];
   const WK = [[0.8, -0.4], [0.2, 1.1]];
@@ -320,7 +471,7 @@ function FigStageQKV() {
       W: WQ,
       R: Q,
       tex: String.raw`Q = XW^Q`,
-      note: "查询向量 qᵢ = xᵢ·Wᵠ → 决定「我想找什么」",
+      note: "qᵢ = xᵢ·Wᵠ：位置 i 用于发起匹配的查询特征",
     },
     {
       key: "K",
@@ -329,7 +480,7 @@ function FigStageQKV() {
       W: WK,
       R: K,
       tex: String.raw`K = XW^K`,
-      note: "键向量 kᵢ = xᵢ·Wᵏ → 决定「我有什么可被匹配」",
+      note: "kᵢ = xᵢ·Wᵏ：位置 i 用于被 Query 匹配的索引特征",
     },
     {
       key: "V",
@@ -338,7 +489,7 @@ function FigStageQKV() {
       W: WV,
       R: V,
       tex: String.raw`V = XW^V`,
-      note: "值向量 vᵢ = xᵢ·Wᵛ → 决定「匹配上后拿走的内容」",
+      note: "vᵢ = xᵢ·Wᵛ：位置 i 最终参与加权汇聚的内容特征",
     },
   ];
 
@@ -358,7 +509,7 @@ function FigStageQKV() {
       {/* 标题 + 公式条 */}
       <div style={{ textAlign: "center", marginBottom: 16 }}>
         <div style={{ color: "var(--t1)", fontWeight: 700, fontSize: 15, marginBottom: 10 }}>
-          向量阶段 · 投影：同一份 <span style={{ color: "var(--t2)" }}>X</span> 乘三个权重矩阵，得到{" "}
+          第 1 步 · 投影：同一份 <span style={{ color: "var(--t2)" }}>X</span> 乘三个权重矩阵，准备全部{" "}
           <span style={{ color: CQ }}>Q</span> / <span style={{ color: CK }}>K</span> /{" "}
           <span style={{ color: CV }}>V</span>
         </div>
@@ -446,8 +597,8 @@ function FigStageQKV() {
         <span style={{ color: CV }}>→ v₁ = [0.4×0.7+1.2×0.1, 0.4×0.2+1.2×1.0] = [0.40,1.28]</span>
       </div>
       <div style={{ textAlign: "center", color: "var(--t3)", fontSize: 12, marginTop: 10 }}>
-        图 · 同一组输入 <b style={{ color: "var(--t2)" }}>X</b> 经三个独立可学习的权重矩阵，投影成 Q / K / V；
-        下一章将固定第 1 行的 <b style={{ color: CQ }}>q₁ = [0.04,1.16]</b> 作为主角，追踪它如何算出 b₁。
+        图 · 每一行都对应同序号 Token。后面只追踪第 1 行的 <b style={{ color: CQ }}>q₁ = [0.04,1.16]</b>，
+        但它仍要与全部 kⱼ 比较，并用全部 vⱼ 形成 b₁。
       </div>
     </div>
   );
@@ -457,7 +608,7 @@ function FigStageQKV() {
  * 向量阶段图2：固定 q₁ 扇出打分（FigStageScore）
  * 主角 q₁ 固定左侧（★），向 k₁..k₄ 扇出橙色连线，
  * 每条路径都标注点积分数 α₁,ⱼ，并在 k 块内完整展开 q₁·kⱼ 的乘加过程。
- * 数据全程使用统一 4-token（我/爱/深/度，d=2）。
+ * 数据全程使用统一 4-token（token₁..token₄，d=2）。
  * ============================================================ */
 function FigStageScore() {
   // —— 统一数据（token₁/token₂/token₃/token₄，d=2，√dₖ≈1.414）——
@@ -805,8 +956,8 @@ function FigStageAggregate() {
 
 type Mat = number[][];
 
-/* ---- 统一数据（我/爱/深/度，d=2；禁止改值）---- */
-const FMS_WORDS = ["token₁", "token₂", "token₃", "token₄"];
+/* ---- 统一数据（token₁..token₄，d=2；禁止改值）---- */
+const FMS_WORDS = tokenLabels;
 const FMS_DATA: { X: Mat; WQ: Mat; WK: Mat; WV: Mat; Q: Mat; K: Mat; V: Mat; S: Mat; A: Mat; O: Mat } = {
   X:  [[0.4, 1.2], [1.5, 0.3], [0.8, 0.9], [1.1, 1.5]],
   WQ: [[1, 0.5], [-0.3, 0.8]],
@@ -1408,26 +1559,42 @@ export default function Home() {
           {/* ===== 向量级 ===== */}
           <section className="section" id="s2">
             <SecHead idx="02" title="Self-Attention · 向量级（一步一步算）" />
-            <p className="sec-lead">Self‑Attention 不沿时间步递归，而是直接计算序列中各位置的相关性；没有 causal mask 时，所有位置可以并行处理。</p>
+            <p className="sec-lead">先不急着做点积。下面先说明每个符号从哪里来，再固定 Token 1，完整算出它如何读取 Token 1～4 的信息。没有 causal mask 时，四个位置都能按同样方式并行计算。</p>
+
+            <AttentionSetupGuide />
+
+            <h3>固定 Token 1：从 q₁ 到新表示 b₁</h3>
+            <p className="section-bridge">q₁ 只代表 Token 1 的 Query；它要与四个 Key 逐一比较，得到四个权重，再用这四个权重汇聚四个 Value。这里把矩阵运算拆开，只追踪输出矩阵的第一行。</p>
             <div className="legend-row">
-              <span><i className="lq" />Query 查询：我想找什么</span>
-              <span><i className="lk" />Key 键：我有什么可被匹配</span>
-              <span><i className="lv" />Value 值：匹配上后拿走的内容</span>
+              <span><i className="lq" />Query：用于发起匹配</span>
+              <span><i className="lk" />Key：用于被 Query 匹配</span>
+              <span><i className="lv" />Value：真正被加权汇聚的内容</span>
             </div>
-            <div className="note">下面固定 <b style={{ color: "#f5b042" }}>q₁</b>，沿四步追踪完整计算：① 将 X 投影为 Q/K/V；② 用 q₁ 与所有 kⱼ 点积并缩放；③ 对整行分数做 softmax；④ 按权重汇聚 vⱼ，得到 <b style={{ color: "#f472b6" }}>b₁</b>。</div>
+            <div className="calculation-route" aria-label="Token 1 的四步 Attention 计算路线">
+              <div><b>① 投影</b><Formula block tex={String.raw`X\rightarrow Q,K,V`} /><span>准备 q₁、全部 kⱼ 与全部 vⱼ</span></div>
+              <div><b>② 打分</b><Formula block tex={String.raw`s_{1j}=q_1k_j^{\mathsf T}/\sqrt{d_k}`} /><span>衡量 Token 1 与各位置的匹配程度</span></div>
+              <div><b>③ 归一化</b><Formula block tex={String.raw`A_{1,:}=\operatorname{softmax}(S_{1,:})`} /><span>四个分数共同变成和为 1 的权重</span></div>
+              <div><b>④ 汇聚</b><Formula block tex={String.raw`b_1=\sum_j A_{1j}v_j`} /><span>按权重组合四个 Value</span></div>
+            </div>
 
             <FigStageQKV />
             <FigStageScore />
             <FigStageSoftmax />
             <FigStageAggregate />
 
-            <div className="note">换 q₂、q₃、q₄ 走同样路径，就得 b₂、b₃、b₄——各位置计算无递归依赖，可并行。下一节把这套向量运算收束成矩阵形式。</div>
+            <div className="note">换成 q₂、q₃、q₄ 重复同一过程，就分别得到 b₂、b₃、b₄。把四个输出按行堆叠，便是 <Formula tex={String.raw`O=\begin{bmatrix}b_1\\b_2\\b_3\\b_4\end{bmatrix}`} />；下一节用矩阵一次算完这四行。</div>
           </section>
 
           {/* ===== 矩阵级 ===== */}
           <section className="section detail-section" id="s3">
             <SecHead idx="03" title="Self-Attention · 矩阵级" />
-            <p className="sec-lead">把所有词的 q/k/v 堆成矩阵 <Formula tex="Q, K, V" />，整件事就坍缩成<b style={{ color: "#eef3ff" }}>几次矩阵乘法 + 一次 softmax</b>（只看当前主干，QKV 融合后是三次 GEMM；完整多头还会增加输出投影 Wᴼ）——这正是 GPU 最擅长、能大规模并行的形态。</p>
+            <p className="sec-lead">上一节只展开输出矩阵的第一行；这里把 q₁～q₄、k₁～k₄、v₁～v₄ 分别按行堆成 Q、K、V，一次并行得到全部四行输出。数学没有变化，只是从“逐个位置理解”切换到“矩阵整体执行”。</p>
+            <div className="matrix-level-bridge">
+              <div><b>只追踪 Token 1</b><Formula block tex={String.raw`b_1=\operatorname{softmax}\!\left(\frac{q_1K^{\mathsf T}}{\sqrt{d_k}}\right)V`} /></div>
+              <span>四个 Query 行同时执行 →</span>
+              <div><b>一次得到 Token 1～4</b><Formula block tex={String.raw`O=\operatorname{softmax}\!\left(\frac{QK^{\mathsf T}}{\sqrt{d_k}}\right)V`} /></div>
+            </div>
+            <ScoreMatrixReadingGuide />
             <div className="note"><b>记号约定（先说清楚，避免和代码对不上）</b>：本文用 PyTorch 行向量约定 <Formula tex={String.raw`Q=XW^Q`} />，所以是 <Formula tex={String.raw`QK^{\mathsf T}`} />；有的教材用列向量 <Formula tex={String.raw`Q=W^Q I`} />，对应 <Formula tex={String.raw`K^{\mathsf T}Q`} />。两者数学等价，只差一个转置——这也是代码里写 <code>key.transpose(-2, -1)</code> 的原因。</div>
             <FigMatrixStage />
             <div className="note">现在这句公式对你不再是一串符号：<Formula tex={String.raw`QK^{\mathsf T}`} /> 是「两两算相关度」，softmax 是「分数变权重」，乘 <Formula tex={String.raw`V`} /> 是「按权重取内容」。上面这组数值，正是把向量级 4 步压成矩阵后一次性算出的结果。</div>
@@ -1455,7 +1622,7 @@ export default function Home() {
             {/* 数值演示：选 Query 看权重 */}
             <h3>数值演示：选一个 Query，看它把注意力分给谁</h3>
             <div className="tabs">
-              {words.map((w, i) => (
+              {tokenLabels.map((w, i) => (
                 <button key={w} className={`tab ${qIdx === i ? "active" : ""}`} onClick={() => setQIdx(i)}>q{i + 1} · {w}</button>
               ))}
             </div>
@@ -1486,7 +1653,7 @@ export default function Home() {
                 </div>
                 <span className="msign">→</span>
                 <div style={{ textAlign: "center" }}>
-                  <div className="mname">输出 <Formula className="mname-formula" tex={String.raw`{\color{#f472b6}z=\sum_j\hat\alpha_jv_j}`} /></div>
+                  <div className="mname">输出 <Formula className="mname-formula" tex={String.raw`{\color{#f472b6}b_{${qIdx + 1}}=\sum_j A_{${qIdx + 1},j}v_j}`} /></div>
                   <div style={{ display: "flex", gap: 8 }}>
                     {attn.output.map((v, i) => (
                       <div key={i} className="mcell" style={{ cursor: "default", color: "#f472b6", borderColor: "#f472b6" }}>{v.toFixed(2)}</div>
@@ -1499,6 +1666,7 @@ export default function Home() {
             {/* —— Mask：因果掩码与 padding —— */}
             <h3>Mask：让每个位置「只看到该看的」</h3>
             <p className="sec-lead">生成时每个位置必须「看到过去、看不到未来」。实现上用一个<b style={{ color: "#f5b042" }}>下三角因果掩码（Causal Mask）</b>：第 i 个位置只允许看第 0..i 个 Key；padding 位则用 padding mask 屏蔽。</p>
+            <div className="note">为了展示生成序列的起始位置，下面在 Token 1～4 前额外加入一个 <code>&lt;BOS&gt;</code>，所以示意矩阵是 5×5；它只用于解释 mask，不改变前面 4×4 的数值算例。</div>
 
             <div className="mask-grid">
               <table>
@@ -1506,10 +1674,10 @@ export default function Home() {
                   <tr>
                     <th></th>
                     <th>k₀<br /><small style={{ color: "#4d577f" }}>&lt;BOS&gt;</small></th>
-                    <th>k₁<br /><small style={{ color: "#4d577f" }}>I</small></th>
-                    <th>k₂<br /><small style={{ color: "#4d577f" }}>have</small></th>
-                    <th>k₃<br /><small style={{ color: "#4d577f" }}>a</small></th>
-                    <th>k₄<br /><small style={{ color: "#4d577f" }}>cat</small></th>
+                    <th>k₁<br /><small style={{ color: "#4d577f" }}>Token 1</small></th>
+                    <th>k₂<br /><small style={{ color: "#4d577f" }}>Token 2</small></th>
+                    <th>k₃<br /><small style={{ color: "#4d577f" }}>Token 3</small></th>
+                    <th>k₄<br /><small style={{ color: "#4d577f" }}>Token 4</small></th>
                   </tr>
                   <tr>
                     <th>q₀ &lt;BOS&gt;</th>
@@ -1520,7 +1688,7 @@ export default function Home() {
                     <td><div className="mask-cell block">−∞</div></td>
                   </tr>
                   <tr>
-                    <th>q₁ I</th>
+                    <th>q₁ · Token 1</th>
                     <td><div className="mask-cell allow">0</div></td>
                     <td><div className="mask-cell allow">0</div></td>
                     <td><div className="mask-cell block">−∞</div></td>
@@ -1528,7 +1696,7 @@ export default function Home() {
                     <td><div className="mask-cell block">−∞</div></td>
                   </tr>
                   <tr>
-                    <th>q₂ have</th>
+                    <th>q₂ · Token 2</th>
                     <td><div className="mask-cell allow">0</div></td>
                     <td><div className="mask-cell allow">0</div></td>
                     <td><div className="mask-cell allow">0</div></td>
@@ -1536,7 +1704,7 @@ export default function Home() {
                     <td><div className="mask-cell block">−∞</div></td>
                   </tr>
                   <tr>
-                    <th>q₃ a</th>
+                    <th>q₃ · Token 3</th>
                     <td><div className="mask-cell allow">0</div></td>
                     <td><div className="mask-cell allow">0</div></td>
                     <td><div className="mask-cell allow">0</div></td>
@@ -1544,7 +1712,7 @@ export default function Home() {
                     <td><div className="mask-cell block">−∞</div></td>
                   </tr>
                   <tr>
-                    <th>q₄ cat</th>
+                    <th>q₄ · Token 4</th>
                     <td><div className="mask-cell allow">0</div></td>
                     <td><div className="mask-cell allow">0</div></td>
                     <td><div className="mask-cell allow">0</div></td>
@@ -1574,9 +1742,9 @@ export default function Home() {
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>推理（逐 token，串行）</h3>
                 <p className="t3" style={{ fontFamily: "var(--mono)", fontSize: 13 }}>
-                  输入 <b style={{ color: "#f5b042" }}>&lt;BOS&gt;</b> → 预测 I<br />
-                  输入 <b style={{ color: "#f5b042" }}>&lt;BOS&gt; I</b> → 预测 have<br />
-                  输入 <b style={{ color: "#f5b042" }}>&lt;BOS&gt; I have</b> → 预测 a<br />
+                  输入 <b style={{ color: "#f5b042" }}>&lt;BOS&gt;</b> → 预测 Token 1<br />
+                  输入 <b style={{ color: "#f5b042" }}>&lt;BOS&gt; Token 1</b> → 预测 Token 2<br />
+                  输入 <b style={{ color: "#f5b042" }}>&lt;BOS&gt; Token 1 Token 2</b> → 预测 Token 3<br />
                   ……直到 <b style={{ color: "#f5b042" }}>&lt;end&gt;</b>
                 </p>
                 <p className="t3">每步只能用已生成的内容，天生串行；配合 KV cache 时 Key 本身就只有历史前缀，不一定需要显式的完整三角 mask。</p>
@@ -1584,8 +1752,8 @@ export default function Home() {
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>训练（整句并行）</h3>
                 <p className="t3" style={{ fontFamily: "var(--mono)", fontSize: 13 }}>
-                  输入 <b style={{ color: "#2dd4bf" }}>&lt;BOS&gt; I have a cat</b>（右移一位）<br />
-                  目标 <b style={{ color: "#f472b6" }}>I have a cat &lt;end&gt;</b><br />
+                  输入 <b style={{ color: "#2dd4bf" }}>&lt;BOS&gt; Token 1 Token 2 Token 3</b>（右移一位）<br />
+                  目标 <b style={{ color: "#f472b6" }}>Token 1 Token 2 Token 3 Token 4</b><br />
                   一次前向 + 因果 Mask
                 </p>
                 <p className="t3">训练靠 causal mask 一次性实现整句并行，每个位置「假装只看到过去」——因果约束由 mask 显式施加。</p>
@@ -1615,11 +1783,11 @@ export default function Home() {
                   <tbody>
                     <tr>
                       <td></td>
-                      {words.map((w) => <td key={w} style={{ textAlign: "center", fontFamily: "var(--mono)", fontSize: 15, color: "#6e7aab", width: 88 }}>{w}</td>)}
+                      {tokenLabels.map((w) => <td key={w} style={{ textAlign: "center", fontFamily: "var(--mono)", fontSize: 15, color: "#6e7aab", width: 88 }}>{w}</td>)}
                     </tr>
                     {heads[headIdx].matrix.map((row, i) => (
                       <tr key={i}>
-                        <td style={{ textAlign: "right", paddingRight: 14, fontFamily: "var(--mono)", fontSize: 15, color: "#6e7aab" }}>{words[i]}</td>
+                        <td style={{ textAlign: "right", paddingRight: 14, fontFamily: "var(--mono)", fontSize: 15, color: "#6e7aab" }}>{tokenLabels[i]}</td>
                         {row.map((v, j) => (
                           <td key={j}>
                             <div style={{

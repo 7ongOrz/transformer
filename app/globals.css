@@ -517,6 +517,482 @@ p {
 .legend-row .la { background: var(--att); }
 .legend-row .lo { background: var(--out); }
 
+/* Attention 计算前置：先说明 Token / x / X / QKV 的来源 */
+.setup-guide {
+  margin: 22px 0 30px;
+  padding: 24px;
+  border: 1px solid rgba(56, 189, 248, 0.24);
+  border-radius: var(--radius);
+  background:
+    radial-gradient(620px 280px at 12% 0%, rgba(56, 189, 248, 0.09), transparent 68%),
+    linear-gradient(180deg, rgba(15, 23, 48, 0.96), rgba(12, 20, 48, 0.96));
+}
+.setup-guide-head {
+  max-width: 960px;
+  margin: 0 auto 20px;
+  text-align: center;
+}
+.setup-guide-head > span {
+  display: inline-block;
+  margin-bottom: 7px;
+  color: var(--att);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+.setup-guide-head > b {
+  display: block;
+  color: var(--t1);
+  font-size: 20px;
+  line-height: 1.45;
+  text-wrap: balance;
+}
+.setup-guide-head p {
+  margin: 8px 0 0;
+  color: var(--t2);
+  font-size: 14.5px;
+  line-height: 1.7;
+  text-wrap: pretty;
+}
+.setup-guide-head code {
+  padding: 0.1em 0.42em;
+  border: 1px solid var(--hairline);
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--t1);
+  font-family: var(--mono);
+  white-space: nowrap;
+}
+.setup-flow {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+.setup-node {
+  position: relative;
+  min-width: 0;
+  min-height: 285px;
+  padding: 17px 16px 15px;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  background: rgba(7, 11, 24, 0.5);
+}
+.setup-node::after {
+  content: "→";
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  right: -21px;
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 27px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 50%;
+  background: var(--panel-3);
+  color: var(--att);
+  font-family: var(--mono);
+  font-weight: 800;
+  transform: translateY(-50%);
+}
+.setup-node:last-child::after {
+  display: none;
+}
+.setup-step {
+  display: inline-grid;
+  place-items: center;
+  width: 25px;
+  height: 25px;
+  margin-right: 7px;
+  border-radius: 7px;
+  background: var(--att-soft);
+  color: var(--att);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 800;
+  vertical-align: middle;
+}
+.setup-node > strong {
+  color: var(--t1);
+  font-size: 14.5px;
+  line-height: 1.5;
+  vertical-align: middle;
+}
+.setup-node > p {
+  margin: 11px 0 0;
+  color: var(--t2);
+  font-size: 13.5px;
+  line-height: 1.68;
+  text-wrap: pretty;
+  overflow-wrap: break-word;
+}
+.setup-node .math-block {
+  margin: 10px 0 0;
+  padding: 0;
+  font-size: 14px;
+}
+.setup-node .math-block .katex-display {
+  text-align: center;
+}
+.setup-node .math-inline {
+  font-size: 0.96em;
+}
+.setup-tokens {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 14px;
+}
+.setup-tokens span {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 4px;
+  border: 1px solid rgba(169, 180, 220, 0.18);
+  border-radius: 8px;
+  background: rgba(169, 180, 220, 0.06);
+}
+.setup-tokens b {
+  color: var(--t1);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+.setup-tokens small {
+  color: var(--t3);
+  font-size: 10.5px;
+}
+.setup-dimension-note {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: baseline;
+  margin: 16px 0;
+  padding: 12px 15px;
+  border-left: 3px solid var(--q);
+  background: var(--q-soft);
+  color: var(--t2);
+  font-size: 14px;
+  line-height: 1.7;
+}
+.setup-dimension-note b {
+  color: var(--q);
+  white-space: nowrap;
+}
+.setup-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+}
+.setup-table {
+  width: 100%;
+  min-width: 880px;
+  border-collapse: collapse;
+  background: rgba(7, 11, 24, 0.34);
+}
+.setup-table th,
+.setup-table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--hairline);
+  text-align: left;
+  vertical-align: middle;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+.setup-table thead th {
+  background: rgba(56, 189, 248, 0.08);
+  color: var(--att);
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+.setup-table tbody th {
+  width: 150px;
+  color: var(--t1);
+  font-family: var(--mono);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.setup-table tbody td {
+  color: var(--t2);
+}
+.setup-table tr:last-child th,
+.setup-table tr:last-child td {
+  border-bottom: 0;
+}
+.setup-types {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+.setup-types > div {
+  display: grid;
+  gap: 4px;
+  padding: 13px 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.025);
+}
+.setup-types b {
+  color: var(--t1);
+  font-size: 13.5px;
+}
+.setup-types span {
+  color: var(--t3);
+  font-size: 12.8px;
+  line-height: 1.62;
+  text-wrap: pretty;
+}
+
+.section-bridge {
+  max-width: 1080px;
+  margin: 0 0 14px;
+  color: var(--t2);
+  font-size: 15px;
+  line-height: 1.75;
+  text-wrap: pretty;
+}
+.calculation-route {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 16px 0 22px;
+}
+.calculation-route > div {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--hairline);
+  border-top: 2px solid var(--att);
+  border-radius: 10px;
+  background: var(--panel-3);
+}
+.calculation-route > div:nth-child(1) { border-top-color: var(--q); }
+.calculation-route > div:nth-child(2) { border-top-color: var(--k); }
+.calculation-route > div:nth-child(4) { border-top-color: var(--out); }
+.calculation-route b {
+  color: var(--t1);
+  font-size: 14px;
+}
+.calculation-route .math-block {
+  width: 100%;
+  margin: 1px 0;
+  padding: 0;
+  color: var(--t1);
+  font-size: 14px;
+  overflow-x: auto;
+}
+.calculation-route .math-block .katex-display {
+  text-align: left;
+  white-space: nowrap;
+}
+.calculation-route > div > span {
+  color: var(--t3);
+  font-size: 12.5px;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.matrix-level-bridge {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+  margin: -8px 0 18px;
+  padding: 16px 18px;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  background: var(--panel-3);
+}
+.matrix-level-bridge > div {
+  min-width: 0;
+  text-align: center;
+}
+.matrix-level-bridge b {
+  color: var(--t1);
+  font-size: 13.5px;
+}
+.matrix-level-bridge > span {
+  color: var(--att);
+  font-family: var(--mono);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.matrix-level-bridge .math-block {
+  margin-top: 7px;
+  font-size: 15px;
+}
+.matrix-level-bridge .math-block .katex-display {
+  text-align: center;
+}
+
+/* 4×4 分数矩阵的行列读法 */
+.score-reading-guide {
+  margin: 18px 0;
+  padding: 20px;
+  border: 1px solid rgba(56, 189, 248, 0.24);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(15, 23, 48, 0.92), rgba(12, 20, 48, 0.92));
+}
+.score-reading-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 14px;
+}
+.score-reading-head b {
+  color: var(--t1);
+  font-size: 17px;
+}
+.score-reading-head span {
+  color: var(--t2);
+  font-size: 13.5px;
+  text-wrap: pretty;
+}
+.score-reading-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--hairline);
+  border-radius: 11px;
+}
+.score-reading-table {
+  width: 100%;
+  min-width: 900px;
+  table-layout: fixed;
+  border-collapse: collapse;
+  background: rgba(7, 11, 24, 0.42);
+}
+.score-reading-table th,
+.score-reading-table td {
+  height: 72px;
+  padding: 9px 10px;
+  border-right: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
+  text-align: center;
+  vertical-align: middle;
+}
+.score-reading-table tr:last-child th,
+.score-reading-table tr:last-child td {
+  border-bottom: 0;
+}
+.score-reading-table th:last-child,
+.score-reading-table td:last-child {
+  border-right: 0;
+}
+.score-reading-table thead th {
+  background: var(--k-soft);
+  color: var(--k);
+}
+.score-reading-table tbody th {
+  background: var(--q-soft);
+  color: var(--q);
+}
+.score-reading-table .score-reading-corner {
+  width: 150px;
+  background: rgba(169, 180, 220, 0.08);
+  color: var(--t2);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+.score-reading-table th b,
+.score-reading-table th small,
+.score-reading-table td small {
+  display: block;
+}
+.score-reading-table th b {
+  font-family: var(--mono);
+  font-size: 13px;
+}
+.score-reading-table th small {
+  margin-top: 2px;
+  color: var(--t3);
+  font-size: 11px;
+  font-weight: 500;
+}
+.score-reading-table td {
+  color: var(--t2);
+}
+.score-reading-table td .math-inline {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--att);
+  font-size: 15px;
+}
+.score-reading-table td small {
+  color: var(--t3);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  white-space: nowrap;
+}
+.score-reading-table .score-reading-focus {
+  background: rgba(245, 176, 66, 0.075);
+  box-shadow: inset 0 1px rgba(245, 176, 66, 0.28), inset 0 -1px rgba(245, 176, 66, 0.28);
+}
+.score-reading-rules {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+.score-reading-rules > span {
+  padding: 10px 12px;
+  border: 1px solid var(--hairline);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.025);
+  color: var(--t3);
+  font-size: 12.5px;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+.score-reading-rules b {
+  color: var(--t1);
+}
+
+@media (max-width: 1050px) {
+  .setup-flow,
+  .calculation-route {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .setup-node::after {
+    display: none;
+  }
+  .setup-types {
+    grid-template-columns: 1fr;
+  }
+  .score-reading-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .score-reading-rules {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 700px) {
+  .setup-guide {
+    padding: 18px 15px;
+  }
+  .setup-flow,
+  .calculation-route,
+  .matrix-level-bridge {
+    grid-template-columns: 1fr;
+  }
+  .setup-node {
+    min-height: 0;
+  }
+  .setup-dimension-note {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+  .matrix-level-bridge > span {
+    white-space: normal;
+    text-align: center;
+  }
+}
+
 /* Q/K/V 投影：共享输入 X 一进三出 */
 .qkv-projection-flow {
   display: grid;
