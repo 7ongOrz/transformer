@@ -432,30 +432,30 @@ function FigStageQKV() {
 /* ============================================================
  * 向量阶段图2：固定 q₁ 扇出打分（FigStageScore）
  * 主角 q₁ 固定左侧（★），向 k₁..k₄ 扇出橙色连线，
- * 每条连线终点标注点积分数 α₁,ⱼ；关键连线上写出 q₁·kⱼ 的乘加过程。
+ * 每条路径都标注点积分数 α₁,ⱼ，并在 k 块内完整展开 q₁·kⱼ 的乘加过程。
  * 数据全程使用统一 4-token（我/爱/深/度，d=2）。
  * ============================================================ */
 function FigStageScore() {
   // —— 统一数据（token₁/token₂/token₃/token₄，d=2，√dₖ≈1.414）——
   const q1: [number, number] = [0.04, 1.16];
   const ks: { label: string; word: string; v: [number, number]; a: number; calc: string }[] = [
-    { label: "k₁", word: "token₁", v: [0.56, 1.16], a: 0.967, calc: "(0.04×0.56 + 1.16×1.16)/√2" },
-    { label: "k₂", word: "token₂", v: [1.26, -0.27], a: -0.186, calc: "(0.04×1.26 + 1.16×-0.27)/√2" },
-    { label: "k₃", word: "token₃", v: [0.82, 0.67], a: 0.573, calc: "(0.04×0.82 + 1.16×0.67)/√2" },
-    { label: "k₄", word: "token₄", v: [1.18, 1.21], a: 1.026, calc: "(0.04×1.18 + 1.16×1.21)/√2" },
+    { label: "k₁", word: "token₁", v: [0.56, 1.16], a: 0.967, calc: "(0.04×0.56 + 1.16×1.16) / √2" },
+    { label: "k₂", word: "token₂", v: [1.26, -0.27], a: -0.186, calc: "(0.04×1.26 + 1.16×(−0.27)) / √2" },
+    { label: "k₃", word: "token₃", v: [0.82, 0.67], a: 0.573, calc: "(0.04×0.82 + 1.16×0.67) / √2" },
+    { label: "k₄", word: "token₄", v: [1.18, 1.21], a: 1.026, calc: "(0.04×1.18 + 1.16×1.21) / √2" },
   ];
   const MAX_A = 1.026;
 
   // —— 布局坐标 ——
-  const YS = [100, 225, 350, 475]; // 4 个 k 块中心 y
-  const qY = 287;                  // q1 块中心 y（≈ YS 首尾中点）
-  const qRight = 190;              // q1 块右边 x（连线起点）
-  const kLeft = 710;               // k 块左边 x（连线终点）
-  const pillX = (qRight + kLeft) / 2; // 分数药丸中心 x = 450
+  const YS = [130, 290, 450, 610];
+  const qY = 370;
+  const qRight = 220;
+  const kLeft = 650;
+  const pillX = 430;
 
   return (
     <div className="fig">
-      <svg viewBox="0 0 940 580" width="940" role="img" aria-label="固定 q1 扇出打分：q1 向 k1..k4 计算点积分数">
+      <svg viewBox="0 0 1000 740" width="1000" role="img" aria-label="固定 q1 扇出打分：q1 向 k1..k4 计算点积分数">
         <defs>
           <marker id="ss-ah" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
             <path d="M0,0 L8,4.5 L0,9 z" fill="#f5b042" />
@@ -463,11 +463,11 @@ function FigStageScore() {
         </defs>
 
         {/* 标题 */}
-        <text x="30" y="34" fill="#c8d4ff" fontSize="15" fontWeight="700">
+        <text x="32" y="35" fill="#c8d4ff" fontSize="18" fontWeight="700">
           固定 q₁，向所有 k 扇出打分
         </text>
-        <text x="30" y="55" fill="#a9b4dc" fontSize="12.5">
-          α₁,ⱼ = q₁ · kⱼ / √dₖ　（d=2，√dₖ≈1.414）　点积越大 → 越匹配 → 注意力分数越高
+        <text x="32" y="62" fill="#a9b4dc" fontSize="14">
+          α₁,ⱼ = (q₁ · kⱼ) / √dₖ　（dₖ=2，√dₖ≈1.414）　每条路径都完整展开乘加过程
         </text>
 
         {/* 扇出连线（先画线，后画块以遮住端点） */}
@@ -489,63 +489,56 @@ function FigStageScore() {
 
         {/* q₁ 主角块（左侧，高亮） */}
         <g>
-          <rect x="40" y={qY - 54} width="150" height="108" rx="14" fill="rgba(245,176,66,0.2)" stroke="#f5b042" strokeWidth="2.4" />
-          <text x="115" y={qY - 20} textAnchor="middle" fill="#f5b042" fontSize="22" fontWeight="800" fontFamily="JetBrains Mono, monospace">q₁ ★</text>
-          <text x="115" y={qY + 8} textAnchor="middle" fill="#fbbf24" fontSize="15" fontFamily="JetBrains Mono, monospace" fontWeight="700">[ {q1[0]}, {q1[1]} ]</text>
-          <text x="115" y={qY + 33} textAnchor="middle" fill="#a9b4dc" fontSize="11.5">主角 Query · token₁</text>
+          <rect x="35" y={qY - 65} width="185" height="130" rx="16" fill="rgba(245,176,66,0.2)" stroke="#f5b042" strokeWidth="2.4" />
+          <text x="127.5" y={qY - 23} textAnchor="middle" fill="#f5b042" fontSize="25" fontWeight="800" fontFamily="JetBrains Mono, monospace">q₁ ★</text>
+          <text x="127.5" y={qY + 12} textAnchor="middle" fill="#fbbf24" fontSize="18" fontFamily="JetBrains Mono, monospace" fontWeight="700">[ {q1[0]}, {q1[1]} ]</text>
+          <text x="127.5" y={qY + 43} textAnchor="middle" fill="#a9b4dc" fontSize="13.5">Query · token₁</text>
         </g>
 
-        {/* k 块 + 分数药丸 + 乘加过程 */}
+        {/* k 块 + 分数药丸 + 四条完整乘加公式 */}
         {ks.map((k, i) => {
           const ky = YS[i];
           const isTop = Math.abs(k.a - MAX_A) < 1e-6;
-          const pillY = (qY + ky) / 2; // 曲线 t=0.5 恰好穿过此点
-          // 在 k₁、k₂ 两条连线上写出乘加过程
-          const showCalc = i === 0 || i === 1;
+          const pillY = (qY + ky) / 2;
           return (
             <g key={`k-${i}`}>
               {/* k 块 */}
               <rect
                 x={kLeft}
-                y={ky - 36}
-                width="160"
-                height="72"
-                rx="11"
+                y={ky - 52}
+                width="315"
+                height="104"
+                rx="13"
                 fill={isTop ? "rgba(167,139,250,0.22)" : "rgba(167,139,250,0.09)"}
                 stroke="#a78bfa"
                 strokeWidth={isTop ? 2 : 1.2}
               />
-              <text x={kLeft + 80} y={ky - 10} textAnchor="middle" fill="#a78bfa" fontSize="16" fontWeight="700" fontFamily="JetBrains Mono, monospace">{k.label}</text>
-              <text x={kLeft + 80} y={ky + 12} textAnchor="middle" fill="#c4b5fd" fontSize="13" fontFamily="JetBrains Mono, monospace" fontWeight="700">[ {k.v[0]}, {k.v[1]} ]</text>
-              <text x={kLeft + 80} y={ky + 31} textAnchor="middle" fill="#6e7aab" fontSize="11">Key · {k.word}</text>
+              <text x={kLeft + 157.5} y={ky - 22} textAnchor="middle" fill="#a78bfa" fontSize="17" fontWeight="700" fontFamily="JetBrains Mono, monospace">{k.label} = [ {k.v[0]}, {k.v[1]} ]</text>
+              <text x={kLeft + 157.5} y={ky + 4} textAnchor="middle" fill="#6e7aab" fontSize="12.5">Key · {k.word}</text>
+              <text x={kLeft + 157.5} y={ky + 34} textAnchor="middle" fill="#c4b5fd" fontSize="13" fontFamily="JetBrains Mono, monospace" fontWeight="700">
+                {k.calc} = {k.a.toFixed(3)}
+              </text>
 
               {/* 分数药丸 */}
               <rect
-                x={pillX - 60}
-                y={pillY - 17}
-                width="120"
-                height="34"
-                rx="17"
+                x={pillX - 75}
+                y={pillY - 21}
+                width="150"
+                height="42"
+                rx="21"
                 fill={isTop ? "rgba(56,189,248,0.3)" : "rgba(56,189,248,0.14)"}
                 stroke="#38bdf8"
                 strokeWidth={isTop ? 1.9 : 1.2}
               />
-              <text x={pillX} y={pillY + 5} textAnchor="middle" fill="#7dd3fc" fontSize="14" fontFamily="JetBrains Mono, monospace" fontWeight="700">
+              <text x={pillX} y={pillY + 6} textAnchor="middle" fill="#7dd3fc" fontSize="16" fontFamily="JetBrains Mono, monospace" fontWeight="700">
                 α₁,{i + 1} = {k.a.toFixed(3)}
               </text>
-
-              {/* 乘加过程（仅 k₁、k₂） */}
-              {showCalc && (
-                <text x={pillX} y={pillY + 32} textAnchor="middle" fill="#a9b4dc" fontSize="11.5" fontFamily="JetBrains Mono, monospace">
-                  {k.calc} = {k.a.toFixed(3)}
-                </text>
-              )}
             </g>
           );
         })}
 
         {/* 底部一句话结论 */}
-        <text x="470" y="555" textAnchor="middle" fill="#6e7aab" fontSize="12.5">
+        <text x="500" y="712" textAnchor="middle" fill="#a9b4dc" fontSize="14">
           q₁ 与 <tspan fill="#a78bfa" fontWeight="700">token₄</tspan> 匹配度最高（分数 1.026）→ softmax 后会重点看向「token₄」
         </text>
       </svg>
@@ -560,143 +553,83 @@ function FigStageScore() {
  * 数据：q1 主角行 alphas=[0.967,-0.186,0.573,1.026]  ahats=[0.328,0.103,0.221,0.348]
  * ============================================================ */
 function FigStageSoftmax() {
-  // 分数用 3 位小数（与矩阵级 S、e^α 计算口径一致）
   const alphas = [0.967, -0.186, 0.573, 1.026];
   const ahats = [0.328, 0.103, 0.221, 0.348];
-  const exps = ["2.63", "0.83", "1.77", "2.79"];
-  const Z = "8.02";
-
-  // 单元格几何
-  const cellW = 56;
-  const cellH = 96;
-  const cellY = 120;
-  const scoreX = [36, 98, 160, 222];
-  const weightX = [626, 688, 750, 812];
-
-  // "总线箭头"：一根粗宽箭头，表示整行一起流动（整体进 / 整体出）
-  const busArrow = (x1: number, x2: number, y: number) => {
-    const head = 14;
-    const sh = 18; // shaft half-height
-    const hh = 15; // head half-height
-    const xs = x2 - head;
-    return (
-      <polygon
-        points={`${x1},${y - sh} ${xs},${y - sh} ${xs},${y - hh} ${x2},${y} ${xs},${y + hh} ${xs},${y + sh} ${x1},${y + sh}`}
-        fill="rgba(56,189,248,0.22)"
-        stroke="#38bdf8"
-        strokeWidth={1.6}
-      />
-    );
-  };
+  const exps = [2.631, 0.830, 1.773, 2.790];
 
   return (
     <div className="fig">
-      <svg viewBox="0 0 920 350" width="920" role="img" aria-label="整行 softmax：4 个分数联合归一化">
-        {/* 标题 */}
-        <text x="460" y="28" textAnchor="middle" fill="#eef3ff" fontSize="16" fontWeight="700">
-          整行 softmax · 4 个分数作为「一行」整体联合归一化
-        </text>
-        <text x="460" y="51" textAnchor="middle" fill="#a9b4dc" fontSize="12">
-          整行一起进 → 整行一起出（非 4 个独立的逐元素 softmax）
-        </text>
-
-        {/* 左右两组都用完整框体收纳标题、数值与结论 */}
-        <rect x="20" y="76" width="290" height="250" rx="14" fill="#0c1430" stroke="rgba(56,189,248,0.32)" />
-        <rect x="610" y="76" width="290" height="250" rx="14" fill="#0c1430" stroke="rgba(56,189,248,0.32)" />
-        <text x="165" y="104" textAnchor="middle" fill="#7dd3fc" fontSize="12" fontFamily="JetBrains Mono,monospace" fontWeight="700">
-          α₁,ⱼ = q₁·kⱼ / √dₖ
-        </text>
-        <text x="755" y="104" textAnchor="middle" fill="#7dd3fc" fontSize="12" fontFamily="JetBrains Mono,monospace" fontWeight="700">
-          α̂₁,ⱼ  （Σⱼ α̂₁,ⱼ ≈ 1）
-        </text>
-
-        {/* 分数行 */}
-        {alphas.map((a, i) => (
-          <g key={`s${i}`}>
-            <rect x={scoreX[i]} y={cellY} width={cellW} height={cellH} rx={6} fill="rgba(56,189,248,0.10)" stroke="#38bdf8" />
-            <text x={scoreX[i] + cellW / 2} y={cellY + 32} textAnchor="middle" fontSize="12" fill="#7dd3fc" fontFamily="JetBrains Mono,monospace" fontWeight="700">α₁,{i + 1}</text>
-            <text x={scoreX[i] + cellW / 2} y={cellY + 70} textAnchor="middle" fontSize="18" fill="#c8d4ff" fontFamily="JetBrains Mono,monospace" fontWeight="700">{a.toFixed(3)}</text>
-          </g>
-        ))}
-        <path d="M32,228 L32,238 L298,238 L298,228" fill="none" stroke="#6e7aab" strokeWidth="1.2" />
-        <text x="165" y="260" textAnchor="middle" fill="#a9b4dc" fontSize="11.5">整行 4 个分数 · 一起送入</text>
-        <text x="165" y="292" textAnchor="middle" fill="#6e7aab" fontSize="10.5">每个分数都会参与同一个分母 Z</text>
-
-        {/* 总线箭头 1：整行分数 → softmax（单根粗箭头） */}
-        {busArrow(310, 360, 190)}
-        <text x="335" y="162" textAnchor="middle" fill="#38bdf8" fontSize="10.5" fontFamily="JetBrains Mono,monospace" fontWeight="700">整行</text>
-
-        {/* softmax 大框：单一算子，横跨整行 */}
-        <rect x="365" y="92" width="190" height="210" rx="14" fill="rgba(56,189,248,0.14)" stroke="#38bdf8" strokeWidth={2.4} />
-        <text x="460" y="126" textAnchor="middle" fill="#7dd3fc" fontSize="13" fontFamily="JetBrains Mono,monospace" fontWeight="700">row-wise</text>
-        <text x="460" y="164" textAnchor="middle" fill="#38bdf8" fontSize="22" fontWeight="800">SOFTMAX</text>
-        <text x="460" y="193" textAnchor="middle" fill="#eef3ff" fontSize="13">整行联合归一化</text>
-        <text x="460" y="224" textAnchor="middle" fill="#a9b4dc" fontSize="11" fontFamily="JetBrains Mono,monospace">Z = Σⱼ e^α₁,ⱼ</text>
-        <text x="460" y="249" textAnchor="middle" fill="#a9b4dc" fontSize="11" fontFamily="JetBrains Mono,monospace">α̂₁,ⱼ = e^α₁,ⱼ / Z</text>
-        <text x="460" y="279" textAnchor="middle" fill="#6e7aab" fontSize="10.5">一个算子，同时处理整行</text>
-
-        {/* 总线箭头 2：softmax → 整行权重（单根粗箭头） */}
-        {busArrow(560, 610, 190)}
-        <text x="585" y="162" textAnchor="middle" fill="#38bdf8" fontSize="10.5" fontFamily="JetBrains Mono,monospace" fontWeight="700">整行</text>
-
-        {/* 权重行（热力色 = 归一化强度） */}
-        {ahats.map((w, i) => {
-          const t = Math.min(1, w / 0.4);
-          const op = 0.12 + t * 0.6;
-          const col = t > 0.5 ? "#ffffff" : "#c8d4ff";
-          return (
-            <g key={`w${i}`}>
-              <rect x={weightX[i]} y={cellY} width={cellW} height={cellH} rx={6} fill={`rgba(56,189,248,${op.toFixed(3)})`} stroke="#38bdf8" />
-              <text x={weightX[i] + cellW / 2} y={cellY + 32} textAnchor="middle" fontSize="12" fill="#7dd3fc" fontFamily="JetBrains Mono,monospace" fontWeight="700">α̂₁,{i + 1}</text>
-              <text x={weightX[i] + cellW / 2} y={cellY + 70} textAnchor="middle" fontSize="18" fill={col} fontFamily="JetBrains Mono,monospace" fontWeight="700">{w.toFixed(3)}</text>
-            </g>
-          );
-        })}
-        <path d="M618,228 L618,238 L892,238 L892,228" fill="none" stroke="#6e7aab" strokeWidth="1.2" />
-        <text x="755" y="260" textAnchor="middle" fill="#a9b4dc" fontSize="11.5">整行 4 个权重 · 和约等于 1</text>
-        <text x="755" y="292" textAnchor="middle" fill="#6e7aab" fontSize="10.5">数值越大，后续汇聚对应 vⱼ 的比例越高</text>
-      </svg>
-
-      {/* 数值代入（softmax 层下方）*/}
-      <div style={{ marginTop: 14, padding: "14px 16px", background: "var(--panel-3)", borderRadius: 12, border: "1px solid var(--hairline)" }}>
-        <div style={{ color: "var(--t1)", fontSize: 13, fontWeight: 700, marginBottom: 10 }}>
-          数值代入 · q₁ 这一行
+      <div className="softmax-figure" role="img" aria-label="整行 softmax：四个分数联合归一化为四个注意力权重">
+        <div className="softmax-title">
+          <b>整行 softmax · 四个分数联合归一化</b>
+          <span>不是四次独立运算：每个输出权重都依赖这一行的全部分数</span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
-          {alphas.map((a, i) => (
-            <div key={`e${i}`} style={{ display: "contents" }}>
-              {i > 0 && <span style={{ color: "var(--t3)", fontSize: 18, fontWeight: 700 }}>+</span>}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: 92, height: 60, borderRadius: 10, background: "rgba(56,189,248,0.08)", border: "1px solid var(--hairline)" }}>
-                <span style={{ color: "var(--t3)", fontSize: 11, fontFamily: "JetBrains Mono,monospace" }}>e^{a.toFixed(3)}</span>
-                <span style={{ color: "var(--att)", fontSize: 15, fontWeight: 700, fontFamily: "JetBrains Mono,monospace" }}>≈ {exps[i]}</span>
-              </div>
+        <div className="softmax-flow">
+          <div className="softmax-panel">
+            <div className="softmax-step">① 缩放后的相关分数</div>
+            <Formula block tex={String.raw`\alpha_{1,j}=\dfrac{q_1\cdot k_j}{\sqrt{d_k}}`} />
+            <div className="softmax-values scores">
+              {alphas.map((a, i) => (
+                <div key={`a-${i}`}>
+                  <Formula tex={`\\alpha_{1,${i + 1}}`} />
+                  <strong>{a.toFixed(3)}</strong>
+                </div>
+              ))}
             </div>
-          ))}
-          <span style={{ color: "var(--t3)", fontSize: 18, fontWeight: 700 }}>=</span>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: 112, height: 60, borderRadius: 10, background: "rgba(56,189,248,0.16)", border: "1.5px solid var(--att)" }}>
-            <span style={{ color: "var(--t2)", fontSize: 11, fontFamily: "JetBrains Mono,monospace" }}>Z = Σ e^α</span>
-            <span style={{ color: "var(--att)", fontSize: 16, fontWeight: 700, fontFamily: "JetBrains Mono,monospace" }}>≈ {Z}</span>
+            <p>整行输入：四个分数共同进入同一个 softmax。</p>
+          </div>
+
+          <div className="softmax-arrow"><span>整行</span>→</div>
+
+          <div className="softmax-panel operator">
+            <div className="softmax-step">② row-wise softmax</div>
+            <strong className="softmax-name">SOFTMAX</strong>
+            <Formula block tex={String.raw`\hat\alpha_{1,j}=\dfrac{e^{\alpha_{1,j}}}{\sum_{m=1}^{4}e^{\alpha_{1,m}}}`} />
+            <p>分母使用另一索引 <Formula tex="m" /> 求和，表示整行四项共同决定归一化系数。</p>
+          </div>
+
+          <div className="softmax-arrow"><span>整行</span>→</div>
+
+          <div className="softmax-panel">
+            <div className="softmax-step">③ 注意力权重</div>
+            <Formula block tex={String.raw`\hat\alpha_{1,:}=\operatorname{softmax}(\alpha_{1,:})`} />
+            <div className="softmax-values weights">
+              {ahats.map((w, i) => (
+                <div key={`w-${i}`} style={{ background: `rgba(56,189,248,${(0.16 + w * 1.55).toFixed(3)})` }}>
+                  <Formula tex={`\\hat\\alpha_{1,${i + 1}}`} />
+                  <strong>{w.toFixed(3)}</strong>
+                </div>
+              ))}
+            </div>
+            <Formula block tex={String.raw`\sum_{j=1}^{4}\hat\alpha_{1,j}=1.000`} />
           </div>
         </div>
 
-        <div style={{ marginTop: 12, display: "block", maxWidth: "100%" }}>
-          <div style={{ marginBottom: 6, overflowX: "auto", overflowY: "hidden" }}>
-            <Formula block tex={"\\hat\\alpha_{1,j}=\\dfrac{e^{\\alpha_{1,j}}}{Z}=\\dfrac{e^{\\alpha_{1,j}}}{\\sum_{j=1}^{4}e^{\\alpha_{1,j}}},\\qquad Z=2.63+0.83+1.77+2.79\\approx 8.02"} />
+        <div className="softmax-derivation">
+          <div className="softmax-step">数值代入 · 指数化并计算同一个分母 Z</div>
+          <div className="softmax-exp-row">
+            {alphas.map((a, i) => (
+              <div key={`e-${i}`}>
+                <Formula tex={`e^{${a.toFixed(3)}}`} />
+                <strong>≈ {exps[i].toFixed(3)}</strong>
+              </div>
+            ))}
+            <div className="total">
+              <Formula tex={String.raw`Z=\sum_{m=1}^{4}e^{\alpha_{1,m}}`} />
+              <strong>= 8.024</strong>
+            </div>
           </div>
-          <div style={{ overflowX: "auto", overflowY: "hidden" }}>
-            <Formula block tex={"\\hat\\alpha_{1,:}=\\dfrac{[\\,2.63,\\ 0.83,\\ 1.77,\\ 2.79\\,]}{8.02}\\approx[\\,0.328,\\ 0.103,\\ 0.221,\\ 0.348\\,],\\qquad \\sum_{j}\\hat\\alpha_{1,j}\\approx 1\\ (\\text{三位小数近似})"} />
-          </div>
+          <Formula block tex={String.raw`Z\approx2.631+0.830+1.773+2.790=8.024`} />
+          <Formula block tex={String.raw`\hat\alpha_{1,:}=\dfrac{1}{8.024}[\,2.631,\ 0.830,\ 1.773,\ 2.790\,]\approx[\,0.328,\ 0.103,\ 0.221,\ 0.348\,]`} />
         </div>
 
-        <div style={{ marginTop: 10, color: "var(--t2)", fontSize: 12, lineHeight: 1.6 }}>
-          <b style={{ color: "var(--att)" }}>关键</b>：分母 <span style={{ fontFamily: "JetBrains Mono,monospace", color: "var(--att)" }}>Z</span> 是整行 4 个
-          <span style={{ fontFamily: "JetBrains Mono,monospace" }}> e^α </span>之和 —— 每个权重都依赖整行所有分数。所以 softmax 是
-          <b style={{ color: "var(--t1)" }}>「整行联合归一化」</b>，而非 4 个独立的逐元素运算；改动任意一个分数，整行权重都会重新分布。
+        <div className="softmax-key">
+          <b>关键：</b>softmax 改变的是整行的相对分配；任意一个分数变化，四个权重都会重新计算。
         </div>
       </div>
 
       <div className="fig-cap">
-        图 · 整行 softmax：4 个分数打包成「一行」整体送入单一算子，输出 4 个和为 1 的权重。整体进、整体出。
+        图 · 向量阶段 ③ softmax：整行四个分数共享同一个分母，归一化为和等于 1 的注意力权重
       </div>
     </div>
   );
@@ -726,12 +659,12 @@ function FigStageAggregate() {
   };
   const line: React.CSSProperties = {
     display: "flex", flexWrap: "wrap", alignItems: "center", gap: "6px 8px",
-    fontSize: 15, lineHeight: 1.9,
+    fontSize: 16, lineHeight: 1.9,
   };
   const lbl: React.CSSProperties = { color: "#a9b4dc", minWidth: 52 };
   const op: React.CSSProperties = { color: "#6e7aab" };
   const note: React.CSSProperties = {
-    marginTop: 10, fontSize: 12.5, color: "#6e7aab", lineHeight: 1.7,
+    marginTop: 10, fontSize: 13.5, color: "#6e7aab", lineHeight: 1.7,
   };
 
   return (
@@ -747,18 +680,18 @@ function FigStageAggregate() {
         </defs>
 
         {/* 阶段标题 */}
-        <text x="105" y="44" textAnchor="middle" fill="#eef3ff" fontSize="13" fontWeight="700">① 权重 α̂₁,ⱼ</text>
-        <text x="105" y="62" textAnchor="middle" fill="#6e7aab" fontSize="10.5" fontFamily="JetBrains Mono,monospace">（3 位小数）</text>
-        <text x="290" y="44" textAnchor="middle" fill="#eef3ff" fontSize="13" fontWeight="700">② 连向 vⱼ（乘积）</text>
-        <text x="470" y="44" textAnchor="middle" fill="#eef3ff" fontSize="13" fontWeight="700">③ 值向量 vⱼ</text>
-        <text x="905" y="44" textAnchor="middle" fill="#eef3ff" fontSize="13" fontWeight="700">④ 扇入汇聚 b₁</text>
+        <text x="105" y="44" textAnchor="middle" fill="#eef3ff" fontSize="16" fontWeight="700">① 权重 α̂₁,ⱼ</text>
+        <text x="105" y="64" textAnchor="middle" fill="#6e7aab" fontSize="12" fontFamily="JetBrains Mono,monospace">（3 位小数）</text>
+        <text x="290" y="44" textAnchor="middle" fill="#eef3ff" fontSize="16" fontWeight="700">② 连向 vⱼ（乘积）</text>
+        <text x="470" y="44" textAnchor="middle" fill="#eef3ff" fontSize="16" fontWeight="700">③ 值向量 vⱼ</text>
+        <text x="905" y="44" textAnchor="middle" fill="#eef3ff" fontSize="16" fontWeight="700">④ 扇入汇聚 b₁</text>
 
         {/* 列1：权重块 */}
         {ys.map((y, i) => (
           <g key={`w${i}`}>
             <rect x={40} y={y - 26} width={130} height={52} rx={8} fill="rgba(56,189,248,0.18)" stroke="#38bdf8" strokeWidth={1.4} />
-            <text x={105} y={y - 5} textAnchor="middle" fontSize="13" fill="#7dd3fc" fontFamily="JetBrains Mono,monospace" fontWeight="700">α̂₁,{i + 1}</text>
-            <text x={105} y={y + 16} textAnchor="middle" fontSize="15.5" fill="#7dd3fc" fontFamily="JetBrains Mono,monospace" fontWeight="700">{ahats3[i].toFixed(3)}</text>
+            <text x={105} y={y - 5} textAnchor="middle" fontSize="15" fill="#7dd3fc" fontFamily="JetBrains Mono,monospace" fontWeight="700">α̂₁,{i + 1}</text>
+            <text x={105} y={y + 18} textAnchor="middle" fontSize="18" fill="#7dd3fc" fontFamily="JetBrains Mono,monospace" fontWeight="700">{ahats3[i].toFixed(3)}</text>
           </g>
         ))}
 
@@ -766,8 +699,8 @@ function FigStageAggregate() {
         {ys.map((y, i) => (
           <g key={`c${i}`}>
             <path d={`M170,${y} C240,${y} 330,${y} 398,${y}`} stroke="#2dd4bf" strokeWidth={1.6} fill="none" markerEnd="url(#ag-ahv)" />
-            <rect x={205} y={y - 31} width={160} height={22} rx={5} fill="#0c1430" stroke="rgba(45,212,191,0.55)" />
-            <text x={285} y={y - 15} textAnchor="middle" fontSize="10.5" fill="#2dd4bf" fontFamily="JetBrains Mono,monospace" fontWeight="700">
+            <rect x={190} y={y - 33} width={190} height={25} rx={5} fill="#0c1430" stroke="rgba(45,212,191,0.55)" />
+            <text x={285} y={y - 15} textAnchor="middle" fontSize="12" fill="#2dd4bf" fontFamily="JetBrains Mono,monospace" fontWeight="700">
               {ahats3[i].toFixed(3)}×{vvals[i]}=[{products[i][0]},{products[i][1]}]
             </text>
           </g>
@@ -777,8 +710,8 @@ function FigStageAggregate() {
         {ys.map((y, i) => (
           <g key={`v${i}`}>
             <rect x={400} y={y - 26} width={140} height={52} rx={8} fill="rgba(45,212,191,0.14)" stroke="#2dd4bf" strokeWidth={1.4} />
-            <text x={470} y={y - 5} textAnchor="middle" fontSize="13" fill="#2dd4bf" fontFamily="JetBrains Mono,monospace" fontWeight="700">v{i + 1}</text>
-            <text x={470} y={y + 16} textAnchor="middle" fontSize="15.5" fill="#2dd4bf" fontFamily="JetBrains Mono,monospace" fontWeight="700">{vvals[i]}</text>
+            <text x={470} y={y - 5} textAnchor="middle" fontSize="15" fill="#2dd4bf" fontFamily="JetBrains Mono,monospace" fontWeight="700">v{i + 1}</text>
+            <text x={470} y={y + 18} textAnchor="middle" fontSize="18" fill="#2dd4bf" fontFamily="JetBrains Mono,monospace" fontWeight="700">{vvals[i]}</text>
           </g>
         ))}
 
@@ -788,15 +721,15 @@ function FigStageAggregate() {
         ))}
 
         {/* Σ 汇聚标注 */}
-        <text x={685} y={b1y - 20} textAnchor="middle" fill="#f472b6" fontSize="13" fontFamily="JetBrains Mono,monospace" fontWeight="700">Σ 加权求和 ↓</text>
+        <text x={685} y={b1y - 20} textAnchor="middle" fill="#f472b6" fontSize="15" fontFamily="JetBrains Mono,monospace" fontWeight="700">Σ 加权求和 ↓</text>
 
         {/* b1 输出块（显示精确值，与 s4 矩阵 O 第一行一致） */}
         <rect x={830} y={b1y - 40} width={150} height={80} rx={12} fill="rgba(244,114,182,0.2)" stroke="#f472b6" strokeWidth={2.2} />
-        <text x={905} y={b1y - 10} textAnchor="middle" fontSize="16" fill="#f9a8d4" fontFamily="JetBrains Mono,monospace" fontWeight="700">b₁ ★</text>
-        <text x={905} y={b1y + 16} textAnchor="middle" fontSize="15" fill="#f9a8d4" fontFamily="JetBrains Mono,monospace" fontWeight="700">[0.71, 1.31]</text>
+        <text x={905} y={b1y - 10} textAnchor="middle" fontSize="19" fill="#f9a8d4" fontFamily="JetBrains Mono,monospace" fontWeight="700">b₁ ★</text>
+        <text x={905} y={b1y + 18} textAnchor="middle" fontSize="18" fill="#f9a8d4" fontFamily="JetBrains Mono,monospace" fontWeight="700">[0.71, 1.31]</text>
 
         {/* 底部导引 */}
-        <text x={520} y={455} textAnchor="middle" fill="#6e7aab" fontSize="11.5" fontFamily="JetBrains Mono,monospace">
+        <text x={520} y={455} textAnchor="middle" fill="#6e7aab" fontSize="13.5" fontFamily="JetBrains Mono,monospace">
           每个 α̂₁,ⱼ 乘对应 vⱼ 得一份贡献，4 份相加 → b₁（用三位小数近似权重算）
         </text>
       </svg>

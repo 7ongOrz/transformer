@@ -581,8 +581,167 @@ p {
   margin-top: 12px;
   text-align: center;
   font-family: var(--mono);
-  font-size: 11.5px;
+  font-size: 12.5px;
+  line-height: 1.7;
   color: var(--t3);
+}
+
+/* ===== 整行 Softmax：公式与数值分层排版，避免 SVG 文本挤压 ===== */
+.softmax-figure {
+  min-width: 1000px;
+}
+.softmax-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 22px;
+  text-align: center;
+}
+.softmax-title b {
+  color: var(--t1);
+  font-size: 19px;
+}
+.softmax-title span {
+  color: var(--t2);
+  font-size: 13.5px;
+}
+.softmax-flow {
+  display: grid;
+  grid-template-columns: minmax(250px, 1fr) 56px minmax(280px, 1.12fr) 56px minmax(250px, 1fr);
+  align-items: stretch;
+  gap: 10px;
+}
+.softmax-panel {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 20px 16px;
+  border: 1px solid rgba(56, 189, 248, 0.32);
+  border-radius: 14px;
+  background: rgba(12, 20, 48, 0.78);
+  text-align: center;
+}
+.softmax-panel.operator {
+  border: 2px solid var(--att);
+  background: rgba(56, 189, 248, 0.13);
+}
+.softmax-step {
+  margin-bottom: 12px;
+  color: var(--att);
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+}
+.softmax-name {
+  color: var(--att);
+  font-size: 24px;
+  letter-spacing: 0.08em;
+}
+.softmax-panel .math-block {
+  margin: 12px 0;
+  overflow: visible;
+  font-size: 16px;
+}
+.softmax-panel p {
+  margin: 10px 0 0;
+  color: var(--t2);
+  font-size: 13px;
+  line-height: 1.65;
+}
+.softmax-values {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+  margin: 10px 0;
+}
+.softmax-values > div {
+  min-width: 0;
+  min-height: 84px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 3px;
+  border: 1px solid var(--att);
+  border-radius: 9px;
+  background: var(--att-soft);
+}
+.softmax-values .katex {
+  font-size: 0.92em;
+}
+.softmax-values strong {
+  margin-top: 8px;
+  color: var(--t1);
+  font-family: var(--mono);
+  font-size: 17px;
+}
+.softmax-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--att);
+  font-size: 30px;
+  font-weight: 700;
+}
+.softmax-arrow span {
+  margin-bottom: -4px;
+  font-family: var(--mono);
+  font-size: 11px;
+}
+.softmax-derivation {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  background: rgba(7, 11, 24, 0.55);
+  text-align: center;
+}
+.softmax-exp-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin: 14px 0 18px;
+}
+.softmax-exp-row > div {
+  min-width: 0;
+  min-height: 82px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px;
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  background: rgba(56, 189, 248, 0.07);
+}
+.softmax-exp-row strong {
+  margin-top: 7px;
+  color: var(--att);
+  font-family: var(--mono);
+  font-size: 16px;
+}
+.softmax-exp-row .total {
+  border-color: var(--att);
+  background: rgba(56, 189, 248, 0.15);
+}
+.softmax-derivation > .math-block {
+  margin-top: 10px;
+  font-size: 17px;
+}
+.softmax-key {
+  margin-top: 16px;
+  padding: 13px 16px;
+  border-left: 3px solid var(--att);
+  background: var(--att-soft);
+  color: var(--t2);
+  font-size: 14px;
+  line-height: 1.7;
+}
+.softmax-key b {
+  color: var(--att);
 }
 /* 图下方的 shape 流转标注 */
 .fig-shapes {
