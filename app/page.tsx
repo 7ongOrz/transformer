@@ -1128,8 +1128,8 @@ function FigTransformer() {
         <defs>
           <marker id="ah-t" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#6e7aab" /></marker>
         </defs>
-        <text x="225" y="26" textAnchor="middle" fill="#38bdf8" fontSize="17" fontWeight="700">Encoder × N（左）</text>
-        <text x="695" y="26" textAnchor="middle" fill="#f472b6" fontSize="17" fontWeight="700">Decoder × N（右）</text>
+        <text x="225" y="26" textAnchor="middle" fill="#38bdf8" fontSize="17" fontWeight="700">Encoder（左）</text>
+        <text x="695" y="26" textAnchor="middle" fill="#f472b6" fontSize="17" fontWeight="700">Decoder（右）</text>
 
         <Box x={155} y={48} w={140} h={38} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Input Embedding" lc="#a9b4dc" />
         <Arrow d="M225,86 V90" />
@@ -1141,7 +1141,7 @@ function FigTransformer() {
         <Arrow d="M150,106 H207" />
         <Arrow d="M225,120 V146" />
         <rect x="80" y="138" width="290" height="257" rx="14" fill="none" stroke="rgba(255,255,255,0.08)" strokeDasharray="5 5" />
-        <text x="225" y="133" textAnchor="middle" fill="#6e7aab" fontSize="13">Encoder Stack（N 层）</text>
+        <text x="92" y="133" textAnchor="start" fill="#6e7aab" fontSize="12.5">N× Encoder Layer</text>
         <Box x={120} y={150} w={210} h={54} fill="rgba(56,189,248,0.14)" stroke="#38bdf8" label="Multi-Head Self-Attention" sub="本节讲的核心算子" lc="#38bdf8" sc="#6e7aab" />
         <Box x={150} y={222} w={150} h={36} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
         <Box x={120} y={278} w={210} h={50} fill="rgba(45,212,191,0.14)" stroke="#2dd4bf" label="Feed-Forward Network" sub="两层 MLP（逐位置作用）" lc="#2dd4bf" sc="#6e7aab" />
@@ -1162,7 +1162,7 @@ function FigTransformer() {
         <Arrow d="M790,106 H713" />
         <Arrow d="M695,120 V146" />
         <rect x="540" y="138" width="310" height="332" rx="14" fill="none" stroke="rgba(255,255,255,0.08)" strokeDasharray="5 5" />
-        <text x="695" y="133" textAnchor="middle" fill="#6e7aab" fontSize="13">Decoder Stack（N 层）</text>
+        <text x="552" y="133" textAnchor="start" fill="#6e7aab" fontSize="12.5">N× Decoder Layer</text>
         <Box x={575} y={150} w={240} h={50} fill="rgba(245,176,66,0.14)" stroke="#f5b042" label="Masked Multi-Head Attention" sub="只能看过去（屏蔽未来位）" lc="#f5b042" sc="#6e7aab" />
         <Box x={620} y={216} w={150} h={34} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
         <Box x={575} y={268} w={240} h={50} fill="rgba(56,189,248,0.14)" stroke="#38bdf8" label="Cross Attention（编码-解码交互）" sub="Q 来自解码器，K/V 由编码器 Memory 投影" lc="#38bdf8" sc="#6e7aab" />
