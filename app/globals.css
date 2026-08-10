@@ -260,7 +260,7 @@ button {
 .hero .lead {
   color: var(--t2);
   font-size: 18px;
-  max-width: 680px;
+  max-width: 1000px;
   margin: 14px 0 0;
 }
 .hero .chips {
@@ -362,7 +362,7 @@ button {
 .sec-lead {
   color: var(--t2);
   font-size: 15.5px;
-  max-width: 780px;
+  max-width: 1000px;
   margin: 8px 0 28px;
 }
 h3 {

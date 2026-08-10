@@ -566,16 +566,16 @@ function FigStageSoftmax() {
 
   // 单元格几何
   const cellW = 56;
-  const cellH = 74;
-  const cellY = 110;
+  const cellH = 96;
+  const cellY = 120;
   const scoreX = [36, 98, 160, 222];
-  const weightX = [640, 702, 764, 826];
+  const weightX = [626, 688, 750, 812];
 
   // "总线箭头"：一根粗宽箭头，表示整行一起流动（整体进 / 整体出）
   const busArrow = (x1: number, x2: number, y: number) => {
     const head = 14;
-    const sh = 16; // shaft half-height
-    const hh = 13; // head half-height
+    const sh = 18; // shaft half-height
+    const hh = 15; // head half-height
     const xs = x2 - head;
     return (
       <polygon
@@ -589,54 +589,55 @@ function FigStageSoftmax() {
 
   return (
     <div className="fig">
-      <svg viewBox="0 0 920 250" width="920" role="img" aria-label="整行 softmax：4 个分数联合归一化">
+      <svg viewBox="0 0 920 350" width="920" role="img" aria-label="整行 softmax：4 个分数联合归一化">
         {/* 标题 */}
-        <text x="460" y="30" textAnchor="middle" fill="#eef3ff" fontSize="14" fontWeight="700">
+        <text x="460" y="28" textAnchor="middle" fill="#eef3ff" fontSize="16" fontWeight="700">
           整行 softmax · 4 个分数作为「一行」整体联合归一化
         </text>
-        <text x="460" y="50" textAnchor="middle" fill="#a9b4dc" fontSize="11">
+        <text x="460" y="51" textAnchor="middle" fill="#a9b4dc" fontSize="12">
           整行一起进 → 整行一起出（非 4 个独立的逐元素 softmax）
         </text>
 
-        {/* 两行的列标签 */}
-        <text x="160" y="92" textAnchor="middle" fill="#7dd3fc" fontSize="11" fontFamily="JetBrains Mono,monospace" fontWeight="700">
+        {/* 左右两组都用完整框体收纳标题、数值与结论 */}
+        <rect x="20" y="76" width="290" height="250" rx="14" fill="#0c1430" stroke="rgba(56,189,248,0.32)" />
+        <rect x="610" y="76" width="290" height="250" rx="14" fill="#0c1430" stroke="rgba(56,189,248,0.32)" />
+        <text x="165" y="104" textAnchor="middle" fill="#7dd3fc" fontSize="12" fontFamily="JetBrains Mono,monospace" fontWeight="700">
           α₁,ⱼ = q₁·kⱼ / √dₖ
         </text>
-        <text x="764" y="92" textAnchor="middle" fill="#7dd3fc" fontSize="11" fontFamily="JetBrains Mono,monospace" fontWeight="700">
+        <text x="755" y="104" textAnchor="middle" fill="#7dd3fc" fontSize="12" fontFamily="JetBrains Mono,monospace" fontWeight="700">
           α̂₁,ⱼ  （Σⱼ α̂₁,ⱼ ≈ 1）
         </text>
 
-        {/* 分数行容器（整行） */}
-        <rect x="30" y="100" width="260" height="92" rx="10" fill="#0c1430" stroke="rgba(255,255,255,0.10)" />
+        {/* 分数行 */}
         {alphas.map((a, i) => (
           <g key={`s${i}`}>
             <rect x={scoreX[i]} y={cellY} width={cellW} height={cellH} rx={6} fill="rgba(56,189,248,0.10)" stroke="#38bdf8" />
-            <text x={scoreX[i] + cellW / 2} y={cellY + 26} textAnchor="middle" fontSize="11" fill="#7dd3fc" fontFamily="JetBrains Mono,monospace" fontWeight="700">α₁,{i + 1}</text>
-            <text x={scoreX[i] + cellW / 2} y={cellY + 54} textAnchor="middle" fontSize="16" fill="#c8d4ff" fontFamily="JetBrains Mono,monospace" fontWeight="700">{a.toFixed(3)}</text>
+            <text x={scoreX[i] + cellW / 2} y={cellY + 32} textAnchor="middle" fontSize="12" fill="#7dd3fc" fontFamily="JetBrains Mono,monospace" fontWeight="700">α₁,{i + 1}</text>
+            <text x={scoreX[i] + cellW / 2} y={cellY + 70} textAnchor="middle" fontSize="18" fill="#c8d4ff" fontFamily="JetBrains Mono,monospace" fontWeight="700">{a.toFixed(3)}</text>
           </g>
         ))}
-        {/* 分数行下方括号：强调「一整行」 */}
-        <path d="M30,200 L30,208 L290,208 L290,200" fill="none" stroke="#6e7aab" strokeWidth="1.2" />
-        <text x="160" y="224" textAnchor="middle" fill="#a9b4dc" fontSize="10.5">整行 4 个分数 · 一起送入</text>
+        <path d="M32,228 L32,238 L298,238 L298,228" fill="none" stroke="#6e7aab" strokeWidth="1.2" />
+        <text x="165" y="260" textAnchor="middle" fill="#a9b4dc" fontSize="11.5">整行 4 个分数 · 一起送入</text>
+        <text x="165" y="292" textAnchor="middle" fill="#6e7aab" fontSize="10.5">每个分数都会参与同一个分母 Z</text>
 
         {/* 总线箭头 1：整行分数 → softmax（单根粗箭头） */}
-        {busArrow(294, 370, 147)}
-        <text x="332" y="132" textAnchor="middle" fill="#38bdf8" fontSize="10" fontFamily="JetBrains Mono,monospace" fontWeight="700">整行</text>
+        {busArrow(310, 360, 190)}
+        <text x="335" y="162" textAnchor="middle" fill="#38bdf8" fontSize="10.5" fontFamily="JetBrains Mono,monospace" fontWeight="700">整行</text>
 
         {/* softmax 大框：单一算子，横跨整行 */}
-        <rect x="374" y="86" width="176" height="122" rx="12" fill="rgba(56,189,248,0.14)" stroke="#38bdf8" strokeWidth={2.4} />
-        <text x="462" y="110" textAnchor="middle" fill="#7dd3fc" fontSize="12" fontFamily="JetBrains Mono,monospace" fontWeight="700">row-wise</text>
-        <text x="462" y="136" textAnchor="middle" fill="#38bdf8" fontSize="18" fontWeight="800">SOFTMAX</text>
-        <text x="462" y="158" textAnchor="middle" fill="#eef3ff" fontSize="11">整行联合归一化</text>
-        <text x="462" y="178" textAnchor="middle" fill="#a9b4dc" fontSize="10" fontFamily="JetBrains Mono,monospace">Z = Σⱼ e^α₁,ⱼ  ·  α̂ = e^α / Z</text>
-        <text x="462" y="195" textAnchor="middle" fill="#6e7aab" fontSize="9.5">（一个算子，同时吃整行）</text>
+        <rect x="365" y="92" width="190" height="210" rx="14" fill="rgba(56,189,248,0.14)" stroke="#38bdf8" strokeWidth={2.4} />
+        <text x="460" y="126" textAnchor="middle" fill="#7dd3fc" fontSize="13" fontFamily="JetBrains Mono,monospace" fontWeight="700">row-wise</text>
+        <text x="460" y="164" textAnchor="middle" fill="#38bdf8" fontSize="22" fontWeight="800">SOFTMAX</text>
+        <text x="460" y="193" textAnchor="middle" fill="#eef3ff" fontSize="13">整行联合归一化</text>
+        <text x="460" y="224" textAnchor="middle" fill="#a9b4dc" fontSize="11" fontFamily="JetBrains Mono,monospace">Z = Σⱼ e^α₁,ⱼ</text>
+        <text x="460" y="249" textAnchor="middle" fill="#a9b4dc" fontSize="11" fontFamily="JetBrains Mono,monospace">α̂₁,ⱼ = e^α₁,ⱼ / Z</text>
+        <text x="460" y="279" textAnchor="middle" fill="#6e7aab" fontSize="10.5">一个算子，同时处理整行</text>
 
         {/* 总线箭头 2：softmax → 整行权重（单根粗箭头） */}
-        {busArrow(554, 630, 147)}
-        <text x="592" y="132" textAnchor="middle" fill="#38bdf8" fontSize="10" fontFamily="JetBrains Mono,monospace" fontWeight="700">整行</text>
+        {busArrow(560, 610, 190)}
+        <text x="585" y="162" textAnchor="middle" fill="#38bdf8" fontSize="10.5" fontFamily="JetBrains Mono,monospace" fontWeight="700">整行</text>
 
-        {/* 权重行容器（整行，热力色 = 归一化强度） */}
-        <rect x="634" y="100" width="260" height="92" rx="10" fill="#0c1430" stroke="rgba(255,255,255,0.10)" />
+        {/* 权重行（热力色 = 归一化强度） */}
         {ahats.map((w, i) => {
           const t = Math.min(1, w / 0.4);
           const op = 0.12 + t * 0.6;
@@ -644,14 +645,14 @@ function FigStageSoftmax() {
           return (
             <g key={`w${i}`}>
               <rect x={weightX[i]} y={cellY} width={cellW} height={cellH} rx={6} fill={`rgba(56,189,248,${op.toFixed(3)})`} stroke="#38bdf8" />
-              <text x={weightX[i] + cellW / 2} y={cellY + 26} textAnchor="middle" fontSize="11" fill="#7dd3fc" fontFamily="JetBrains Mono,monospace" fontWeight="700">α̂₁,{i + 1}</text>
-              <text x={weightX[i] + cellW / 2} y={cellY + 54} textAnchor="middle" fontSize="16" fill={col} fontFamily="JetBrains Mono,monospace" fontWeight="700">{w.toFixed(3)}</text>
+              <text x={weightX[i] + cellW / 2} y={cellY + 32} textAnchor="middle" fontSize="12" fill="#7dd3fc" fontFamily="JetBrains Mono,monospace" fontWeight="700">α̂₁,{i + 1}</text>
+              <text x={weightX[i] + cellW / 2} y={cellY + 70} textAnchor="middle" fontSize="18" fill={col} fontFamily="JetBrains Mono,monospace" fontWeight="700">{w.toFixed(3)}</text>
             </g>
           );
         })}
-        {/* 权重行下方括号：强调「一整行 · 和为 1」 */}
-        <path d="M634,200 L634,208 L894,208 L894,200" fill="none" stroke="#6e7aab" strokeWidth="1.2" />
-        <text x="764" y="224" textAnchor="middle" fill="#a9b4dc" fontSize="10.5">整行 4 个权重 · 三位小数近似，和 = 1</text>
+        <path d="M618,228 L618,238 L892,238 L892,228" fill="none" stroke="#6e7aab" strokeWidth="1.2" />
+        <text x="755" y="260" textAnchor="middle" fill="#a9b4dc" fontSize="11.5">整行 4 个权重 · 和约等于 1</text>
+        <text x="755" y="292" textAnchor="middle" fill="#6e7aab" fontSize="10.5">数值越大，后续汇聚对应 vⱼ 的比例越高</text>
       </svg>
 
       {/* 数值代入（softmax 层下方）*/}
@@ -713,18 +714,6 @@ function FigStageAggregate() {
   const ys = [150, 230, 310, 390];
   const b1y = (ys[0] + ys[3]) / 2; // 270 扇入汇聚点
 
-  const wrap: React.CSSProperties = {
-    width: "100%",
-    maxWidth: 1040,
-    margin: "0 auto",
-    background: "rgba(12,20,48,0.5)",
-    border: "1px solid rgba(255,255,255,0.08)",
-    borderRadius: 14,
-    padding: "18px 16px 22px",
-    boxSizing: "border-box",
-    overflowX: "auto",
-  };
-  const svgStyle: React.CSSProperties = { width: "100%", minWidth: 720, height: "auto", display: "block" };
   const workoutWrap: React.CSSProperties = {
     marginTop: 14,
     padding: "14px 18px",
@@ -744,8 +733,8 @@ function FigStageAggregate() {
   };
 
   return (
-    <div style={wrap}>
-      <svg viewBox="0 0 1040 500" style={svgStyle} role="img" aria-label="权重连向 v，扇入汇聚成 b1">
+    <div className="fig">
+      <svg viewBox="0 0 1040 500" width="1040" role="img" aria-label="权重连向 v，扇入汇聚成 b1">
         <defs>
           <marker id="ag-ahv" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
             <path d="M0,0 L8,4.5 L0,9 z" fill="#2dd4bf" />
@@ -841,6 +830,7 @@ function FigStageAggregate() {
           若用未舍入权重，结果为 [0.706, 1.314]（即矩阵级 O 的第一行）。
         </div>
       </div>
+      <div className="fig-cap">图 · 向量阶段 ④ 汇聚：每个权重乘对应 vⱼ，四份贡献相加得到 b₁</div>
     </div>
   );
 }
@@ -1132,17 +1122,20 @@ function FigTransformer() {
         <defs>
           <marker id="ah-t" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#6e7aab" /></marker>
         </defs>
-        <text x="250" y="26" textAnchor="middle" fill="#38bdf8" fontSize="15" fontWeight="700">Encoder × N（左）</text>
-        <text x="710" y="26" textAnchor="middle" fill="#f472b6" fontSize="15" fontWeight="700">Decoder × N（右）</text>
+        <text x="225" y="26" textAnchor="middle" fill="#38bdf8" fontSize="15" fontWeight="700">Encoder × N（左）</text>
+        <text x="695" y="26" textAnchor="middle" fill="#f472b6" fontSize="15" fontWeight="700">Decoder × N（右）</text>
 
-        <Box x={60} y={60} w={120} h={40} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Input Embedding" lc="#a9b4dc" />
-        <circle cx="200" cy="80" r="15" fill="#070b18" stroke="#a78bfa" />
-        <text x="200" y="85" textAnchor="middle" fill="#a78bfa" fontSize="15">+</text>
-        <text x="200" y="50" textAnchor="middle" fill="#a78bfa" fontSize="10">Positional</text>
-        <text x="200" y="62" textAnchor="middle" fill="#a78bfa" fontSize="10">Encoding</text>
-        <Arrow d="M180,80 H186" />
-        <rect x="80" y="125" width="290" height="270" rx="14" fill="none" stroke="rgba(255,255,255,0.08)" strokeDasharray="5 5" />
-        <text x="225" y="120" textAnchor="middle" fill="#6e7aab" fontSize="11">Encoder Stack（N 层）</text>
+        <Box x={155} y={48} w={140} h={38} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Input Embedding" lc="#a9b4dc" />
+        <Arrow d="M225,86 V90" />
+        <circle cx="225" cy="106" r="14" fill="#070b18" stroke="#a78bfa" />
+        <text x="225" y="111" textAnchor="middle" fill="#a78bfa" fontSize="15">+</text>
+        <rect x="35" y="88" width="115" height="36" rx="8" fill="#0c1430" stroke="rgba(167,139,250,0.45)" />
+        <text x="92.5" y="103" textAnchor="middle" fill="#a78bfa" fontSize="9.5">Positional</text>
+        <text x="92.5" y="116" textAnchor="middle" fill="#a78bfa" fontSize="9.5">Encoding</text>
+        <Arrow d="M150,106 H207" />
+        <Arrow d="M225,120 V146" />
+        <rect x="80" y="138" width="290" height="257" rx="14" fill="none" stroke="rgba(255,255,255,0.08)" strokeDasharray="5 5" />
+        <text x="225" y="133" textAnchor="middle" fill="#6e7aab" fontSize="11">Encoder Stack（N 层）</text>
         <Box x={120} y={150} w={210} h={54} fill="rgba(56,189,248,0.14)" stroke="#38bdf8" label="Multi-Head Self-Attention" sub="本节讲的核心算子" lc="#38bdf8" sc="#6e7aab" />
         <Box x={150} y={222} w={150} h={36} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
         <Box x={120} y={278} w={210} h={50} fill="rgba(45,212,191,0.14)" stroke="#2dd4bf" label="Feed-Forward Network" sub="两层 MLP（逐位置作用）" lc="#2dd4bf" sc="#6e7aab" />
@@ -1152,16 +1145,18 @@ function FigTransformer() {
         <Arrow d="M120,303 H100 V364 H150" color="#f5b042" dash="4 3" />
         <text x="88" y="300" fill="#f5b042" fontSize="9">残差×2</text>
         <Box x={150} y={405} w={150} h={34} fill="rgba(244,114,182,0.14)" stroke="#f472b6" label="编码器输出 Memory" lc="#f472b6" />
-        <Arrow d="M215,100 V150" />
 
-        <Box x={560} y={60} w={120} h={40} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Output Embedding" lc="#a9b4dc" />
-        <circle cx="700" cy="80" r="15" fill="#070b18" stroke="#a78bfa" />
-        <text x="700" y="85" textAnchor="middle" fill="#a78bfa" fontSize="15">+</text>
-        <text x="700" y="50" textAnchor="middle" fill="#a78bfa" fontSize="10">Positional</text>
-        <text x="700" y="62" textAnchor="middle" fill="#a78bfa" fontSize="10">Encoding</text>
-        <Arrow d="M680,80 H686" />
-        <rect x="540" y="125" width="310" height="345" rx="14" fill="none" stroke="rgba(255,255,255,0.08)" strokeDasharray="5 5" />
-        <text x="695" y="120" textAnchor="middle" fill="#6e7aab" fontSize="11">Decoder Stack（N 层）</text>
+        <Box x={625} y={48} w={140} h={38} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Output Embedding" lc="#a9b4dc" />
+        <Arrow d="M695,86 V90" />
+        <circle cx="695" cy="106" r="14" fill="#070b18" stroke="#a78bfa" />
+        <text x="695" y="111" textAnchor="middle" fill="#a78bfa" fontSize="15">+</text>
+        <rect x="790" y="88" width="115" height="36" rx="8" fill="#0c1430" stroke="rgba(167,139,250,0.45)" />
+        <text x="847.5" y="103" textAnchor="middle" fill="#a78bfa" fontSize="9.5">Positional</text>
+        <text x="847.5" y="116" textAnchor="middle" fill="#a78bfa" fontSize="9.5">Encoding</text>
+        <Arrow d="M790,106 H713" />
+        <Arrow d="M695,120 V146" />
+        <rect x="540" y="138" width="310" height="332" rx="14" fill="none" stroke="rgba(255,255,255,0.08)" strokeDasharray="5 5" />
+        <text x="695" y="133" textAnchor="middle" fill="#6e7aab" fontSize="11">Decoder Stack（N 层）</text>
         <Box x={575} y={150} w={240} h={50} fill="rgba(245,176,66,0.14)" stroke="#f5b042" label="Masked Multi-Head Attention" sub="只能看过去（屏蔽未来位）" lc="#f5b042" sc="#6e7aab" />
         <Box x={620} y={216} w={150} h={34} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
         <Box x={575} y={268} w={240} h={50} fill="rgba(56,189,248,0.14)" stroke="#38bdf8" label="Cross Attention（编码-解码交互）" sub="Q 来自解码器，K/V 由编码器 Memory 投影" lc="#38bdf8" sc="#6e7aab" />
@@ -1177,7 +1172,6 @@ function FigTransformer() {
         <text x="430" y="360" fill="#a78bfa" fontSize="10">编码器 Memory → 投影成 K/V</text>
         <Arrow d="M695,474 V492" />
         <Box x={600} y={495} w={190} h={34} fill="rgba(167,139,250,0.14)" stroke="#a78bfa" label="Linear → Softmax → 词概率" lc="#a78bfa" />
-        <Arrow d="M685,100 V150" />
 
         <g transform="translate(80,555)">
           <rect x="0" y="0" width="14" height="14" rx="3" fill="rgba(56,189,248,0.14)" stroke="#38bdf8" /><text x="20" y="12" fill="#6e7aab" fontSize="11">Attention</text>
@@ -1361,7 +1355,7 @@ export default function Home() {
           <section className="hero" id="s0">
             <span className="kicker">{"// Operator Deep-Dive"}</span>
             <h1>Attention 算子<br /><em>到底在算什么？</em></h1>
-            <p className="lead">Attention 通过 Query 与 Key 的匹配程度生成权重，再对 Value 进行加权汇聚，使每个位置能够动态选择当前最相关的信息。</p>
+            <p className="lead">Attention 根据 Query 与 Key 的匹配程度计算权重，再据此汇聚 Value，使每个位置获得当前最相关的信息。</p>
             <div className="chips">
               <span>从矩阵乘法起步</span>
               <span><b>Q · K · V</b> 全程配色一致</span>
@@ -1453,12 +1447,13 @@ export default function Home() {
           {/* ===== 向量级 ===== */}
           <section className="section" id="s2">
             <SecHead idx="02" title="Self-Attention · 向量级（一步一步算）" />
+            <p className="sec-lead">Self-Attention 不沿时间步递归，而是直接计算序列中各位置的相关性；没有 causal mask 时，所有位置可以并行处理。</p>
             <div className="legend-row">
               <span><i className="lq" />Query 查询：我想找什么</span>
               <span><i className="lk" />Key 键：我有什么可被匹配</span>
               <span><i className="lv" />Value 值：匹配上后拿走的内容</span>
             </div>
-            <p className="sec-lead">在 Transformer 之前，序列建模的主力之一是 RNN——同一序列内的隐状态<b style={{ color: "#eef3ff" }}>沿时间步递归依赖</b>，难以沿序列维并行。Self-Attention 换了个思路：在没有 causal mask 时，所有位置<b>同时互相看见</b>，每个输出都直接看完整序列、各位置计算不存在递归的时间步依赖，因此可以并行。下面是整篇的核心——固定主角 <b style={{ color: "#f5b042" }}>q₁</b>，用<b style={{ color: "#eef3ff" }}>四张连续的图</b>追踪它如何一步步走到 <b style={{ color: "#f472b6" }}>b₁</b>：① 投影得 q/k/v → ② q₁ 向所有 k 扇出打分 → ③ 整行 softmax → ④ 权重乘 v 汇聚成 b₁。每个输入词 <Formula tex="x" /> 会变成三份不同身份：<b style={{ color: "#f5b042" }}>q（去查询）</b>、<b style={{ color: "#a78bfa" }}>k（被匹配）</b>、<b style={{ color: "#2dd4bf" }}>v（被汇聚的内容）</b>。</p>
+            <div className="note">下面固定 <b style={{ color: "#f5b042" }}>q₁</b>，沿四步追踪完整计算：① 将 X 投影为 Q/K/V；② 用 q₁ 与所有 kⱼ 点积并缩放；③ 对整行分数做 softmax；④ 按权重汇聚 vⱼ，得到 <b style={{ color: "#f472b6" }}>b₁</b>。</div>
 
             <FigStageQKV />
             <FigStageScore />
