@@ -90,3 +90,16 @@ test("keeps the PDF conversion complete and machine-readable", async () => {
   assert.match(readableHtml, /Hungarian Matching 计算过程/);
   assert.doesNotMatch(readableHtml, /<(?:img|canvas|svg)\b/i);
 });
+
+test("ships the current teaching page as an offline standalone HTML file", async () => {
+  const html = await readFile(new URL("../attention.html", import.meta.url), "utf8");
+
+  assert.match(html, /Offline standalone export/);
+  assert.match(html, /Self-Attention · 向量级/);
+  assert.match(html, /本图不含 Wᴼ/);
+  assert.match(html, /FlashAttention：不改变数学/);
+  assert.match(html, /data-standalone="attention"/);
+  assert.match(html, /data:font\/woff2;base64,/);
+  assert.doesNotMatch(html, /<(?:script|link|img)\b[^>]*(?:src|href)="https?:\/\//i);
+  assert.doesNotMatch(html, /(?:href|src)="\/assets\//i);
+});

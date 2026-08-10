@@ -42,7 +42,7 @@
 
   --radius: 16px;
   --radius-sm: 10px;
-  --maxw: 1080px;
+  --maxw: 1360px;
 }
 
 * {
@@ -200,7 +200,7 @@ button {
   border-radius: 3px;
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 1360px) {
   .sidenav {
     display: none;
   }
@@ -210,7 +210,7 @@ button {
 .main {
   margin-left: 256px;
 }
-@media (max-width: 1000px) {
+@media (max-width: 1360px) {
   .main {
     margin-left: 0;
   }
@@ -605,6 +605,10 @@ pre code {
   margin-bottom: 10px;
 }
 .mname b { color: var(--t1); }
+.mname .mname-formula {
+  margin-left: 0.35em;
+  font-size: 0.9em;
+}
 .mtable {
   border-collapse: separate;
   border-spacing: 4px;

@@ -498,7 +498,7 @@ function FigStageScore() {
           const ky = YS[i];
           const isTop = Math.abs(k.a - MAX_A) < 1e-6;
           const pillY = (qY + ky) / 2; // 曲线 t=0.5 恰好穿过此点
-          // 在 k₁（最低分，含 0 项）与 k₂（最高分）两条连线上写出乘加过程
+          // 在 k₁、k₂ 两条连线上写出乘加过程
           const showCalc = i === 0 || i === 1;
           return (
             <g key={`k-${i}`}>
@@ -1026,9 +1026,7 @@ function FigMatrixStage() {
         <div className="fms-stage-head">
           <span className="fms-stage-num" style={{ background: FMS_PAL.S.c }}>2</span>
           <span className="fms-stage-title">
-            打分 · <span style={{ color: FMS_PAL.Q.c }}>Q</span> ×&nbsp;
-            <span style={{ color: FMS_PAL.K.c }}>Kᵀ</span> ÷ √dₖ → 分数&nbsp;
-            <span style={{ color: FMS_PAL.S.c }}>S</span>
+            打分 · <Formula tex={String.raw`{\color{#f5b042}Q}\times{\color{#a78bfa}K^{\mathsf T}}\div\sqrt{d_k}\longrightarrow{\color{#38bdf8}S}`} />
           </span>
           <span className="fms-stage-sub">两两点积；行 = Query，列 = Key</span>
         </div>
@@ -1100,7 +1098,7 @@ function FigMatrixStage() {
           <span className="fms-legend-text">低 → 高（越深越大）</span>
         </div>
         <div className="fms-read">
-          四步压成矩阵后，整条链只用了<b>矩阵乘法 + softmax</b>（投影×3、QKᵀ、AV 共 5 次；工程常融合成 3 次 GEMM）——
+          四步压成矩阵后，整条链只用了<b>矩阵乘法 + softmax</b>（本图不含 Wᴼ：投影×3、QKᵀ、AV 共 5 次；工程常融合成 3 次 GEMM）——
           和向量级结果完全一致，但可被 GPU 整块并行算出。
         </div>
       </div>
@@ -1143,13 +1141,13 @@ function FigTransformer() {
         <text x="200" y="50" textAnchor="middle" fill="#a78bfa" fontSize="10">Positional</text>
         <text x="200" y="62" textAnchor="middle" fill="#a78bfa" fontSize="10">Encoding</text>
         <Arrow d="M180,80 H186" />
-        <rect x="80" y="125" width="290" height="345" rx="14" fill="none" stroke="rgba(255,255,255,0.08)" strokeDasharray="5 5" />
-        <text x="225" y="120" textAnchor="middle" fill="#6e7aab" fontSize="11">Encoder Layer (堆叠 N 次)</text>
+        <rect x="80" y="125" width="290" height="270" rx="14" fill="none" stroke="rgba(255,255,255,0.08)" strokeDasharray="5 5" />
+        <text x="225" y="120" textAnchor="middle" fill="#6e7aab" fontSize="11">Encoder Stack（N 层）</text>
         <Box x={120} y={150} w={210} h={54} fill="rgba(56,189,248,0.14)" stroke="#38bdf8" label="Multi-Head Self-Attention" sub="本节讲的核心算子" lc="#38bdf8" sc="#6e7aab" />
         <Box x={150} y={222} w={150} h={36} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
         <Box x={120} y={278} w={210} h={50} fill="rgba(45,212,191,0.14)" stroke="#2dd4bf" label="Feed-Forward Network" sub="两层 MLP（逐位置作用）" lc="#2dd4bf" sc="#6e7aab" />
         <Box x={150} y={346} w={150} h={36} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
-        <Arrow d="M225,204 V218" /><Arrow d="M225,258 V274" /><Arrow d="M225,328 V342" />
+        <Arrow d="M225,204 V218" /><Arrow d="M225,258 V274" /><Arrow d="M225,328 V342" /><Arrow d="M225,382 V401" />
         <Arrow d="M120,177 H100 V240 H150" color="#f5b042" dash="4 3" />
         <Arrow d="M120,303 H100 V364 H150" color="#f5b042" dash="4 3" />
         <text x="88" y="300" fill="#f5b042" fontSize="9">残差×2</text>
@@ -1163,7 +1161,7 @@ function FigTransformer() {
         <text x="700" y="62" textAnchor="middle" fill="#a78bfa" fontSize="10">Encoding</text>
         <Arrow d="M680,80 H686" />
         <rect x="540" y="125" width="310" height="345" rx="14" fill="none" stroke="rgba(255,255,255,0.08)" strokeDasharray="5 5" />
-        <text x="695" y="120" textAnchor="middle" fill="#6e7aab" fontSize="11">Decoder Layer (堆叠 N 次)</text>
+        <text x="695" y="120" textAnchor="middle" fill="#6e7aab" fontSize="11">Decoder Stack（N 层）</text>
         <Box x={575} y={150} w={240} h={50} fill="rgba(245,176,66,0.14)" stroke="#f5b042" label="Masked Multi-Head Attention" sub="只能看过去（屏蔽未来位）" lc="#f5b042" sc="#6e7aab" />
         <Box x={620} y={216} w={150} h={34} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
         <Box x={575} y={268} w={240} h={50} fill="rgba(56,189,248,0.14)" stroke="#38bdf8" label="Cross Attention（编码-解码交互）" sub="Q 来自解码器，K/V 由编码器 Memory 投影" lc="#38bdf8" sc="#6e7aab" />
@@ -1363,7 +1361,7 @@ export default function Home() {
           <section className="hero" id="s0">
             <span className="kicker">{"// Operator Deep-Dive"}</span>
             <h1>Attention 算子<br /><em>到底在算什么？</em></h1>
-            <p className="lead">从矩阵乘法一路讲到经典 Transformer 全景图：投影、点积、缩放、softmax、加权汇聚，每一步都用真实数值矩阵演示。</p>
+            <p className="lead">Attention 通过 Query 与 Key 的匹配程度生成权重，再对 Value 进行加权汇聚，使每个位置能够动态选择当前最相关的信息。</p>
             <div className="chips">
               <span>从矩阵乘法起步</span>
               <span><b>Q · K · V</b> 全程配色一致</span>
@@ -1379,6 +1377,7 @@ export default function Home() {
                 <b className="q">Q [B,H,L_q,d_k]</b>
                 <b className="k">K [B,H,L_k,d_k]</b>
                 <b className="v">V [B,H,L_k,d_v]</b>
+                <b style={{ color: "var(--out)", borderColor: "rgba(244,114,182,.4)" }}>O_heads [B,H,L_q,d_v]</b>
               </div>
             </div>
 
@@ -1389,7 +1388,7 @@ export default function Home() {
               </div>
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>算子视角的一句话</h3>
-                <p className="t3">Attention 的核心就是<b style={{ color: "#eef3ff" }}>两次矩阵乘法（QKᵀ 算分、AV 取值）+ 一个 softmax</b>；算上三个投影 W 是五次，工程常融合成三次 GEMM。这篇分享的目标，是让你在脑子里把这句话可视化出来。</p>
+                <p className="t3">Attention 的核心就是<b style={{ color: "#eef3ff" }}>两次矩阵乘法（QKᵀ 算分、AV 取值）+ 一个 softmax</b>；完整多头还包括 Q/K/V 与 Wᴼ 四个投影，共六次矩阵乘法，QKV 融合后则是四次 GEMM。这篇分享的目标，是让你在脑子里把这句话可视化出来。</p>
               </div>
             </div>
           </section>
@@ -1459,7 +1458,7 @@ export default function Home() {
               <span><i className="lk" />Key 键：我有什么可被匹配</span>
               <span><i className="lv" />Value 值：匹配上后拿走的内容</span>
             </div>
-            <p className="sec-lead">在 Attention 之前，处理序列的主力是 RNN——但它<b style={{ color: "#eef3ff" }}>只能逐个往后算，算不出第 4 个就得等前 3 个</b>，无法并行。Self-Attention 换了个思路：在没有 causal mask 时，所有位置<b>同时互相看见</b>，每个输出都直接看完整序列、各位置计算不存在递归的时间步依赖，因此可以并行。下面是整篇的核心——固定主角 <b style={{ color: "#f5b042" }}>q₁</b>，用<b style={{ color: "#eef3ff" }}>四张连续的图</b>追踪它如何一步步走到 <b style={{ color: "#f472b6" }}>b₁</b>：① 投影得 q/k/v → ② q₁ 向所有 k 扇出打分 → ③ 整行 softmax → ④ 权重乘 v 汇聚成 b₁。每个输入词 <Formula tex="x" /> 会变成三份不同身份：<b style={{ color: "#f5b042" }}>q（去查询）</b>、<b style={{ color: "#a78bfa" }}>k（被匹配）</b>、<b style={{ color: "#2dd4bf" }}>v（被汇聚的内容）</b>。</p>
+            <p className="sec-lead">在 Transformer 之前，序列建模的主力之一是 RNN——同一序列内的隐状态<b style={{ color: "#eef3ff" }}>沿时间步递归依赖</b>，难以沿序列维并行。Self-Attention 换了个思路：在没有 causal mask 时，所有位置<b>同时互相看见</b>，每个输出都直接看完整序列、各位置计算不存在递归的时间步依赖，因此可以并行。下面是整篇的核心——固定主角 <b style={{ color: "#f5b042" }}>q₁</b>，用<b style={{ color: "#eef3ff" }}>四张连续的图</b>追踪它如何一步步走到 <b style={{ color: "#f472b6" }}>b₁</b>：① 投影得 q/k/v → ② q₁ 向所有 k 扇出打分 → ③ 整行 softmax → ④ 权重乘 v 汇聚成 b₁。每个输入词 <Formula tex="x" /> 会变成三份不同身份：<b style={{ color: "#f5b042" }}>q（去查询）</b>、<b style={{ color: "#a78bfa" }}>k（被匹配）</b>、<b style={{ color: "#2dd4bf" }}>v（被汇聚的内容）</b>。</p>
 
             <FigStageQKV />
             <FigStageScore />
@@ -1472,7 +1471,7 @@ export default function Home() {
           {/* ===== 矩阵级 ===== */}
           <section className="section" id="s3">
             <SecHead idx="03" title="Self-Attention · 矩阵级" />
-            <p className="sec-lead">把所有词的 q/k/v 堆成矩阵 <Formula tex="Q, K, V" />，整件事就坍缩成<b style={{ color: "#eef3ff" }}>几次矩阵乘法 + 一次 softmax</b>（工程上 Q/K/V 投影常融合成一次 GEMM，所以常说"三次"）——这正是 GPU 最擅长、能大规模并行的形态。</p>
+            <p className="sec-lead">把所有词的 q/k/v 堆成矩阵 <Formula tex="Q, K, V" />，整件事就坍缩成<b style={{ color: "#eef3ff" }}>几次矩阵乘法 + 一次 softmax</b>（只看当前主干，QKV 融合后是三次 GEMM；完整多头还会增加输出投影 Wᴼ）——这正是 GPU 最擅长、能大规模并行的形态。</p>
             <div className="note"><b>记号约定（先说清楚，避免和代码对不上）</b>：本文用 PyTorch 行向量约定 <Formula tex={String.raw`Q=XW^Q`} />，所以是 <Formula tex={String.raw`QK^{\mathsf T}`} />；有的教材用列向量 <Formula tex={String.raw`Q=W^Q I`} />，对应 <Formula tex={String.raw`K^{\mathsf T}Q`} />。两者数学等价，只差一个转置——这也是代码里写 <code>key.transpose(-2, -1)</code> 的原因。</div>
             <FigMatrixStage />
             <div className="note">现在这句公式对你不再是一串符号：<Formula tex={String.raw`QK^{\mathsf T}`} /> 是「两两算相关度」，softmax 是「分数变权重」，乘 <Formula tex={String.raw`V`} /> 是「按权重取内容」。上面这组数值，正是把向量级 4 步压成矩阵后一次性算出的结果。</div>
@@ -1507,7 +1506,7 @@ export default function Home() {
             <div className="card">
               <div style={{ display: "flex", gap: 22, flexWrap: "wrap", justifyContent: "center", alignItems: "center" }}>
                 <div style={{ textAlign: "center" }}>
-                  <div className="mname">scaled logits <span style={{ color: "#38bdf8" }}>α = q·k/sqrt(d_k)</span></div>
+                  <div className="mname">scaled logits <Formula className="mname-formula" tex={String.raw`{\color{#38bdf8}\alpha=q\!\cdot\!k/\sqrt{d_k}}`} /></div>
                   <div style={{ display: "flex", gap: 8 }}>
                     {attn.scaled.map((v, i) => (
                       <div key={i} style={{ textAlign: "center" }}>
@@ -1531,7 +1530,7 @@ export default function Home() {
                 </div>
                 <span className="msign">→</span>
                 <div style={{ textAlign: "center" }}>
-                  <div className="mname">输出 <span style={{ color: "#f472b6" }}>z = Σ α̂·v</span></div>
+                  <div className="mname">输出 <Formula className="mname-formula" tex={String.raw`{\color{#f472b6}z=\sum_j\hat\alpha_jv_j}`} /></div>
                   <div style={{ display: "flex", gap: 8 }}>
                     {attn.output.map((v, i) => (
                       <div key={i} className="mcell" style={{ cursor: "default", color: "#f472b6", borderColor: "#f472b6" }}>{v.toFixed(2)}</div>
@@ -1542,8 +1541,8 @@ export default function Home() {
             </div>
 
             {/* —— Mask：因果掩码与 padding —— */}
-            <h3>Mask：让每个位置"只看到该看的"</h3>
-            <p className="sec-lead">生成时每个位置必须"看到过去、看不到未来"。实现上用一个<b style={{ color: "#f5b042" }}>下三角因果掩码（Causal Mask）</b>：第 i 个位置只允许看第 0..i 个 Key；padding 位则用 padding mask 屏蔽。</p>
+            <h3>Mask：让每个位置「只看到该看的」</h3>
+            <p className="sec-lead">生成时每个位置必须「看到过去、看不到未来」。实现上用一个<b style={{ color: "#f5b042" }}>下三角因果掩码（Causal Mask）</b>：第 i 个位置只允许看第 0..i 个 Key；padding 位则用 padding mask 屏蔽。</p>
 
             <div className="mask-grid">
               <table>
@@ -1633,7 +1632,7 @@ export default function Home() {
                   目标 <b style={{ color: "#f472b6" }}>I have a cat &lt;end&gt;</b><br />
                   一次前向 + 因果 Mask
                 </p>
-                <p className="t3">训练靠 causal mask 一次性实现整句并行，每个位置"假装只看到过去"——因果约束由 mask 显式施加。</p>
+                <p className="t3">训练靠 causal mask 一次性实现整句并行，每个位置「假装只看到过去」——因果约束由 mask 显式施加。</p>
               </div>
             </div>
           </section>
@@ -1646,7 +1645,7 @@ export default function Home() {
               <Formula block tex={String.raw`\operatorname{head}_i=\operatorname{Attention}(XW_i^Q,\,XW_i^K,\,XW_i^V)`} />
               <Formula block tex={String.raw`\operatorname{MHA}=\operatorname{Concat}(\operatorname{head}_1,\ldots,\operatorname{head}_h)\,W^O`} />
             </div>
-            <div className="note">实践要点：通常取 <Formula tex={String.raw`d_k=d_v=d_{\text{model}}/h`} />，所以主 FLOPs 量级与单头接近、表达能力更强；但投影层、显存占用与调度开销并不为零，并非真的"免费"。</div>
+            <div className="note">实践要点：通常取 <Formula tex={String.raw`d_k=d_v=d_{\text{model}}/h`} />，所以主 FLOPs 量级与单头接近、表达能力更强；但投影层、显存占用与调度开销并不为零，并非真的「免费」。</div>
 
             <h3>不同头可能形成不同的关注模式</h3>
             <div className="tabs">
@@ -1699,7 +1698,7 @@ export default function Home() {
             <FigFlashCompare />
 
             <h3>在线 softmax：不存全矩阵也能归一化</h3>
-            <p className="sec-lead">难点在 softmax 的分母 <Formula tex="l=\sum_j e^{s_j}" /> 需要"看到整行"。分块后，新块的分数可能含更大的值，旧的累加值必须按新最大值<b style={{ color: "#eef3ff" }}>重新缩放</b>——这就是"在线 softmax"的核心。三者都<b>按 Query 行维护</b>：行最大值 <Formula tex={String.raw`m\in\mathbb R^{L_q}`} />、归一化系数 <Formula tex={String.raw`l\in\mathbb R^{L_q}`} /> 是向量，输出累加 <Formula tex={String.raw`o\in\mathbb R^{L_q\times d_v}`} /> 是矩阵；每处理一个 K/V 块更新一次。</p>
+            <p className="sec-lead">难点在 softmax 的分母 <Formula tex="l=\sum_j e^{s_j}" /> 需要「看到整行」。分块后，新块的分数可能含更大的值，旧的累加值必须按新最大值<b style={{ color: "#eef3ff" }}>重新缩放</b>——这就是「在线 softmax」的核心。三者都<b>按 Query 行维护</b>：行最大值 <Formula tex={String.raw`m\in\mathbb R^{L_q}`} />、归一化系数 <Formula tex={String.raw`l\in\mathbb R^{L_q}`} /> 是向量，输出累加 <Formula tex={String.raw`o\in\mathbb R^{L_q\times d_v}`} /> 是矩阵；每处理一个 K/V 块更新一次。</p>
             <div className="eq-box">
               <Formula block tex={String.raw`S_t=Q_iK_t^{\mathsf T}/\sqrt{d_k}+M_t,\qquad m_0=-\infty,\ l_0=0,\ o_0=0`} />
               <Formula block tex={String.raw`m_\text{new}=\max\!\left(m,\,\operatorname{rowmax}(S_t)\right)`} />
@@ -1732,13 +1731,21 @@ export default function Home() {
             <p className="sec-lead">原理看懂了，落到代码就两层：一层<b style={{ color: "#eef3ff" }}>透明的参考实现</b>用于对照，一层<b style={{ color: "#2dd4bf" }}>真实算子</b>用于生产。算子测试就围着这两层展开。</p>
 
             <div className="code-title">① 透明参考实现 — 逐行对应公式</div>
-            <pre><code>{`def attention_ref(q, k, v, mask=None):
+            <pre><code>{`import math
+import torch
+from torch import nn
+import torch.nn.functional as F
+from torch.nn.attention import SDPBackend
+
+def attention_ref(q, k, v, mask=None):
     scores = q @ k.transpose(-2, -1)          # QK^T
     scores = scores / math.sqrt(q.size(-1))   # / sqrt(d_k)
     if mask is not None:
         # 这里只支持 additive float mask（屏蔽位 = -inf）。
-        # 布尔 mask 语义相反：True=允许参与，需先转成
-        # additive：mask = torch.where(bool_mask, 0.0, float("-inf"))
+        # 仅对 SDPA：布尔 mask 的 True=允许参与；这与
+        # nn.MultiheadAttention 的 key_padding_mask 语义相反。
+        # 若传入布尔 mask，需先转成 additive：
+        # mask = torch.where(bool_mask, 0.0, float("-inf"))
         scores = scores + mask
     weights = torch.softmax(scores, dim=-1)   # softmax 按行
     return weights @ v                         # · V`}</code></pre>
@@ -1753,10 +1760,19 @@ export default function Home() {
 )
 # 需要对照不同后端时，可强制选择内核：
 # with torch.nn.attention.sdpa_kernel(SDPBackend.FLASH_ATTENTION): ...`}</code></pre>
-            <div className="note"><b>F.scaled_dot_product_attention</b>（SDPA）根据输入形状、数据类型、设备和可用内核，在 math 后端与 Flash、Memory-Efficient 等 fused 后端里选一个可用的——FlashAttention 是其中之一，不满足限制时会回退到 math，并非保证命中 flash、也不是实测后选"最快"（后端种类随版本演进，新版还有 cuDNN 等）。可用 <code>sdpa_kernel</code> 强制指定后端做对照验证。它与参考实现实数等价；<b>只有命中 fused 后端时</b>才能避免/减少完整注意力矩阵的显存物化，回退到 math 则和参考实现一样会物化中间量。</div>
+            <div className="note"><b>F.scaled_dot_product_attention</b>（SDPA）根据输入形状、数据类型、设备和可用内核，从 math、Flash、Memory-Efficient 等后端中选择可用实现——FlashAttention 只是其中之一。某个 fused 后端受限时会尝试其他可用实现，最终才可能回退到 math；它既不保证命中 flash，也不是实测后选择「最快」（后端种类随版本演进，新版还有 cuDNN 等）。可用 <code>sdpa_kernel</code> 强制指定后端做对照验证。它与参考实现实数等价；<b>只有命中 fused 后端时</b>才能避免/减少完整注意力矩阵的显存物化，回退到 math 则和参考实现一样会物化中间量。</div>
 
-            <div className="code-title">③ 多头注意力 — reshape → transpose → SDPA → concat → Wᴼ</div>
+            <div className="code-title">③ 多头自注意力 — reshape → transpose → SDPA → concat → Wᴼ</div>
             <pre><code>{`class MultiHeadAttention(nn.Module):
+    def __init__(self, d_model, h):
+        super().__init__()
+        assert d_model % h == 0
+        self.h, self.d_k = h, d_model // h
+        self.wq = nn.Linear(d_model, d_model)
+        self.wk = nn.Linear(d_model, d_model)
+        self.wv = nn.Linear(d_model, d_model)
+        self.wo = nn.Linear(d_model, d_model)
+
     def forward(self, x, mask=None):
         B, L, _ = x.shape
         # 投影 + 拆头: (B, L, d_model) -> (B, h, L, d_k)
@@ -1764,7 +1780,9 @@ export default function Home() {
         k = self.wk(x).view(B, L, self.h, self.d_k).transpose(1, 2)
         v = self.wv(x).view(B, L, self.h, self.d_k).transpose(1, 2)
         # 每个头独立做 SDPA（后端由框架选）: (B, h, L, d_k)
-        out = F.scaled_dot_product_attention(q, k, v, attn_mask=mask)
+        out = F.scaled_dot_product_attention(
+            q, k, v, attn_mask=mask, dropout_p=0.0
+        )
         # 拼头: (B, h, L, d_k) -> (B, L, d_model)
         out = out.transpose(1, 2).contiguous().view(B, L, self.h * self.d_k)
         return self.wo(out)`}</code></pre>
@@ -1824,12 +1842,12 @@ export default function Home() {
               </div>
             </div>
 
-            <h3>位置编码：把"顺序"补回去</h3>
-            <p className="sec-lead">Self-Attention 对「顺序」无感——所以在输入 embedding 上<b style={{ color: "#eef3ff" }}>直接加一个位置向量</b>，把顺序信息喂回去。下面是<b>原始 Transformer 的正余弦方案</b>（现代 LLM 也常用可学习位置编码或 RoPE/ALiBi 等）。</p>
+            <h3>位置编码：把「顺序」补回去</h3>
+            <p className="sec-lead">Self-Attention 本身不包含位置信息。<b style={{ color: "#eef3ff" }}>原始 Transformer</b> 在输入 embedding 上直接加正余弦位置向量；现代模型也会改变注入位置，例如 RoPE 旋转 Q/K，ALiBi 给注意力分数加入线性偏置。</p>
             <div className="eq-box">
               <Formula block tex={String.raw`PE_{(pos,\,2i)} = \sin\!\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right),\quad PE_{(pos,\,2i+1)} = \cos\!\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right)`} />
             </div>
-            <div className="note">用不同频率的正余弦，让每个位置拿到<b>唯一</b>编码；且对任意固定间距 <Formula tex="k" />，<Formula tex={String.raw`PE_{pos+k}`} /> 是 <Formula tex={String.raw`PE_{pos}`} /> 的线性函数——论文认为这可能有利于外推到比训练更长的序列。</div>
+            <div className="note">用不同频率的正余弦，让每个位置获得<b>位置相关</b>的编码；且对任意固定间距 <Formula tex="k" />，<Formula tex={String.raw`PE_{pos+k}`} /> 是 <Formula tex={String.raw`PE_{pos}`} /> 的线性函数——论文认为这可能有利于外推到比训练更长的序列。</div>
           </section>
 
           <div className="foot">
