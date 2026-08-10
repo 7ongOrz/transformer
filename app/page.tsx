@@ -163,11 +163,24 @@ function QKVMat({
     background: `${accent}14`,
     boxSizing: "border-box",
   };
+  const valueColumn = rowLabels ? 2 : 1;
   return (
-    <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+    <div
+      style={{
+        display: "inline-grid",
+        gridTemplateColumns: rowLabels ? "auto auto" : "auto",
+        gridTemplateRows: "auto auto auto",
+        alignItems: "center",
+        columnGap: 8,
+        rowGap: 6,
+      }}
+    >
       {label ? (
         <div
           style={{
+            gridColumn: valueColumn,
+            gridRow: 1,
+            justifySelf: "center",
             color: accent,
             fontWeight: 700,
             fontSize: 13,
@@ -178,34 +191,34 @@ function QKVMat({
           {label}
         </div>
       ) : null}
-      <div style={{ display: "inline-flex", alignItems: "stretch" }}>
-        {rowLabels ? (
-          <table style={{ borderCollapse: "collapse", marginRight: 8 }}>
-            <tbody>
-              {rowLabels.map((w, i) => (
-                <tr key={i}>
-                  <td
-                    style={{
-                      height: 42,
-                      width: 30,
-                      textAlign: "right",
-                      paddingRight: 6,
-                      verticalAlign: "middle",
-                      fontFamily: "var(--mono)",
-                      fontSize: 13,
-                      color: i === heroRow ? hc : "var(--t2)",
-                      fontWeight: i === heroRow ? 800 : 400,
-                      border: "1px solid transparent",
-                      boxSizing: "border-box",
-                    }}
-                  >
-                    {w}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : null}
+      {rowLabels ? (
+        <table style={{ gridColumn: 1, gridRow: 2, borderCollapse: "collapse" }}>
+          <tbody>
+            {rowLabels.map((w, i) => (
+              <tr key={i}>
+                <td
+                  style={{
+                    height: 42,
+                    minWidth: 52,
+                    textAlign: "right",
+                    paddingRight: 6,
+                    verticalAlign: "middle",
+                    fontFamily: "var(--mono)",
+                    fontSize: 13,
+                    color: i === heroRow ? hc : "var(--t2)",
+                    fontWeight: i === heroRow ? 800 : 400,
+                    border: "1px solid transparent",
+                    boxSizing: "border-box",
+                  }}
+                >
+                  {w}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : null}
+      <div style={{ gridColumn: valueColumn, gridRow: 2, display: "inline-flex", alignItems: "stretch" }}>
         {/* 左括号 */}
         <div
           style={{
@@ -258,7 +271,18 @@ function QKVMat({
         />
       </div>
       {sub ? (
-        <div style={{ color: "var(--t3)", fontSize: 11, fontFamily: "var(--mono)" }}>{sub}</div>
+        <div
+          style={{
+            gridColumn: valueColumn,
+            gridRow: 3,
+            justifySelf: "center",
+            color: "var(--t3)",
+            fontSize: 11,
+            fontFamily: "var(--mono)",
+          }}
+        >
+          {sub}
+        </div>
       ) : null}
     </div>
   );
@@ -455,20 +479,18 @@ function FigStageScore() {
 
   return (
     <div className="fig">
-      <svg viewBox="0 0 1000 740" width="1000" role="img" aria-label="固定 q1 扇出打分：q1 向 k1..k4 计算点积分数">
+      <div className="score-figure">
+        <div className="score-title">
+          <b>固定 q₁，向所有 k 扇出打分</b>
+          <Formula block tex={String.raw`\alpha_{1,j}=\dfrac{q_1\cdot k_j}{\sqrt{d_k}},\qquad d_k=2,\ \sqrt{d_k}\approx1.414`} />
+          <span>每条路径都完整展开乘加与缩放过程</span>
+        </div>
+      <svg viewBox="0 70 1000 670" width="1000" role="img" aria-label="固定 q1 扇出打分：q1 向 k1..k4 计算点积分数">
         <defs>
           <marker id="ss-ah" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
             <path d="M0,0 L8,4.5 L0,9 z" fill="#f5b042" />
           </marker>
         </defs>
-
-        {/* 标题 */}
-        <text x="32" y="35" fill="#c8d4ff" fontSize="18" fontWeight="700">
-          固定 q₁，向所有 k 扇出打分
-        </text>
-        <text x="32" y="62" fill="#a9b4dc" fontSize="14">
-          α₁,ⱼ = (q₁ · kⱼ) / √dₖ　（dₖ=2，√dₖ≈1.414）　每条路径都完整展开乘加过程
-        </text>
 
         {/* 扇出连线（先画线，后画块以遮住端点） */}
         {ks.map((k, i) => {
@@ -542,6 +564,7 @@ function FigStageScore() {
           q₁ 与 <tspan fill="#a78bfa" fontWeight="700">token₄</tspan> 匹配度最高（分数 1.026）→ softmax 后会重点看向「token₄」
         </text>
       </svg>
+      </div>
       <div className="fig-cap">图 · 向量阶段 ② 打分：固定主角 q₁ 向所有 k 扇出，点积量化「与谁更匹配」的兼容度</div>
     </div>
   );
@@ -699,9 +722,12 @@ function FigStageAggregate() {
         {ys.map((y, i) => (
           <g key={`c${i}`}>
             <path d={`M170,${y} C240,${y} 330,${y} 398,${y}`} stroke="#2dd4bf" strokeWidth={1.6} fill="none" markerEnd="url(#ag-ahv)" />
-            <rect x={190} y={y - 33} width={190} height={25} rx={5} fill="#0c1430" stroke="rgba(45,212,191,0.55)" />
-            <text x={285} y={y - 15} textAnchor="middle" fontSize="12" fill="#2dd4bf" fontFamily="JetBrains Mono,monospace" fontWeight="700">
-              {ahats3[i].toFixed(3)}×{vvals[i]}=[{products[i][0]},{products[i][1]}]
+            <rect x={180} y={y - 44} width={210} height={40} rx={6} fill="#0c1430" stroke="rgba(45,212,191,0.55)" />
+            <text x={285} y={y - 27} textAnchor="middle" fontSize="12.5" fill="#2dd4bf" fontFamily="JetBrains Mono,monospace" fontWeight="700">
+              {ahats3[i].toFixed(3)} × {vvals[i]}
+            </text>
+            <text x={285} y={y - 11} textAnchor="middle" fontSize="12.5" fill="#2dd4bf" fontFamily="JetBrains Mono,monospace" fontWeight="700">
+              = [{products[i][0]}, {products[i][1]}]
             </text>
           </g>
         ))}
@@ -1042,8 +1068,8 @@ function TfBox({ x, y, w, h, fill, stroke, label, sub, lc, sc }: { x: number; y:
   return (
     <g>
       <rect x={x} y={y} width={w} height={h} rx="9" fill={fill} stroke={stroke} />
-      <text x={x + w / 2} y={y + h / 2 + (sub ? -4 : 5)} textAnchor="middle" fill={lc || "#eef3ff"} fontSize="13" fontWeight="700">{label}</text>
-      {sub && <text x={x + w / 2} y={y + h / 2 + 14} textAnchor="middle" fill={sc || "#6e7aab"} fontSize="10">{sub}</text>}
+      <text x={x + w / 2} y={y + h / 2 + (sub ? -5 : 5)} textAnchor="middle" fill={lc || "#eef3ff"} fontSize="15" fontWeight="700">{label}</text>
+      {sub && <text x={x + w / 2} y={y + h / 2 + 14} textAnchor="middle" fill={sc || "#6e7aab"} fontSize="11.5">{sub}</text>}
     </g>
   );
 }
@@ -1057,20 +1083,20 @@ function FigTransformer() {
         <defs>
           <marker id="ah-t" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#6e7aab" /></marker>
         </defs>
-        <text x="225" y="26" textAnchor="middle" fill="#38bdf8" fontSize="15" fontWeight="700">Encoder × N（左）</text>
-        <text x="695" y="26" textAnchor="middle" fill="#f472b6" fontSize="15" fontWeight="700">Decoder × N（右）</text>
+        <text x="225" y="26" textAnchor="middle" fill="#38bdf8" fontSize="17" fontWeight="700">Encoder × N（左）</text>
+        <text x="695" y="26" textAnchor="middle" fill="#f472b6" fontSize="17" fontWeight="700">Decoder × N（右）</text>
 
         <Box x={155} y={48} w={140} h={38} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Input Embedding" lc="#a9b4dc" />
         <Arrow d="M225,86 V90" />
         <circle cx="225" cy="106" r="14" fill="#070b18" stroke="#a78bfa" />
         <text x="225" y="111" textAnchor="middle" fill="#a78bfa" fontSize="15">+</text>
         <rect x="35" y="88" width="115" height="36" rx="8" fill="#0c1430" stroke="rgba(167,139,250,0.45)" />
-        <text x="92.5" y="103" textAnchor="middle" fill="#a78bfa" fontSize="9.5">Positional</text>
-        <text x="92.5" y="116" textAnchor="middle" fill="#a78bfa" fontSize="9.5">Encoding</text>
+        <text x="92.5" y="103" textAnchor="middle" fill="#a78bfa" fontSize="11.5">Positional</text>
+        <text x="92.5" y="117" textAnchor="middle" fill="#a78bfa" fontSize="11.5">Encoding</text>
         <Arrow d="M150,106 H207" />
         <Arrow d="M225,120 V146" />
         <rect x="80" y="138" width="290" height="257" rx="14" fill="none" stroke="rgba(255,255,255,0.08)" strokeDasharray="5 5" />
-        <text x="225" y="133" textAnchor="middle" fill="#6e7aab" fontSize="11">Encoder Stack（N 层）</text>
+        <text x="225" y="133" textAnchor="middle" fill="#6e7aab" fontSize="13">Encoder Stack（N 层）</text>
         <Box x={120} y={150} w={210} h={54} fill="rgba(56,189,248,0.14)" stroke="#38bdf8" label="Multi-Head Self-Attention" sub="本节讲的核心算子" lc="#38bdf8" sc="#6e7aab" />
         <Box x={150} y={222} w={150} h={36} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
         <Box x={120} y={278} w={210} h={50} fill="rgba(45,212,191,0.14)" stroke="#2dd4bf" label="Feed-Forward Network" sub="两层 MLP（逐位置作用）" lc="#2dd4bf" sc="#6e7aab" />
@@ -1078,7 +1104,7 @@ function FigTransformer() {
         <Arrow d="M225,204 V218" /><Arrow d="M225,258 V274" /><Arrow d="M225,328 V342" /><Arrow d="M225,382 V401" />
         <Arrow d="M120,177 H100 V240 H150" color="#f5b042" dash="4 3" />
         <Arrow d="M120,303 H100 V364 H150" color="#f5b042" dash="4 3" />
-        <text x="88" y="300" fill="#f5b042" fontSize="9">残差×2</text>
+        <text x="88" y="300" fill="#f5b042" fontSize="11.5">残差×2</text>
         <Box x={150} y={405} w={150} h={34} fill="rgba(244,114,182,0.14)" stroke="#f472b6" label="编码器输出 Memory" lc="#f472b6" />
 
         <Box x={625} y={48} w={140} h={38} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Output Embedding" lc="#a9b4dc" />
@@ -1086,12 +1112,12 @@ function FigTransformer() {
         <circle cx="695" cy="106" r="14" fill="#070b18" stroke="#a78bfa" />
         <text x="695" y="111" textAnchor="middle" fill="#a78bfa" fontSize="15">+</text>
         <rect x="790" y="88" width="115" height="36" rx="8" fill="#0c1430" stroke="rgba(167,139,250,0.45)" />
-        <text x="847.5" y="103" textAnchor="middle" fill="#a78bfa" fontSize="9.5">Positional</text>
-        <text x="847.5" y="116" textAnchor="middle" fill="#a78bfa" fontSize="9.5">Encoding</text>
+        <text x="847.5" y="103" textAnchor="middle" fill="#a78bfa" fontSize="11.5">Positional</text>
+        <text x="847.5" y="117" textAnchor="middle" fill="#a78bfa" fontSize="11.5">Encoding</text>
         <Arrow d="M790,106 H713" />
         <Arrow d="M695,120 V146" />
         <rect x="540" y="138" width="310" height="332" rx="14" fill="none" stroke="rgba(255,255,255,0.08)" strokeDasharray="5 5" />
-        <text x="695" y="133" textAnchor="middle" fill="#6e7aab" fontSize="11">Decoder Stack（N 层）</text>
+        <text x="695" y="133" textAnchor="middle" fill="#6e7aab" fontSize="13">Decoder Stack（N 层）</text>
         <Box x={575} y={150} w={240} h={50} fill="rgba(245,176,66,0.14)" stroke="#f5b042" label="Masked Multi-Head Attention" sub="只能看过去（屏蔽未来位）" lc="#f5b042" sc="#6e7aab" />
         <Box x={620} y={216} w={150} h={34} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
         <Box x={575} y={268} w={240} h={50} fill="rgba(56,189,248,0.14)" stroke="#38bdf8" label="Cross Attention（编码-解码交互）" sub="Q 来自解码器，K/V 由编码器 Memory 投影" lc="#38bdf8" sc="#6e7aab" />
@@ -1102,17 +1128,17 @@ function FigTransformer() {
         <Arrow d="M575,177 H555 V233 H620" color="#f5b042" dash="4 3" />
         <Arrow d="M575,293 H555 V351 H620" color="#f5b042" dash="4 3" />
         <Arrow d="M575,408 H555 V458 H620" color="#f5b042" dash="4 3" />
-        <text x="543" y="300" fill="#f5b042" fontSize="9">残差×3</text>
+        <text x="543" y="300" fill="#f5b042" fontSize="11.5">残差×3</text>
         <Arrow d="M300,422 C440,422 460,293 573,293" color="#a78bfa" dash="4 3" />
-        <text x="430" y="360" fill="#a78bfa" fontSize="10">编码器 Memory → 投影成 K/V</text>
+        <text x="430" y="360" fill="#a78bfa" fontSize="12.5">编码器 Memory → 投影成 K/V</text>
         <Arrow d="M695,474 V492" />
         <Box x={600} y={495} w={190} h={34} fill="rgba(167,139,250,0.14)" stroke="#a78bfa" label="Linear → Softmax → 词概率" lc="#a78bfa" />
 
         <g transform="translate(80,555)">
-          <rect x="0" y="0" width="14" height="14" rx="3" fill="rgba(56,189,248,0.14)" stroke="#38bdf8" /><text x="20" y="12" fill="#6e7aab" fontSize="11">Attention</text>
-          <rect x="110" y="0" width="14" height="14" rx="3" fill="rgba(45,212,191,0.14)" stroke="#2dd4bf" /><text x="130" y="12" fill="#6e7aab" fontSize="11">FFN</text>
-          <rect x="190" y="0" width="14" height="14" rx="3" fill="#0c1430" stroke="rgba(255,255,255,0.08)" /><text x="210" y="12" fill="#6e7aab" fontSize="11">Add&amp;Norm</text>
-          <rect x="310" y="0" width="14" height="14" rx="3" fill="#070b18" stroke="#a78bfa" /><text x="330" y="12" fill="#6e7aab" fontSize="11">位置编码</text>
+          <rect x="0" y="0" width="14" height="14" rx="3" fill="rgba(56,189,248,0.14)" stroke="#38bdf8" /><text x="20" y="12" fill="#6e7aab" fontSize="13">Attention</text>
+          <rect x="110" y="0" width="14" height="14" rx="3" fill="rgba(45,212,191,0.14)" stroke="#2dd4bf" /><text x="130" y="12" fill="#6e7aab" fontSize="13">FFN</text>
+          <rect x="190" y="0" width="14" height="14" rx="3" fill="#0c1430" stroke="rgba(255,255,255,0.08)" /><text x="210" y="12" fill="#6e7aab" fontSize="13">Add&amp;Norm</text>
+          <rect x="310" y="0" width="14" height="14" rx="3" fill="#070b18" stroke="#a78bfa" /><text x="330" y="12" fill="#6e7aab" fontSize="13">位置编码</text>
         </g>
       </svg>
       <div className="fig-cap">图 · 论文 Figure 1 重绘 — Attention 在 Encoder/Decoder 中共出现三次，是同一算子</div>
@@ -1399,7 +1425,7 @@ export default function Home() {
           </section>
 
           {/* ===== 矩阵级 ===== */}
-          <section className="section" id="s3">
+          <section className="section detail-section" id="s3">
             <SecHead idx="03" title="Self-Attention · 矩阵级" />
             <p className="sec-lead">把所有词的 q/k/v 堆成矩阵 <Formula tex="Q, K, V" />，整件事就坍缩成<b style={{ color: "#eef3ff" }}>几次矩阵乘法 + 一次 softmax</b>（只看当前主干，QKV 融合后是三次 GEMM；完整多头还会增加输出投影 Wᴼ）——这正是 GPU 最擅长、能大规模并行的形态。</p>
             <div className="note"><b>记号约定（先说清楚，避免和代码对不上）</b>：本文用 PyTorch 行向量约定 <Formula tex={String.raw`Q=XW^Q`} />，所以是 <Formula tex={String.raw`QK^{\mathsf T}`} />；有的教材用列向量 <Formula tex={String.raw`Q=W^Q I`} />，对应 <Formula tex={String.raw`K^{\mathsf T}Q`} />。两者数学等价，只差一个转置——这也是代码里写 <code>key.transpose(-2, -1)</code> 的原因。</div>
@@ -1408,7 +1434,7 @@ export default function Home() {
           </section>
 
           {/* ===== Scale 与 Mask ===== */}
-          <section className="section" id="s4">
+          <section className="section detail-section" id="s4">
             <SecHead idx="04" title={<>缩放 <Formula tex={String.raw`\sqrt{d_k}`} /> 与 Mask</>} />
             <p className="sec-lead">公式里多了一个「除以 <Formula tex={String.raw`\sqrt{d_k}`} />」，叫<b style={{ color: "#eef3ff" }}>缩放（Scale）</b>。原因一句：维度 <Formula tex="d_k" /> 越大，点积数值越大，softmax 更易饱和（趋于一个 1、其余 0），梯度可能变得很小。</p>
             <div className="grid2">
@@ -1568,7 +1594,7 @@ export default function Home() {
           </section>
 
           {/* ===== 多头 ===== */}
-          <section className="section" id="s5">
+          <section className="section detail-section" id="s5">
             <SecHead idx="05" title="多头注意力（Multi-Head）" />
             <p className="sec-lead">单头 attention 只在一组 <Formula tex="Q/K/V" /> 投影子空间里建模关系。拆成<b style={{ color: "#eef3ff" }}>多个头</b>，每个头用各自独立的可学习矩阵把输入<b>投影到不同子空间</b>再算 attention，就允许多个子空间并行捕捉不同关系，最后拼回来。</p>
             <div className="eq-box">
@@ -1589,16 +1615,16 @@ export default function Home() {
                   <tbody>
                     <tr>
                       <td></td>
-                      {words.map((w) => <td key={w} style={{ textAlign: "center", fontFamily: "var(--mono)", fontSize: 12, color: "#6e7aab", width: 64 }}>{w}</td>)}
+                      {words.map((w) => <td key={w} style={{ textAlign: "center", fontFamily: "var(--mono)", fontSize: 15, color: "#6e7aab", width: 88 }}>{w}</td>)}
                     </tr>
                     {heads[headIdx].matrix.map((row, i) => (
                       <tr key={i}>
-                        <td style={{ textAlign: "right", paddingRight: 10, fontFamily: "var(--mono)", fontSize: 12, color: "#6e7aab" }}>{words[i]}</td>
+                        <td style={{ textAlign: "right", paddingRight: 14, fontFamily: "var(--mono)", fontSize: 15, color: "#6e7aab" }}>{words[i]}</td>
                         {row.map((v, j) => (
                           <td key={j}>
                             <div style={{
-                              width: 58, height: 50, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center",
-                              fontFamily: "var(--mono)", fontSize: 13, fontWeight: 700,
+                              width: 82, height: 64, borderRadius: 9, display: "flex", alignItems: "center", justifyContent: "center",
+                              fontFamily: "var(--mono)", fontSize: 16, fontWeight: 700,
                               background: `rgba(56,189,248,${(0.08 + v * 0.7).toFixed(3)})`, border: "1px solid rgba(56,189,248,0.3)",
                               color: v > 0.4 ? "#fff" : "#a9b4dc",
                             }}>{v.toFixed(2)}</div>
@@ -1614,7 +1640,7 @@ export default function Home() {
           </section>
 
           {/* ===== FlashAttention ===== */}
-          <section className="section" id="s6">
+          <section className="section detail-section" id="s6">
             <SecHead idx="06" title="FlashAttention：不改变数学，改变算的方式" />
             <p className="sec-lead">前面每一步都算清楚了。现在换个角度：这套 <Formula tex={String.raw`\operatorname{softmax}(QK^{\mathsf T}/\sqrt{d_k})V`} /> 在 GPU 上到底怎么跑？结论一句话——<b style={{ color: "#eef3ff" }}>FlashAttention 没有改变 Attention 的数学定义，改变的是计算顺序和数据搬运方式</b>。</p>
 
@@ -1656,7 +1682,7 @@ export default function Home() {
           </section>
 
           {/* ===== Transformer 收尾定位 ===== */}
-          <section className="section" id="s7">
+          <section className="section detail-section" id="s7">
             <SecHead idx="07" title="代码与算子测试：从原理到真实算子" />
             <p className="sec-lead">原理看懂了，落到代码就两层：一层<b style={{ color: "#eef3ff" }}>透明的参考实现</b>用于对照，一层<b style={{ color: "#2dd4bf" }}>真实算子</b>用于生产。算子测试就围着这两层展开。</p>
 
@@ -1746,7 +1772,7 @@ def attention_ref(q, k, v, mask=None):
           </section>
 
           {/* ===== 代码 ===== */}
-          <section className="section" id="s8">
+          <section className="section detail-section" id="s8">
             <SecHead idx="08" title="Transformer 全景：Attention 被装在哪里" />
             <p className="sec-lead">Attention 本身只是一个算子。把它装进完整模型，就是这篇被引用几万次的论文——<b style={{ color: "#38bdf8" }}>左 Encoder</b>、<b style={{ color: "#f472b6" }}>右 Decoder</b>，各堆叠 N 层。</p>
             <FigTransformer />
