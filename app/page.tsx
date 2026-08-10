@@ -396,44 +396,13 @@ function ScoreMatrixReadingGuide() {
   return (
     <div className="score-reading-guide">
       <div className="score-reading-head">
-        <b>得到的 4×4 矩阵，可以这样理解</b>
-        <span>行表示哪个 Query 在发起匹配，列表示它正在匹配哪个 Key。</span>
-      </div>
-      <div className="score-reading-table-wrap">
-        <table className="score-reading-table">
-          <thead>
-            <tr>
-              <th className="score-reading-corner">Query ＼ Key</th>
-              {tokenLabels.map((token, j) => (
-                <th key={token}>
-                  <b>Key {j + 1}</b>
-                  <small>Token {j + 1}</small>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {tokenLabels.map((token, i) => (
-              <tr key={token}>
-                <th>
-                  <b>Query {i + 1}</b>
-                  <small>Token {i + 1}</small>
-                </th>
-                {tokenLabels.map((keyToken, j) => (
-                  <td key={keyToken} className={i === 0 ? "score-reading-focus" : ""}>
-                    <Formula tex={String.raw`S_{${i + 1},${j + 1}}`} />
-                    <small>Token {i + 1} 看 Token {j + 1}</small>
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <b>4×4 矩阵只需认清三个坐标</b>
+        <span>下面直接把坐标规则标在真实数值矩阵上，不再重复画 16 个语义格子。</span>
       </div>
       <div className="score-reading-rules">
-        <span><b>一行</b>：同一个 Token 发出的 Query，对全部 Key 的四个分数</span>
-        <span><b>一列</b>：全部 Query 对同一个 Token 的 Key 的匹配分数</span>
-        <span><b>一个格子</b>：<Formula tex={String.raw`S_{ij}=q_i k_j^{\mathsf T}/\sqrt{d_k}`} />；softmax 后变为权重 Aᵢⱼ</span>
+        <span><b>行 i</b>：Token i 发出 Query，决定“谁在看”</span>
+        <span><b>列 j</b>：Token j 提供 Key，决定“正在看谁”</span>
+        <span><b>格 (i,j)</b>：<Formula tex={String.raw`S_{ij}=q_i k_j^{\mathsf T}/\sqrt{d_k}`} />，即 Token i 看 Token j 的分数</span>
       </div>
     </div>
   );
@@ -967,14 +936,7 @@ type Mat = number[][];
 
 /* ---- 统一数据（token₁..token₄，d=2；禁止改值）---- */
 const FMS_WORDS = tokenLabels;
-const FMS_DATA: { X: Mat; WQ: Mat; WK: Mat; WV: Mat; Q: Mat; K: Mat; V: Mat; S: Mat; A: Mat; O: Mat } = {
-  X:  [[0.4, 1.2], [1.5, 0.3], [0.8, 0.9], [1.1, 1.5]],
-  WQ: [[1, 0.5], [-0.3, 0.8]],
-  WK: [[0.8, -0.4], [0.2, 1.1]],
-  WV: [[0.7, 0.2], [0.1, 1]],
-  Q:  [[0.04, 1.16], [1.41, 0.99], [0.53, 1.12], [0.65, 1.75]],
-  K:  [[0.56, 1.16], [1.26, -0.27], [0.82, 0.67], [1.18, 1.21]],
-  V:  [[0.4, 1.28], [1.08, 0.6], [0.65, 1.06], [0.92, 1.72]],
+const FMS_DATA: { S: Mat; A: Mat; O: Mat } = {
   S:  [[0.967, -0.186, 0.573, 1.026], [1.37, 1.067, 1.287, 2.024], [1.129, 0.258, 0.838, 1.4], [1.693, 0.245, 1.206, 2.04]],
   A:  [[0.328, 0.103, 0.221, 0.348], [0.218, 0.161, 0.201, 0.42], [0.287, 0.12, 0.215, 0.377], [0.306, 0.072, 0.188, 0.433]],
   O:  [[0.706, 1.314], [0.778, 1.311], [0.732, 1.317], [0.721, 1.38]],
@@ -982,8 +944,6 @@ const FMS_DATA: { X: Mat; WQ: Mat; WK: Mat; WV: Mat; Q: Mat; K: Mat; V: Mat; S: 
 
 /* 配色（字面色值，行内 style 用）——与全局 Q/K/V/Att/Out 一致 */
 const FMS_PAL: Record<string, { c: string; t: string }> = {
-  X: { c: "#a9b4dc", t: "rgba(169,180,220,0.08)" },
-  W: { c: "#6e7aab", t: "rgba(110,122,171,0.10)" },
   Q: { c: "#f5b042", t: "rgba(245,176,66,0.10)" },
   K: { c: "#a78bfa", t: "rgba(167,139,250,0.10)" },
   V: { c: "#2dd4bf", t: "rgba(45,212,191,0.10)" },
@@ -992,14 +952,13 @@ const FMS_PAL: Record<string, { c: string; t: string }> = {
   O: { c: "#f472b6", t: "rgba(244,114,182,0.10)" },
 };
 
-const transpose = (m: Mat): Mat => m[0].map((_, j) => m.map((r) => r[j]));
 const fmt = (v: number, d: number): string => (v === 0 ? 0 : v).toFixed(d);
 
 /* ---- 单个带行列标签的矩阵网格 ---- */
 function FmsMatGrid({
   data, name, shape, pal,
   rowLabels, colLabels, cornerLabel,
-  heat = false, digits = 2,
+  heat = false, digits = 2, focusRow,
 }: {
   data: Mat;
   name: string;
@@ -1010,8 +969,12 @@ function FmsMatGrid({
   cornerLabel?: string;
   heat?: boolean;
   digits?: number;
+  focusRow?: number;
 }) {
-  const max = heat ? Math.max(...data.flat(), 1e-9) : 1;
+  const flat = data.flat();
+  const min = heat ? Math.min(...flat) : 0;
+  const max = heat ? Math.max(...flat) : 1;
+  const range = Math.max(max - min, 1e-9);
   const showHeader = !!colLabels;
   const showRowLab = !!colLabels || !!rowLabels;
   return (
@@ -1034,14 +997,14 @@ function FmsMatGrid({
           )}
           <tbody>
             {data.map((row, i) => (
-              <tr key={i}>
+              <tr key={i} className={i === focusRow ? "fms-focus-row" : ""}>
                 {showRowLab && (
                   <th className="fms-rowlab" style={{ color: pal.c }}>
                     {rowLabels ? rowLabels[i] : ""}
                   </th>
                 )}
                 {row.map((v, j) => {
-                  const t = heat ? v / max : 0;
+                  const t = heat ? (v - min) / range : 0;
                   const bg = heat
                     ? `rgba(56,189,248,${(0.1 + t * 0.75).toFixed(3)})`
                     : pal.t;
@@ -1070,147 +1033,69 @@ function FmsMatGrid({
   );
 }
 
-/* ---- 运算符 / 函数算子 ---- */
-function Op({ children, kind = "op" }: { children: React.ReactNode; kind?: "op" | "fn" }) {
-  return <div className={kind === "fn" ? "fms-op fms-op-fn" : "fms-op"}>{children}</div>;
-}
-
-/* ---- 主组件：四阶段矩阵计算链 ---- */
+/* ---- 主组件：把向量级第一行扩展成四行并行计算 ---- */
 function FigMatrixStage() {
-  const KT = transpose(FMS_DATA.K); // Kᵀ：2×4
   return (
     <div className="fms-wrap">
-      {/* 总公式 */}
-      <div className="fms-banner">
-        <span className="fms-banner-tag">总公式</span>
-        <Formula block tex={String.raw`\operatorname{Attention}(Q,K,V)=\operatorname{softmax}\!\left(\frac{QK^{\mathsf T}}{\sqrt{d_k}}\right)V`} />
-      </div>
-
-      {/* Stage 1：投影 X → Q / K / V */}
-      <div className="fms-stage">
-        <div className="fms-stage-head">
-          <span className="fms-stage-num" style={{ background: FMS_PAL.Q.c }}>1</span>
-          <span className="fms-stage-title">
-            投影 · <span style={{ color: FMS_PAL.X.c }}>X</span> 乘三个权重 →&nbsp;
-            <span style={{ color: FMS_PAL.Q.c }}>Q</span> /&nbsp;
-            <span style={{ color: FMS_PAL.K.c }}>K</span> /&nbsp;
-            <span style={{ color: FMS_PAL.V.c }}>V</span>
-          </span>
-          <span className="fms-stage-sub">dₖ = dᵥ = 2</span>
-        </div>
-        <div className="fms-stage1">
-          <FmsMatGrid name="X" shape="[4×2]" pal={FMS_PAL.X} data={FMS_DATA.X}
-            rowLabels={FMS_WORDS} colLabels={["d₁", "d₂"]} cornerLabel="token＼维" digits={2} />
-          <div className="fms-branches">
-            <div className="fms-chain">
-              <Op>×</Op>
-              <FmsMatGrid name="WQ" shape="[2×2]" pal={FMS_PAL.W} data={FMS_DATA.WQ}
-                rowLabels={["d₁", "d₂"]} colLabels={["d₁", "d₂"]} cornerLabel="维＼维" digits={2} />
-              <Op>=</Op>
-              <FmsMatGrid name="Q" shape="[4×2]" pal={FMS_PAL.Q} data={FMS_DATA.Q}
-                rowLabels={FMS_WORDS} colLabels={["d₁", "d₂"]} cornerLabel="token＼维" digits={2} />
-            </div>
-            <div className="fms-chain">
-              <Op>×</Op>
-              <FmsMatGrid name="WK" shape="[2×2]" pal={FMS_PAL.W} data={FMS_DATA.WK}
-                rowLabels={["d₁", "d₂"]} colLabels={["d₁", "d₂"]} cornerLabel="维＼维" digits={2} />
-              <Op>=</Op>
-              <FmsMatGrid name="K" shape="[4×2]" pal={FMS_PAL.K} data={FMS_DATA.K}
-                rowLabels={FMS_WORDS} colLabels={["d₁", "d₂"]} cornerLabel="token＼维" digits={2} />
-            </div>
-            <div className="fms-chain">
-              <Op>×</Op>
-              <FmsMatGrid name="WV" shape="[2×2]" pal={FMS_PAL.W} data={FMS_DATA.WV}
-                rowLabels={["d₁", "d₂"]} colLabels={["d₁", "d₂"]} cornerLabel="维＼维" digits={2} />
-              <Op>=</Op>
-              <FmsMatGrid name="V" shape="[4×2]" pal={FMS_PAL.V} data={FMS_DATA.V}
-                rowLabels={FMS_WORDS} colLabels={["d₁", "d₂"]} cornerLabel="token＼维" digits={2} />
-            </div>
+      <div className="fms-canvas">
+        <div className="fms-banner">
+          <span className="fms-banner-tag">从第一行扩展到全部四行</span>
+          <Formula block tex={String.raw`\underbrace{Q_{4\times2}K^{\mathsf T}_{2\times4}/\sqrt{2}}_{S_{4\times4}}\ \xrightarrow{\ \text{逐行 softmax}\ }\ A_{4\times4}\ \xrightarrow{\ \times V_{4\times2}\ }\ O_{4\times2}`} />
+          <div className="fms-prep">
+            <span>上一节已完成投影，不再重复展开：</span>
+            <b style={{ color: FMS_PAL.Q.c }}>Q [4×2]</b>
+            <b style={{ color: FMS_PAL.K.c }}>K [4×2]</b>
+            <b style={{ color: FMS_PAL.V.c }}>V [4×2]</b>
           </div>
         </div>
-      </div>
 
-      <div className="fms-arrow-down">↓</div>
+        <div className="fms-summary-flow" aria-label="Self-Attention 矩阵级三步计算链">
+          <div className="fms-summary-card">
+            <div className="fms-summary-head">
+              <span>1 · 点积并缩放</span>
+              <b>softmax 前分数 S</b>
+            </div>
+            <Formula block tex={String.raw`S=QK^{\mathsf T}/\sqrt{d_k}`} />
+            <FmsMatGrid name="S" shape="[4×4]" pal={FMS_PAL.S} data={FMS_DATA.S} heat focusRow={0}
+              rowLabels={FMS_WORDS} colLabels={FMS_WORDS} cornerLabel="行 Q＼列 K" digits={3} />
+            <div className="fms-row-link"><b>第 1 行</b><Formula tex={String.raw`S_{1,:}=[0.967,-0.186,0.573,1.026]`} /></div>
+          </div>
 
-      {/* Stage 2：打分 Q × Kᵀ ÷ √dₖ = S */}
-      <div className="fms-stage">
-        <div className="fms-stage-head">
-          <span className="fms-stage-num" style={{ background: FMS_PAL.S.c }}>2</span>
-          <span className="fms-stage-title">
-            打分 · <Formula tex={String.raw`{\color{#f5b042}Q}\times{\color{#a78bfa}K^{\mathsf T}}\div\sqrt{d_k}\longrightarrow{\color{#38bdf8}S}`} />
-          </span>
-          <span className="fms-stage-sub">两两点积；行 = Query，列 = Key</span>
-        </div>
-        <div className="fms-chain">
-          <FmsMatGrid name="Q" shape="[4×2]" pal={FMS_PAL.Q} data={FMS_DATA.Q}
-            rowLabels={FMS_WORDS} colLabels={["d₁", "d₂"]} cornerLabel="token＼维" digits={2} />
-          <Op>×</Op>
-          <FmsMatGrid name="Kᵀ" shape="[2×4]" pal={FMS_PAL.K} data={KT}
-            rowLabels={["d₁", "d₂"]} colLabels={FMS_WORDS} cornerLabel="维＼token" digits={2} />
-          <Op kind="fn">÷ √dₖ</Op>
-          <Op>=</Op>
-          <FmsMatGrid name="S" shape="[4×4]" pal={FMS_PAL.S} data={FMS_DATA.S} heat
-            rowLabels={FMS_WORDS} colLabels={FMS_WORDS} cornerLabel="Q＼K" digits={3} />
-        </div>
-      </div>
+          <div className="fms-flow-op"><b>逐行</b><span>softmax</span><i>→</i></div>
 
-      <div className="fms-arrow-down">↓</div>
+          <div className="fms-summary-card">
+            <div className="fms-summary-head">
+              <span>2 · 每行独立归一化</span>
+              <b>softmax 后权重 A</b>
+            </div>
+            <Formula block tex={String.raw`A_{i,:}=\operatorname{softmax}(S_{i,:})`} />
+            <FmsMatGrid name="A" shape="[4×4]" pal={FMS_PAL.A} data={FMS_DATA.A} heat focusRow={0}
+              rowLabels={FMS_WORDS} colLabels={FMS_WORDS} cornerLabel="行 Q＼列 K" digits={3} />
+            <div className="fms-row-link"><b>第 1 行</b><Formula tex={String.raw`A_{1,:}=[0.328,0.103,0.221,0.348]`} /></div>
+          </div>
 
-      {/* Stage 3：softmax(S) = A */}
-      <div className="fms-stage">
-        <div className="fms-stage-head">
-          <span className="fms-stage-num" style={{ background: FMS_PAL.A.c }}>3</span>
-          <span className="fms-stage-title">
-            归一化 · 对 <span style={{ color: FMS_PAL.S.c }}>S</span> 按行 softmax → 权重&nbsp;
-            <span style={{ color: FMS_PAL.A.c }}>A</span>
-          </span>
-          <span className="fms-stage-sub">未舍入时每行和 = 1（表内为三位小数近似，少数行和为 0.999）</span>
-        </div>
-        <div className="fms-chain">
-          <FmsMatGrid name="S" shape="[4×4]" pal={FMS_PAL.S} data={FMS_DATA.S} heat
-            rowLabels={FMS_WORDS} colLabels={FMS_WORDS} cornerLabel="Q＼K" digits={3} />
-          <Op kind="fn">softmax 按行</Op>
-          <Op>=</Op>
-          <FmsMatGrid name="A" shape="[4×4]" pal={FMS_PAL.A} data={FMS_DATA.A} heat
-            rowLabels={FMS_WORDS} colLabels={FMS_WORDS} cornerLabel="Q＼K" digits={3} />
-        </div>
-      </div>
+          <div className="fms-flow-op"><b>每行</b><Formula tex={String.raw`\times V_{4\times2}`} /><i>→</i></div>
 
-      <div className="fms-arrow-down">↓</div>
+          <div className="fms-summary-card fms-output-card">
+            <div className="fms-summary-head">
+              <span>3 · 加权汇聚 Value</span>
+              <b>新表示 O</b>
+            </div>
+            <Formula block tex={String.raw`O=AV`} />
+            <FmsMatGrid name="O" shape="[4×2]" pal={FMS_PAL.O} data={FMS_DATA.O} focusRow={0}
+              rowLabels={FMS_WORDS} colLabels={["d₁", "d₂"]} cornerLabel="token＼维" digits={3} />
+            <div className="fms-row-link"><b>第 1 行</b><Formula tex={String.raw`O_{1,:}=b_1=[0.706,1.314]`} /></div>
+          </div>
+        </div>
 
-      {/* Stage 4：汇聚 A × V = O */}
-      <div className="fms-stage">
-        <div className="fms-stage-head">
-          <span className="fms-stage-num" style={{ background: FMS_PAL.O.c }}>4</span>
-          <span className="fms-stage-title">
-            汇聚 · <span style={{ color: FMS_PAL.A.c }}>A</span> ×&nbsp;
-            <span style={{ color: FMS_PAL.V.c }}>V</span> → 输出&nbsp;
-            <span style={{ color: FMS_PAL.O.c }}>O</span>
-          </span>
-          <span className="fms-stage-sub">每个 token 按权重拿走各 Value，融合成新表示（用未舍入权重计算，表内保留三位小数）</span>
-        </div>
-        <div className="fms-chain">
-          <FmsMatGrid name="A" shape="[4×4]" pal={FMS_PAL.A} data={FMS_DATA.A} heat
-            rowLabels={FMS_WORDS} colLabels={FMS_WORDS} cornerLabel="Q＼K" digits={3} />
-          <Op>×</Op>
-          <FmsMatGrid name="V" shape="[4×2]" pal={FMS_PAL.V} data={FMS_DATA.V}
-            rowLabels={FMS_WORDS} colLabels={["d₁", "d₂"]} cornerLabel="token＼维" digits={2} />
-          <Op>≈</Op>
-          <FmsMatGrid name="O" shape="[4×2]" pal={FMS_PAL.O} data={FMS_DATA.O}
-            rowLabels={FMS_WORDS} colLabels={["d₁", "d₂"]} cornerLabel="token＼维" digits={3} />
-        </div>
-      </div>
-
-      {/* 色阶图例 + 读法 */}
-      <div className="fms-legend-row">
-        <div className="fms-legend">
-          <span className="fms-legend-label">权重色阶</span>
-          <span className="fms-legend-bar" />
-          <span className="fms-legend-text">低 → 高（越深越大）</span>
-        </div>
-        <div className="fms-read">
-          四步压成矩阵后，整条链只用了<b>矩阵乘法 + softmax</b>（本图不含 Wᴼ：投影×3、QKᵀ、AV 共 5 次；工程常融合成 3 次 GEMM）——
-          和向量级结果完全一致，但可被 GPU 整块并行算出。
+        <div className="fms-legend-row">
+          <div className="fms-legend">
+            <span className="fms-focus-swatch" />
+            <span className="fms-legend-text">橙色框 = 上一节逐项算过的 Token 1 路径</span>
+          </div>
+          <div className="fms-read">
+            矩阵级没有新增算法：高亮的第一行就是上一节的 <Formula tex={String.raw`q_1\rightarrow S_{1,:}\rightarrow A_{1,:}\rightarrow b_1`} />；其余三行遵循同一规则，由 GPU 与第一行并行计算。
+          </div>
         </div>
       </div>
     </div>

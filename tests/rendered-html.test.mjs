@@ -96,7 +96,8 @@ test("ships the current teaching page as an offline standalone HTML file", async
 
   assert.match(html, /Offline standalone export/);
   assert.match(html, /Self-Attention · 向量级/);
-  assert.match(html, /本图不含 Wᴼ/);
+  assert.match(html, /从第一行扩展到全部四行/);
+  assert.match(html, /softmax 后权重 A/);
   assert.match(html, /FlashAttention：不改变数学/);
   assert.match(html, /data-standalone="attention"/);
   assert.match(html, /data:font\/woff2;base64,/);
