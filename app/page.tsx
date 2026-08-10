@@ -607,7 +607,7 @@ function FigStageQKV() {
 /* ============================================================
  * 向量阶段图2：固定 q₁ 扇出打分（FigStageScore）
  * 主角 q₁ 固定左侧（★），向 k₁..k₄ 扇出橙色连线，
- * 每条路径都标注点积分数 α₁,ⱼ，并在 k 块内完整展开 q₁·kⱼ 的乘加过程。
+ * 每条路径都标注点积分数 S₁,ⱼ，并在 k 块内完整展开 q₁·kⱼ 的乘加过程。
  * 数据全程使用统一 4-token（token₁..token₄，d=2）。
  * ============================================================ */
 function FigStageScore() {
@@ -633,7 +633,7 @@ function FigStageScore() {
       <div className="score-figure">
         <div className="score-title">
           <b>固定 q₁，向所有 k 扇出打分</b>
-          <Formula block tex={String.raw`\alpha_{1,j}=\dfrac{q_1\cdot k_j}{\sqrt{d_k}},\qquad d_k=2,\ \sqrt{d_k}\approx1.414`} />
+          <Formula block tex={String.raw`S_{1,j}=\dfrac{q_1\cdot k_j}{\sqrt{d_k}},\qquad d_k=2,\ \sqrt{d_k}\approx1.414`} />
           <span>每条路径都完整展开乘加与缩放过程</span>
         </div>
       <svg viewBox="0 70 1000 670" width="1000" role="img" aria-label="固定 q1 扇出打分：q1 向 k1..k4 计算点积分数">
@@ -704,7 +704,7 @@ function FigStageScore() {
                 strokeWidth={isTop ? 1.9 : 1.2}
               />
               <text x={pillX} y={pillY + 6} textAnchor="middle" fill="#7dd3fc" fontSize="16" fontFamily="JetBrains Mono, monospace" fontWeight="700">
-                α₁,{i + 1} = {k.a.toFixed(3)}
+                S₁,{i + 1} = {k.a.toFixed(3)}
               </text>
             </g>
           );
@@ -724,11 +724,11 @@ function FigStageScore() {
 /* ============================================================
  * 向量阶段图3：整行 softmax（row-wise softmax）
  * 强调：4 个分数作为「一整行」联合归一化，而非 4 个独立操作
- * 数据：q1 主角行 alphas=[0.967,-0.186,0.573,1.026]  ahats=[0.328,0.103,0.221,0.348]
+ * 数据：q1 主角行 scores=[0.967,-0.186,0.573,1.026]  weights=[0.328,0.103,0.221,0.348]
  * ============================================================ */
 function FigStageSoftmax() {
-  const alphas = [0.967, -0.186, 0.573, 1.026];
-  const ahats = [0.328, 0.103, 0.221, 0.348];
+  const scores = [0.967, -0.186, 0.573, 1.026];
+  const weights = [0.328, 0.103, 0.221, 0.348];
   const exps = [2.631, 0.830, 1.773, 2.790];
 
   return (
@@ -741,12 +741,12 @@ function FigStageSoftmax() {
         <div className="softmax-flow">
           <div className="softmax-panel">
             <div className="softmax-step">① 缩放后的相关分数</div>
-            <Formula block tex={String.raw`\alpha_{1,j}=\dfrac{q_1\cdot k_j}{\sqrt{d_k}}`} />
+            <Formula block tex={String.raw`S_{1,j}=\dfrac{q_1\cdot k_j}{\sqrt{d_k}}`} />
             <div className="softmax-values scores">
-              {alphas.map((a, i) => (
+              {scores.map((score, i) => (
                 <div key={`a-${i}`}>
-                  <Formula tex={`\\alpha_{1,${i + 1}}`} />
-                  <strong>{a.toFixed(3)}</strong>
+                  <Formula tex={`S_{1,${i + 1}}`} />
+                  <strong>{score.toFixed(3)}</strong>
                 </div>
               ))}
             </div>
@@ -758,7 +758,7 @@ function FigStageSoftmax() {
           <div className="softmax-panel operator">
             <div className="softmax-step">② row-wise softmax</div>
             <strong className="softmax-name">SOFTMAX</strong>
-            <Formula block tex={String.raw`\hat\alpha_{1,j}=\dfrac{e^{\alpha_{1,j}}}{\sum_{m=1}^{4}e^{\alpha_{1,m}}}`} />
+            <Formula block tex={String.raw`A_{1,j}=\dfrac{e^{S_{1,j}}}{\sum_{m=1}^{4}e^{S_{1,m}}}`} />
             <p>分母使用另一索引 <Formula tex="m" /> 求和，表示整行四项共同决定归一化系数。</p>
           </div>
 
@@ -766,35 +766,44 @@ function FigStageSoftmax() {
 
           <div className="softmax-panel">
             <div className="softmax-step">③ 注意力权重</div>
-            <Formula block tex={String.raw`\hat\alpha_{1,:}=\operatorname{softmax}(\alpha_{1,:})`} />
+            <Formula block tex={String.raw`A_{1,:}=\operatorname{softmax}(S_{1,:})`} />
             <div className="softmax-values weights">
-              {ahats.map((w, i) => (
+              {weights.map((w, i) => (
                 <div key={`w-${i}`} style={{ background: `rgba(56,189,248,${(0.16 + w * 1.55).toFixed(3)})` }}>
-                  <Formula tex={`\\hat\\alpha_{1,${i + 1}}`} />
+                  <Formula tex={`A_{1,${i + 1}}`} />
                   <strong>{w.toFixed(3)}</strong>
                 </div>
               ))}
             </div>
-            <Formula block tex={String.raw`\sum_{j=1}^{4}\hat\alpha_{1,j}=1.000`} />
+            <Formula block tex={String.raw`\sum_{j=1}^{4}A_{1,j}=1.000`} />
           </div>
         </div>
 
         <div className="softmax-derivation">
           <div className="softmax-step">数值代入 · 指数化并计算同一个分母 Z</div>
           <div className="softmax-exp-row">
-            {alphas.map((a, i) => (
+            {scores.map((score, i) => (
               <div key={`e-${i}`}>
-                <Formula tex={`e^{${a.toFixed(3)}}`} />
+                <Formula tex={`e^{S_{1,${i + 1}}}=e^{${score.toFixed(3)}}`} />
                 <strong>≈ {exps[i].toFixed(3)}</strong>
               </div>
             ))}
             <div className="total">
-              <Formula tex={String.raw`Z=\sum_{m=1}^{4}e^{\alpha_{1,m}}`} />
+              <Formula tex={String.raw`Z_1=\sum_{m=1}^{4}e^{S_{1,m}}`} />
               <strong>= 8.024</strong>
             </div>
           </div>
-          <Formula block tex={String.raw`Z\approx2.631+0.830+1.773+2.790=8.024`} />
-          <Formula block tex={String.raw`\hat\alpha_{1,:}=\dfrac{1}{8.024}[\,2.631,\ 0.830,\ 1.773,\ 2.790\,]\approx[\,0.328,\ 0.103,\ 0.221,\ 0.348\,]`} />
+          <Formula block tex={String.raw`Z_1\approx2.631+0.830+1.773+2.790=8.024`} />
+          <div className="softmax-weight-calcs">
+            {weights.map((weight, i) => (
+              <Formula
+                key={`weight-calc-${i}`}
+                block
+                tex={`A_{1,${i + 1}}=\\dfrac{e^{S_{1,${i + 1}}}}{Z_1}=\\dfrac{${exps[i].toFixed(3)}}{8.024}=${weight.toFixed(3)}`}
+              />
+            ))}
+          </div>
+          <Formula block tex={String.raw`A_{1,:}\approx[\,0.328,\ 0.103,\ 0.221,\ 0.348\,]`} />
         </div>
 
         <div className="softmax-key">
@@ -811,9 +820,9 @@ function FigStageSoftmax() {
 
 function FigStageAggregate() {
   // 统一数据：q1 主角路径，权重用三位小数近似
-  const ahats3 = [0.328, 0.103, 0.221, 0.348];
+  const weights3 = [0.328, 0.103, 0.221, 0.348];
   const vvals = ["[0.40,1.28]", "[1.08,0.60]", "[0.65,1.06]", "[0.92,1.72]"];
-  // 乘积 α̂·v（保留 2 位便于标注；最终 b1 用三位小数近似权重算）
+  // 乘积 A·v（保留 2 位便于标注；最终 b1 用三位小数近似权重算）
   const products = [
     ["0.13", "0.42"],
     ["0.11", "0.06"],
@@ -854,7 +863,7 @@ function FigStageAggregate() {
         </defs>
 
         {/* 阶段标题 */}
-        <text x="105" y="44" textAnchor="middle" fill="#eef3ff" fontSize="16" fontWeight="700">① 权重 α̂₁,ⱼ</text>
+        <text x="105" y="44" textAnchor="middle" fill="#eef3ff" fontSize="16" fontWeight="700">① 权重 A₁,ⱼ</text>
         <text x="105" y="64" textAnchor="middle" fill="#6e7aab" fontSize="12" fontFamily="JetBrains Mono,monospace">（3 位小数）</text>
         <text x="290" y="44" textAnchor="middle" fill="#eef3ff" fontSize="16" fontWeight="700">② 连向 vⱼ（乘积）</text>
         <text x="470" y="44" textAnchor="middle" fill="#eef3ff" fontSize="16" fontWeight="700">③ 值向量 vⱼ</text>
@@ -864,8 +873,8 @@ function FigStageAggregate() {
         {ys.map((y, i) => (
           <g key={`w${i}`}>
             <rect x={40} y={y - 26} width={130} height={52} rx={8} fill="rgba(56,189,248,0.18)" stroke="#38bdf8" strokeWidth={1.4} />
-            <text x={105} y={y - 5} textAnchor="middle" fontSize="15" fill="#7dd3fc" fontFamily="JetBrains Mono,monospace" fontWeight="700">α̂₁,{i + 1}</text>
-            <text x={105} y={y + 18} textAnchor="middle" fontSize="18" fill="#7dd3fc" fontFamily="JetBrains Mono,monospace" fontWeight="700">{ahats3[i].toFixed(3)}</text>
+            <text x={105} y={y - 5} textAnchor="middle" fontSize="15" fill="#7dd3fc" fontFamily="JetBrains Mono,monospace" fontWeight="700">A₁,{i + 1}</text>
+            <text x={105} y={y + 18} textAnchor="middle" fontSize="18" fill="#7dd3fc" fontFamily="JetBrains Mono,monospace" fontWeight="700">{weights3[i].toFixed(3)}</text>
           </g>
         ))}
 
@@ -875,7 +884,7 @@ function FigStageAggregate() {
             <path d={`M170,${y} C240,${y} 330,${y} 398,${y}`} stroke="#2dd4bf" strokeWidth={1.6} fill="none" markerEnd="url(#ag-ahv)" />
             <rect x={180} y={y - 44} width={210} height={40} rx={6} fill="#0c1430" stroke="rgba(45,212,191,0.55)" />
             <text x={285} y={y - 27} textAnchor="middle" fontSize="12.5" fill="#2dd4bf" fontFamily="JetBrains Mono,monospace" fontWeight="700">
-              {ahats3[i].toFixed(3)} × {vvals[i]}
+              {weights3[i].toFixed(3)} × {vvals[i]}
             </text>
             <text x={285} y={y - 11} textAnchor="middle" fontSize="12.5" fill="#2dd4bf" fontFamily="JetBrains Mono,monospace" fontWeight="700">
               = [{products[i][0]}, {products[i][1]}]
@@ -907,7 +916,7 @@ function FigStageAggregate() {
 
         {/* 底部导引 */}
         <text x={520} y={455} textAnchor="middle" fill="#6e7aab" fontSize="13.5" fontFamily="JetBrains Mono,monospace">
-          每个 α̂₁,ⱼ 乘对应 vⱼ 得一份贡献，4 份相加 → b₁（用三位小数近似权重算）
+          每个 A₁,ⱼ 乘对应 vⱼ 得一份贡献，4 份相加 → b₁（用三位小数近似权重算）
         </text>
       </svg>
 
@@ -1629,7 +1638,7 @@ export default function Home() {
             <div className="card">
               <div style={{ display: "flex", gap: 22, flexWrap: "wrap", justifyContent: "center", alignItems: "center" }}>
                 <div style={{ textAlign: "center" }}>
-                  <div className="mname">scaled logits <Formula className="mname-formula" tex={String.raw`{\color{#38bdf8}\alpha=q\!\cdot\!k/\sqrt{d_k}}`} /></div>
+                  <div className="mname">缩放分数 <Formula className="mname-formula" tex={String.raw`{\color{#38bdf8}S_{i,:}=q_iK^{\mathsf T}/\sqrt{d_k}}`} /></div>
                   <div style={{ display: "flex", gap: 8 }}>
                     {attn.scaled.map((v, i) => (
                       <div key={i} style={{ textAlign: "center" }}>
@@ -1641,7 +1650,7 @@ export default function Home() {
                 </div>
                 <span className="msign">→</span>
                 <div style={{ textAlign: "center" }}>
-                  <div className="mname">权重 <span style={{ color: "#38bdf8" }}>softmax → 和=1</span></div>
+                  <div className="mname">权重 <Formula className="mname-formula" tex={String.raw`{\color{#38bdf8}A_{i,:}=\operatorname{softmax}(S_{i,:})}`} /></div>
                   <div style={{ display: "flex", gap: 8 }}>
                     {attn.weights.map((v, i) => (
                       <div key={i} style={{ textAlign: "center" }}>
