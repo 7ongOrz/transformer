@@ -353,13 +353,16 @@ function FigStageQKV() {
         </div>
       </div>
 
-      {/* 共享 X + 三个投影分支 */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "center", gap: 20, flexWrap: "wrap" }}>
+      {/* 共享 X + 一进三出的投影分支 */}
+      <div className="qkv-projection-flow">
         {/* 左侧：共享输入 X（只出现一次） */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, paddingTop: 36 }}>
+        <div className="qkv-source">
           <QKVMat data={X} accent={NEUTRAL} label="X" sub="[4×2] 共享输入" rowLabels={WORDS} heroRow={0} heroColor={CQ} />
-          <div style={{ color: "var(--t3)", fontSize: 11, fontFamily: "var(--mono)" }}>同一份输入，同时送入三路 ↓</div>
+          <div>同一份 X 作为三路投影的共同输入</div>
         </div>
+
+        {/* 中间：一条输入主干分成 Q/K/V 三路 */}
+        <div className="qkv-fanout" aria-hidden="true"><span /><span /><span /></div>
 
         {/* 右侧：三个投影分支 */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -378,7 +381,6 @@ function FigStageQKV() {
                 border: `1px solid ${r.color}40`,
               }}
             >
-              <span style={{ fontSize: 16, color: "var(--t2)", fontWeight: 700, fontFamily: "var(--mono)" }}>X</span>
               <span style={{ fontSize: 20, color: "var(--t3)", fontWeight: 600, fontFamily: "var(--mono)" }}>×</span>
               <QKVMat data={r.W} accent={r.color} label={r.wlabel} sub="[2×2]" />
               <span style={{ fontSize: 20, color: "var(--t3)", fontWeight: 600, fontFamily: "var(--mono)" }}>=</span>
@@ -1331,7 +1333,7 @@ export default function Home() {
           <span className="glyph">A</span>
           <b>Attention</b>
         </div>
-        <div className="sub">Transformer 核心算子<br />从矩阵乘法讲到大模型全景</div>
+        <div className="sub">Transformer 核心算子</div>
         <ol>
           {navItems.map(([id, label]) => (
             <li key={id}>
@@ -1382,7 +1384,7 @@ export default function Home() {
               </div>
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>算子视角的一句话</h3>
-                <p className="t3">Attention 的核心就是<b style={{ color: "#eef3ff" }}>两次矩阵乘法（QKᵀ 算分、AV 取值）+ 一个 softmax</b>；完整多头还包括 Q/K/V 与 Wᴼ 四个投影，共六次矩阵乘法，QKV 融合后则是四次 GEMM。这篇分享的目标，是让你在脑子里把这句话可视化出来。</p>
+                <p className="t3">Attention 的核心就是<b style={{ color: "#eef3ff" }}>两次矩阵乘法（QKᵀ 计算相关分数、A×V 加权汇聚）+ 一个 softmax</b>；完整多头还包括 Q/K/V 与 Wᴼ 四个投影，共六次矩阵乘法，QKV 融合后则是四次 GEMM。</p>
               </div>
             </div>
           </section>
