@@ -989,7 +989,7 @@ p {
   margin: 22px 0;
   overflow-x: auto;
 }
-.fig svg {
+.fig > svg {
   display: block;
   margin: 0 auto;
   width: 100%;
@@ -1007,28 +1007,450 @@ p {
   overflow-wrap: normal;
 }
 
-/* 打分图标题使用 KaTeX，保证根号与分数线完整渲染 */
-.score-figure {
-  min-width: 1000px;
+/* q1 打分：从 Query 到 S 第一行的三段式流程 */
+.score-explainer {
+  min-width: 1080px;
 }
-.score-title {
-  display: grid;
-  justify-items: center;
-  gap: 6px;
-  margin-bottom: 4px;
+.score-explainer-head {
+  max-width: 860px;
+  margin: 0 auto 20px;
   text-align: center;
 }
-.score-title b {
-  color: var(--t1);
-  font-size: 19px;
+.score-explainer-head > span {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--q);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
 }
-.score-title .math-block {
+.score-explainer-head > b {
+  display: block;
+  color: var(--t1);
+  font-size: 20px;
+  line-height: 1.45;
+}
+.score-explainer-head p {
+  margin: 7px 0 0;
+  color: var(--t2);
+  font-size: 14px;
+  line-height: 1.7;
+}
+.score-explainer-flow {
+  display: grid;
+  grid-template-columns: 238px 54px minmax(420px, 1fr) 54px 270px;
+  gap: 10px;
+  align-items: stretch;
+}
+.score-query-card,
+.score-row-card,
+.score-comparisons {
+  min-width: 0;
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  background: rgba(7, 11, 24, 0.48);
+}
+.score-query-card,
+.score-row-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 18px 16px;
+}
+.score-query-card {
+  border-color: rgba(245, 176, 66, 0.48);
+  background: rgba(245, 176, 66, 0.08);
+}
+.score-row-card {
+  border-color: rgba(56, 189, 248, 0.48);
+  background: rgba(56, 189, 248, 0.07);
+}
+.score-query-card > span,
+.score-row-card > span,
+.score-column-head > span {
+  color: var(--t3);
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.score-query-card > b,
+.score-row-card > b {
+  margin-top: 7px;
+  color: var(--t1);
+  font-size: 15px;
+  line-height: 1.5;
+}
+.score-query-card > .math-block,
+.score-row-card > .math-block {
+  margin: 15px 0;
+  overflow: visible;
+  font-size: 15px;
+}
+.score-query-card > .math-block .katex-display,
+.score-row-card > .math-block .katex-display {
+  text-align: center;
+}
+.score-query-card p,
+.score-row-card p {
+  margin: 0;
+  color: var(--t2);
+  font-size: 12.5px;
+  line-height: 1.68;
+}
+.score-row-card p b {
+  color: var(--att);
+}
+.score-row-matrix {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 7px;
+  align-items: center;
+  margin: 15px 0 12px;
+}
+.score-row-matrix > .math-inline {
+  color: var(--t1);
+  font-size: 14px;
+}
+.score-row-matrix > div {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  padding: 5px 7px;
+  color: var(--t1);
+  font-family: var(--mono);
+  font-size: 11px;
+  text-align: center;
+}
+.score-row-matrix > div::before,
+.score-row-matrix > div::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  border-top: 1.5px solid var(--att);
+  border-bottom: 1.5px solid var(--att);
+}
+.score-row-matrix > div::before {
+  left: 0;
+  border-left: 1.5px solid var(--att);
+}
+.score-row-matrix > div::after {
+  right: 0;
+  border-right: 1.5px solid var(--att);
+}
+.score-flow-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--att);
+  text-align: center;
+}
+.score-flow-arrow b {
+  font-size: 27px;
+  line-height: 1;
+}
+.score-flow-arrow span {
+  color: var(--t3);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+.score-comparisons {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+}
+.score-column-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 0 2px 4px;
+}
+.score-column-head .math-inline {
+  color: var(--k);
+  font-size: 13px;
+}
+.score-comparison {
+  display: grid;
+  grid-template-columns: 122px minmax(0, 1fr) 62px;
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid rgba(167, 139, 250, 0.25);
+  border-radius: 10px;
+  background: rgba(167, 139, 250, 0.06);
+}
+.score-key-id {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1px 7px;
+  align-items: baseline;
+}
+.score-key-id span {
+  color: var(--t3);
+  font-family: var(--mono);
+  font-size: 10.5px;
+}
+.score-key-id b {
+  color: var(--k);
+  font-family: var(--mono);
+  font-size: 15px;
+}
+.score-key-id small {
+  grid-column: 1 / -1;
+  color: var(--t2);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  white-space: nowrap;
+}
+.score-comparison .math-block {
+  min-width: 0;
+  margin: 0;
+  overflow: visible;
+  font-size: 13px;
+}
+.score-comparison .math-block .katex-display {
+  text-align: center;
+}
+.score-comparison > strong {
+  color: var(--att);
+  font-family: var(--mono);
+  font-size: 14px;
+  text-align: right;
+}
+.score-row-labels {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+  margin: 2px 0 15px;
+}
+.score-row-labels > div {
+  display: grid;
+  gap: 2px;
+  padding: 7px 2px;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 7px;
+  background: rgba(56, 189, 248, 0.07);
+  text-align: center;
+}
+.score-row-labels span {
+  color: var(--t3);
+  font-family: var(--mono);
+  font-size: 9.5px;
+}
+.score-row-labels b {
+  color: var(--t2);
+  font-size: 10.5px;
+}
+.score-row-labels strong {
+  color: var(--att);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+.score-next-step {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 9px;
+  margin-top: 16px;
+  padding: 11px 14px;
+  border-left: 3px solid var(--att);
+  background: var(--att-soft);
+  color: var(--t2);
+  font-size: 13.5px;
+  line-height: 1.65;
+}
+.score-next-step b {
+  color: var(--att);
+  white-space: nowrap;
+}
+
+/* 位置编码：矩阵相加、one-hot 选行、正弦数值示例 */
+.position-demo {
+  margin: 22px 0;
+  padding: 24px;
+  border: 1px solid rgba(167, 139, 250, 0.3);
+  border-radius: var(--radius);
+  background:
+    radial-gradient(700px 300px at 50% 0%, rgba(167, 139, 250, 0.09), transparent 70%),
+    linear-gradient(180deg, rgba(15, 23, 48, 0.96), rgba(12, 20, 48, 0.96));
+  overflow-x: auto;
+}
+.position-demo-head {
+  max-width: 900px;
+  margin: 0 auto 22px;
+  text-align: center;
+}
+.position-demo-head > span {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--k);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.position-demo-head > b {
+  display: block;
+  color: var(--t1);
+  font-size: 20px;
+  line-height: 1.5;
+}
+.position-demo-head p {
+  margin: 7px 0 0;
+  color: var(--t2);
+  font-size: 14px;
+  line-height: 1.72;
+}
+.position-matrix-flow {
+  display: grid;
+  grid-template-columns: minmax(250px, 1fr) 70px minmax(250px, 1fr) 70px minmax(250px, 1fr);
+  gap: 10px;
+  align-items: stretch;
+  min-width: 960px;
+}
+.position-matrix-stage {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 16px 12px;
+  border: 1px solid var(--hairline);
+  border-radius: 13px;
+  background: rgba(7, 11, 24, 0.45);
+}
+.position-matrix-stage.result {
+  border-color: rgba(245, 176, 66, 0.42);
+  background: rgba(245, 176, 66, 0.06);
+}
+.position-matrix-stage > span {
+  color: var(--t2);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+}
+.position-matrix-stage > small {
+  color: var(--t3);
+  font-size: 11.5px;
+  line-height: 1.5;
+  text-align: center;
+}
+.position-matrix-stage .fms-mat-name {
+  font-size: 17px;
+}
+.position-matrix-stage .fms-cell {
+  width: 58px;
+  min-width: 58px;
+  height: 42px;
+  font-size: 13.5px;
+}
+.position-matrix-op {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: var(--k);
+  text-align: center;
+}
+.position-matrix-op b {
+  font-family: var(--mono);
+  font-size: 30px;
+  line-height: 1;
+}
+.position-matrix-op span {
+  color: var(--t3);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+.position-token-example {
+  min-width: 960px;
+  margin-top: 14px;
+  padding: 15px 18px;
+  border-left: 3px solid var(--q);
+  background: var(--q-soft);
+  text-align: center;
+}
+.position-token-example > span {
+  color: var(--q);
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.position-token-example .math-block {
+  margin: 8px 0 5px;
   overflow: visible;
   font-size: 17px;
 }
-.score-title span {
+.position-token-example .math-block .katex-display {
+  text-align: center;
+}
+.position-token-example p {
+  margin: 4px 0 0;
   color: var(--t2);
   font-size: 13.5px;
+  line-height: 1.7;
+}
+.position-methods {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  min-width: 960px;
+  margin-top: 14px;
+}
+.position-methods article {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--hairline);
+  border-radius: 13px;
+  background: rgba(7, 11, 24, 0.44);
+}
+.position-methods article > span {
+  display: block;
+  color: var(--t3);
+  font-family: var(--mono);
+  font-size: 11.5px;
+}
+.position-methods article > b {
+  display: block;
+  margin-top: 3px;
+  color: var(--t1);
+  font-size: 16px;
+}
+.position-methods p {
+  margin: 10px 0;
+  color: var(--t2);
+  font-size: 13.5px;
+  line-height: 1.72;
+}
+.position-methods .math-block {
+  margin: 12px 0;
+  padding: 10px 8px;
+  border: 1px solid rgba(167, 139, 250, 0.2);
+  border-radius: 9px;
+  background: rgba(167, 139, 250, 0.06);
+  font-size: 14px;
+}
+.position-methods .math-block .katex-display {
+  text-align: center;
+}
+.position-demo-note {
+  min-width: 960px;
+  margin-top: 14px;
+  color: var(--t3);
+  font-size: 12.5px;
+  line-height: 1.68;
+  text-align: center;
 }
 
 /* ===== 整行 Softmax：公式与数值分层排版，避免 SVG 文本挤压 ===== */

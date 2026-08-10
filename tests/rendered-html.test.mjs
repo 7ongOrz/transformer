@@ -40,6 +40,9 @@ test("server-renders the Attention teaching page", async () => {
   assert.match(html, /FlashAttention：不改变数学/);
   assert.match(html, /代码与算子测试：从原理到真实算子/);
   assert.match(html, /Transformer 全景：Attention 被装在哪里/);
+  assert.match(html, /用 q₁ 生成分数矩阵 S 的第 1 行/);
+  assert.match(html, /内容矩阵 E \+ 位置矩阵 P = 输入矩阵 X/);
+  assert.match(html, /one-hot 选择位置向量/);
   assert.match(html, /<svg\b/i);
   assert.match(html, /katex/);
   assert.doesNotMatch(html, /20\s*(?:分钟|MIN)|TOTAL\s*·\s*20:00|20:00/i);
@@ -98,6 +101,9 @@ test("ships the current teaching page as an offline standalone HTML file", async
   assert.match(html, /Self-Attention · 向量级/);
   assert.match(html, /从第一行扩展到全部四行/);
   assert.match(html, /softmax 后权重 A/);
+  assert.match(html, /用 q₁ 生成分数矩阵 S 的第 1 行/);
+  assert.match(html, /内容矩阵 E \+ 位置矩阵 P = 输入矩阵 X/);
+  assert.match(html, /one-hot 选择位置向量/);
   assert.match(html, /FlashAttention：不改变数学/);
   assert.match(html, /data-standalone="attention"/);
   assert.match(html, /data:font\/woff2;base64,/);

@@ -574,118 +574,77 @@ function FigStageQKV() {
 }
 
 /* ============================================================
- * 向量阶段图2：固定 q₁ 扇出打分（FigStageScore）
- * 主角 q₁ 固定左侧（★），向 k₁..k₄ 扇出橙色连线，
- * 每条路径都标注点积分数 S₁,ⱼ，并在 k 块内完整展开 q₁·kⱼ 的乘加过程。
+ * 向量阶段图2：用 q₁ 生成分数矩阵 S 的第一行
  * 数据全程使用统一 4-token（token₁..token₄，d=2）。
  * ============================================================ */
 function FigStageScore() {
-  // —— 统一数据（token₁/token₂/token₃/token₄，d=2，√dₖ≈1.414）——
-  const q1: [number, number] = [0.04, 1.16];
-  const ks: { label: string; word: string; v: [number, number]; a: number; calc: string }[] = [
-    { label: "k₁", word: "token₁", v: [0.56, 1.16], a: 0.967, calc: "(0.04×0.56 + 1.16×1.16) / √2" },
-    { label: "k₂", word: "token₂", v: [1.26, -0.27], a: -0.186, calc: "(0.04×1.26 + 1.16×(−0.27)) / √2" },
-    { label: "k₃", word: "token₃", v: [0.82, 0.67], a: 0.573, calc: "(0.04×0.82 + 1.16×0.67) / √2" },
-    { label: "k₄", word: "token₄", v: [1.18, 1.21], a: 1.026, calc: "(0.04×1.18 + 1.16×1.21) / √2" },
+  const comparisons = [
+    { key: "k₁", scoreLabel: "S₁,₁", token: "Token 1", vector: "[0.56,1.16]", score: "0.967", tex: String.raw`\dfrac{0.04\times0.56+1.16\times1.16}{\sqrt{2}}` },
+    { key: "k₂", scoreLabel: "S₁,₂", token: "Token 2", vector: "[1.26,-0.27]", score: "−0.186", tex: String.raw`\dfrac{0.04\times1.26+1.16\times(-0.27)}{\sqrt{2}}` },
+    { key: "k₃", scoreLabel: "S₁,₃", token: "Token 3", vector: "[0.82,0.67]", score: "0.573", tex: String.raw`\dfrac{0.04\times0.82+1.16\times0.67}{\sqrt{2}}` },
+    { key: "k₄", scoreLabel: "S₁,₄", token: "Token 4", vector: "[1.18,1.21]", score: "1.026", tex: String.raw`\dfrac{0.04\times1.18+1.16\times1.21}{\sqrt{2}}` },
   ];
-  const MAX_A = 1.026;
-
-  // —— 布局坐标 ——
-  const YS = [130, 290, 450, 610];
-  const qY = 370;
-  const qRight = 220;
-  const kLeft = 650;
-  const pillX = 430;
 
   return (
     <div className="fig">
-      <div className="score-figure">
-        <div className="score-title">
-          <b>固定 q₁，向所有 k 扇出打分</b>
-          <Formula block tex={String.raw`S_{1,j}=\dfrac{q_1\cdot k_j}{\sqrt{d_k}},\qquad d_k=2,\ \sqrt{d_k}\approx1.414`} />
-          <span>每条路径都完整展开乘加与缩放过程</span>
+      <div className="score-explainer" role="img" aria-label="用 Token 1 的 Query 与四个 Key 分别计算缩放点积，并组成分数矩阵 S 的第一行">
+        <div className="score-explainer-head">
+          <span>只展开 Token 1 的输出路径</span>
+          <b>用 q₁ 生成分数矩阵 S 的第 1 行</b>
+          <p>“用 q₁ 打分”不是给 q₁ 自己评分，而是为了计算 <Formula tex="b_1" />，取 <Formula tex="Q" /> 的第 1 行 <Formula tex="q_1" />，分别衡量它与四个 Key 的匹配程度。</p>
         </div>
-      <svg viewBox="0 70 1000 670" width="1000" role="img" aria-label="固定 q1 扇出打分：q1 向 k1..k4 计算点积分数">
-        <defs>
-          <marker id="ss-ah" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
-            <path d="M0,0 L8,4.5 L0,9 z" fill="#f5b042" />
-          </marker>
-        </defs>
+        <div className="score-explainer-flow">
+          <article className="score-query-card">
+            <span>① 取 Q 的第 1 行</span>
+            <b>Token 1 的 Query</b>
+            <Formula block tex={String.raw`q_1=x_1W^Q=[0.04,\ 1.16]`} />
+            <p>它是 Token 1 的检索向量。这里只算 <Formula tex="b_1" />，所以使用 <Formula tex="q_1" />；若算 <Formula tex="b_2" />，就改用 <Formula tex="q_2" />。</p>
+          </article>
 
-        {/* 扇出连线（先画线，后画块以遮住端点） */}
-        {ks.map((k, i) => {
-          const ky = YS[i];
-          const isTop = Math.abs(k.a - MAX_A) < 1e-6;
-          return (
-            <path
-              key={`ln-${i}`}
-              d={`M${qRight},${qY} C${pillX},${qY} ${pillX},${ky} ${kLeft},${ky}`}
-              stroke="#f5b042"
-              strokeWidth={isTop ? 2.4 : 1.5}
-              fill="none"
-              markerEnd="url(#ss-ah)"
-              opacity={isTop ? 0.95 : 0.5}
-            />
-          );
-        })}
+          <div className="score-flow-arrow" aria-hidden="true"><b>→</b><span>同一种计算<br />重复 4 次</span></div>
 
-        {/* q₁ 主角块（左侧，高亮） */}
-        <g>
-          <rect x="35" y={qY - 65} width="185" height="130" rx="16" fill="rgba(245,176,66,0.2)" stroke="#f5b042" strokeWidth="2.4" />
-          <text x="127.5" y={qY - 23} textAnchor="middle" fill="#f5b042" fontSize="25" fontWeight="800" fontFamily="JetBrains Mono, monospace">q₁ ★</text>
-          <text x="127.5" y={qY + 12} textAnchor="middle" fill="#fbbf24" fontSize="18" fontFamily="JetBrains Mono, monospace" fontWeight="700">[ {q1[0]}, {q1[1]} ]</text>
-          <text x="127.5" y={qY + 43} textAnchor="middle" fill="#a9b4dc" fontSize="13.5">Query · token₁</text>
-        </g>
+          <div className="score-comparisons">
+            <div className="score-column-head">
+              <span>② 分别与 K 的四行比较</span>
+              <Formula tex={String.raw`S_{1,j}=q_1k_j^{\mathsf T}/\sqrt{d_k}`} />
+            </div>
+            {comparisons.map((item, i) => (
+              <div className="score-comparison" key={item.key}>
+                <div className="score-key-id">
+                  <span>第 {i + 1} 列 · {item.scoreLabel}</span>
+                  <b>{item.key}</b>
+                  <small>{item.token} · {item.vector}</small>
+                </div>
+                <Formula block tex={item.tex} />
+                <strong>= {item.score}</strong>
+              </div>
+            ))}
+          </div>
 
-        {/* k 块 + 分数药丸 + 四条完整乘加公式 */}
-        {ks.map((k, i) => {
-          const ky = YS[i];
-          const isTop = Math.abs(k.a - MAX_A) < 1e-6;
-          const pillY = (qY + ky) / 2;
-          return (
-            <g key={`k-${i}`}>
-              {/* k 块 */}
-              <rect
-                x={kLeft}
-                y={ky - 52}
-                width="315"
-                height="104"
-                rx="13"
-                fill={isTop ? "rgba(167,139,250,0.22)" : "rgba(167,139,250,0.09)"}
-                stroke="#a78bfa"
-                strokeWidth={isTop ? 2 : 1.2}
-              />
-              <text x={kLeft + 157.5} y={ky - 22} textAnchor="middle" fill="#a78bfa" fontSize="17" fontWeight="700" fontFamily="JetBrains Mono, monospace">{k.label} = [ {k.v[0]}, {k.v[1]} ]</text>
-              <text x={kLeft + 157.5} y={ky + 4} textAnchor="middle" fill="#6e7aab" fontSize="12.5">Key · {k.word}</text>
-              <text x={kLeft + 157.5} y={ky + 34} textAnchor="middle" fill="#c4b5fd" fontSize="13" fontFamily="JetBrains Mono, monospace" fontWeight="700">
-                {k.calc} = {k.a.toFixed(3)}
-              </text>
+          <div className="score-flow-arrow" aria-hidden="true"><b>→</b><span>按列号<br />依次排好</span></div>
 
-              {/* 分数药丸 */}
-              <rect
-                x={pillX - 75}
-                y={pillY - 21}
-                width="150"
-                height="42"
-                rx="21"
-                fill={isTop ? "rgba(56,189,248,0.3)" : "rgba(56,189,248,0.14)"}
-                stroke="#38bdf8"
-                strokeWidth={isTop ? 1.9 : 1.2}
-              />
-              <text x={pillX} y={pillY + 6} textAnchor="middle" fill="#7dd3fc" fontSize="16" fontFamily="JetBrains Mono, monospace" fontWeight="700">
-                S₁,{i + 1} = {k.a.toFixed(3)}
-              </text>
-            </g>
-          );
-        })}
+          <article className="score-row-card">
+            <span>③ 得到 S 的第 1 行</span>
+            <b>Token 1 看各 Token 的原始分数</b>
+            <div className="score-row-matrix" aria-label="S 的第一行等于 0.967、负 0.186、0.573、1.026">
+              <Formula tex="S_{1,:}=" />
+              <div>{comparisons.map((item) => <span key={item.key}>{item.score}</span>)}</div>
+            </div>
+            <div className="score-row-labels">
+              {comparisons.map((item, i) => (
+                <div key={item.key}><span>列 {i + 1}</span><b>{item.token}</b><strong>{item.score}</strong></div>
+              ))}
+            </div>
+            <p><b>行 1</b>来自 <Formula tex="q_1" />；<b>列 j</b>来自 <Formula tex="k_j" />。因此 <Formula tex="S_{1,4}" /> 就是 Token 1 看 Token 4 的原始分数。</p>
+          </article>
+        </div>
 
-        {/* 底部一句话结论 */}
-        <text x="500" y="712" textAnchor="middle" fill="#a9b4dc" fontSize="14">
-          q₁ 与 <tspan fill="#a78bfa" fontWeight="700">token₄</tspan> 匹配度最高（分数 1.026）→ softmax 后会重点看向「token₄」
-        </text>
-      </svg>
+        <div className="score-next-step">
+          <b>此时还不是注意力权重。</b>
+          <span>四个 <Formula tex="S_{1,j}" /> 只是可正可负的原始分数；下一步对整行做 <Formula tex={String.raw`A_{1,:}=\operatorname{softmax}(S_{1,:})`} />，才得到和为 1 的权重。</span>
+        </div>
       </div>
-      <div className="fig-cap">图 · 向量阶段 ② 打分：固定主角 q₁ 向所有 k 扇出，点积量化「与谁更匹配」的兼容度</div>
+      <div className="fig-cap">图 · 向量阶段 ② 打分：q₁ 与四个 kⱼ 的缩放点积，依次组成分数矩阵 S 的第 1 行</div>
     </div>
   );
 }
@@ -1135,13 +1094,16 @@ function FigTransformer() {
         <Arrow d="M225,86 V90" />
         <circle cx="225" cy="106" r="14" fill="#070b18" stroke="#a78bfa" />
         <text x="225" y="111" textAnchor="middle" fill="#a78bfa" fontSize="15">+</text>
-        <rect x="35" y="88" width="115" height="36" rx="8" fill="#0c1430" stroke="rgba(167,139,250,0.45)" />
-        <text x="92.5" y="103" textAnchor="middle" fill="#a78bfa" fontSize="11.5">Positional</text>
-        <text x="92.5" y="117" textAnchor="middle" fill="#a78bfa" fontSize="11.5">Encoding</text>
+        <rect x="35" y="84" width="115" height="44" rx="8" fill="#0c1430" stroke="rgba(167,139,250,0.45)" />
+        <text x="92.5" y="101" textAnchor="middle" fill="#a78bfa" fontSize="11.5">Positional</text>
+        <text x="92.5" y="119" textAnchor="middle" fill="#a78bfa" fontSize="11.5">Encoding</text>
         <Arrow d="M150,106 H207" />
         <Arrow d="M225,120 V146" />
         <rect x="80" y="138" width="290" height="257" rx="14" fill="none" stroke="rgba(255,255,255,0.08)" strokeDasharray="5 5" />
-        <text x="92" y="133" textAnchor="start" fill="#6e7aab" fontSize="12.5">N× Encoder Layer</text>
+        <g>
+          <rect x="91" y="128" width="126" height="20" rx="7" fill="#0c1430" stroke="rgba(56,189,248,0.28)" />
+          <text x="154" y="142" textAnchor="middle" fill="#7e8ac0" fontSize="10.8" fontWeight="700">N× Encoder Layer</text>
+        </g>
         <Box x={120} y={150} w={210} h={54} fill="rgba(56,189,248,0.14)" stroke="#38bdf8" label="Multi-Head Self-Attention" sub="本节讲的核心算子" lc="#38bdf8" sc="#6e7aab" />
         <Box x={150} y={222} w={150} h={36} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
         <Box x={120} y={278} w={210} h={50} fill="rgba(45,212,191,0.14)" stroke="#2dd4bf" label="Feed-Forward Network" sub="两层 MLP（逐位置作用）" lc="#2dd4bf" sc="#6e7aab" />
@@ -1149,23 +1111,25 @@ function FigTransformer() {
         <Arrow d="M225,204 V218" /><Arrow d="M225,258 V274" /><Arrow d="M225,328 V342" /><Arrow d="M225,382 V401" />
         <Arrow d="M120,177 H100 V240 H150" color="#f5b042" dash="4 3" />
         <Arrow d="M120,303 H100 V364 H150" color="#f5b042" dash="4 3" />
-        <text x="88" y="300" fill="#f5b042" fontSize="11.5">残差×2</text>
         <Box x={150} y={405} w={150} h={34} fill="rgba(244,114,182,0.14)" stroke="#f472b6" label="编码器输出 Memory" lc="#f472b6" />
 
         <Box x={625} y={48} w={140} h={38} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Output Embedding" lc="#a9b4dc" />
         <Arrow d="M695,86 V90" />
         <circle cx="695" cy="106" r="14" fill="#070b18" stroke="#a78bfa" />
         <text x="695" y="111" textAnchor="middle" fill="#a78bfa" fontSize="15">+</text>
-        <rect x="790" y="88" width="115" height="36" rx="8" fill="#0c1430" stroke="rgba(167,139,250,0.45)" />
-        <text x="847.5" y="103" textAnchor="middle" fill="#a78bfa" fontSize="11.5">Positional</text>
-        <text x="847.5" y="117" textAnchor="middle" fill="#a78bfa" fontSize="11.5">Encoding</text>
+        <rect x="790" y="84" width="115" height="44" rx="8" fill="#0c1430" stroke="rgba(167,139,250,0.45)" />
+        <text x="847.5" y="101" textAnchor="middle" fill="#a78bfa" fontSize="11.5">Positional</text>
+        <text x="847.5" y="119" textAnchor="middle" fill="#a78bfa" fontSize="11.5">Encoding</text>
         <Arrow d="M790,106 H713" />
         <Arrow d="M695,120 V146" />
         <rect x="540" y="138" width="310" height="332" rx="14" fill="none" stroke="rgba(255,255,255,0.08)" strokeDasharray="5 5" />
-        <text x="552" y="133" textAnchor="start" fill="#6e7aab" fontSize="12.5">N× Decoder Layer</text>
+        <g>
+          <rect x="551" y="128" width="126" height="20" rx="7" fill="#0c1430" stroke="rgba(244,114,182,0.28)" />
+          <text x="614" y="142" textAnchor="middle" fill="#7e8ac0" fontSize="10.8" fontWeight="700">N× Decoder Layer</text>
+        </g>
         <Box x={575} y={150} w={240} h={50} fill="rgba(245,176,66,0.14)" stroke="#f5b042" label="Masked Multi-Head Attention" sub="只能看过去（屏蔽未来位）" lc="#f5b042" sc="#6e7aab" />
         <Box x={620} y={216} w={150} h={34} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
-        <Box x={575} y={268} w={240} h={50} fill="rgba(56,189,248,0.14)" stroke="#38bdf8" label="Cross Attention（编码-解码交互）" sub="Q 来自解码器，K/V 由编码器 Memory 投影" lc="#38bdf8" sc="#6e7aab" />
+        <Box x={575} y={268} w={240} h={50} fill="rgba(56,189,248,0.14)" stroke="#38bdf8" label="Cross-Attention" sub="Q: Decoder · K/V: Encoder Memory" lc="#38bdf8" sc="#6e7aab" />
         <Box x={620} y={334} w={150} h={34} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
         <Box x={575} y={386} w={240} h={44} fill="rgba(45,212,191,0.14)" stroke="#2dd4bf" label="Feed-Forward Network" lc="#2dd4bf" />
         <Box x={620} y={442} w={150} h={32} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
@@ -1173,20 +1137,102 @@ function FigTransformer() {
         <Arrow d="M575,177 H555 V233 H620" color="#f5b042" dash="4 3" />
         <Arrow d="M575,293 H555 V351 H620" color="#f5b042" dash="4 3" />
         <Arrow d="M575,408 H555 V458 H620" color="#f5b042" dash="4 3" />
-        <text x="543" y="300" fill="#f5b042" fontSize="11.5">残差×3</text>
-        <Arrow d="M300,422 C440,422 460,293 573,293" color="#a78bfa" dash="4 3" />
-        <text x="430" y="360" fill="#a78bfa" fontSize="12.5">编码器 Memory → 投影成 K/V</text>
-        <Arrow d="M695,474 V492" />
-        <Box x={600} y={495} w={190} h={34} fill="rgba(167,139,250,0.14)" stroke="#a78bfa" label="Linear → Softmax → 词概率" lc="#a78bfa" />
+        <Arrow d="M300,422 H455 V293 H571" color="#a78bfa" dash="4 3" />
+        <text x="312" y="411" fill="#a78bfa" fontSize="11.5" fontWeight="700">Encoder Memory</text>
+        <text x="466" y="283" fill="#a78bfa" fontSize="11.5">作为 K/V 来源</text>
+        <Arrow d="M695,474 V489" />
+        <Box x={585} y={493} w={220} h={46} fill="rgba(167,139,250,0.14)" stroke="#a78bfa" label="Linear + Softmax" sub="输出下一 Token 的概率" lc="#a78bfa" sc="#7e8ac0" />
 
         <g transform="translate(80,555)">
           <rect x="0" y="0" width="14" height="14" rx="3" fill="rgba(56,189,248,0.14)" stroke="#38bdf8" /><text x="20" y="12" fill="#6e7aab" fontSize="13">Attention</text>
           <rect x="110" y="0" width="14" height="14" rx="3" fill="rgba(45,212,191,0.14)" stroke="#2dd4bf" /><text x="130" y="12" fill="#6e7aab" fontSize="13">FFN</text>
           <rect x="190" y="0" width="14" height="14" rx="3" fill="#0c1430" stroke="rgba(255,255,255,0.08)" /><text x="210" y="12" fill="#6e7aab" fontSize="13">Add&amp;Norm</text>
           <rect x="310" y="0" width="14" height="14" rx="3" fill="#070b18" stroke="#a78bfa" /><text x="330" y="12" fill="#6e7aab" fontSize="13">位置编码</text>
+          <line x1="430" y1="7" x2="447" y2="7" stroke="#f5b042" strokeWidth="1.5" strokeDasharray="4 3" /><text x="457" y="12" fill="#6e7aab" fontSize="13">残差连接</text>
         </g>
       </svg>
       <div className="fig-cap">图 · 论文 Figure 1 重绘 — Attention 在 Encoder/Decoder 中共出现三次，是同一算子</div>
+    </div>
+  );
+}
+
+function PositionEncodingFlow() {
+  const contentEmbedding = [
+    [0.3, 1.0],
+    [1.3, 0.2],
+    [0.5, 0.8],
+    [0.7, 1.2],
+  ];
+  const positionEmbedding = [
+    [0.1, 0.2],
+    [0.2, 0.1],
+    [0.3, 0.1],
+    [0.4, 0.3],
+  ];
+  const attentionInput = [
+    [0.4, 1.2],
+    [1.5, 0.3],
+    [0.8, 0.9],
+    [1.1, 1.5],
+  ];
+  const rows = ["Token 1", "Token 2", "Token 3", "Token 4"];
+  const cols = ["d₁", "d₂"];
+
+  return (
+    <div className="position-demo">
+      <div className="position-demo-head">
+        <span>进入第一层 Attention 之前</span>
+        <b>内容矩阵 E + 位置矩阵 P = 输入矩阵 X</b>
+        <p>Self-Attention 只看向量间的关系，本身分不出 Token 的先后顺序。位置编码先把位置 <Formula tex="i" /> 的向量 <Formula tex="p_i" /> 注入内容 embedding <Formula tex="e_i" />，再把结果 <Formula tex="x_i" /> 送去生成 Q / K / V。</p>
+      </div>
+
+      <div className="position-matrix-flow" role="img" aria-label="四个 Token 的内容向量逐行加上位置向量，得到 Attention 输入矩阵 X">
+        <div className="position-matrix-stage">
+          <span>① Token 内容</span>
+          <FmsMatGrid data={contentEmbedding} name="E" shape="[4×2]" pal={{ c: "#a9b4dc", t: "rgba(169,180,220,0.08)" }} rowLabels={rows} colLabels={cols} cornerLabel="位置＼维" digits={2} />
+          <small>来自 token embedding 表</small>
+        </div>
+        <div className="position-matrix-op"><b>+</b><span>逐行、逐维相加</span></div>
+        <div className="position-matrix-stage">
+          <span>② 位置信息</span>
+          <FmsMatGrid data={positionEmbedding} name="P" shape="[4×2]" pal={FMS_PAL.K} rowLabels={rows} colLabels={cols} cornerLabel="位置＼维" digits={2} />
+          <small>第 i 行只对应序列位置 i</small>
+        </div>
+        <div className="position-matrix-op"><b>=</b><span>得到当前层输入</span></div>
+        <div className="position-matrix-stage result">
+          <span>③ Attention 输入</span>
+          <FmsMatGrid data={attentionInput} name="X" shape="[4×2]" pal={FMS_PAL.Q} rowLabels={rows} colLabels={cols} cornerLabel="位置＼维" digits={2} focusRow={0} />
+          <small>每行随后分别投影成 qᵢ / kᵢ / vᵢ</small>
+        </div>
+      </div>
+
+      <div className="position-token-example">
+        <span>把第 1 行单独展开</span>
+        <Formula block tex={String.raw`\underbrace{[0.30,\ 1.00]}_{e_1\;\text{内容}}+\underbrace{[0.10,\ 0.20]}_{p_1\;\text{位置}}=\underbrace{[0.40,\ 1.20]}_{x_1\;\text{输入}}`} />
+        <p>这就是前文一直使用的 <Formula tex="x_1" />；随后才有 <Formula tex={String.raw`q_1=x_1W^Q=[0.04,\ 1.16]`} />。因此位置编码位于 Q / K / V 投影之前。</p>
+      </div>
+
+      <div className="position-methods">
+        <article>
+          <span>为什么位置表能“按位置取一行”</span>
+          <b>one-hot 选择位置向量</b>
+          <p>若使用可学习位置表 <Formula tex={String.raw`P\in\mathbb{R}^{L_{max}\times d_{model}}`} />，位置 <Formula tex="i" /> 的 one-hot 行向量 <Formula tex="r_i^{\mathsf T}" /> 只会选中 <Formula tex="P" /> 的第 i 行：</p>
+          <Formula block tex={String.raw`r_3^{\mathsf T}=\begin{bmatrix}0&0&1&0\end{bmatrix},\qquad p_3=r_3^{\mathsf T}P=P_{3,:}`} />
+          <p>把内容和 one-hot 先拼接，再乘下面这个分块矩阵，结果仍是相加；这解释了图里为什么可以直接用 <Formula tex="e_i+p_i" />：</p>
+          <Formula block tex={String.raw`\begin{bmatrix}e_i&r_i^{\mathsf T}\end{bmatrix}\begin{bmatrix}I\\P\end{bmatrix}=e_i+r_i^{\mathsf T}P=e_i+p_i=x_i`} />
+        </article>
+
+        <article>
+          <span>原始 Transformer 的具体做法</span>
+          <b>固定正弦 / 余弦位置编码</b>
+          <Formula block tex={String.raw`\begin{aligned}PE_{(pos,2i)}&=\sin\!\left(pos/10000^{2i/d_{model}}\right)\\PE_{(pos,2i+1)}&=\cos\!\left(pos/10000^{2i/d_{model}}\right)\end{aligned}`} />
+          <p>例如 <Formula tex={String.raw`d_{model}=4,\ pos=1`} /> 时，两组频率分别使用分母 1 和 100：</p>
+          <Formula block tex={String.raw`\begin{aligned}PE(1)&=\begin{bmatrix}\sin1&\cos1&\sin0.01&\cos0.01\end{bmatrix}\\&\approx\begin{bmatrix}0.8415&0.5403&0.0100&0.99995\end{bmatrix}\end{aligned}`} />
+          <p>每个位置都由同一公式确定，不参与训练；不同维度使用不同频率，使模型能区分绝对位置与相对间距。</p>
+        </article>
+      </div>
+
+      <div className="position-demo-note">上方 2 维矩阵沿用全文的可手算数字，用来说明“如何相加并接到 q₁”；它不是原始论文正弦公式的实际输出。真实模型中 <Formula tex="d_{model}" /> 更大，计算规则不变。</div>
     </div>
   );
 }
@@ -1453,12 +1499,12 @@ export default function Home() {
           {/* ===== 向量级 ===== */}
           <section className="section" id="s2">
             <SecHead idx="02" title="Self-Attention · 向量级（一步一步算）" />
-            <p className="sec-lead">先不急着做点积。下面先说明每个符号从哪里来，再固定 Token 1，完整算出它如何读取 Token 1～4 的信息。没有 causal mask 时，四个位置都能按同样方式并行计算。</p>
+            <p className="sec-lead">先不急着做点积。下面先说明每个符号从哪里来，再只展开 Token 1，完整算出它如何读取 Token 1～4 的信息。没有 causal mask 时，四个位置都能按同样方式并行计算。</p>
 
             <AttentionSetupGuide />
 
-            <h3>固定 Token 1：从 q₁ 到新表示 b₁</h3>
-            <p className="section-bridge">q₁ 只代表 Token 1 的 Query；它要与四个 Key 逐一比较，得到四个权重，再用这四个权重汇聚四个 Value。这里把矩阵运算拆开，只追踪输出矩阵的第一行。</p>
+            <h3>只展开 Token 1：从 q₁ 到新表示 b₁</h3>
+            <p className="section-bridge">为了演示一行怎样算，这里只求 Token 1 的输出 <Formula tex="b_1" />，所以取 <Formula tex="Q" /> 的第 1 行 <Formula tex={String.raw`q_1=x_1W^Q`} />。q₁ 并非特殊变量：每个 <Formula tex="q_i" /> 都负责生成分数矩阵 <Formula tex="S" /> 的第 i 行；本节展开第 1 行，其余三行算法完全相同。</p>
             <div className="legend-row">
               <span><i className="lq" />Query：用于发起匹配</span>
               <span><i className="lk" />Key：用于被 Query 匹配</span>
@@ -1466,7 +1512,7 @@ export default function Home() {
             </div>
             <div className="calculation-route" aria-label="Token 1 的四步 Attention 计算路线">
               <div><b>① 投影</b><Formula block tex={String.raw`X\rightarrow Q,K,V`} /><span>准备 q₁、全部 kⱼ 与全部 vⱼ</span></div>
-              <div><b>② 打分</b><Formula block tex={String.raw`s_{1j}=q_1k_j^{\mathsf T}/\sqrt{d_k}`} /><span>衡量 Token 1 与各位置的匹配程度</span></div>
+              <div><b>② 生成 S 的第 1 行</b><Formula block tex={String.raw`S_{1,j}=q_1k_j^{\mathsf T}/\sqrt{d_k}`} /><span>q₁ 与四个 kⱼ 分别比较，得到四个原始分数</span></div>
               <div><b>③ 归一化</b><Formula block tex={String.raw`A_{1,:}=\operatorname{softmax}(S_{1,:})`} /><span>四个分数共同变成和为 1 的权重</span></div>
               <div><b>④ 汇聚</b><Formula block tex={String.raw`b_1=\sum_j A_{1j}v_j`} /><span>按权重组合四个 Value</span></div>
             </div>
@@ -1861,11 +1907,9 @@ def attention_ref(q, k, v, mask=None):
             </div>
 
             <h3>位置编码：把「顺序」补回去</h3>
-            <p className="sec-lead">Self‑Attention 本身不包含位置信息。<b style={{ color: "#eef3ff" }}>原始 Transformer</b> 在输入 embedding 上直接加正余弦位置向量；现代模型也会改变注入位置，例如 RoPE 旋转 Q/K，ALiBi 给注意力分数加入线性偏置。</p>
-            <div className="eq-box">
-              <Formula block tex={String.raw`PE_{(pos,\,2i)} = \sin\!\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right),\quad PE_{(pos,\,2i+1)} = \cos\!\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right)`} />
-            </div>
-            <div className="note">用不同频率的正余弦，让每个位置获得<b>位置相关</b>的编码；且对任意固定间距 <Formula tex="k" />，<Formula tex={String.raw`PE_{pos+k}`} /> 是 <Formula tex={String.raw`PE_{pos}`} /> 的线性函数——论文认为这可能有利于外推到比训练更长的序列。</div>
+            <p className="sec-lead">这里把之前省略的计算链补完整：先说明位置向量怎样与内容向量组成 <Formula tex="X" />，再说明位置表如何取值，最后代入原始 Transformer 的正弦 / 余弦公式。</p>
+            <PositionEncodingFlow />
+            <div className="note">现代模型未必沿用“输入端直接相加”：例如 <b>RoPE</b> 在每层对 Q / K 做与位置相关的旋转，<b>ALiBi</b> 在注意力分数上加入线性位置偏置。注入位置不同，但目标相同——让 Attention 能感知顺序与距离。</div>
           </section>
 
           <div className="foot">
