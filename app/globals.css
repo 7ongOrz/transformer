@@ -56,6 +56,7 @@ html {
 
 body {
   margin: 0;
+  font-size: 16px;
   font-family: var(--sans);
   color: var(--t1);
   background:
@@ -200,7 +201,7 @@ button {
   border-radius: 3px;
 }
 
-@media (max-width: 1360px) {
+@media (max-width: 1599px) {
   .sidenav {
     display: none;
   }
@@ -210,7 +211,7 @@ button {
 .main {
   margin-left: 256px;
 }
-@media (max-width: 1360px) {
+@media (max-width: 1599px) {
   .main {
     margin-left: 0;
   }
@@ -219,7 +220,7 @@ button {
 .wrap {
   max-width: var(--maxw);
   margin: 0 auto;
-  padding: 0 clamp(20px, 5vw, 56px) 140px;
+  padding: 0 clamp(20px, 4vw, 48px) 140px;
 }
 
 /* ===== Hero ===== */
@@ -353,29 +354,40 @@ button {
   background: var(--att-soft);
 }
 .sec-head h2 {
+  flex: 1;
+  min-width: min(280px, 100%);
   margin: 0;
   font-size: clamp(26px, 3.4vw, 33px);
   font-weight: 800;
   letter-spacing: -0.3px;
   color: #dce6ff;
+  text-wrap: balance;
 }
 .sec-lead {
   color: var(--t2);
-  font-size: 15.5px;
-  max-width: 1000px;
+  font-size: 16px;
+  max-width: none;
+  line-height: 1.8;
   margin: 8px 0 28px;
+  text-wrap: pretty;
+  overflow-wrap: break-word;
 }
 h3 {
-  font-size: 18px;
+  position: relative;
+  display: block;
+  padding-left: 13px;
+  font-size: 19px;
   margin: 32px 0 12px;
   color: #c8d4ff;
   font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 9px;
+  line-height: 1.5;
+  text-wrap: balance;
 }
 h3::before {
   content: "";
+  position: absolute;
+  left: 0;
+  top: 0.36em;
   width: 4px;
   height: 17px;
   border-radius: 3px;
@@ -398,12 +410,12 @@ p {
 }
 .grid2 {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
 }
 .grid3 {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
 }
 @media (max-width: 760px) {
@@ -415,6 +427,12 @@ p {
 /* ===== 公式 ===== */
 .math {
   line-height: 1.4;
+}
+.math-inline {
+  display: inline-block;
+  max-width: 100%;
+  white-space: nowrap;
+  vertical-align: -0.08em;
 }
 .math-block {
   overflow-x: auto;
@@ -458,6 +476,9 @@ p {
   margin: 16px 0;
   color: var(--t2);
   font-size: 14.5px;
+  line-height: 1.75;
+  text-wrap: pretty;
+  overflow-wrap: break-word;
 }
 .note.warn {
   border-color: var(--warn);
@@ -584,6 +605,8 @@ p {
   font-size: 12.5px;
   line-height: 1.7;
   color: var(--t3);
+  text-wrap: pretty;
+  overflow-wrap: break-word;
 }
 
 /* 打分图标题使用 KaTeX，保证根号与分数线完整渲染 */
@@ -815,21 +838,34 @@ pre code {
 .tok-nm { color: var(--out); }
 .tok-op { color: #9ec5ff; }
 .code-title {
-  display: flex;
-  align-items: center;
-  gap: 9px;
+  position: relative;
+  display: block;
+  padding-left: 15px;
   font-family: var(--mono);
   font-size: 12px;
   color: var(--t3);
   margin: 22px 0 4px;
+  line-height: 1.7;
+  text-wrap: pretty;
 }
 .code-title::before {
   content: "";
+  position: absolute;
+  left: 0;
+  top: 0.64em;
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: var(--att);
   box-shadow: 0 0 8px var(--att);
+}
+
+.note code,
+p code {
+  display: inline-block;
+  max-width: 100%;
+  white-space: nowrap;
+  vertical-align: baseline;
 }
 
 /* ===== 矩阵交互 ===== */
@@ -1082,30 +1118,33 @@ pre code {
 
 /* 矩阵级及后续章节统一提高正文、公式和图注可读性 */
 .detail-section .sec-lead {
-  max-width: 1080px;
-  font-size: 17px;
-  line-height: 1.85;
+  max-width: none;
+  font-size: 16px;
+  line-height: 1.8;
+  text-wrap: balance;
 }
 .detail-section h3 {
-  font-size: 20px;
+  font-size: 19px;
 }
 .detail-section .note {
-  font-size: 15.5px;
-  line-height: 1.8;
+  font-size: 15px;
+  line-height: 1.75;
 }
 .detail-section .card p {
-  font-size: 15.5px;
-  line-height: 1.8;
+  font-size: 15px;
+  line-height: 1.75;
+  text-wrap: pretty;
+  overflow-wrap: break-word;
 }
 .detail-section .eq-box {
-  font-size: 20px;
+  font-size: 19px;
 }
 .detail-section .fig-cap {
-  font-size: 13.5px;
+  font-size: 13px;
 }
 .detail-section pre {
-  font-size: 14.5px;
-  line-height: 1.75;
+  font-size: 14px;
+  line-height: 1.72;
 }
 .detail-section .mname {
   font-size: 14px;
@@ -1204,10 +1243,10 @@ pre code {
   border-radius: var(--radius-sm);
 }
 .fms-stage-head {
-  display: flex;
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
   align-items: center;
   gap: 12px;
-  flex-wrap: wrap;
   margin-bottom: 16px;
 }
 .fms-stage-num {
@@ -1225,12 +1264,18 @@ pre code {
   font-size: 17px;
   font-weight: 700;
   color: var(--t1);
+  min-width: 0;
+  line-height: 1.55;
+  text-wrap: pretty;
 }
 .fms-stage-sub {
-  margin-left: auto;
+  grid-column: 2;
+  margin-top: -6px;
   font-size: 13px;
   color: var(--t3);
   font-family: var(--mono);
+  line-height: 1.6;
+  text-wrap: pretty;
 }
 .fms-stage1 {
   display: flex;
@@ -1367,8 +1412,10 @@ pre code {
 .fms-read {
   font-size: 15px;
   color: var(--t2);
-  max-width: 520px;
+  max-width: 680px;
   line-height: 1.65;
+  text-wrap: pretty;
+  overflow-wrap: break-word;
 }
 .fms-read b {
   color: var(--t1);

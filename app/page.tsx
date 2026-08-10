@@ -1408,7 +1408,7 @@ export default function Home() {
           {/* ===== 向量级 ===== */}
           <section className="section" id="s2">
             <SecHead idx="02" title="Self-Attention · 向量级（一步一步算）" />
-            <p className="sec-lead">Self-Attention 不沿时间步递归，而是直接计算序列中各位置的相关性；没有 causal mask 时，所有位置可以并行处理。</p>
+            <p className="sec-lead">Self‑Attention 不沿时间步递归，而是直接计算序列中各位置的相关性；没有 causal mask 时，所有位置可以并行处理。</p>
             <div className="legend-row">
               <span><i className="lq" />Query 查询：我想找什么</span>
               <span><i className="lk" />Key 键：我有什么可被匹配</span>
@@ -1440,7 +1440,7 @@ export default function Home() {
             <div className="grid2">
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>不缩放会怎样</h3>
-                <p className="t3">点积是 <Formula tex="d_k" /> 个乘积之和。<Formula tex="d_k" /> 大 → 点积方差大 → softmax 更易饱和近似 one-hot → 梯度可能变得很小。</p>
+                <p className="t3">点积是 <Formula tex="d_k" /> 个乘积之和。<Formula tex="d_k" /> 大 → 点积方差大 → softmax 更易饱和近似 one‑hot → 梯度可能变得很小。</p>
               </div>
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>除以 <Formula tex={String.raw`\sqrt{d_k}`} /> 的效果</h3>
@@ -1678,7 +1678,7 @@ export default function Home() {
                 <p className="t3">仍是 <Formula tex={String.raw`O(N^2d)`} /> 量级；但在线归一化有额外运算、反向可能靠重算换显存，实际运算条数并非完全不变。省下的是访存与中间存储，收益随 shape/dtype/硬件/mask 变化。</p>
               </div>
             </div>
-            <div className="note">参考：FlashAttention（Dao 等，2022）、FlashAttention-2（Dao，2023）在分块与并行划分上进一步优化。下一节看它如何对应到真实的算子调用与测试。</div>
+            <div className="note">参考：FlashAttention（Dao 等，2022）、FlashAttention‑2（Dao，2023）在分块与并行划分上进一步优化。下一节看它如何对应到真实的算子调用与测试。</div>
           </section>
 
           {/* ===== Transformer 收尾定位 ===== */}
@@ -1716,7 +1716,7 @@ def attention_ref(q, k, v, mask=None):
 )
 # 需要对照不同后端时，可强制选择内核：
 # with torch.nn.attention.sdpa_kernel(SDPBackend.FLASH_ATTENTION): ...`}</code></pre>
-            <div className="note"><b>F.scaled_dot_product_attention</b>（SDPA）根据输入形状、数据类型、设备和可用内核，从 math、Flash、Memory-Efficient 等后端中选择可用实现——FlashAttention 只是其中之一。某个 fused 后端受限时会尝试其他可用实现，最终才可能回退到 math；它既不保证命中 flash，也不是实测后选择「最快」（后端种类随版本演进，新版还有 cuDNN 等）。可用 <code>sdpa_kernel</code> 强制指定后端做对照验证。它与参考实现实数等价；<b>只有命中 fused 后端时</b>才能避免/减少完整注意力矩阵的显存物化，回退到 math 则和参考实现一样会物化中间量。</div>
+            <div className="note"><b>F.scaled_dot_product_attention</b>（SDPA）根据输入形状、数据类型、设备和可用内核，从 math、Flash、Memory‑Efficient 等后端中选择可用实现——FlashAttention 只是其中之一。某个 fused 后端受限时会尝试其他可用实现，最终才可能回退到 math；它既不保证命中 flash，也不是实测后选择「最快」（后端种类随版本演进，新版还有 cuDNN 等）。可用 <code>sdpa_kernel</code> 强制指定后端做对照验证。它与参考实现实数等价；<b>只有命中 fused 后端时</b>才能避免/减少完整注意力矩阵的显存物化，回退到 math 则和参考实现一样会物化中间量。</div>
 
             <div className="code-title">③ 多头自注意力 — reshape → transpose → SDPA → concat → Wᴼ</div>
             <pre><code>{`class MultiHeadAttention(nn.Module):
@@ -1777,8 +1777,8 @@ def attention_ref(q, k, v, mask=None):
             <p className="sec-lead">Attention 本身只是一个算子。把它装进完整模型，就是这篇被引用几万次的论文——<b style={{ color: "#38bdf8" }}>左 Encoder</b>、<b style={{ color: "#f472b6" }}>右 Decoder</b>，各堆叠 N 层。</p>
             <FigTransformer />
             <div className="grid2">
-              <div className="note"><b>Encoder</b>：对源序列做 Self-Attention + FFN，逐层提炼表示，输出的 Memory 作为 Cross-Attention 的 K/V 来源。</div>
-              <div className="note"><b>Decoder</b>：先用 <b>Masked</b> Self-Attention（屏蔽未来位防作弊），再通过 <b>Cross-Attention</b> 把编码器 Memory 投影成 K/V 来读取，最后预测下一个词。</div>
+              <div className="note"><b>Encoder</b>：对源序列做 Self‑Attention + FFN，逐层提炼表示，输出的 Memory 作为 Cross‑Attention 的 K/V 来源。</div>
+              <div className="note"><b>Decoder</b>：先用 <b>Masked</b> Self‑Attention（屏蔽未来位防作弊），再通过 <b>Cross‑Attention</b> 把编码器 Memory 投影成 K/V 来读取，最后预测下一个词。</div>
             </div>
             <div className="note warn">这张图里 <b>Attention 出现了三次</b>（Encoder 自注意、Decoder 掩码自注意、Decoder 交叉注意）——是同一个算子的三种调用。这一节只为定位：讲清楚 Attention 在整个模型里扮演什么角色。</div>
 
@@ -1789,17 +1789,17 @@ def attention_ref(q, k, v, mask=None):
                 <p className="t3">Encoder–Decoder 完整结构，用于翻译等 seq2seq 任务。</p>
               </div>
               <div className="card">
-                <h3 style={{ marginTop: 0 }}>BERT（Encoder-only）</h3>
+                <h3 style={{ marginTop: 0 }}>BERT（Encoder‑only）</h3>
                 <p className="t3">只保留 Encoder，双向自注意力，擅长理解类任务（分类、抽取）。</p>
               </div>
               <div className="card">
-                <h3 style={{ marginTop: 0 }}>GPT / LLaMA（Decoder-only）</h3>
-                <p className="t3">只保留 Decoder，主要用 causal self-attention 自回归生成——没有独立 Encoder 和 Cross-Attention。</p>
+                <h3 style={{ marginTop: 0 }}>GPT / LLaMA（Decoder‑only）</h3>
+                <p className="t3">只保留 Decoder，主要用 causal self‑attention 自回归生成——没有独立 Encoder 和 Cross‑Attention。</p>
               </div>
             </div>
 
             <h3>位置编码：把「顺序」补回去</h3>
-            <p className="sec-lead">Self-Attention 本身不包含位置信息。<b style={{ color: "#eef3ff" }}>原始 Transformer</b> 在输入 embedding 上直接加正余弦位置向量；现代模型也会改变注入位置，例如 RoPE 旋转 Q/K，ALiBi 给注意力分数加入线性偏置。</p>
+            <p className="sec-lead">Self‑Attention 本身不包含位置信息。<b style={{ color: "#eef3ff" }}>原始 Transformer</b> 在输入 embedding 上直接加正余弦位置向量；现代模型也会改变注入位置，例如 RoPE 旋转 Q/K，ALiBi 给注意力分数加入线性偏置。</p>
             <div className="eq-box">
               <Formula block tex={String.raw`PE_{(pos,\,2i)} = \sin\!\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right),\quad PE_{(pos,\,2i+1)} = \cos\!\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right)`} />
             </div>
