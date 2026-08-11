@@ -41,9 +41,11 @@ test("server-renders the Attention teaching page", async () => {
   assert.match(html, /Self-Attention · 矩阵级/);
   assert.match(html, /与 Mask/);
   assert.match(html, /多头注意力（Multi-Head）/);
-  assert.match(html, /沿特征维拆头，不拆 Token/);
+  assert.match(html, /把融合投影结果重排为三个头，不拆 Token/);
   assert.match(html, /mh-head-lane mh-head-1/);
-  assert.match(html, /拼接不会把 4 个 Token 变成 2 个/);
+  assert.match(html, /三个头各算一套/);
+  assert.match(html, /Y.*有什么用/);
+  assert.match(html, /与上方逐头计算完全相同的权重矩阵/);
   assert.match(html, /FlashAttention：不改变数学/);
   assert.match(html, /代码与算子测试：从原理到真实算子/);
   assert.match(html, /Transformer 全景：Attention 被装在哪里/);
@@ -61,36 +63,43 @@ test("server-renders the Attention teaching page", async () => {
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|react-loading-skeleton/i);
 });
 
-test("keeps the two-head walkthrough on one verified numerical chain", () => {
-  assert.equal(multiHeadDemo.heads.length, 2);
-  assert.deepEqual(multiHeadDemo.Q.map((row) => row.length), [4, 4, 4, 4]);
+test("keeps the three-head walkthrough on one verified numerical chain", () => {
+  assert.equal(multiHeadDemo.heads.length, 3);
+  assert.deepEqual(multiHeadDemo.Q.map((row) => row.length), [6, 6, 6, 6]);
   assert.deepEqual(multiHeadDemo.heads.map((head) => head.Q.map((row) => row.length)), [
+    [2, 2, 2, 2],
     [2, 2, 2, 2],
     [2, 2, 2, 2],
   ]);
   assert.deepEqual(rounded(multiHeadDemo.heads[0].S), [
-    [0.707, 0, 0.707, 0],
-    [0, 0.707, 0.707, 0.707],
-    [0.707, 0.707, 1.414, 0.707],
-    [0, 0.707, 0.707, 0.707],
+    [2.828, 0, 2.828, 0],
+    [0, 0.707, 0, 0.707],
+    [2.828, 0, 2.828, 0],
+    [0, 0.707, 0, 0.707],
   ]);
   assert.deepEqual(rounded(multiHeadDemo.heads[1].A), [
-    [0.276, 0.136, 0.194, 0.393],
-    [0.242, 0.242, 0.345, 0.17],
-    [0.286, 0.141, 0.286, 0.286],
-    [0.249, 0.123, 0.123, 0.505],
+    [0.76, 0.185, 0.045, 0.011],
+    [0.308, 0.308, 0.308, 0.075],
+    [0.038, 0.157, 0.647, 0.157],
+    [0.026, 0.106, 0.434, 0.434],
+  ]);
+  assert.deepEqual(rounded(multiHeadDemo.heads[2].A), [
+    [0.131, 0.266, 0.539, 0.065],
+    [0.131, 0.266, 0.539, 0.065],
+    [0.131, 0.266, 0.539, 0.065],
+    [0.131, 0.266, 0.539, 0.065],
   ]);
   assert.deepEqual(rounded(multiHeadDemo.H), [
-    [0.67, 0.665, 0.801, 0.927],
-    [0.427, 0.859, 1.175, 0.34],
-    [0.602, 0.801, 1, 0.718],
-    [0.427, 0.859, 0.618, 1.137],
+    [1.888, 0.056, 1.693, 0.285, 1, 1.279],
+    [0.66, 0.67, 0.85, 1, 1, 1.279],
+    [1.888, 0.056, 0.076, 1.609, 1, 1.279],
+    [0.66, 0.67, -0.277, 1.409, 1, 1.279],
   ]);
   assert.deepEqual(rounded(multiHeadDemo.Y), [
-    [1.07, 1.129, 1.135, 1.26],
-    [1.015, 1.029, 1.389, 0.77],
-    [1.102, 1.16, 1.301, 1.118],
-    [0.736, 1.427, 0.831, 1.566],
+    [2.985, 0.518, 2.665, 0.939, 1.612, 1.356],
+    [1.336, 1.489, 1.515, 1.807, 1.279, 1.596],
+    [2.177, 1.18, 1.049, 2.262, 1.208, 1.686],
+    [0.772, 1.694, 0.388, 2.215, 0.997, 1.698],
   ]);
 });
 
@@ -194,7 +203,7 @@ test("ships the current teaching page as an offline standalone HTML file", async
   assert.match(html, /输入矩阵/);
   assert.match(html, /one-hot 选择位置向量/);
   assert.match(html, /FlashAttention：不改变数学/);
-  assert.match(html, /沿特征维拆头，不拆 Token/);
+  assert.match(html, /把融合投影结果重排为三个头，不拆 Token/);
   assert.match(html, /多头最终输出/);
   assert.match(html, /data-standalone="attention"/);
   assert.match(html, /data-queries=/);

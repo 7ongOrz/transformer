@@ -66,39 +66,47 @@ const O = cleanMatrix(matMul(A, V));
 export const attentionDemo = { X, WQ, WK, WV, Q, K, V, S, A, O };
 
 /*
- * Multi-Head teaching example: four tokens, d_model=4, two heads, d_k=d_v=2.
+ * Multi-Head teaching example: four tokens, d_model=6, three heads, d_k=d_v=2.
  * The weights are deliberately small fixed values so every intermediate matrix
  * remains readable; real models learn these matrices during training.
  */
 const multiHeadX = [
-  [1, 0, 1, 0],
-  [0, 1, 0, 1],
-  [1, 1, 1, 1],
-  [0, 1, 1, -1],
+  [2, 0, 2, 0, 1, 0],
+  [0, 1, 1, 1, 1, 1],
+  [2, 0, 0, 2, 1, 2],
+  [0, 1, -1, 1, 1, -1],
 ];
 const multiHeadWQ = [
-  [1, 0, 0, 0],
-  [0, 1, 0, 0],
-  [0, 0, 1, 0],
-  [0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0],
+  [0, 1, 0, 0, 0, 0],
+  [0, 0, 1, 0, 0, 0],
+  [0, 0, 0, 1, 0, 0],
+  [0, 0, 0, 0, 1, 0],
+  [0, 0, 0, 0, 0, 1],
 ];
 const multiHeadWK = [
-  [1, 0, 0, 0],
-  [0, 1, 0, 0],
-  [0, 0, 0.5, 0.5],
-  [0, 0, -0.5, 0.5],
+  [1, 0, 0, 0, 0, 0],
+  [0, 1, 0, 0, 0, 0],
+  [0, 0, 1, 0, 0, 0],
+  [0, 0, 0, 1, 0, 0],
+  [0, 0, 0, 0, 0, 1],
+  [0, 0, 0, 0, 1, 0],
 ];
 const multiHeadWV = [
-  [1, 0, 0, 0],
-  [0, 1, 0, 0],
-  [0, 0, 1, 1],
-  [0, 0, 1, -1],
+  [1, 0, 0, 0, 0, 0],
+  [0, 1, 0, 0, 0, 0],
+  [0, 0, 1, 0, 0, 0],
+  [0, 0, 0, 1, 0, 0],
+  [0, 0, 0, 0, 1, 0],
+  [0, 0, 0, 0, 0, 1],
 ];
 const multiHeadWO = [
-  [1, 0, 0.5, 0],
-  [0, 1, 0, 0.5],
-  [0.5, 0, 1, 0],
-  [0, 0.5, 0, 1],
+  [1, 0, 0.25, 0, 0.1, 0],
+  [0, 1, 0, 0.25, 0, 0.1],
+  [0.5, 0, 1, 0, 0.25, 0],
+  [0, 0.5, 0, 1, 0, 0.25],
+  [0.25, 0, 0.5, 0, 1, 0],
+  [0, 0.25, 0, 0.5, 0, 1],
 ];
 
 const multiHeadQ = cleanMatrix(matMul(multiHeadX, multiHeadWQ));
@@ -118,9 +126,9 @@ function calculateHead(headIndex) {
   return { Q: query, K: key, V: value, S: score, A: weight, H: output };
 }
 
-const multiHeadHeads = [calculateHead(0), calculateHead(1)];
-const multiHeadConcat = cleanMatrix(multiHeadHeads[0].H.map((row, index) =>
-  row.concat(multiHeadHeads[1].H[index]),
+const multiHeadHeads = Array.from({ length: 3 }, (_, index) => calculateHead(index));
+const multiHeadConcat = cleanMatrix(multiHeadX.map((_, rowIndex) =>
+  multiHeadHeads.flatMap((head) => head.H[rowIndex]),
 ));
 const multiHeadOutput = cleanMatrix(matMul(multiHeadConcat, multiHeadWO));
 
@@ -156,33 +164,18 @@ export const matrixMultiplicationDemo = {
 
 export const attentionHeads = [
   {
-    name: "Head 1 · 长程",
-    note: "权重大量出现在非对角线位置 → 可能形成长距离关注。",
-    matrix: [
-      [0.58, 0.12, 0.22, 0.08],
-      [0.18, 0.16, 0.12, 0.54],
-      [0.66, 0.08, 0.2, 0.06],
-      [0.14, 0.46, 0.09, 0.31],
-    ],
+    name: "Head 1 · 分组",
+    note: "Token 1/3 与 Token 2/4 分成两组，体现按特征相似性建立联系。",
+    matrix: multiHeadHeads[0].A,
   },
   {
-    name: "Head 2 · 局部",
-    note: "权重集中在主对角线附近 → 可能形成局部关注。",
-    matrix: [
-      [0.62, 0.27, 0.07, 0.04],
-      [0.24, 0.48, 0.22, 0.06],
-      [0.07, 0.24, 0.48, 0.21],
-      [0.03, 0.08, 0.3, 0.59],
-    ],
+    name: "Head 2 · 方向",
+    note: "不同 Query 根据二维方向匹配不同 Key，四行呈现不同的关注分布。",
+    matrix: multiHeadHeads[1].A,
   },
   {
-    name: "Head h · 全局",
-    note: "权重分布较平均 → 可能形成全局关注。",
-    matrix: [
-      [0.28, 0.24, 0.25, 0.23],
-      [0.23, 0.29, 0.22, 0.26],
-      [0.27, 0.2, 0.3, 0.23],
-      [0.22, 0.27, 0.21, 0.3],
-    ],
+    name: "Head 3 · 汇聚",
+    note: "四个 Query 都更关注 Token 3，体现一个头可以把信息汇聚到共同位置。",
+    matrix: multiHeadHeads[2].A,
   },
 ];

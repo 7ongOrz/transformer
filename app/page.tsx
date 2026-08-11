@@ -1043,7 +1043,14 @@ function FigMatrixStage() {
  * ============================================================ */
 
 const MH_CHANNELS = ["维 1", "维 2"];
-const MH_MODEL_CHANNELS = ["维 1", "维 2", "维 3", "维 4"];
+const MH_HEAD_COUNT = 3;
+const MH_HEAD_WIDTH = 2;
+const MH_HEAD_CLASSES = ["mh-head-one", "mh-head-two", "mh-head-three"];
+const MH_MODEL_CHANNELS = Array.from({ length: 6 }, (_, index) => `维 ${index + 1}`);
+const MH_OUTPUT_CHANNELS = Array.from(
+  { length: MH_HEAD_COUNT * MH_HEAD_WIDTH },
+  (_, index) => `H${Math.floor(index / MH_HEAD_WIDTH) + 1}·${index % MH_HEAD_WIDTH + 1}`,
+);
 
 function MhSplitMatrix({
   data,
@@ -1058,20 +1065,20 @@ function MhSplitMatrix({
     <div className="mh-split-matrix">
       <div className="mh-split-name" style={{ color: accent }}>
         <Formula tex={symbol} />
-        <span><Formula tex={String.raw`[4\times4]`} /></span>
+        <span><Formula tex={String.raw`[4\times6]`} /></span>
       </div>
       <table>
         <thead>
           <tr>
             <th rowSpan={2}>token＼头</th>
-            <th colSpan={2} className="mh-head-one">Head 1</th>
-            <th colSpan={2} className="mh-head-two">Head 2</th>
+            {MH_HEAD_CLASSES.map((className, headIndex) => (
+              <th key={className} colSpan={MH_HEAD_WIDTH} className={className}>Head {headIndex + 1}</th>
+            ))}
           </tr>
           <tr>
-            <th className="mh-head-one">维 1</th>
-            <th className="mh-head-one">维 2</th>
-            <th className="mh-head-two">维 1</th>
-            <th className="mh-head-two">维 2</th>
+            {MH_HEAD_CLASSES.flatMap((className) => MH_CHANNELS.map((channel, index) => (
+              <th key={`${className}-${index}`} className={className}>{channel}</th>
+            )))}
           </tr>
         </thead>
         <tbody>
@@ -1079,7 +1086,7 @@ function MhSplitMatrix({
             <tr key={rowIndex}>
               <th>{tokenLabels[rowIndex]}</th>
               {row.map((value, columnIndex) => (
-                <td key={columnIndex} className={columnIndex < 2 ? "mh-head-one" : "mh-head-two"}>
+                <td key={columnIndex} className={MH_HEAD_CLASSES[Math.floor(columnIndex / MH_HEAD_WIDTH)]}>
                   {displayNumber(value, 1)}
                 </td>
               ))}
@@ -1098,7 +1105,7 @@ function MhHeadInputs({ headIndex }: { headIndex: number }) {
     <article className={`mh-head-input-card mh-head-${headNumber}`}>
       <div className="mh-head-card-title">
         <span>HEAD {headNumber}</span>
-        <b>取第 {headIndex * 2 + 1}～{headIndex * 2 + 2} 列，四个 Token 全部保留</b>
+        <b>取第 {headIndex * MH_HEAD_WIDTH + 1}～{headIndex * MH_HEAD_WIDTH + MH_HEAD_WIDTH} 列，四个 Token 全部保留</b>
       </div>
       <Formula block tex={String.raw`Q^{(${headNumber})},K^{(${headNumber})},V^{(${headNumber})}\in\mathbb{R}^{4\times2}`} />
       <div className="mh-head-input-grid">
@@ -1146,12 +1153,14 @@ function MhHeadInputs({ headIndex }: { headIndex: number }) {
 function MhHeadLane({ headIndex }: { headIndex: number }) {
   const headNumber = headIndex + 1;
   const head = multiHeadDemo.heads[headIndex];
+  const pattern = heads[headIndex];
   return (
     <article className={`mh-head-lane mh-head-${headNumber}`}>
       <div className="mh-lane-title">
-        <span>HEAD {headNumber} 独立计算</span>
+        <span>{pattern.name}</span>
         <Formula tex={String.raw`S^{(${headNumber})}=Q^{(${headNumber})}{K^{(${headNumber})}}^{\mathsf T}/\sqrt{2},\quad A^{(${headNumber})}=\operatorname{softmax}(S^{(${headNumber})}),\quad H^{(${headNumber})}=A^{(${headNumber})}V^{(${headNumber})}`} />
       </div>
+      <p className="mh-pattern-note">{pattern.note}</p>
       <div className="mh-lane-flow">
         <div className="mh-lane-step">
           <span>① 点积并缩放</span>
@@ -1206,33 +1215,40 @@ function MhHeadLane({ headIndex }: { headIndex: number }) {
 }
 
 function FigMultiHeadCalculation() {
+  const firstTokenHeadOutputs = multiHeadDemo.heads
+    .map((head) => rowVectorTex(head.H[0]))
+    .join(",");
+  const firstOutputTerms = multiHeadDemo.H[0]
+    .map((value, index) => `${formatNumber(value)}\\times${formatNumber(multiHeadDemo.WO[index][0], 2)}`)
+    .join("+");
+
   return (
     <div className="mh-walkthrough">
       <div className="mh-overview">
         <span>统一数值算例 · Token 1～4</span>
-        <b>把一次 Attention 拆成两个独立的二维头，再把结果拼回四维</b>
-        <Formula block tex={String.raw`L=4,\quad d_{\mathrm{model}}=4,\quad h=2,\quad d_k=d_v=d_{\mathrm{model}}/h=2`} />
-        <p>前面的单头算例为了手算使用二维输入；这里扩成四维，是为了让两个头都保留二维坐标，能够把每一步完整画清。Token 数量仍然是 4。</p>
+        <b>同一份六维输入生成三组二维 Q/K/V，每个头独立计算完整注意力</b>
+        <Formula block tex={String.raw`L=4,\quad d_{\mathrm{model}}=6,\quad h=3,\quad d_k=d_v=d_{\mathrm{model}}/h=2`} />
+        <p>这里故意让 Token 数、模型维度、头数与每头宽度分别取 4、6、3、2，避免把序列长度、特征宽度和注意力矩阵混为一谈。</p>
       </div>
 
       <div className="mh-shape-route" aria-label="多头注意力张量形状变化">
-        <div><span>输入</span><b><Formula tex={String.raw`X\ [4\times4]`} /></b></div>
+        <div><span>输入：4 个 Token，每个 6 维</span><b><Formula tex={String.raw`X\ [4\times6]`} /></b></div>
         <i>→</i>
-        <div><span>完整投影</span><b><Formula tex={String.raw`Q,K,V\ [4\times4]`} /></b></div>
+        <div><span>一次融合生成三头投影</span><b><Formula tex={String.raw`Q_{\mathrm{all}},K_{\mathrm{all}},V_{\mathrm{all}}\ [4\times6]`} /></b></div>
         <i>→</i>
-        <div><span>拆成 2 个头</span><b><Formula tex={String.raw`2\times[4\times2]`} /></b></div>
+        <div><span>显式恢复头维</span><b><Formula tex={String.raw`3\times[4\times2]`} /></b></div>
         <i>→</i>
-        <div><span>各头独立 Attention</span><b><Formula tex={String.raw`H^{(r)}\ [4\times2]`} /></b></div>
+        <div><span>每头一张完整权重图</span><b><Formula tex={String.raw`A^{(r)}\ [4\times4],\ H^{(r)}\ [4\times2]`} /></b></div>
         <i>→</i>
-        <div><span>拼接并输出投影</span><b><Formula tex={String.raw`Y\ [4\times4]`} /></b></div>
+        <div><span>拼接并输出投影</span><b><Formula tex={String.raw`H\ [4\times6]\ \xrightarrow{\,W^O\,}\ Y\ [4\times6]`} /></b></div>
       </div>
 
       <section className="mh-stage">
         <header>
           <span>1</span>
           <div>
-            <b>由同一个 <Formula tex="X" /> 生成完整的 <Formula tex={String.raw`Q,K,V`} /></b>
-            <p><Formula tex={String.raw`W^Q,W^K,W^V`} /> 是训练得到的参数；<Formula tex={String.raw`Q,K,V`} /> 是每次前向时现算的中间量，不会凭空随机生成。</p>
+            <b>由同一个 <Formula tex="X" /> 一次融合生成三个头的 <Formula tex={String.raw`Q,K,V`} /></b>
+            <p>逻辑上每个头有独立的 <Formula tex={String.raw`W_i^Q,W_i^K,W_i^V`} />；代码把三组参数沿列拼成大矩阵，一次矩阵乘法得到 <Formula tex={String.raw`Q_{\mathrm{all}},K_{\mathrm{all}},V_{\mathrm{all}}`} />。</p>
           </div>
         </header>
         <div className="mh-projection-flow">
@@ -1240,7 +1256,7 @@ function FigMultiHeadCalculation() {
             <FmsMatGrid
               data={multiHeadDemo.X}
               name={<Formula tex="X" />}
-              shape={<Formula tex={String.raw`[4\times4]`} />}
+              shape={<Formula tex={String.raw`[4\times6]`} />}
               pal={{ c: "#a9b4dc", t: "rgba(169,180,220,0.08)" }}
               rowLabels={tokenLabels}
               colLabels={MH_MODEL_CHANNELS}
@@ -1261,11 +1277,11 @@ function FigMultiHeadCalculation() {
         <details className="mh-parameters">
           <summary>查看本例固定的三个投影矩阵（真实模型中均为可训练参数）</summary>
           <div className="mh-parameter-grid">
-            <FmsMatGrid data={multiHeadDemo.WQ} name={<Formula tex="W^Q" />} shape={<Formula tex={String.raw`[4\times4]`} />} pal={FMS_PAL.Q} digits={1} />
-            <FmsMatGrid data={multiHeadDemo.WK} name={<Formula tex="W^K" />} shape={<Formula tex={String.raw`[4\times4]`} />} pal={FMS_PAL.K} digits={1} />
-            <FmsMatGrid data={multiHeadDemo.WV} name={<Formula tex="W^V" />} shape={<Formula tex={String.raw`[4\times4]`} />} pal={FMS_PAL.V} digits={1} />
+            <FmsMatGrid data={multiHeadDemo.WQ} name={<Formula tex="W^Q" />} shape={<Formula tex={String.raw`[6\times6]`} />} pal={FMS_PAL.Q} digits={1} />
+            <FmsMatGrid data={multiHeadDemo.WK} name={<Formula tex="W^K" />} shape={<Formula tex={String.raw`[6\times6]`} />} pal={FMS_PAL.K} digits={1} />
+            <FmsMatGrid data={multiHeadDemo.WV} name={<Formula tex="W^V" />} shape={<Formula tex={String.raw`[6\times6]`} />} pal={FMS_PAL.V} digits={1} />
           </div>
-          <p>这里特意选了容易核算的小数，并令 <Formula tex="W^Q" /> 为单位矩阵；这只是教学数据。训练好的模型会使用学习出的稠密矩阵。</p>
+          <p>这里选择稀疏、容易核算的固定矩阵，让三个头呈现清楚的不同模式；真实模型中的投影矩阵由训练学习，通常是稠密矩阵。</p>
         </details>
       </section>
 
@@ -1273,13 +1289,12 @@ function FigMultiHeadCalculation() {
         <header>
           <span>2</span>
           <div>
-            <b>沿特征维拆头，不拆 Token</b>
-            <p><Formula tex={String.raw`Q=[Q^{(1)}\mid Q^{(2)}]`} />，<Formula tex="K" />、<Formula tex="V" /> 同理。每个头仍然同时拥有 Token 1～4，只是各自读取不同的两列特征。</p>
+            <b>把融合投影结果重排为三个头，不拆 Token</b>
+            <p><Formula tex={String.raw`Q_{\mathrm{all}}=[Q^{(1)}\mid Q^{(2)}\mid Q^{(3)}]`} />，<Formula tex="K" />、<Formula tex="V" /> 同理。这里分组的是投影结果的列，不是直接切原始 <Formula tex="X" />；每个头仍然拥有 Token 1～4，只是每个 Token 在本头中用两维表示。</p>
           </div>
         </header>
         <div className="mh-head-inputs">
-          <MhHeadInputs headIndex={0} />
-          <MhHeadInputs headIndex={1} />
+          {multiHeadDemo.heads.map((_, headIndex) => <MhHeadInputs key={headIndex} headIndex={headIndex} />)}
         </div>
       </section>
 
@@ -1287,13 +1302,12 @@ function FigMultiHeadCalculation() {
         <header>
           <span>3</span>
           <div>
-            <b>两个头各算一套 <Formula tex={String.raw`QK^{\mathsf T}\rightarrow\operatorname{softmax}\rightarrow AV`} /></b>
-            <p>每个头有自己的 <Formula tex={String.raw`Q^{(r)},K^{(r)},V^{(r)}`} />，因此分数矩阵、权重矩阵和汇聚结果都不同；实际实现把头维当作并行维度，不需要逐头写循环。</p>
+            <b>三个头各算一套 <Formula tex={String.raw`QK^{\mathsf T}\rightarrow\operatorname{softmax}\rightarrow AV`} /></b>
+            <p>下面三张 <Formula tex={String.raw`A^{(r)}\ [4\times4]`} /> 就是三种关注模式：它们的行列都表示 Token，头数不会瓜分这张矩阵。</p>
           </div>
         </header>
         <div className="mh-head-lanes">
-          <MhHeadLane headIndex={0} />
-          <MhHeadLane headIndex={1} />
+          {multiHeadDemo.heads.map((_, headIndex) => <MhHeadLane key={headIndex} headIndex={headIndex} />)}
         </div>
       </section>
 
@@ -1301,8 +1315,8 @@ function FigMultiHeadCalculation() {
         <header>
           <span>4</span>
           <div>
-            <b>按特征列拼接两个头，再乘 <Formula tex="W^O" /> 融合</b>
-            <p>拼接不会把 4 个 Token 变成 2 个：四行始终对应 Token 1～4；变化的是每行内部的特征列，从两个二维头重新合成四维。</p>
+            <b>按特征列拼接三个头，再乘 <Formula tex="W^O" /> 做输出投影</b>
+            <p>三个 <Formula tex={String.raw`[4\times2]`} /> 沿列拼成 <Formula tex={String.raw`H\ [4\times6]`} />；<Formula tex="W^O" /> 再混合六个跨头通道。四行始终对应 Token 1～4。</p>
           </div>
         </header>
         <div className="mh-output-flow">
@@ -1310,11 +1324,11 @@ function FigMultiHeadCalculation() {
             <span>拼接</span>
             <FmsMatGrid
               data={multiHeadDemo.H}
-              name={<Formula tex={String.raw`H=[H^{(1)}\mid H^{(2)}]`} />}
-              shape={<Formula tex={String.raw`[4\times4]`} />}
+              name={<Formula tex={String.raw`H=[H^{(1)}\mid H^{(2)}\mid H^{(3)}]`} />}
+              shape={<Formula tex={String.raw`[4\times6]`} />}
               pal={FMS_PAL.O}
               rowLabels={tokenLabels}
-              colLabels={["H1·1", "H1·2", "H2·1", "H2·2"]}
+              colLabels={MH_OUTPUT_CHANNELS}
               cornerLabel="token＼头·维"
               digits={3}
             />
@@ -1322,7 +1336,16 @@ function FigMultiHeadCalculation() {
           <div className="mh-output-op"><b>×</b><span>输出投影</span></div>
           <div className="mh-output-step">
             <span>跨头混合参数</span>
-            <FmsMatGrid data={multiHeadDemo.WO} name={<Formula tex="W^O" />} shape={<Formula tex={String.raw`[4\times4]`} />} pal={FMS_PAL.V} digits={1} />
+            <FmsMatGrid
+              data={multiHeadDemo.WO}
+              name={<Formula tex="W^O" />}
+              shape={<Formula tex={String.raw`[6\times6]`} />}
+              pal={FMS_PAL.V}
+              rowLabels={MH_OUTPUT_CHANNELS}
+              colLabels={MH_MODEL_CHANNELS}
+              cornerLabel="头·维＼输出维"
+              digits={2}
+            />
           </div>
           <div className="mh-output-op"><b>=</b><span>回到模型维度</span></div>
           <div className="mh-output-step">
@@ -1330,7 +1353,7 @@ function FigMultiHeadCalculation() {
             <FmsMatGrid
               data={multiHeadDemo.Y}
               name={<Formula tex="Y=HW^O" />}
-              shape={<Formula tex={String.raw`[4\times4]`} />}
+              shape={<Formula tex={String.raw`[4\times6]`} />}
               pal={FMS_PAL.S}
               rowLabels={tokenLabels}
               colLabels={MH_MODEL_CHANNELS}
@@ -1341,15 +1364,29 @@ function FigMultiHeadCalculation() {
         </div>
         <div className="mh-output-row">
           <span>Token 1 的完整合并过程</span>
-          <Formula block tex={String.raw`h_1=\operatorname{Concat}\!\left(${rowVectorTex(multiHeadDemo.heads[0].H[0])},${rowVectorTex(multiHeadDemo.heads[1].H[0])}\right)=${rowVectorTex(multiHeadDemo.H[0])}`} />
+          <Formula block tex={String.raw`h_1=\operatorname{Concat}\!\left(${firstTokenHeadOutputs}\right)=${rowVectorTex(multiHeadDemo.H[0])}`} />
           <Formula block tex={String.raw`y_1=h_1W^O=${rowVectorTex(multiHeadDemo.Y[0])}`} />
+        </div>
+        <div className="mh-output-detail">
+          <div>
+            <b>输出投影到底做什么</b>
+            <p><Formula tex="W^O" /> 的每一列生成一个输出特征，真实模型中的稠密矩阵允许每个输出混合六个通道。本例为方便手算使用稀疏矩阵；Token 1 的第一个输出仍同时接收三个头的信息：</p>
+          </div>
+          <Formula block tex={String.raw`y_{1,1}=\sum_{c=1}^{6}h_{1,c}W^O_{c,1}=${firstOutputTerms}=${formatNumber(multiHeadDemo.Y[0][0])}`} />
+        </div>
+        <div className="mh-output-purpose">
+          <div>
+            <b><Formula tex={String.raw`Y\ [4\times6]`} /> 有什么用</b>
+            <p>第 <Formula tex="i" /> 行 <Formula tex="y_i" /> 是 Token <Formula tex="i" /> 融合三种关注结果后的新表示，继续送入残差连接、后续子层或下一层 Transformer。不同关注模式体现在上面的三张 <Formula tex={String.raw`A^{(1)},A^{(2)},A^{(3)}`} />；<Formula tex="Y" /> 保存的是它们已经取回并融合后的内容，而不是另一张注意力图。</p>
+          </div>
+          <Formula block tex={String.raw`X_{[4\times6]}+Y_{[4\times6]}\longrightarrow R_{[4\times6]}\longrightarrow\text{下一子层}`} />
         </div>
       </section>
 
       <div className="mh-implementation-note">
         <b>论文写法与代码写法是同一件事</b>
-        <Formula block tex={String.raw`W^Q=[W_1^Q\mid W_2^Q]\quad\Longrightarrow\quad Q=XW^Q=[XW_1^Q\mid XW_2^Q]=[Q^{(1)}\mid Q^{(2)}]`} />
-        <p>论文常为每个头分别写 <Formula tex={String.raw`W_i^Q,W_i^K,W_i^V`} />；工程代码通常先用一组大的线性层一次生成完整 <Formula tex={String.raw`Q,K,V`} />，再通过 <code>reshape + transpose</code> 拆出头维。数学上完全等价。</p>
+        <Formula block tex={String.raw`W^Q=[W_1^Q\mid W_2^Q\mid W_3^Q]\quad\Longrightarrow\quad Q_{\mathrm{all}}=XW^Q=[Q^{(1)}\mid Q^{(2)}\mid Q^{(3)}]`} />
+        <p>论文为每个头分别写 <Formula tex={String.raw`W_i^Q,W_i^K,W_i^V`} />；工程代码把三组投影合并成一次矩阵乘法，再通过 <code>reshape + transpose</code> 恢复头维。代码并没有先算一次单头 Attention 再切开。</p>
       </div>
     </div>
   );
@@ -1998,7 +2035,7 @@ export default function Home() {
           {/* ===== 多头 ===== */}
           <section className="section detail-section" id="s5">
             <SecHead idx="05" title="多头注意力（Multi-Head）" />
-            <p className="sec-lead">多头注意力不是把同一份单头结果复制多次。它先把完整的 <Formula tex={String.raw`Q,K,V`} /> 沿<b style={{ color: "#eef3ff" }}>特征维</b>拆成多个头，每个头独立完成一次注意力计算，再沿特征维拼接并通过 <Formula tex="W^O" /> 融合。下面继续使用 Token 1～4，把两头计算从输入一直算到最终输出。</p>
+            <p className="sec-lead">多头注意力让同一份输入经过多组独立投影，每个头分别计算完整的 Token 关联，再把各头取回的内容拼接并通过 <Formula tex="W^O" /> 融合。实现中通常把多组投影合并成一次矩阵乘法后再恢复头维；它不是先算一次单头 Attention 再切开。下面使用 Token 1～4，完整计算三个头。</p>
 
             <FigMultiHeadCalculation />
 
@@ -2009,7 +2046,7 @@ export default function Home() {
             </div>
             <div className="note">其中 <Formula tex="h" /> 是头数，<Formula tex={String.raw`W^O\in\mathbb{R}^{(h d_v)\times d_{\mathrm{model}}}`} /> 把拼接结果投影回模型维度。通常取 <Formula tex={String.raw`d_k=d_v=d_{\mathrm{model}}/h`} />，所以主 FLOPs 量级与单头接近、表达能力更强；但投影层、显存占用与调度开销并不为零，并非真的「免费」。</div>
 
-            <h3>计算完成后，不同头可能形成不同关注模式</h3>
+            <h3>同一数值算例中的三种关注模式</h3>
             <div className="tabs">
               {heads.map((h, i) => (
                 <button key={h.name} className={`tab ${headIdx === i ? "active" : ""}`} onClick={() => setHeadIdx(i)}>{h.name}</button>
@@ -2041,7 +2078,7 @@ export default function Home() {
                   </tbody>
                 </table>
               </div>
-              <div className="fig-cap"><b>行为示意，不是上方数值算例的结果</b>：{heads[headIdx].note} · 行=Query（谁在问）· 列=Key（看谁）</div>
+              <div className="fig-cap"><b>与上方逐头计算完全相同的权重矩阵</b>：{heads[headIdx].note} · 行=Query（谁在问）· 列=Key（看谁）</div>
             </div>
           </section>
 

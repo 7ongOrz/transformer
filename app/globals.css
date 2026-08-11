@@ -2782,10 +2782,10 @@ p code {
 }
 .mh-projection-flow {
   display: grid;
-  grid-template-columns: 300px 90px minmax(920px, 1fr);
+  grid-template-columns: 460px 100px minmax(1440px, 1fr);
   gap: 16px;
   align-items: center;
-  min-width: 1360px;
+  min-width: 2030px;
 }
 .mh-projection-source,
 .mh-output-step {
@@ -2876,10 +2876,15 @@ p code {
   border-color: rgba(167, 139, 250, 0.35);
   background: rgba(167, 139, 250, 0.09);
 }
+.mh-split-matrix .mh-head-three {
+  border-color: rgba(45, 212, 191, 0.35);
+  background: rgba(45, 212, 191, 0.09);
+}
 .mh-split-matrix thead .mh-head-one { color: var(--att); }
 .mh-split-matrix thead .mh-head-two { color: var(--k); }
+.mh-split-matrix thead .mh-head-three { color: var(--v); }
 .mh-parameters {
-  min-width: 950px;
+  min-width: 1320px;
   margin-top: 16px;
   padding: 13px 16px;
   border: 1px solid var(--hairline);
@@ -2909,9 +2914,9 @@ p code {
 }
 .mh-head-inputs {
   display: grid;
-  grid-template-columns: repeat(2, minmax(570px, 1fr));
+  grid-template-columns: minmax(1120px, 1fr);
   gap: 16px;
-  min-width: 1180px;
+  min-width: 1120px;
 }
 .mh-head-1 {
   --mh-color: #38bdf8;
@@ -2922,6 +2927,11 @@ p code {
   --mh-color: #a78bfa;
   --mh-soft: rgba(167, 139, 250, 0.08);
   --mh-border: rgba(167, 139, 250, 0.42);
+}
+.mh-head-3 {
+  --mh-color: #2dd4bf;
+  --mh-soft: rgba(45, 212, 191, 0.08);
+  --mh-border: rgba(45, 212, 191, 0.42);
 }
 .mh-head-input-card,
 .mh-head-lane {
@@ -3012,6 +3022,12 @@ p code {
   font-size: 14px;
   text-align: right;
 }
+.mh-pattern-note {
+  margin: -5px 0 13px;
+  color: var(--t2);
+  font-size: 13px;
+  line-height: 1.6;
+}
 .mh-lane-flow {
   display: grid;
   grid-template-columns: minmax(300px, 1fr) 66px minmax(300px, 1fr) 66px minmax(190px, 0.7fr);
@@ -3091,14 +3107,14 @@ p code {
 }
 .mh-output-flow {
   display: grid;
-  grid-template-columns: minmax(300px, 1fr) 72px minmax(270px, 0.8fr) 72px minmax(300px, 1fr);
+  grid-template-columns: minmax(450px, 1fr) 72px minmax(510px, 1.1fr) 72px minmax(450px, 1fr);
   gap: 12px;
   align-items: center;
-  min-width: 1180px;
+  min-width: 1600px;
 }
 .mh-output-step {
   align-content: start;
-  min-height: 310px;
+  min-height: 430px;
   padding: 14px;
   border: 1px solid var(--hairline);
   border-radius: 11px;
@@ -3123,10 +3139,10 @@ p code {
 }
 .mh-output-row {
   display: grid;
-  grid-template-columns: auto repeat(2, minmax(0, 1fr));
+  grid-template-columns: auto minmax(0, 1fr);
   gap: 14px;
   align-items: center;
-  min-width: 980px;
+  min-width: 1180px;
   margin-top: 16px;
   padding: 13px 16px;
   border: 1px solid rgba(244, 114, 182, 0.34);
@@ -3134,6 +3150,7 @@ p code {
   background: rgba(244, 114, 182, 0.07);
 }
 .mh-output-row > span {
+  grid-row: 1 / span 2;
   color: var(--out);
   font-family: var(--mono);
   font-size: 12px;
@@ -3141,10 +3158,52 @@ p code {
   white-space: nowrap;
 }
 .mh-output-row .math-block {
+  grid-column: 2;
   margin: 0;
   font-size: 14px;
 }
 .mh-output-row .katex-display {
+  text-align: left;
+}
+.mh-output-detail,
+.mh-output-purpose {
+  display: grid;
+  grid-template-columns: minmax(360px, 0.8fr) minmax(680px, 1.2fr);
+  gap: 22px;
+  align-items: center;
+  min-width: 1180px;
+  margin-top: 14px;
+  padding: 16px 18px;
+  border-radius: 11px;
+}
+.mh-output-detail {
+  border: 1px solid rgba(45, 212, 191, 0.34);
+  background: rgba(45, 212, 191, 0.07);
+}
+.mh-output-purpose {
+  border: 1px solid rgba(56, 189, 248, 0.34);
+  background: rgba(56, 189, 248, 0.07);
+}
+.mh-output-detail b,
+.mh-output-purpose b {
+  color: var(--t1);
+  font-size: 15px;
+}
+.mh-output-detail p,
+.mh-output-purpose p {
+  margin: 5px 0 0;
+  color: var(--t2);
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+.mh-output-detail .math-block,
+.mh-output-purpose .math-block {
+  overflow-x: auto;
+  margin: 0;
+  font-size: 14px;
+}
+.mh-output-detail .katex-display,
+.mh-output-purpose .katex-display {
   text-align: center;
 }
 .mh-implementation-note {
