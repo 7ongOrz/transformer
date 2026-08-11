@@ -573,6 +573,34 @@ function FigStageQKV() {
   );
 }
 
+function FirstRowAttentionMatrix({
+  symbol,
+  values,
+  ariaLabel,
+}: {
+  symbol: "S" | "A";
+  values: string[];
+  ariaLabel: string;
+}) {
+  return (
+    <div className="score-mini-matrix" aria-label={ariaLabel}>
+      <span className="corner"><Formula tex={symbol} /></span>
+      {[1, 2, 3, 4].map((j) => <span className={`col ${j === 1 ? "active" : ""}`} key={`col-${j}`}><Formula tex={`k_${j}`} /></span>)}
+      {[1, 2, 3, 4].map((i) => (
+        <div className="score-mini-row" key={`row-${i}`}>
+          <span className={`row ${i === 1 ? "active" : ""}`}><Formula tex={`q_${i}`} /></span>
+          {[1, 2, 3, 4].map((j) => (
+            <span className={`cell ${i === 1 ? "scored" : ""} ${i === 1 && j === 1 ? "active" : ""}`} key={`cell-${i}-${j}`}>
+              <Formula tex={`${symbol}_{${i},${j}}`} />
+              {i === 1 ? <strong>{values[j - 1]}</strong> : null}
+            </span>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /* ============================================================
  * 向量阶段图2：用 q₁ 生成分数矩阵 S 的第一行
  * 数据全程使用统一 4-token（token₁..token₄，d=2）。
@@ -643,25 +671,15 @@ function FigStageScore() {
               <span>再认两个下标</span>
               <b><Formula tex="S_{i,j}" /> 在矩阵中的坐标</b>
             </div>
-            <div className="score-mini-matrix" aria-label="S 矩阵行由 q_i 决定，列由 k_j 决定；第一行依次为 0.967、负 0.186、0.573、1.026">
-              <span className="corner"><Formula tex="S" /></span>
-              {[1, 2, 3, 4].map((j) => <span className={`col ${j === 1 ? "active" : ""}`} key={`col-${j}`}><Formula tex={`k_${j}`} /></span>)}
-              {[1, 2, 3, 4].map((i) => (
-                <div className="score-mini-row" key={`row-${i}`}>
-                  <span className={`row ${i === 1 ? "active" : ""}`}><Formula tex={`q_${i}`} /></span>
-                  {[1, 2, 3, 4].map((j) => (
-                    <span className={`cell ${i === 1 ? "scored" : ""} ${i === 1 && j === 1 ? "active" : ""}`} key={`cell-${i}-${j}`}>
-                      <Formula tex={`S_{${i},${j}}`} />
-                      {i === 1 ? <strong>{comparisons[j - 1].score}</strong> : null}
-                    </span>
-                  ))}
-                </div>
-              ))}
-            </div>
+            <FirstRowAttentionMatrix
+              symbol="S"
+              values={comparisons.map((item) => item.score)}
+              ariaLabel="S 矩阵行由 q_i 决定，列由 k_j 决定；第一行依次为 0.967、负 0.186、0.573、1.026"
+            />
             <div className="score-index-notes">
               <span><b>第一个下标 <Formula tex="i" /></b> → 选择 <Formula tex="q_i" /> → 确定第 <Formula tex="i" /> 行</span>
               <span><b>第二个下标 <Formula tex="j" /></b> → 选择 <Formula tex="k_j" /> → 确定第 <Formula tex="j" /> 列</span>
-              <strong>蓝色第一行就是 <Formula tex="q_1" /> 与四个 <Formula tex="k_j" /> 比较后的四个原始分数；左上角 <Formula tex="S_{1,1}=0.967" />。</strong>
+              <strong>一般地，<Formula tex="S_{i,j}" /> 表示 Token <Formula tex="i" /> 对 Token <Formula tex="j" /> 的原始关联分数；例如 <Formula tex="S_{1,2}=-0.186" /> 就是 Token 1 对 Token 2 的原始分数。</strong>
             </div>
           </section>
         </div>
@@ -743,14 +761,7 @@ function FigStageSoftmax() {
           <div className="softmax-panel">
             <div className="softmax-step">① 缩放后的相关分数</div>
             <Formula block tex={String.raw`S_{1,j}=\dfrac{q_1\cdot k_j}{\sqrt{d_k}}`} />
-            <div className="softmax-values scores">
-              {scores.map((score, i) => (
-                <div key={`a-${i}`}>
-                  <Formula tex={`S_{1,${i + 1}}`} />
-                  <strong>{score.toFixed(3)}</strong>
-                </div>
-              ))}
-            </div>
+            <Formula block tex={String.raw`S_{1,:}=[\,0.967,\ -0.186,\ 0.573,\ 1.026\,]`} />
             <p>整行输入：四个分数共同进入同一个 softmax。</p>
           </div>
 
@@ -768,20 +779,31 @@ function FigStageSoftmax() {
           <div className="softmax-panel">
             <div className="softmax-step">③ 注意力权重</div>
             <Formula block tex={String.raw`A_{1,:}=\operatorname{softmax}(S_{1,:})`} />
-            <div className="softmax-values weights">
-              {weights.map((w, i) => (
-                <div key={`w-${i}`} style={{ background: `rgba(56,189,248,${(0.16 + w * 1.55).toFixed(3)})` }}>
-                  <Formula tex={`A_{1,${i + 1}}`} />
-                  <strong>{w.toFixed(3)}</strong>
-                </div>
-              ))}
-            </div>
+            <Formula block tex={String.raw`A_{1,:}\approx[\,0.328,\ 0.103,\ 0.221,\ 0.348\,]`} />
             <Formula block tex={String.raw`\sum_{j=1}^{4}A_{1,j}=1.000`} />
           </div>
         </div>
 
+        <div className="softmax-matrix-guide">
+          <div className="score-symbol-heading">
+            <span>与 <Formula tex="S" /> 使用完全相同的行列坐标</span>
+            <b>把归一化结果写入权重矩阵 <Formula tex="A" /></b>
+            <p>softmax 只改变每个格子的数值，不改变坐标含义：第 <Formula tex="i" /> 行仍对应 Token <Formula tex="i" /> 的 Query，第 <Formula tex="j" /> 列仍对应 Token <Formula tex="j" />。</p>
+          </div>
+          <FirstRowAttentionMatrix
+            symbol="A"
+            values={weights.map((weight) => weight.toFixed(3))}
+            ariaLabel="A 权重矩阵与 S 使用相同坐标；第一行依次为 0.328、0.103、0.221、0.348"
+          />
+          <div className="score-index-notes">
+            <span><b><Formula tex="A_{1,2}=0.103" /></b>：Token 1 汇聚 Token 2 的 <Formula tex="v_2" /> 时，使用的权重为 10.3%</span>
+            <span><b>同一行权重和为 1</b>：<Formula tex={String.raw`\sum_{j=1}^{4}A_{1,j}=1`} /></span>
+            <strong><Formula tex="A_{1,4}=0.348" /> 最大，表示本例中 Token 1 从 Token 4 的 <Formula tex="v_4" /> 汇聚信息时采用的权重最高。</strong>
+          </div>
+        </div>
+
         <div className="softmax-derivation">
-          <div className="softmax-step">数值代入 · 指数化并计算同一个分母 Z</div>
+          <div className="softmax-step">逐列计算 · 四个分数指数化后共享同一个分母 Z</div>
           <div className="softmax-exp-row">
             {scores.map((score, i) => (
               <div key={`e-${i}`}>
@@ -797,11 +819,12 @@ function FigStageSoftmax() {
           <Formula block tex={String.raw`Z_1\approx2.631+0.830+1.773+2.790=8.024`} />
           <div className="softmax-weight-calcs">
             {weights.map((weight, i) => (
-              <Formula
-                key={`weight-calc-${i}`}
-                block
-                tex={`A_{1,${i + 1}}=\\dfrac{e^{S_{1,${i + 1}}}}{Z_1}=\\dfrac{${exps[i].toFixed(3)}}{8.024}=${weight.toFixed(3)}`}
-              />
+              <div key={`weight-calc-${i}`}>
+                <span>第 {i + 1} 列 · <Formula tex={`A_{1,${i + 1}}`} /></span>
+                <Formula block tex={`A_{1,${i + 1}}=\\dfrac{e^{S_{1,${i + 1}}}}{Z_1}`} />
+                <Formula block tex={`=\\dfrac{${exps[i].toFixed(3)}}{8.024}`} />
+                <strong>= {weight.toFixed(3)}</strong>
+              </div>
             ))}
           </div>
           <Formula block tex={String.raw`A_{1,:}\approx[\,0.328,\ 0.103,\ 0.221,\ 0.348\,]`} />
