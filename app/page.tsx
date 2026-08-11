@@ -593,6 +593,74 @@ function FigStageScore() {
           <b>用 <Formula tex="q_1" /> 生成分数矩阵 <Formula tex="S" /> 的第 1 行</b>
           <p>“用 <Formula tex="q_1" /> 打分”不是给 <Formula tex="q_1" /> 自己评分，而是为了计算 <Formula tex="b_1" />，取 <Formula tex="Q" /> 的第 1 行 <Formula tex="q_1" />，分别衡量它与四个 Key 的匹配程度。</p>
         </div>
+
+        <div className="score-symbol-guide">
+          <section className="score-symbol-origin">
+            <div className="score-symbol-heading">
+              <span>先追踪一个格</span>
+              <b><Formula tex="S_{1,1}" /> 从哪里来</b>
+              <p>同一个 <Formula tex="x_1" /> 经过两组不同的投影参数，得到角色不同的 <Formula tex="q_1" /> 与 <Formula tex="k_1" />；它们做缩放点积，才产生一个分数。</p>
+            </div>
+            <div className="score-symbol-flow">
+              <div className="score-symbol-node input">
+                <span>Token 1 当前层输入</span>
+                <Formula block tex={String.raw`x_1=[0.40, 1.20]`} />
+                <small><Formula tex="X" /> 的第 1 行</small>
+              </div>
+
+              <div className="score-symbol-projections" aria-hidden="true">
+                <div><span><Formula tex={String.raw`\times W^Q`} /></span><b>→</b></div>
+                <div><span><Formula tex={String.raw`\times W^K`} /></span><b>→</b></div>
+              </div>
+
+              <div className="score-symbol-roles">
+                <div className="query">
+                  <span><Formula tex="Q" /> 的第 1 行 · 发起匹配</span>
+                  <Formula block tex={String.raw`q_1=[0.04, 1.16]`} />
+                </div>
+                <div className="key">
+                  <span><Formula tex="K" /> 的第 1 行 · 提供匹配</span>
+                  <Formula block tex={String.raw`k_1=[0.56, 1.16]`} />
+                </div>
+              </div>
+
+              <div className="score-symbol-operation" aria-hidden="true">
+                <span>缩放点积</span>
+                <b>→</b>
+                <small><Formula tex={String.raw`\div\sqrt{d_k}`} /></small>
+              </div>
+
+              <div className="score-symbol-node result">
+                <span><Formula tex="S" /> 的第 1 行、第 1 列</span>
+                <Formula block tex={String.raw`S_{1,1}=\dfrac{q_1k_1^{\mathsf T}}{\sqrt{2}}`} />
+                <strong><Formula tex={String.raw`=0.967`} /></strong>
+              </div>
+            </div>
+          </section>
+
+          <section className="score-index-map">
+            <div className="score-symbol-heading">
+              <span>再认两个下标</span>
+              <b><Formula tex="S_{i,j}" /> 在矩阵中的坐标</b>
+            </div>
+            <div className="score-mini-matrix" aria-label="S 矩阵行由 q_i 决定，列由 k_j 决定，第一行第一列是 S 1 1">
+              <span className="corner"><Formula tex="S" /></span>
+              {[1, 2, 3, 4].map((j) => <span className={`col ${j === 1 ? "active" : ""}`} key={`col-${j}`}><Formula tex={`k_${j}`} /></span>)}
+              {[1, 2, 3, 4].map((i) => (
+                <div className="score-mini-row" key={`row-${i}`}>
+                  <span className={`row ${i === 1 ? "active" : ""}`}><Formula tex={`q_${i}`} /></span>
+                  {[1, 2, 3, 4].map((j) => <span className={`cell ${i === 1 && j === 1 ? "active" : ""}`} key={`cell-${i}-${j}`}><Formula tex={`S_{${i},${j}}`} /></span>)}
+                </div>
+              ))}
+            </div>
+            <div className="score-index-notes">
+              <span><b>第一个下标 <Formula tex="i" /></b> → 选择 <Formula tex="q_i" /> → 确定第 <Formula tex="i" /> 行</span>
+              <span><b>第二个下标 <Formula tex="j" /></b> → 选择 <Formula tex="k_j" /> → 确定第 <Formula tex="j" /> 列</span>
+              <strong>因此 <Formula tex="S_{1,1}" /> 就是 Token 1 的 Query 与 Token 1 的 Key 得到的原始分数。</strong>
+            </div>
+          </section>
+        </div>
+
         <div className="score-explainer-flow">
           <article className="score-query-card">
             <span>① 取 <Formula tex="Q" /> 的第 1 行</span>
