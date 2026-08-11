@@ -1230,6 +1230,22 @@ p {
   border: 1px solid var(--hairline);
   background: rgba(255, 255, 255, 0.02);
 }
+.score-mini-matrix .cell.scored {
+  min-height: 44px;
+  color: var(--att);
+  border-color: rgba(56, 189, 248, 0.42);
+  background: rgba(56, 189, 248, 0.09);
+}
+.score-mini-matrix .cell.scored .katex {
+  color: var(--att);
+}
+.score-mini-matrix .cell.scored > strong {
+  color: var(--t1);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  white-space: nowrap;
+}
 .score-mini-matrix .col.active,
 .score-mini-matrix .row.active {
   border: 1px solid currentColor;
@@ -1263,7 +1279,7 @@ p {
 }
 .score-explainer-flow {
   display: grid;
-  grid-template-columns: 238px 54px minmax(420px, 1fr) 54px 270px;
+  grid-template-columns: 220px 48px minmax(400px, 1fr) 48px 300px;
   gap: 10px;
   align-items: stretch;
 }
@@ -1346,6 +1362,11 @@ p {
   font-family: var(--mono);
   font-size: 11px;
   text-align: center;
+}
+.score-row-matrix > div > span {
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 .score-row-matrix > div::before,
 .score-row-matrix > div::after {

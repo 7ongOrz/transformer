@@ -643,20 +643,25 @@ function FigStageScore() {
               <span>再认两个下标</span>
               <b><Formula tex="S_{i,j}" /> 在矩阵中的坐标</b>
             </div>
-            <div className="score-mini-matrix" aria-label="S 矩阵行由 q_i 决定，列由 k_j 决定，第一行第一列是 S 1 1">
+            <div className="score-mini-matrix" aria-label="S 矩阵行由 q_i 决定，列由 k_j 决定；第一行依次为 0.967、负 0.186、0.573、1.026">
               <span className="corner"><Formula tex="S" /></span>
               {[1, 2, 3, 4].map((j) => <span className={`col ${j === 1 ? "active" : ""}`} key={`col-${j}`}><Formula tex={`k_${j}`} /></span>)}
               {[1, 2, 3, 4].map((i) => (
                 <div className="score-mini-row" key={`row-${i}`}>
                   <span className={`row ${i === 1 ? "active" : ""}`}><Formula tex={`q_${i}`} /></span>
-                  {[1, 2, 3, 4].map((j) => <span className={`cell ${i === 1 && j === 1 ? "active" : ""}`} key={`cell-${i}-${j}`}><Formula tex={`S_{${i},${j}}`} /></span>)}
+                  {[1, 2, 3, 4].map((j) => (
+                    <span className={`cell ${i === 1 ? "scored" : ""} ${i === 1 && j === 1 ? "active" : ""}`} key={`cell-${i}-${j}`}>
+                      <Formula tex={`S_{${i},${j}}`} />
+                      {i === 1 ? <strong>{comparisons[j - 1].score}</strong> : null}
+                    </span>
+                  ))}
                 </div>
               ))}
             </div>
             <div className="score-index-notes">
               <span><b>第一个下标 <Formula tex="i" /></b> → 选择 <Formula tex="q_i" /> → 确定第 <Formula tex="i" /> 行</span>
               <span><b>第二个下标 <Formula tex="j" /></b> → 选择 <Formula tex="k_j" /> → 确定第 <Formula tex="j" /> 列</span>
-              <strong>因此 <Formula tex="S_{1,1}" /> 就是 Token 1 的 Query 与 Token 1 的 Key 得到的原始分数。</strong>
+              <strong>蓝色第一行就是 <Formula tex="q_1" /> 与四个 <Formula tex="k_j" /> 比较后的四个原始分数；左上角 <Formula tex="S_{1,1}=0.967" />。</strong>
             </div>
           </section>
         </div>
