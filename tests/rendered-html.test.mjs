@@ -57,8 +57,9 @@ test("server-renders the Attention teaching page", async () => {
   assert.match(html, /位置矩阵/);
   assert.match(html, /输入矩阵/);
   assert.match(html, /为什么使用相加，而不是直接拼接/);
-  assert.match(html, /内容支路与位置支路分别得到一个向量，再在同一维度上逐项相加/);
-  assert.match(html, /等价关系的边界/);
+  assert.match(html, /one-hot 与位置向量/);
+  assert.match(html, /数字 1 只负责选中位置矩阵的一行/);
+  assert.match(html, /单个坐标可以相同，区分位置时看的是整行向量/);
   assert.match(html, /one-hot 选择位置向量/);
   assert.match(html, /A.*第 1 行乘完整.*V.*矩阵/);
   assert.match(html, /data-queries=/);
@@ -209,7 +210,7 @@ test("ships the current teaching page as an offline standalone HTML file", async
   assert.match(html, /位置矩阵/);
   assert.match(html, /输入矩阵/);
   assert.match(html, /为什么使用相加，而不是直接拼接/);
-  assert.match(html, /内容支路与位置支路分别得到一个向量，再在同一维度上逐项相加/);
+  assert.match(html, /数字 1 只负责选中位置矩阵的一行/);
   assert.match(html, /one-hot 选择位置向量/);
   assert.match(html, /FlashAttention：不改变数学/);
   assert.match(html, /把融合投影结果重排为三个头，不拆 Token/);

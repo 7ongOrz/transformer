@@ -1476,16 +1476,17 @@ function FigTransformer() {
 
 function PositionEncodingFlow() {
   const positionEmbedding = [
-    [0.1, 0.2],
-    [0.2, 0.1],
-    [0.3, 0.1],
-    [0.4, 0.3],
+    [0.05, 0.1],
+    [0.15, 0.2],
+    [0.25, 0.3],
+    [0.35, 0.4],
   ];
   const attentionInput = attentionDemo.X;
   const contentEmbedding = attentionInput.map((row, rowIndex) =>
     row.map((value, columnIndex) => value - positionEmbedding[rowIndex][columnIndex]),
   );
   const rows = ["Token 1", "Token 2", "Token 3", "Token 4"];
+  const positionRows = ["位置 1", "位置 2", "位置 3", "位置 4"];
   const cols = ["维 1", "维 2"];
 
   return (
@@ -1524,65 +1525,71 @@ function PositionEncodingFlow() {
 
       <div className="position-addition-proof">
         <div className="position-addition-head">
-          <span>为什么使用相加，而不是直接拼接？</span>
-          <b>内容支路与位置支路分别得到一个向量，再在同一维度上逐项相加</b>
-          <p>两条支路都输出宽度为 <Formula tex="d_{\mathrm{model}}" /> 的向量，所以第 1 维与第 1 维相加、第 2 维与第 2 维相加；结果 <Formula tex="x_i" /> 可以直接进入后续 <Formula tex={String.raw`Q,\ K,\ V`} /> 投影。</p>
+          <span>为什么使用相加，而不是直接拼接？先分清 one-hot 与位置向量</span>
+          <b>one-hot 选择位置向量：数字 1 只负责选中位置矩阵的一行</b>
+          <p>本页取 <Formula tex={String.raw`L_{\max}=4,\ d_{\mathrm{model}}=2`} />。因此 one-hot <Formula tex="r_3" /> 是 <Formula tex={String.raw`1\times4`} />，位置矩阵 <Formula tex="P_{\mathrm{pos}}" /> 是 <Formula tex={String.raw`4\times2`} />；两者相乘后得到可与 Token 内容相加的 <Formula tex={String.raw`1\times2`} /> 向量 <Formula tex="p_3" />。</p>
         </div>
 
-        <div className="position-addition-branches" role="img" aria-label="Token 内容与序列位置沿两条支路分别生成同维度向量，再逐项相加得到 Attention 输入">
-          <article className="position-addition-lane content">
-            <div className="position-addition-source">
-              <span>内容输入</span>
-              <b>位置 <Formula tex="i" /> 处的 Token</b>
-              <small><Formula tex={String.raw`u_i\in\mathbb{R}^{1\times V}`} />，表示该 Token 的词表 one-hot</small>
-            </div>
-            <div className="position-addition-flow-op"><Formula tex={String.raw`\times E_{\mathrm{tok}}`} /><b>→</b><small>选择词向量</small></div>
-            <div className="position-addition-vector">
-              <span>内容向量</span>
-              <Formula block tex={String.raw`e_i=u_iE_{\mathrm{tok}}\in\mathbb{R}^{1\times d_{\mathrm{model}}}`} />
-              <small><Formula tex={String.raw`E_{\mathrm{tok}}\in\mathbb{R}^{V\times d_{\mathrm{model}}}`} /></small>
-            </div>
+        <div className="position-selector-flow" role="img" aria-label="位置 3 的 one-hot 行向量乘位置矩阵，选中矩阵第 3 行得到稠密位置向量 p3">
+          <article className="position-selector-onehot">
+            <span>位置 3 的选行器</span>
+            <b><Formula tex="r_3" /> · one-hot</b>
+            <div className="position-selector-labels">{positionRows.map((row) => <small key={row}>{row}</small>)}</div>
+            <div className="position-selector-cells">{[0, 0, 1, 0].map((value, index) => <strong className={index === 2 ? "active" : ""} key={index}>{value}</strong>)}</div>
+            <small><Formula tex={String.raw`r_3\in\mathbb{R}^{1\times4}`} />，只有第 3 个位置为 1</small>
           </article>
-          <article className="position-addition-lane position">
-            <div className="position-addition-source">
-              <span>位置输入</span>
-              <b>位置 <Formula tex="i" /></b>
-              <small><Formula tex={String.raw`r_i\in\mathbb{R}^{1\times L_{\max}}`} />，表示位置 <Formula tex="i" /> 的 one-hot</small>
-            </div>
-            <div className="position-addition-flow-op"><Formula tex={String.raw`\times P_{\mathrm{pos}}`} /><b>→</b><small>选择位置向量</small></div>
-            <div className="position-addition-vector">
-              <span>位置向量</span>
-              <Formula block tex={String.raw`p_i=r_iP_{\mathrm{pos}}\in\mathbb{R}^{1\times d_{\mathrm{model}}}`} />
-              <small><Formula tex={String.raw`P_{\mathrm{pos}}\in\mathbb{R}^{L_{\max}\times d_{\mathrm{model}}}`} />；可学习或由正余弦公式生成</small>
-            </div>
+          <div className="position-selector-op"><b>×</b><span>矩阵乘法</span></div>
+          <article className="position-selector-table">
+            <span>位置矩阵</span>
+            <FmsMatGrid data={positionEmbedding} name={<Formula tex="P_{\mathrm{pos}}" />} shape={<Formula tex={String.raw`[4\times2]`} />} pal={FMS_PAL.K} rowLabels={positionRows} colLabels={cols} cornerLabel="位置＼维" digits={2} focusRow={2} />
+            <small>高亮的第 3 行就是被 one-hot 中数字 1 选中的行</small>
           </article>
-          <div className="position-addition-merge" aria-hidden="true"><b>+</b><span>同维度<br />逐项相加</span></div>
-          <div className="position-addition-result">
-            <span>合成后的 Attention 输入</span>
-            <Formula block tex={String.raw`x_i=e_i+p_i\in\mathbb{R}^{1\times d_{\mathrm{model}}}`} />
-            <small><Formula tex="x_i" /> 同时携带内容与位置信号，向量宽度仍为 <Formula tex="d_{\mathrm{model}}" /></small>
-          </div>
+          <div className="position-selector-op"><b>=</b><span>取出第 3 行</span></div>
+          <article className="position-selector-dense">
+            <span>真正参与相加的向量</span>
+            <b><Formula tex="p_3" /> · dense</b>
+            <div className="position-selector-dense-labels"><small>维 1</small><small>维 2</small></div>
+            <div className="position-selector-dense-cells"><strong>0.25</strong><strong>0.30</strong></div>
+            <small><Formula tex={String.raw`p_3\in\mathbb{R}^{1\times2}`} />，它不是 one-hot</small>
+          </article>
         </div>
 
-        <div className="position-addition-equation">
-          <span>把上面的两条支路合写成一次矩阵乘法</span>
-          <Formula block tex={String.raw`\underbrace{[u_i\mid r_i]}_{\text{拼接输入}}\underbrace{\begin{bmatrix}E_{\mathrm{tok}}\\P_{\mathrm{pos}}\end{bmatrix}}_{\text{分块参数}}=\underbrace{u_iE_{\mathrm{tok}}}_{e_i}+\underbrace{r_iP_{\mathrm{pos}}}_{p_i}=e_i+p_i=x_i`} />
-          <p>这就是“先拼接内容与位置，再做分块线性变换”为什么可以写成“内容向量 + 位置向量”。实际 Embedding 查表不会真的构造 one-hot，one-hot 只用于说明这条矩阵等价关系。</p>
+        <div className="position-selector-equation">
+          <span>把“第 3 个 one-hot 位置选中第 3 行”完整写成矩阵乘法</span>
+          <Formula block tex={String.raw`\begin{aligned}r_3P_{\mathrm{pos}}&=\begin{bmatrix}0&0&1&0\end{bmatrix}${matrixTex(positionEmbedding, 2)}\\&=0p_1+0p_2+1p_3+0p_4\\&=${rowVectorTex(positionEmbedding[2], 2)}=p_3\end{aligned}`} />
+          <p>矩阵乘法会用 one-hot 的四个系数分别乘四行；前三个 0 消去对应行，唯一的 1 保留第 3 行。因此 one-hot 是“地址”，小数向量 <Formula tex="p_3" /> 才是从该地址读出的“内容”。</p>
+        </div>
+
+        <div className="position-selector-sum" aria-label="位置 3 的内容向量与选出的位置向量逐维相加得到 x3">
+          <article>
+            <span>位置 3 的内容向量</span>
+            <Formula block tex={`e_3=${rowVectorTex(contentEmbedding[2], 2)}`} />
+          </article>
+          <div><b>+</b><span>逐维相加</span></div>
+          <article className="position">
+            <span>刚选出的第 3 行</span>
+            <Formula block tex={`p_3=${rowVectorTex(positionEmbedding[2], 2)}`} />
+          </article>
+          <div><b>=</b><span>宽度不变</span></div>
+          <article className="result">
+            <span>送入 Attention</span>
+            <Formula block tex={`x_3=${rowVectorTex(attentionInput[2], 2)}`} />
+          </article>
         </div>
 
         <div className="position-addition-notes">
-          <div><b>为什么不保留拼接结果</b><span>直接拼接 <Formula tex="e_i" /> 与 <Formula tex="p_i" /> 会把宽度变成 <Formula tex="2d_{\mathrm{model}}" />；相加后仍是 <Formula tex="d_{\mathrm{model}}" />，无需改变后续 Q/K/V 投影和残差通路的维度。</span></div>
-          <div><b>等价关系的边界</b><span>等价的是“拼接 + 上述分块线性变换”与“两路投影后相加”，不是任意拼接网络都等价；相加也不要求从 <Formula tex="x_i" /> 中唯一还原 <Formula tex={String.raw`e_i,\ p_i`} />。</span></div>
+          <div><b>为什么是小数</b><span><Formula tex="p_i" /> 是稠密特征向量，不是把位置编号直接写进去。它的数值来自可学习位置表，或来自正弦、余弦公式；单个坐标可以相同，区分位置时看的是整行向量。</span></div>
+          <div><b>与拼接的关系</b><span><Formula tex={String.raw`[u_i\mid r_i]\begin{bmatrix}E_{\mathrm{tok}}\\P_{\mathrm{pos}}\end{bmatrix}=u_iE_{\mathrm{tok}}+r_iP_{\mathrm{pos}}=e_i+p_i`} />。因此特定的“拼接 + 分块线性变换”可直接写成相加，同时保持宽度为 <Formula tex="d_{\mathrm{model}}" />。</span></div>
         </div>
       </div>
 
       <div className="position-methods">
         <article>
-          <span>为什么位置表能“按位置取一行”</span>
-          <b>one-hot 选择位置向量</b>
-          <p>位置 <Formula tex="i" /> 的 one-hot 行向量 <Formula tex="r_i" /> 只会选中 <Formula tex="P_{\mathrm{pos}}" /> 的第 <Formula tex="i" /> 行：</p>
-          <Formula block tex={String.raw`r_3=\begin{bmatrix}0&0&1&0&\cdots&0\end{bmatrix},\qquad p_3=r_3P_{\mathrm{pos}}=(P_{\mathrm{pos}})_{3,:}`} />
-          <p>查出的 <Formula tex="p_i" /> 与内容向量逐维相加：<Formula tex="x_i=e_i+p_i" />，因此输入向量同时包含 Token 内容与位置信息。</p>
+          <span>为什么坐标可以是小数，甚至出现重复</span>
+          <b>位置由整行向量表示，不由某一个坐标表示</b>
+          <p>位置号 <Formula tex="i" /> 是离散索引；查表或公式计算后得到的 <Formula tex="p_i" /> 是稠密特征。即使两个位置的某一维相同，只要整行不同，它们仍是不同的位置表示：</p>
+          <Formula block tex={String.raw`\begin{bmatrix}0.10&0.20\end{bmatrix}\ne\begin{bmatrix}0.10&0.35\end{bmatrix}`} />
+          <p>这里第一维都为 0.10，但第二维不同。真实模型会联合使用全部 <Formula tex="d_{\mathrm{model}}" /> 个坐标，不会把某一个小数单独解释成“第几个位置”。</p>
         </article>
 
         <article>
