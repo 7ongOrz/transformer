@@ -912,14 +912,31 @@ function FigStageAggregate() {
         <div className="aggregate-sum-arrow" aria-hidden="true"><span>四份贡献逐维相加</span><b>↓</b></div>
 
         <div className="aggregate-result">
-          <div>
+          <div className="aggregate-result-head">
             <span>④ 得到 Token 1 的新表示</span>
-            <b><Formula tex="b_1" /> 已融合 Token 1～4 的 Value 信息</b>
+            <b><Formula tex="b_1" /> 是输出矩阵 <Formula tex="O" /> 的第 1 行</b>
           </div>
-          <Formula
-            block
-            tex={String.raw`\begin{aligned}b_1&=\sum_{j=1}^{4}A_{1,j}v_j\\&=[0.70625,1.31446]\approx[0.706,1.314]\end{aligned}`}
-          />
+          <div className="aggregate-matrix-flow">
+            <div className="aggregate-matrix-card vector">
+              <span>本节实际算出的行向量</span>
+              <Formula block tex={String.raw`b_1=\begin{bmatrix}0.706&1.314\end{bmatrix}`} />
+              <small><Formula tex={String.raw`b_1\in\mathbb{R}^{1\times2}`} />，已经融合 Token 1～4 的 Value 信息</small>
+            </div>
+
+            <div className="aggregate-stack-arrow" aria-hidden="true">
+              <span>放入第 1 行</span>
+              <b>→</b>
+            </div>
+
+            <div className="aggregate-matrix-card matrix">
+              <span>四个 Token 最终组成输出矩阵</span>
+              <Formula
+                block
+                tex={String.raw`O=\begin{bmatrix}0.706&1.314\\b_{2,1}&b_{2,2}\\b_{3,1}&b_{3,2}\\b_{4,1}&b_{4,2}\end{bmatrix}\in\mathbb{R}^{4\times2}`}
+              />
+              <small>再用 <Formula tex={String.raw`q_2,q_3,q_4`} /> 重复同一流程，就能依次填满第 2～4 行</small>
+            </div>
+          </div>
         </div>
 
         <div className="aggregate-precision-note">
