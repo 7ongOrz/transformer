@@ -909,11 +909,42 @@ function FigStageAggregate() {
           </table>
         </div>
 
-        <div className="aggregate-sum-arrow" aria-hidden="true"><span>四份贡献逐维相加</span><b>↓</b></div>
+        <div className="aggregate-component-sum">
+          <div className="aggregate-component-head">
+            <span>④ 逐维累加</span>
+            <b>四份二维向量相加，结果仍然是一个二维向量</b>
+            <p><b>4</b> 表示四个 Token 提供了四份贡献；<b>2</b> 表示每份贡献都有两个分量。求和消掉的是 Token 这一维，不会消掉向量内部的两个分量。</p>
+          </div>
+
+          <div className="aggregate-shape-rule" aria-label="四份一乘二向量沿 Token 维求和，得到一份一乘二向量">
+            <div><strong>4 份</strong><span>每份都是 <Formula tex={String.raw`1\times2`} /> 行向量</span></div>
+            <div className="sum"><Formula block tex={String.raw`\sum_{j=1}^{4}`} /><span>按相同位置分别相加</span></div>
+            <div><strong>1 份</strong><span>结果仍是 <Formula tex={String.raw`1\times2`} /> 行向量</span></div>
+          </div>
+
+          <div className="aggregate-axis-sums">
+            <div>
+              <span>第 1 个分量只和第 1 个分量相加</span>
+              <Formula block tex={String.raw`0.13120+0.11124+0.14365+0.32016=0.70625`} />
+            </div>
+            <div>
+              <span>第 2 个分量只和第 2 个分量相加</span>
+              <Formula block tex={String.raw`0.41984+0.06180+0.23426+0.59856=1.31446`} />
+            </div>
+          </div>
+
+          <Formula
+            block
+            className="aggregate-recombine"
+            tex={String.raw`b_1=\begin{bmatrix}0.70625&1.31446\end{bmatrix}\approx\begin{bmatrix}0.706&1.314\end{bmatrix}`}
+          />
+        </div>
+
+        <div className="aggregate-sum-arrow" aria-hidden="true"><span>两个分量重新并排，得到 <Formula tex="b_1" /></span><b>↓</b></div>
 
         <div className="aggregate-result">
           <div className="aggregate-result-head">
-            <span>④ 得到 Token 1 的新表示</span>
+            <span>⑤ 写入输出矩阵</span>
             <b><Formula tex="b_1" /> 是输出矩阵 <Formula tex="O" /> 的第 1 行</b>
           </div>
           <div className="aggregate-matrix-flow">

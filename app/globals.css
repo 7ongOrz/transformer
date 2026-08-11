@@ -1192,6 +1192,121 @@ p {
   color: var(--out);
   font-weight: 700;
 }
+.aggregate-component-sum {
+  max-width: 1050px;
+  margin: 20px auto 0;
+  padding: 18px 20px;
+  border: 1px solid rgba(244, 114, 182, 0.42);
+  border-radius: 13px;
+  background: rgba(244, 114, 182, 0.07);
+}
+.aggregate-component-head {
+  text-align: center;
+}
+.aggregate-component-head > span {
+  display: block;
+  color: var(--out);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+}
+.aggregate-component-head > b {
+  display: block;
+  margin-top: 4px;
+  color: var(--t1);
+  font-size: 18px;
+}
+.aggregate-component-head p {
+  max-width: 850px;
+  margin: 7px auto 0;
+  color: var(--t2);
+  font-size: 13px;
+  line-height: 1.7;
+}
+.aggregate-component-head p b {
+  color: var(--out);
+}
+.aggregate-shape-rule {
+  display: grid;
+  grid-template-columns: minmax(250px, 1fr) 190px minmax(250px, 1fr);
+  align-items: center;
+  gap: 14px;
+  margin: 16px 0;
+}
+.aggregate-shape-rule > div {
+  min-height: 70px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  background: rgba(7, 11, 24, 0.48);
+  text-align: center;
+}
+.aggregate-shape-rule strong {
+  color: var(--t1);
+  font-size: 18px;
+}
+.aggregate-shape-rule > div > span {
+  margin-top: 3px;
+  color: var(--t3);
+  font-size: 12px;
+}
+.aggregate-shape-rule > div.sum {
+  border-color: rgba(244, 114, 182, 0.4);
+  background: rgba(244, 114, 182, 0.1);
+}
+.aggregate-shape-rule .sum .math-block {
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  color: var(--out);
+  font-size: 19px;
+}
+.aggregate-axis-sums {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.aggregate-axis-sums > div {
+  min-width: 0;
+  padding: 13px 14px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 10px;
+  background: rgba(56, 189, 248, 0.07);
+  text-align: center;
+}
+.aggregate-axis-sums > div > span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--t2);
+  font-size: 12px;
+}
+.aggregate-axis-sums .math-block {
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  color: var(--att);
+  font-size: 15px;
+}
+.aggregate-axis-sums .katex-display {
+  text-align: center;
+}
+.aggregate-component-sum > .aggregate-recombine {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(244, 114, 182, 0.38);
+  border-radius: 10px;
+  background: rgba(244, 114, 182, 0.1);
+  color: var(--out);
+  font-size: 18px;
+  overflow: visible;
+}
+.aggregate-component-sum > .aggregate-recombine .katex-display {
+  text-align: center;
+}
 .aggregate-sum-arrow {
   display: flex;
   flex-direction: column;
@@ -1200,7 +1315,7 @@ p {
   min-height: 58px;
   color: var(--out);
 }
-.aggregate-sum-arrow span {
+.aggregate-sum-arrow > span {
   font-family: var(--mono);
   font-size: 11.5px;
 }
