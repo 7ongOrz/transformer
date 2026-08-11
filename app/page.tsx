@@ -1545,12 +1545,63 @@ function PositionEncodingFlow() {
         <p>这就是前文一直使用的 <Formula tex="x_1" />；随后才有 <Formula tex={String.raw`q_1=x_1W^Q=${rowVectorTex(attentionDemo.Q[0], 2)}`} />。因此位置编码位于 <Formula tex={String.raw`Q,\ K,\ V`} /> 投影之前。</p>
       </div>
 
+      <div className="position-addition-proof">
+        <div className="position-addition-head">
+          <span>为什么使用相加，而不是直接拼接？</span>
+          <b>拼接后接线性投影，展开后就是两路投影结果相加</b>
+          <p>用行向量记法：<Formula tex="u_i" /> 是 Token one-hot，<Formula tex="r_i" /> 是位置 one-hot。实际代码通常直接按 ID 查表，one-hot 只用于把等价关系写清楚。</p>
+        </div>
+
+        <div className="position-addition-paths" role="img" aria-label="Token one-hot 与位置 one-hot 分别查表后逐维相加，得到 Attention 输入">
+          <article className="position-addition-card content">
+            <span>内容分支</span>
+            <b>Token one-hot 选择词向量</b>
+            <Formula block tex={String.raw`u_iE_{\mathrm{tok}}=e_i\in\mathbb{R}^{1\times d_{\mathrm{model}}}`} />
+            <small><Formula tex={String.raw`E_{\mathrm{tok}}\in\mathbb{R}^{V\times d_{\mathrm{model}}}`} />；<Formula tex="V" /> 为词表大小</small>
+          </article>
+          <div className="position-addition-op"><b>+</b><span>逐维相加</span></div>
+          <article className="position-addition-card position">
+            <span>位置分支</span>
+            <b>位置 one-hot 选择位置向量</b>
+            <Formula block tex={String.raw`r_iP_{\mathrm{pos}}=p_i\in\mathbb{R}^{1\times d_{\mathrm{model}}}`} />
+            <small><Formula tex={String.raw`P_{\mathrm{pos}}\in\mathbb{R}^{L_{\max}\times d_{\mathrm{model}}}`} />；可学习或由正余弦公式固定生成</small>
+          </article>
+          <div className="position-addition-op"><b>=</b><span>宽度不变</span></div>
+          <article className="position-addition-card result">
+            <span>Attention 输入</span>
+            <b>内容与位置进入同一特征空间</b>
+            <Formula block tex={String.raw`x_i=e_i+p_i\in\mathbb{R}^{1\times d_{\mathrm{model}}}`} />
+            <small>随后由同一个 <Formula tex="x_i" /> 生成 <Formula tex={String.raw`q_i,\ k_i,\ v_i`} /></small>
+          </article>
+        </div>
+
+        <div className="position-addition-equivalence">
+          <div>
+            <span>如果先拼接</span>
+            <Formula block tex={String.raw`\widetilde{x}_i=[u_i\mid r_i]\in\mathbb{R}^{1\times(V+L_{\max})}`} />
+          </div>
+          <div>
+            <span>再乘分块矩阵</span>
+            <Formula block tex={String.raw`\widetilde{W}=\begin{bmatrix}E_{\mathrm{tok}}\\P_{\mathrm{pos}}\end{bmatrix}\in\mathbb{R}^{(V+L_{\max})\times d_{\mathrm{model}}}`} />
+          </div>
+          <div className="result">
+            <span>按块展开</span>
+            <Formula block tex={String.raw`\begin{aligned}\widetilde{x}_i\widetilde{W}&=[u_i\mid r_i]\begin{bmatrix}E_{\mathrm{tok}}\\P_{\mathrm{pos}}\end{bmatrix}\\&=u_iE_{\mathrm{tok}}+r_iP_{\mathrm{pos}}\\&=e_i+p_i=x_i\end{aligned}`} />
+          </div>
+        </div>
+
+        <div className="position-addition-notes">
+          <div><b>相加为什么实用</b><span>直接拼接两个 <Formula tex={String.raw`d_{\mathrm{model}}`} /> 向量会得到 <Formula tex={String.raw`2d_{\mathrm{model}}`} />；若再用线性层压回模型宽度，矩阵乘法仍会分解成两项之和。直接相加保持 Q/K/V 投影和残差通路的宽度不变。</span></div>
+          <div><b>相加没有证明什么</b><span>等价的是“拼接 + 特定分块线性投影”和“两路投影后相加”。它不表示能从 <Formula tex="x_i" /> 中唯一还原 <Formula tex={String.raw`e_i,\ p_i`} />；模型只需要利用两种信号形成的联合表示。</span></div>
+        </div>
+      </div>
+
       <div className="position-methods">
         <article>
           <span>为什么位置表能“按位置取一行”</span>
           <b>one-hot 选择位置向量</b>
-          <p>若使用可学习位置表 <Formula tex={String.raw`P_{\mathrm{pos}}\in\mathbb{R}^{L_{\max}\times d_{\mathrm{model}}}`} />（<Formula tex="L_{\max}" /> 是可表示的最大位置数），位置 <Formula tex="i" /> 的 one-hot 行向量 <Formula tex="r_i^{\mathsf T}" /> 只会选中 <Formula tex="P_{\mathrm{pos}}" /> 的第 <Formula tex="i" /> 行：</p>
-          <Formula block tex={String.raw`r_3^{\mathsf T}=\begin{bmatrix}0&0&1&0&\cdots&0\end{bmatrix},\qquad p_3=r_3^{\mathsf T}P_{\mathrm{pos}}=(P_{\mathrm{pos}})_{3,:}`} />
+          <p>位置 <Formula tex="i" /> 的 one-hot 行向量 <Formula tex="r_i" /> 只会选中 <Formula tex="P_{\mathrm{pos}}" /> 的第 <Formula tex="i" /> 行：</p>
+          <Formula block tex={String.raw`r_3=\begin{bmatrix}0&0&1&0&\cdots&0\end{bmatrix},\qquad p_3=r_3P_{\mathrm{pos}}=(P_{\mathrm{pos}})_{3,:}`} />
           <p>查出的 <Formula tex="p_i" /> 与内容向量逐维相加：<Formula tex="x_i=e_i+p_i" />，因此输入向量同时包含 Token 内容与位置信息。</p>
         </article>
 
