@@ -445,21 +445,13 @@ function FigStageQKV() {
       }}
     >
       {/* 标题 + 公式条 */}
-      <div style={{ textAlign: "center", marginBottom: 16 }}>
-        <div style={{ color: "var(--t1)", fontWeight: 700, fontSize: 15, marginBottom: 10 }}>
+      <div className="qkv-projection-head">
+        <div className="qkv-projection-title">
           第 1 步 · 投影：同一份 <span style={{ color: "var(--t2)" }}><Formula tex="X" /></span> 乘三个权重矩阵，准备全部{" "}
           <span style={{ color: CQ }}><Formula tex="Q" /></span> / <span style={{ color: CK }}><Formula tex="K" /></span> /{" "}
           <span style={{ color: CV }}><Formula tex="V" /></span>
         </div>
-        <div
-          style={{
-            display: "inline-flex",
-            gap: 28,
-            flexWrap: "wrap",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
+        <div className="qkv-projection-formulas">
           <Formula tex={String.raw`Q = XW^Q`} />
           <Formula tex={String.raw`K = XW^K`} />
           <Formula tex={String.raw`V = XW^V`} />
@@ -478,38 +470,23 @@ function FigStageQKV() {
         <div className="qkv-fanout" aria-hidden="true"><span /><span /><span /></div>
 
         {/* 右侧：三个投影分支 */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div className="qkv-projection-branches">
           {rows.map((r) => (
             <div
               key={r.key}
+              className="qkv-projection-branch"
               style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 12,
-                flexWrap: "wrap",
-                padding: "12px 12px",
-                borderRadius: 10,
                 background: `${r.color}0d`,
                 border: `1px solid ${r.color}40`,
               }}
             >
-              <span style={{ fontSize: 20, color: "var(--t3)", fontWeight: 600, fontFamily: "var(--mono)" }}>×</span>
+              <span className="qkv-projection-operator">×</span>
               <QKVMat data={r.W} accent={r.color} label={r.wlabel} sub={<Formula tex={String.raw`[2\times2]`} />} />
-              <span style={{ fontSize: 20, color: "var(--t3)", fontWeight: 600, fontFamily: "var(--mono)" }}>=</span>
+              <span className="qkv-projection-operator">=</span>
               <QKVMat data={r.R} accent={r.color} label={<Formula tex={r.key} />} sub={<Formula tex={String.raw`[4\times2]`} />} heroRow={r.key === "Q" ? 0 : -1} heroColor={r.color} />
-              <div
-                style={{
-                  borderLeft: "1px solid var(--hairline)",
-                  paddingLeft: 12,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 4,
-                  minWidth: 168,
-                }}
-              >
+              <div className="qkv-projection-note">
                 <Formula block tex={r.tex} />
-                <div style={{ fontSize: 11.5, color: "var(--t3)", lineHeight: 1.5 }}>{r.note}</div>
+                <div>{r.note}</div>
               </div>
             </div>
           ))}

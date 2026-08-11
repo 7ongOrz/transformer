@@ -979,6 +979,24 @@ p {
 }
 
 /* Q/K/V 投影：共享输入 X 一进三出 */
+.qkv-projection-head {
+  margin-bottom: 16px;
+  text-align: center;
+}
+.qkv-projection-title {
+  margin-bottom: 10px;
+  color: var(--t1);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+.qkv-projection-formulas {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  min-height: 25px;
+}
 .qkv-projection-flow {
   display: grid;
   grid-template-columns: 250px 56px minmax(620px, 1fr);
@@ -1000,6 +1018,50 @@ p {
   font-family: var(--mono);
   font-size: 11px;
   text-align: center;
+}
+.qkv-projection-branches {
+  display: grid;
+  gap: 12px;
+}
+.qkv-projection-branch {
+  display: grid;
+  grid-template-columns: 24px max-content 24px max-content minmax(210px, 1fr);
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
+  padding: 12px;
+  border-radius: 10px;
+}
+.qkv-projection-operator {
+  display: grid;
+  place-items: center;
+  color: var(--t3);
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1;
+}
+.qkv-projection-note {
+  display: grid;
+  min-width: 0;
+  align-self: stretch;
+  place-content: center;
+  padding: 0 14px;
+  border-left: 1px solid var(--hairline);
+  text-align: center;
+}
+.qkv-projection-note .math-block {
+  margin: 0 0 6px;
+  overflow: visible;
+  font-size: 16px;
+}
+.qkv-projection-note .math-block .katex-display {
+  text-align: center;
+}
+.qkv-projection-note > div {
+  color: var(--t3);
+  font-size: 11.5px;
+  line-height: 1.55;
 }
 .qkv-fanout {
   position: relative;
