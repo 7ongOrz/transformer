@@ -1548,51 +1548,54 @@ function PositionEncodingFlow() {
       <div className="position-addition-proof">
         <div className="position-addition-head">
           <span>为什么使用相加，而不是直接拼接？</span>
-          <b>拼接后接线性投影，展开后就是两路投影结果相加</b>
-          <p>用行向量记法：<Formula tex="u_i" /> 是 Token one-hot，<Formula tex="r_i" /> 是位置 one-hot。实际代码通常直接按 ID 查表，one-hot 只用于把等价关系写清楚。</p>
+          <b>内容支路与位置支路分别得到一个向量，再在同一维度上逐项相加</b>
+          <p>两条支路都输出宽度为 <Formula tex="d_{\mathrm{model}}" /> 的向量，所以第 1 维与第 1 维相加、第 2 维与第 2 维相加；结果 <Formula tex="x_i" /> 可以直接进入后续 <Formula tex={String.raw`Q,\ K,\ V`} /> 投影。</p>
         </div>
 
-        <div className="position-addition-paths" role="img" aria-label="Token one-hot 与位置 one-hot 分别查表后逐维相加，得到 Attention 输入">
-          <article className="position-addition-card content">
-            <span>内容分支</span>
-            <b>Token one-hot 选择词向量</b>
-            <Formula block tex={String.raw`u_iE_{\mathrm{tok}}=e_i\in\mathbb{R}^{1\times d_{\mathrm{model}}}`} />
-            <small><Formula tex={String.raw`E_{\mathrm{tok}}\in\mathbb{R}^{V\times d_{\mathrm{model}}}`} />；<Formula tex="V" /> 为词表大小</small>
+        <div className="position-addition-branches" role="img" aria-label="Token 内容与序列位置沿两条支路分别生成同维度向量，再逐项相加得到 Attention 输入">
+          <article className="position-addition-lane content">
+            <div className="position-addition-source">
+              <span>内容输入</span>
+              <b>位置 <Formula tex="i" /> 处的 Token</b>
+              <small><Formula tex={String.raw`u_i\in\mathbb{R}^{1\times V}`} />，表示该 Token 的词表 one-hot</small>
+            </div>
+            <div className="position-addition-flow-op"><Formula tex={String.raw`\times E_{\mathrm{tok}}`} /><b>→</b><small>选择词向量</small></div>
+            <div className="position-addition-vector">
+              <span>内容向量</span>
+              <Formula block tex={String.raw`e_i=u_iE_{\mathrm{tok}}\in\mathbb{R}^{1\times d_{\mathrm{model}}}`} />
+              <small><Formula tex={String.raw`E_{\mathrm{tok}}\in\mathbb{R}^{V\times d_{\mathrm{model}}}`} /></small>
+            </div>
           </article>
-          <div className="position-addition-op"><b>+</b><span>逐维相加</span></div>
-          <article className="position-addition-card position">
-            <span>位置分支</span>
-            <b>位置 one-hot 选择位置向量</b>
-            <Formula block tex={String.raw`r_iP_{\mathrm{pos}}=p_i\in\mathbb{R}^{1\times d_{\mathrm{model}}}`} />
-            <small><Formula tex={String.raw`P_{\mathrm{pos}}\in\mathbb{R}^{L_{\max}\times d_{\mathrm{model}}}`} />；可学习或由正余弦公式固定生成</small>
+          <article className="position-addition-lane position">
+            <div className="position-addition-source">
+              <span>位置输入</span>
+              <b>位置 <Formula tex="i" /></b>
+              <small><Formula tex={String.raw`r_i\in\mathbb{R}^{1\times L_{\max}}`} />，表示位置 <Formula tex="i" /> 的 one-hot</small>
+            </div>
+            <div className="position-addition-flow-op"><Formula tex={String.raw`\times P_{\mathrm{pos}}`} /><b>→</b><small>选择位置向量</small></div>
+            <div className="position-addition-vector">
+              <span>位置向量</span>
+              <Formula block tex={String.raw`p_i=r_iP_{\mathrm{pos}}\in\mathbb{R}^{1\times d_{\mathrm{model}}}`} />
+              <small><Formula tex={String.raw`P_{\mathrm{pos}}\in\mathbb{R}^{L_{\max}\times d_{\mathrm{model}}}`} />；可学习或由正余弦公式生成</small>
+            </div>
           </article>
-          <div className="position-addition-op"><b>=</b><span>宽度不变</span></div>
-          <article className="position-addition-card result">
-            <span>Attention 输入</span>
-            <b>内容与位置进入同一特征空间</b>
+          <div className="position-addition-merge" aria-hidden="true"><b>+</b><span>同维度<br />逐项相加</span></div>
+          <div className="position-addition-result">
+            <span>合成后的 Attention 输入</span>
             <Formula block tex={String.raw`x_i=e_i+p_i\in\mathbb{R}^{1\times d_{\mathrm{model}}}`} />
-            <small>随后由同一个 <Formula tex="x_i" /> 生成 <Formula tex={String.raw`q_i,\ k_i,\ v_i`} /></small>
-          </article>
+            <small><Formula tex="x_i" /> 同时携带内容与位置信号，向量宽度仍为 <Formula tex="d_{\mathrm{model}}" /></small>
+          </div>
         </div>
 
-        <div className="position-addition-equivalence">
-          <div>
-            <span>如果先拼接</span>
-            <Formula block tex={String.raw`\widetilde{x}_i=[u_i\mid r_i]\in\mathbb{R}^{1\times(V+L_{\max})}`} />
-          </div>
-          <div>
-            <span>再乘分块矩阵</span>
-            <Formula block tex={String.raw`\widetilde{W}=\begin{bmatrix}E_{\mathrm{tok}}\\P_{\mathrm{pos}}\end{bmatrix}\in\mathbb{R}^{(V+L_{\max})\times d_{\mathrm{model}}}`} />
-          </div>
-          <div className="result">
-            <span>按块展开</span>
-            <Formula block tex={String.raw`\begin{aligned}\widetilde{x}_i\widetilde{W}&=[u_i\mid r_i]\begin{bmatrix}E_{\mathrm{tok}}\\P_{\mathrm{pos}}\end{bmatrix}\\&=u_iE_{\mathrm{tok}}+r_iP_{\mathrm{pos}}\\&=e_i+p_i=x_i\end{aligned}`} />
-          </div>
+        <div className="position-addition-equation">
+          <span>把上面的两条支路合写成一次矩阵乘法</span>
+          <Formula block tex={String.raw`\underbrace{[u_i\mid r_i]}_{\text{拼接输入}}\underbrace{\begin{bmatrix}E_{\mathrm{tok}}\\P_{\mathrm{pos}}\end{bmatrix}}_{\text{分块参数}}=\underbrace{u_iE_{\mathrm{tok}}}_{e_i}+\underbrace{r_iP_{\mathrm{pos}}}_{p_i}=e_i+p_i=x_i`} />
+          <p>这就是“先拼接内容与位置，再做分块线性变换”为什么可以写成“内容向量 + 位置向量”。实际 Embedding 查表不会真的构造 one-hot，one-hot 只用于说明这条矩阵等价关系。</p>
         </div>
 
         <div className="position-addition-notes">
-          <div><b>相加为什么实用</b><span>直接拼接两个 <Formula tex={String.raw`d_{\mathrm{model}}`} /> 向量会得到 <Formula tex={String.raw`2d_{\mathrm{model}}`} />；若再用线性层压回模型宽度，矩阵乘法仍会分解成两项之和。直接相加保持 Q/K/V 投影和残差通路的宽度不变。</span></div>
-          <div><b>相加没有证明什么</b><span>等价的是“拼接 + 特定分块线性投影”和“两路投影后相加”。它不表示能从 <Formula tex="x_i" /> 中唯一还原 <Formula tex={String.raw`e_i,\ p_i`} />；模型只需要利用两种信号形成的联合表示。</span></div>
+          <div><b>为什么不保留拼接结果</b><span>直接拼接 <Formula tex="e_i" /> 与 <Formula tex="p_i" /> 会把宽度变成 <Formula tex="2d_{\mathrm{model}}" />；相加后仍是 <Formula tex="d_{\mathrm{model}}" />，无需改变后续 Q/K/V 投影和残差通路的维度。</span></div>
+          <div><b>等价关系的边界</b><span>等价的是“拼接 + 上述分块线性变换”与“两路投影后相加”，不是任意拼接网络都等价；相加也不要求从 <Formula tex="x_i" /> 中唯一还原 <Formula tex={String.raw`e_i,\ p_i`} />。</span></div>
         </div>
       </div>
 
