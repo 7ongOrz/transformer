@@ -42,7 +42,7 @@
 
   --radius: 16px;
   --radius-sm: 10px;
-  --maxw: 1360px;
+  --maxw: 1600px;
 }
 
 * {
@@ -201,7 +201,7 @@ button {
   border-radius: 3px;
 }
 
-@media (max-width: 1599px) {
+@media (max-width: 1799px) {
   .sidenav {
     display: none;
   }
@@ -211,7 +211,7 @@ button {
 .main {
   margin-left: 256px;
 }
-@media (max-width: 1599px) {
+@media (max-width: 1799px) {
   .main {
     margin-left: 0;
   }
@@ -220,7 +220,7 @@ button {
 .wrap {
   max-width: var(--maxw);
   margin: 0 auto;
-  padding: 0 clamp(20px, 4vw, 48px) 140px;
+  padding: 0 clamp(18px, 2.5vw, 44px) 140px;
 }
 
 /* ===== Hero ===== */
@@ -326,6 +326,13 @@ button {
 .hero-card .shapes b.q { color: var(--q); border-color: rgba(245,176,66,.4); }
 .hero-card .shapes b.k { color: var(--k); border-color: rgba(167,139,250,.4); }
 .hero-card .shapes b.v { color: var(--v); border-color: rgba(45,212,191,.4); }
+.hero-card .shape-note {
+  margin-top: 10px;
+  color: var(--t3);
+  font-size: 12px;
+  line-height: 1.65;
+  text-align: center;
+}
 
 /* ===== 章节 ===== */
 .section {
@@ -1300,13 +1307,13 @@ p {
 .position-demo-head > b {
   display: block;
   color: var(--t1);
-  font-size: 20px;
+  font-size: 22px;
   line-height: 1.5;
 }
 .position-demo-head p {
   margin: 7px 0 0;
   color: var(--t2);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.72;
 }
 .position-matrix-flow {
@@ -1314,7 +1321,7 @@ p {
   grid-template-columns: minmax(250px, 1fr) 70px minmax(250px, 1fr) 70px minmax(250px, 1fr);
   gap: 10px;
   align-items: stretch;
-  min-width: 960px;
+  min-width: 1120px;
 }
 .position-matrix-stage {
   display: flex;
@@ -1335,23 +1342,23 @@ p {
 .position-matrix-stage > span {
   color: var(--t2);
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
 }
 .position-matrix-stage > small {
   color: var(--t3);
-  font-size: 11.5px;
+  font-size: 12.5px;
   line-height: 1.5;
   text-align: center;
 }
 .position-matrix-stage .fms-mat-name {
-  font-size: 17px;
+  font-size: 19px;
 }
 .position-matrix-stage .fms-cell {
-  width: 58px;
-  min-width: 58px;
-  height: 42px;
-  font-size: 13.5px;
+  width: 64px;
+  min-width: 64px;
+  height: 48px;
+  font-size: 15px;
 }
 .position-matrix-op {
   display: flex;
@@ -1370,11 +1377,11 @@ p {
 .position-matrix-op span {
   color: var(--t3);
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 11.5px;
   line-height: 1.45;
 }
 .position-token-example {
-  min-width: 960px;
+  min-width: 1120px;
   margin-top: 14px;
   padding: 15px 18px;
   border-left: 3px solid var(--q);
@@ -1384,13 +1391,13 @@ p {
 .position-token-example > span {
   color: var(--q);
   font-family: var(--mono);
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-weight: 700;
 }
 .position-token-example .math-block {
   margin: 8px 0 5px;
   overflow: visible;
-  font-size: 17px;
+  font-size: 18px;
 }
 .position-token-example .math-block .katex-display {
   text-align: center;
@@ -1398,14 +1405,14 @@ p {
 .position-token-example p {
   margin: 4px 0 0;
   color: var(--t2);
-  font-size: 13.5px;
+  font-size: 14.5px;
   line-height: 1.7;
 }
 .position-methods {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
-  min-width: 960px;
+  min-width: 1120px;
   margin-top: 14px;
 }
 .position-methods article {
@@ -1419,18 +1426,18 @@ p {
   display: block;
   color: var(--t3);
   font-family: var(--mono);
-  font-size: 11.5px;
+  font-size: 12.5px;
 }
 .position-methods article > b {
   display: block;
   margin-top: 3px;
   color: var(--t1);
-  font-size: 16px;
+  font-size: 17px;
 }
 .position-methods p {
   margin: 10px 0;
   color: var(--t2);
-  font-size: 13.5px;
+  font-size: 14.5px;
   line-height: 1.72;
 }
 .position-methods .math-block {
@@ -1439,16 +1446,16 @@ p {
   border: 1px solid rgba(167, 139, 250, 0.2);
   border-radius: 9px;
   background: rgba(167, 139, 250, 0.06);
-  font-size: 14px;
+  font-size: 15px;
 }
 .position-methods .math-block .katex-display {
   text-align: center;
 }
 .position-demo-note {
-  min-width: 960px;
+  min-width: 1120px;
   margin-top: 14px;
   color: var(--t3);
-  font-size: 12.5px;
+  font-size: 13.5px;
   line-height: 1.68;
   text-align: center;
 }
@@ -1840,7 +1847,7 @@ p code {
 }
 .mask-grid th, .mask-grid td {
   font-family: var(--mono);
-  font-size: 14.5px;
+  font-size: 16px;
   text-align: center;
 }
 .mask-grid th {
@@ -1849,8 +1856,8 @@ p code {
   padding: 0 8px;
 }
 .mask-cell {
-  width: 70px;
-  height: 48px;
+  width: 78px;
+  height: 54px;
   border-radius: 7px;
   display: flex;
   align-items: center;
@@ -1876,7 +1883,7 @@ p code {
   align-items: center;
   margin: 18px 0;
   font-family: var(--mono);
-  font-size: 15px;
+  font-size: 16px;
 }
 .flow-chain b {
   padding: 9px 15px;
@@ -1913,7 +1920,7 @@ p code {
 .fc-col-h {
   text-align: center;
   font-family: var(--mono);
-  font-size: 15px;
+  font-size: 16.5px;
   font-weight: 700;
   padding: 11px 12px;
   border-radius: 9px 9px 0 0;
@@ -1929,8 +1936,8 @@ p code {
 }
 .fc-step {
   font-family: var(--mono);
-  font-size: 15px;
-  padding: 12px 14px;
+  font-size: 16.5px;
+  padding: 14px 16px;
   border-radius: 8px;
   border: 1px solid var(--hairline);
   background: var(--panel-3);
@@ -1950,51 +1957,51 @@ p code {
 .fc-dn {
   text-align: center;
   color: var(--t-dim);
-  font-size: 16px;
-  line-height: 22px;
+  font-size: 18px;
+  line-height: 25px;
 }
 
 /* 矩阵级及后续章节统一提高正文、公式和图注可读性 */
 .detail-section .sec-lead {
   max-width: none;
-  font-size: 16px;
+  font-size: 17px;
   line-height: 1.8;
   text-wrap: wrap;
 }
 .detail-section h3 {
-  font-size: 19px;
+  font-size: 20px;
 }
 .detail-section .note {
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.75;
 }
 .detail-section .card p {
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.75;
   text-wrap: wrap;
   overflow-wrap: normal;
 }
 .detail-section .eq-box {
-  font-size: 19px;
+  font-size: 20px;
 }
 .detail-section .fig-cap {
-  font-size: 13px;
+  font-size: 14px;
 }
 .detail-section pre {
-  font-size: 14px;
+  font-size: 14.5px;
   line-height: 1.72;
 }
 .detail-section .mname {
-  font-size: 14px;
+  font-size: 15px;
 }
 .detail-section .mcell {
-  width: 58px;
-  height: 48px;
-  font-size: 16px;
+  width: 62px;
+  height: 52px;
+  font-size: 17px;
 }
 .detail-section .tab {
-  padding: 9px 18px;
-  font-size: 14px;
+  padding: 10px 19px;
+  font-size: 15px;
 }
 
 /* ===== 步骤网格 ===== */
@@ -2047,19 +2054,19 @@ p code {
 .fms-wrap {
   margin: 22px 0;
   min-width: 0;
-  padding: 18px;
+  padding: 22px;
   background: linear-gradient(180deg, var(--panel), var(--panel-3));
   border: 1px solid var(--hairline);
   border-radius: var(--radius);
   overflow-x: auto;
 }
 .fms-canvas {
-  min-width: 1050px;
+  min-width: 1160px;
 }
 .fms-banner {
   text-align: center;
-  padding: 17px 20px;
-  margin-bottom: 14px;
+  padding: 20px 22px;
+  margin-bottom: 16px;
   background: radial-gradient(420px 200px at 50% 0%, var(--att-soft), transparent 70%), var(--panel-3);
   border: 1px solid var(--hairline);
   border-radius: var(--radius-sm);
@@ -2067,7 +2074,7 @@ p code {
 .fms-banner-tag {
   display: block;
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 14px;
   color: var(--accent);
   letter-spacing: 1.5px;
   margin-bottom: 6px;
@@ -2075,7 +2082,7 @@ p code {
 .fms-banner .math-block {
   overflow: visible;
   margin: 5px 0 9px;
-  font-size: 18px;
+  font-size: 20px;
 }
 .fms-prep {
   display: flex;
@@ -2084,7 +2091,7 @@ p code {
   flex-wrap: wrap;
   gap: 8px 14px;
   color: var(--t3);
-  font-size: 13px;
+  font-size: 14.5px;
   line-height: 1.6;
 }
 .fms-prep b {
@@ -2093,17 +2100,17 @@ p code {
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.025);
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: 13px;
 }
 .fms-summary-flow {
   display: grid;
-  grid-template-columns: minmax(326px, 1fr) 44px minmax(326px, 1fr) 66px minmax(226px, 0.72fr);
-  gap: 10px;
+  grid-template-columns: minmax(365px, 1fr) 50px minmax(365px, 1fr) 72px minmax(260px, 0.72fr);
+  gap: 12px;
   align-items: stretch;
 }
 .fms-summary-card {
   min-width: 0;
-  padding: 14px 12px 12px;
+  padding: 18px 14px 15px;
   border: 1px solid var(--hairline);
   border-radius: 12px;
   background: rgba(7, 11, 24, 0.42);
@@ -2112,26 +2119,26 @@ p code {
 .fms-summary-head {
   display: grid;
   gap: 2px;
-  min-height: 48px;
+  min-height: 52px;
   margin-bottom: 2px;
 }
 .fms-summary-head span {
   color: var(--t3);
   font-family: var(--mono);
-  font-size: 11.5px;
+  font-size: 13px;
   letter-spacing: 0.02em;
 }
 .fms-summary-head b {
   color: var(--t1);
-  font-size: 15px;
+  font-size: 17px;
   line-height: 1.45;
 }
 .fms-summary-card > .math-block {
-  min-height: 42px;
+  min-height: 46px;
   margin: 3px 0 7px;
   padding: 0;
   overflow: visible;
-  font-size: 14px;
+  font-size: 16px;
 }
 .fms-summary-card > .fms-mat {
   width: 100%;
@@ -2144,20 +2151,20 @@ p code {
   gap: 1px;
   color: var(--att);
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: 13px;
   text-align: center;
 }
 .fms-flow-op b {
   color: var(--t2);
-  font-size: 11px;
+  font-size: 12px;
 }
 .fms-flow-op .math-inline {
-  font-size: 12px;
+  font-size: 13px;
 }
 .fms-flow-op i {
   margin-top: 3px;
   color: var(--att);
-  font-size: 22px;
+  font-size: 26px;
   font-style: normal;
   line-height: 1;
 }
@@ -2165,25 +2172,25 @@ p code {
   display: grid;
   justify-items: center;
   gap: 2px;
-  min-height: 54px;
+  min-height: 60px;
   margin-top: 8px;
   padding: 7px 6px;
   border-top: 1px solid rgba(245, 176, 66, 0.24);
   color: var(--t2);
-  font-size: 12px;
+  font-size: 13.5px;
   line-height: 1.45;
 }
 .fms-row-link b {
   color: var(--q);
   font-family: var(--mono);
-  font-size: 11.5px;
+  font-size: 12.5px;
 }
 .fms-row-link .math-inline {
   color: var(--t1);
-  font-size: 12px;
+  font-size: 13.5px;
 }
 .fms-output-card .fms-row-link .math-inline {
-  font-size: 11.5px;
+  font-size: 12.5px;
 }
 /* 单个矩阵 */
 .fms-mat {
@@ -2197,11 +2204,11 @@ p code {
   align-items: baseline;
   gap: 8px;
   font-family: var(--mono);
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
 }
 .fms-shape {
-  font-size: 12px;
+  font-size: 13.5px;
   color: var(--t3);
   font-weight: 500;
 }
@@ -2211,7 +2218,7 @@ p code {
 }
 .fms-grid th {
   font-family: var(--mono);
-  font-size: 11.5px;
+  font-size: 13px;
   color: var(--t3);
   font-weight: 600;
   padding: 0 4px;
@@ -2219,7 +2226,7 @@ p code {
 }
 .fms-corner {
   color: var(--t-dim);
-  font-size: 10px;
+  font-size: 11px;
 }
 .fms-collab {
   color: var(--k);
@@ -2232,9 +2239,9 @@ p code {
   padding: 0;
 }
 .fms-cell {
-  width: 54px;
-  min-width: 54px;
-  height: 43px;
+  width: 62px;
+  min-width: 62px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2244,7 +2251,7 @@ p code {
   background: var(--panel-3);
   color: var(--t1);
   font-family: var(--mono);
-  font-size: 13.5px;
+  font-size: 15px;
   font-weight: 600;
 }
 .fms-focus-row .fms-rowlab {
@@ -2268,7 +2275,7 @@ p code {
   display: flex;
   align-items: center;
   gap: 9px;
-  font-size: 14px;
+  font-size: 15px;
   color: var(--t3);
 }
 .fms-focus-swatch {
@@ -2280,12 +2287,12 @@ p code {
 }
 .fms-legend-text {
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: 13px;
 }
 .fms-read {
   min-width: 0;
   max-width: none;
-  font-size: 15px;
+  font-size: 16px;
   color: var(--t2);
   line-height: 1.65;
   text-wrap: wrap;
