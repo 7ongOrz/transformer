@@ -595,96 +595,121 @@ function FigStageScore() {
         </div>
 
         <div className="score-symbol-guide">
-        <section className="score-symbol-origin">
-          <div className="score-symbol-heading">
-            <span>① 一个格</span>
-            <b><Formula tex="S_{1,1}" /> 从哪里来</b>
-            <p>同一个 <Formula tex="x_1" /> 经过两组不同的投影参数，得到角色不同的 <Formula tex="q_1" /> 与 <Formula tex="k_1" />；它们做缩放点积，产生 <Formula tex="S" /> 左上角的一个分数。</p>
-          </div>
-          <div className="score-symbol-flow">
-            <div className="score-symbol-node input">
-              <span>Token 1 当前层输入</span>
-              <Formula block tex={String.raw`x_1=[0.40, 1.20]`} />
-              <small><Formula tex="X" /> 的第 1 行</small>
+          <section className="score-symbol-origin">
+            <div className="score-symbol-heading">
+              <span>先追踪一个格</span>
+              <b><Formula tex="S_{1,1}" /> 从哪里来</b>
+              <p>同一个 <Formula tex="x_1" /> 经过两组不同的投影参数，得到角色不同的 <Formula tex="q_1" /> 与 <Formula tex="k_1" />；它们做缩放点积，才产生一个分数。</p>
             </div>
-            <div className="score-symbol-projections" aria-hidden="true">
-              <div><span><Formula tex={String.raw`\times W^Q`} /></span><b>→</b></div>
-              <div><span><Formula tex={String.raw`\times W^K`} /></span><b>→</b></div>
-            </div>
-            <div className="score-symbol-roles">
-              <div className="query">
-                <span><Formula tex="Q" /> 的第 1 行 · 发起匹配</span>
-                <Formula block tex={String.raw`q_1=[0.04, 1.16]`} />
+            <div className="score-symbol-flow">
+              <div className="score-symbol-node input">
+                <span>Token 1 当前层输入</span>
+                <Formula block tex={String.raw`x_1=[0.40, 1.20]`} />
+                <small><Formula tex="X" /> 的第 1 行</small>
               </div>
-              <div className="key">
-                <span><Formula tex="K" /> 的第 1 行 · 提供匹配</span>
-                <Formula block tex={String.raw`k_1=[0.56, 1.16]`} />
-              </div>
-            </div>
-            <div className="score-symbol-operation" aria-hidden="true">
-              <span>缩放点积</span><b>→</b><small><Formula tex={String.raw`\div\sqrt{d_k}`} /></small>
-            </div>
-            <div className="score-symbol-node result">
-              <span><Formula tex="S" /> 的第 1 行、第 1 列</span>
-              <Formula block tex={String.raw`S_{1,1}=\dfrac{q_1k_1^{\mathsf T}}{\sqrt{2}}`} />
-              <strong><Formula tex={String.raw`=0.967`} /></strong>
-            </div>
-          </div>
-        </section>
 
-        <section className="score-index-map">
-          <div className="score-symbol-heading">
-            <span>② 立刻放回矩阵定位</span>
-            <b><Formula tex="S_{1,1}" /> 是 <Formula tex="q_1" /> 行与 <Formula tex="k_1" /> 列的交点</b>
-            <p>同一规则继续换成 <Formula tex={String.raw`k_2,k_3,k_4`} />，就得到右侧三个格；四个格合起来是 <Formula tex="S" /> 的第一行。</p>
-          </div>
-          <div className="score-mini-matrix" aria-label="S 矩阵行由 q_i 决定，列由 k_j 决定；第一行依次为 0.967、负 0.186、0.573、1.026">
-            <span className="corner"><Formula tex="S" /></span>
-            {[1, 2, 3, 4].map((j) => <span className={`col ${j === 1 ? "active" : ""}`} key={`col-${j}`}><Formula tex={`k_${j}`} /></span>)}
-            {[1, 2, 3, 4].map((i) => (
-              <div className="score-mini-row" key={`row-${i}`}>
-                <span className={`row ${i === 1 ? "active" : ""}`}><Formula tex={`q_${i}`} /></span>
-                {[1, 2, 3, 4].map((j) => (
-                  <span className={`cell ${i === 1 ? "scored" : ""} ${i === 1 && j === 1 ? "active" : ""}`} key={`cell-${i}-${j}`}>
-                    <Formula tex={`S_{${i},${j}}`} />
-                    {i === 1 ? <strong>{comparisons[j - 1].score}</strong> : null}
-                  </span>
-                ))}
+              <div className="score-symbol-projections" aria-hidden="true">
+                <div><span><Formula tex={String.raw`\times W^Q`} /></span><b>→</b></div>
+                <div><span><Formula tex={String.raw`\times W^K`} /></span><b>→</b></div>
               </div>
-            ))}
-          </div>
-          <div className="score-index-notes">
-            <span><b>第一个下标 <Formula tex="i" /></b> → 选择 <Formula tex="q_i" /> → 确定第 <Formula tex="i" /> 行</span>
-            <span><b>第二个下标 <Formula tex="j" /></b> → 选择 <Formula tex="k_j" /> → 确定第 <Formula tex="j" /> 列</span>
-            <strong>蓝色第一行就是 <Formula tex="q_1" /> 与四个 <Formula tex="k_j" /> 比较后的四个原始分数。</strong>
-          </div>
-        </section>
 
-        <section className="score-row-expansion">
-          <div className="score-symbol-heading">
-            <span>③ 再展开第一行的四次计算</span>
-            <b>固定 <Formula tex="q_1" />，从左到右依次换成 <Formula tex={String.raw`k_1,k_2,k_3,k_4`} /></b>
-            <p>下方四张卡与上方矩阵的第一行一一对应：第 <Formula tex="j" /> 张卡算出的值，写入第 <Formula tex="j" /> 列。</p>
-          </div>
-          <div className="score-fixed-query">
-            <span>四次计算共同使用</span>
-            <Formula tex={String.raw`q_1=[0.04,\ 1.16]`} />
-            <small>它决定四个结果都属于 <Formula tex="S" /> 的第 1 行</small>
-          </div>
-          <div className="score-comparison-grid">
+              <div className="score-symbol-roles">
+                <div className="query">
+                  <span><Formula tex="Q" /> 的第 1 行 · 发起匹配</span>
+                  <Formula block tex={String.raw`q_1=[0.04, 1.16]`} />
+                </div>
+                <div className="key">
+                  <span><Formula tex="K" /> 的第 1 行 · 提供匹配</span>
+                  <Formula block tex={String.raw`k_1=[0.56, 1.16]`} />
+                </div>
+              </div>
+
+              <div className="score-symbol-operation" aria-hidden="true">
+                <span>缩放点积</span>
+                <b>→</b>
+                <small><Formula tex={String.raw`\div\sqrt{d_k}`} /></small>
+              </div>
+
+              <div className="score-symbol-node result">
+                <span><Formula tex="S" /> 的第 1 行、第 1 列</span>
+                <Formula block tex={String.raw`S_{1,1}=\dfrac{q_1k_1^{\mathsf T}}{\sqrt{2}}`} />
+                <strong><Formula tex={String.raw`=0.967`} /></strong>
+              </div>
+            </div>
+          </section>
+
+          <section className="score-index-map">
+            <div className="score-symbol-heading">
+              <span>再认两个下标</span>
+              <b><Formula tex="S_{i,j}" /> 在矩阵中的坐标</b>
+            </div>
+            <div className="score-mini-matrix" aria-label="S 矩阵行由 q_i 决定，列由 k_j 决定；第一行依次为 0.967、负 0.186、0.573、1.026">
+              <span className="corner"><Formula tex="S" /></span>
+              {[1, 2, 3, 4].map((j) => <span className={`col ${j === 1 ? "active" : ""}`} key={`col-${j}`}><Formula tex={`k_${j}`} /></span>)}
+              {[1, 2, 3, 4].map((i) => (
+                <div className="score-mini-row" key={`row-${i}`}>
+                  <span className={`row ${i === 1 ? "active" : ""}`}><Formula tex={`q_${i}`} /></span>
+                  {[1, 2, 3, 4].map((j) => (
+                    <span className={`cell ${i === 1 ? "scored" : ""} ${i === 1 && j === 1 ? "active" : ""}`} key={`cell-${i}-${j}`}>
+                      <Formula tex={`S_{${i},${j}}`} />
+                      {i === 1 ? <strong>{comparisons[j - 1].score}</strong> : null}
+                    </span>
+                  ))}
+                </div>
+              ))}
+            </div>
+            <div className="score-index-notes">
+              <span><b>第一个下标 <Formula tex="i" /></b> → 选择 <Formula tex="q_i" /> → 确定第 <Formula tex="i" /> 行</span>
+              <span><b>第二个下标 <Formula tex="j" /></b> → 选择 <Formula tex="k_j" /> → 确定第 <Formula tex="j" /> 列</span>
+              <strong>蓝色第一行就是 <Formula tex="q_1" /> 与四个 <Formula tex="k_j" /> 比较后的四个原始分数；左上角 <Formula tex="S_{1,1}=0.967" />。</strong>
+            </div>
+          </section>
+        </div>
+
+        <div className="score-explainer-flow">
+          <article className="score-query-card">
+            <span>① 取 <Formula tex="Q" /> 的第 1 行</span>
+            <b>Token 1 的 Query</b>
+            <Formula block tex={String.raw`q_1=x_1W^Q=[0.04,\ 1.16]`} />
+            <p>它是 Token 1 的检索向量。这里只算 <Formula tex="b_1" />，所以使用 <Formula tex="q_1" />；若算 <Formula tex="b_2" />，就改用 <Formula tex="q_2" />。</p>
+          </article>
+
+          <div className="score-flow-arrow" aria-hidden="true"><b>→</b><span>同一种计算<br />重复 4 次</span></div>
+
+          <div className="score-comparisons">
+            <div className="score-column-head">
+              <span>② 分别与 <Formula tex="K" /> 的四行比较</span>
+              <Formula tex={String.raw`S_{1,j}=q_1k_j^{\mathsf T}/\sqrt{d_k}`} />
+            </div>
             {comparisons.map((item, i) => (
-              <article className="score-comparison-card" key={item.key}>
-                <div>
-                  <span>第 {i + 1} 列</span>
+              <div className="score-comparison" key={item.key}>
+                <div className="score-key-id">
+                  <span>第 {i + 1} 列 · <Formula tex={item.scoreLabel} /></span>
                   <b><Formula tex={item.key} /></b>
                   <small>{item.token} · {item.vector}</small>
                 </div>
                 <Formula block tex={item.tex} />
-                <strong><Formula tex={item.scoreLabel} /> = {item.score}</strong>
-              </article>
+                <strong>= {item.score}</strong>
+              </div>
             ))}
           </div>
-        </section>
+
+          <div className="score-flow-arrow" aria-hidden="true"><b>→</b><span>按列号<br />依次排好</span></div>
+
+          <article className="score-row-card">
+            <span>③ 得到 <Formula tex="S" /> 的第 1 行</span>
+            <b>Token 1 看各 Token 的原始分数</b>
+            <div className="score-row-matrix" aria-label="S 的第一行等于 0.967、负 0.186、0.573、1.026">
+              <Formula tex="S_{1,:}=" />
+              <div>{comparisons.map((item) => <span key={item.key}>{item.score}</span>)}</div>
+            </div>
+            <div className="score-row-labels">
+              {comparisons.map((item, i) => (
+                <div key={item.key}><span>列 {i + 1}</span><b>{item.token}</b><strong>{item.score}</strong></div>
+              ))}
+            </div>
+            <p><b>行 1</b>来自 <Formula tex="q_1" />；<b>列 <Formula tex="j" /></b>来自 <Formula tex="k_j" />。因此 <Formula tex="S_{1,4}" /> 就是 Token 1 看 Token 4 的原始分数。</p>
+          </article>
         </div>
 
         <div className="score-next-step">
