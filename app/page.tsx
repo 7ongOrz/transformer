@@ -1,7 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import katex from "katex";
+import {
+  attentionDemo,
+  attentionHeads,
+  matrixMultiplicationDemo,
+} from "./attention-demo.js";
 
 type FormulaProps = {
   tex: string;
@@ -43,83 +48,38 @@ function Formula({ tex, block = false, className = "" }: FormulaProps) {
 }
 
 /* ---------- 矩阵乘法演示数据 ---------- */
-const matrixA = [
-  [1, 2, 0],
-  [0, 1, 3],
-];
-const matrixB = [
-  [2, 1],
-  [1, 0],
-  [0, 2],
-];
-const matrixC = matrixA.map((row) =>
-  matrixB[0].map((_, c) =>
-    row.reduce((s, v, i) => s + v * matrixB[i][c], 0),
-  ),
-);
+const { A: matrixA, B: matrixB, C: matrixC } = matrixMultiplicationDemo;
 
 /* ---------- Attention 演示数据（全页统一使用 4 个位置标签，d=2） ---------- */
 const tokenLabels = ["token₁", "token₂", "token₃", "token₄"];
-const queries = [
-  [0.04, 1.16],
-  [1.41, 0.99],
-  [0.53, 1.12],
-  [0.65, 1.75],
-];
-const keys = [
-  [0.56, 1.16],
-  [1.26, -0.27],
-  [0.82, 0.67],
-  [1.18, 1.21],
-];
-const values = [
-  [0.4, 1.28],
-  [1.08, 0.6],
-  [0.65, 1.06],
-  [0.92, 1.72],
-];
-
-function softmax(values: number[]) {
-  const finite = values.filter(Number.isFinite);
-  const mx = Math.max(...finite);
-  const ex = values.map((v) => (Number.isFinite(v) ? Math.exp(v - mx) : 0));
-  const sum = ex.reduce((a, b) => a + b, 0);
-  return ex.map((v) => v / sum);
-}
+const { Q: queries, K: keys, V: values } = attentionDemo;
 
 /* ---------- 多头热力图数据 ---------- */
-const heads = [
-  {
-    name: "Head 1 · 长程",
-    note: "权重大量出现在非对角线位置 → 可能形成长距离关注。",
-    matrix: [
-      [0.58, 0.12, 0.22, 0.08],
-      [0.18, 0.16, 0.12, 0.54],
-      [0.66, 0.08, 0.20, 0.06],
-      [0.14, 0.46, 0.09, 0.31],
-    ],
-  },
-  {
-    name: "Head 2 · 局部",
-    note: "权重集中在主对角线附近 → 可能形成局部关注。",
-    matrix: [
-      [0.62, 0.27, 0.07, 0.04],
-      [0.24, 0.48, 0.22, 0.06],
-      [0.07, 0.24, 0.48, 0.21],
-      [0.03, 0.08, 0.30, 0.59],
-    ],
-  },
-  {
-    name: "Head h · 全局",
-    note: "权重分布较平均 → 可能形成全局关注。",
-    matrix: [
-      [0.28, 0.24, 0.25, 0.23],
-      [0.23, 0.29, 0.22, 0.26],
-      [0.27, 0.20, 0.30, 0.23],
-      [0.22, 0.27, 0.21, 0.30],
-    ],
-  },
-];
+const heads = attentionHeads;
+
+function formatNumber(value: number, digits = 3) {
+  return value.toFixed(digits);
+}
+
+function displayNumber(value: number, digits = 3) {
+  return formatNumber(value, digits).replace("-", "−");
+}
+
+function rowVectorTex(values: number[], digits = 3) {
+  return String.raw`\begin{bmatrix}${values.map((value) => formatNumber(value, digits)).join("&")}\end{bmatrix}`;
+}
+
+function matrixTex(matrix: number[][], digits = 2) {
+  return String.raw`\begin{bmatrix}${matrix
+    .map((row) => row.map((value) => formatNumber(value, digits)).join("&"))
+    .join(String.raw`\\`)}\end{bmatrix}`;
+}
+
+function roundedMatrix(matrix: number[][], digits = 3) {
+  return matrix.map((row) =>
+    row.map((value) => Number(value.toFixed(digits))),
+  );
+}
 
 
 /* ============================================================
@@ -250,7 +210,7 @@ function QKVMat({
                         : cellStyle
                     }
                   >
-                    {v}
+                    {Number(v.toFixed(2))}
                   </td>
                 ))}
               </tr>
@@ -320,7 +280,7 @@ function AttentionSetupGuide() {
         <article className="setup-node">
           <span className="setup-step">3</span>
           <strong>按位置堆叠成输入矩阵 <Formula tex="X" /></strong>
-          <Formula block tex={String.raw`X=\begin{bmatrix}x_1\\x_2\\x_3\\x_4\end{bmatrix}=\begin{bmatrix}0.4&1.2\\1.5&0.3\\0.8&0.9\\1.1&1.5\end{bmatrix}`} />
+          <Formula block tex={`X=\\begin{bmatrix}x_1\\\\x_2\\\\x_3\\\\x_4\\end{bmatrix}=${matrixTex(attentionDemo.X, 1)}`} />
           <p><Formula tex={String.raw`X\in\mathbb{R}^{4\times2}`} />：4 表示四个位置，2 表示每个位置暂用两个数描述。</p>
         </article>
 
@@ -396,13 +356,27 @@ function ScoreMatrixReadingGuide() {
   return (
     <div className="score-reading-guide">
       <div className="score-reading-head">
-        <b><Formula tex={String.raw`4\times4`} /> 矩阵只需认清三个坐标</b>
-        <span>下面直接把坐标规则标在真实数值矩阵上，不再重复画 16 个语义格子。</span>
+        <span>先统一矩阵坐标</span>
+        <b>读懂 <Formula tex={String.raw`4\times4`} /> 分数矩阵，只看“行、列、格”</b>
+        <p>后面的真实数值矩阵都沿用同一规则，不需要逐个记忆 16 个单元格。</p>
       </div>
       <div className="score-reading-rules">
-        <span><b>行 <Formula tex="i" /></b>：Token <Formula tex="i" /> 发出 Query，决定“谁在看”</span>
-        <span><b>列 <Formula tex="j" /></b>：Token <Formula tex="j" /> 提供 Key，决定“正在看谁”</span>
-        <span><b>格 <Formula tex="(i,j)" /></b>：<Formula tex={String.raw`S_{i,j}=q_i k_j^{\mathsf T}/\sqrt{d_k}`} />，即 Token <Formula tex="i" /> 看 Token <Formula tex="j" /> 的分数</span>
+        <article className="row-rule">
+          <span>① 行坐标</span>
+          <b><Formula tex="i" /> → Query <Formula tex="q_i" /></b>
+          <p>第 <Formula tex="i" /> 行表示 Token <Formula tex="i" /> 发起查询，回答“谁在看”。</p>
+        </article>
+        <article className="col-rule">
+          <span>② 列坐标</span>
+          <b><Formula tex="j" /> → Key <Formula tex="k_j" /></b>
+          <p>第 <Formula tex="j" /> 列表示 Token <Formula tex="j" /> 被匹配，回答“正在看谁”。</p>
+        </article>
+        <article className="cell-rule">
+          <span>③ 单元格</span>
+          <b><Formula tex="(i,j)" /> → 分数 <Formula tex="S_{i,j}" /></b>
+          <Formula block tex={String.raw`S_{i,j}=\dfrac{q_i k_j^{\mathsf T}}{\sqrt{d_k}}`} />
+          <p>例如 <Formula tex="S_{1,2}" /> 就是 Token 1 看 Token 2 的原始分数。</p>
+        </article>
       </div>
     </div>
   );
@@ -410,13 +384,7 @@ function ScoreMatrixReadingGuide() {
 
 function FigStageQKV() {
   const WORDS = tokenLabels;
-  const X = [[0.4, 1.2], [1.5, 0.3], [0.8, 0.9], [1.1, 1.5]];
-  const WQ = [[1, 0.5], [-0.3, 0.8]];
-  const WK = [[0.8, -0.4], [0.2, 1.1]];
-  const WV = [[0.7, 0.2], [0.1, 1]];
-  const Q = [[0.04, 1.16], [1.41, 0.99], [0.53, 1.12], [0.65, 1.75]];
-  const K = [[0.56, 1.16], [1.26, -0.27], [0.82, 0.67], [1.18, 1.21]];
-  const V = [[0.4, 1.28], [1.08, 0.6], [0.65, 1.06], [0.92, 1.72]];
+  const { X, WQ, WK, WV, Q, K, V } = attentionDemo;
 
   const CQ = "#f5b042"; // --q
   const CK = "#a78bfa"; // --k
@@ -606,12 +574,16 @@ function FirstRowAttentionMatrix({
  * 数据全程使用统一 4-token（token₁..token₄，d=2）。
  * ============================================================ */
 function FigStageScore() {
-  const comparisons = [
-    { key: "k_1", scoreLabel: "S_{1,1}", token: "Token 1", vector: "[0.56,1.16]", score: "0.967", tex: String.raw`\dfrac{0.04\times0.56+1.16\times1.16}{\sqrt{2}}` },
-    { key: "k_2", scoreLabel: "S_{1,2}", token: "Token 2", vector: "[1.26,-0.27]", score: "−0.186", tex: String.raw`\dfrac{0.04\times1.26+1.16\times(-0.27)}{\sqrt{2}}` },
-    { key: "k_3", scoreLabel: "S_{1,3}", token: "Token 3", vector: "[0.82,0.67]", score: "0.573", tex: String.raw`\dfrac{0.04\times0.82+1.16\times0.67}{\sqrt{2}}` },
-    { key: "k_4", scoreLabel: "S_{1,4}", token: "Token 4", vector: "[1.18,1.21]", score: "1.026", tex: String.raw`\dfrac{0.04\times1.18+1.16\times1.21}{\sqrt{2}}` },
-  ];
+  const q1 = attentionDemo.Q[0];
+  const comparisons = attentionDemo.K.map((keyVector, index) => ({
+    key: `k_${index + 1}`,
+    scoreLabel: `S_{1,${index + 1}}`,
+    token: `Token ${index + 1}`,
+    vector: `[${keyVector.map((value) => formatNumber(value, 2)).join(",")}]`,
+    score: displayNumber(attentionDemo.S[0][index]),
+    tex: `\\dfrac{${formatNumber(q1[0], 2)}\\times${formatNumber(keyVector[0], 2)}+${formatNumber(q1[1], 2)}\\times${keyVector[1] < 0 ? `(${formatNumber(keyVector[1], 2)})` : formatNumber(keyVector[1], 2)}}{\\sqrt{2}}`,
+  }));
+  const scoreList = comparisons.map((item) => item.score).join("、");
 
   return (
     <div className="fig">
@@ -632,7 +604,7 @@ function FigStageScore() {
             <div className="score-symbol-flow">
               <div className="score-symbol-node input">
                 <span>Token 1 当前层输入</span>
-                <Formula block tex={String.raw`x_1=[0.40, 1.20]`} />
+                <Formula block tex={`x_1=${rowVectorTex(attentionDemo.X[0], 2)}`} />
                 <small><Formula tex="X" /> 的第 1 行</small>
               </div>
 
@@ -644,11 +616,11 @@ function FigStageScore() {
               <div className="score-symbol-roles">
                 <div className="query">
                   <span><Formula tex="Q" /> 的第 1 行 · 发起匹配</span>
-                  <Formula block tex={String.raw`q_1=[0.04, 1.16]`} />
+                  <Formula block tex={`q_1=${rowVectorTex(q1, 2)}`} />
                 </div>
                 <div className="key">
                   <span><Formula tex="K" /> 的第 1 行 · 提供匹配</span>
-                  <Formula block tex={String.raw`k_1=[0.56, 1.16]`} />
+                  <Formula block tex={`k_1=${rowVectorTex(attentionDemo.K[0], 2)}`} />
                 </div>
               </div>
 
@@ -661,7 +633,7 @@ function FigStageScore() {
               <div className="score-symbol-node result">
                 <span><Formula tex="S" /> 的第 1 行、第 1 列</span>
                 <Formula block tex={String.raw`S_{1,1}=\dfrac{q_1k_1^{\mathsf T}}{\sqrt{2}}`} />
-                <strong><Formula tex={String.raw`=0.967`} /></strong>
+                <strong><Formula tex={`=${formatNumber(attentionDemo.S[0][0])}`} /></strong>
               </div>
             </div>
           </section>
@@ -674,12 +646,12 @@ function FigStageScore() {
             <FirstRowAttentionMatrix
               symbol="S"
               values={comparisons.map((item) => item.score)}
-              ariaLabel="S 矩阵行由 q_i 决定，列由 k_j 决定；第一行依次为 0.967、负 0.186、0.573、1.026"
+              ariaLabel={`S 矩阵行由 q_i 决定，列由 k_j 决定；第一行依次为 ${scoreList}`}
             />
             <div className="score-index-notes">
               <span><b>第一个下标 <Formula tex="i" /></b> → 选择 <Formula tex="q_i" /> → 确定第 <Formula tex="i" /> 行</span>
               <span><b>第二个下标 <Formula tex="j" /></b> → 选择 <Formula tex="k_j" /> → 确定第 <Formula tex="j" /> 列</span>
-              <strong>一般地，<Formula tex="S_{i,j}" /> 表示 Token <Formula tex="i" /> 对 Token <Formula tex="j" /> 的原始关联分数；例如 <Formula tex="S_{1,2}=-0.186" /> 就是 Token 1 对 Token 2 的原始分数。</strong>
+              <strong>一般地，<Formula tex="S_{i,j}" /> 表示 Token <Formula tex="i" /> 对 Token <Formula tex="j" /> 的原始关联分数；例如 <Formula tex={`S_{1,2}=${formatNumber(attentionDemo.S[0][1])}`} /> 就是 Token 1 对 Token 2 的原始分数。</strong>
             </div>
           </section>
         </div>
@@ -688,7 +660,7 @@ function FigStageScore() {
           <article className="score-query-card">
             <span>① 取 <Formula tex="Q" /> 的第 1 行</span>
             <b>Token 1 的 Query</b>
-            <Formula block tex={String.raw`q_1=x_1W^Q=[0.04,\ 1.16]`} />
+            <Formula block tex={`q_1=x_1W^Q=${rowVectorTex(q1, 2)}`} />
             <p>它是 Token 1 的检索向量。这里只算 <Formula tex="b_1" />，所以使用 <Formula tex="q_1" />；若算 <Formula tex="b_2" />，就改用 <Formula tex="q_2" />。</p>
           </article>
 
@@ -717,7 +689,7 @@ function FigStageScore() {
           <article className="score-row-card">
             <span>③ 得到 <Formula tex="S" /> 的第 1 行</span>
             <b>Token 1 看各 Token 的原始分数</b>
-            <div className="score-row-matrix" aria-label="S 的第一行等于 0.967、负 0.186、0.573、1.026">
+            <div className="score-row-matrix" aria-label={`S 的第一行等于 ${scoreList}`}>
               <Formula tex="S_{1,:}=" />
               <div>{comparisons.map((item) => <span key={item.key}>{item.score}</span>)}</div>
             </div>
@@ -743,12 +715,14 @@ function FigStageScore() {
 /* ============================================================
  * 向量阶段图3：整行 softmax（row-wise softmax）
  * 强调：4 个分数作为「一整行」联合归一化，而非 4 个独立操作
- * 数据：q1 主角行 scores=[0.967,-0.186,0.573,1.026]  weights=[0.328,0.103,0.221,0.348]
+ * 数据直接来自统一数值链路。
  * ============================================================ */
 function FigStageSoftmax() {
-  const scores = [0.967, -0.186, 0.573, 1.026];
-  const weights = [0.328, 0.103, 0.221, 0.348];
-  const exps = [2.631, 0.830, 1.773, 2.790];
+  const scores = attentionDemo.S[0];
+  const weights = attentionDemo.A[0];
+  const exps = scores.map(Math.exp);
+  const normalizer = exps.reduce((sum, value) => sum + value, 0);
+  const maximumIndex = weights.indexOf(Math.max(...weights));
 
   return (
     <div className="fig">
@@ -761,7 +735,7 @@ function FigStageSoftmax() {
           <div className="softmax-panel">
             <div className="softmax-step">① 缩放后的相关分数</div>
             <Formula block tex={String.raw`S_{1,j}=\dfrac{q_1\cdot k_j}{\sqrt{d_k}}`} />
-            <Formula block tex={String.raw`S_{1,:}=[\,0.967,\ -0.186,\ 0.573,\ 1.026\,]`} />
+            <Formula block tex={String.raw`S_{1,:}\approx${rowVectorTex(scores)}`} />
             <p>整行输入：四个分数共同进入同一个 softmax。</p>
           </div>
 
@@ -779,7 +753,7 @@ function FigStageSoftmax() {
           <div className="softmax-panel">
             <div className="softmax-step">③ 注意力权重</div>
             <Formula block tex={String.raw`A_{1,:}=\operatorname{softmax}(S_{1,:})`} />
-            <Formula block tex={String.raw`A_{1,:}\approx[\,0.328,\ 0.103,\ 0.221,\ 0.348\,]`} />
+            <Formula block tex={String.raw`A_{1,:}\approx${rowVectorTex(weights)}`} />
             <Formula block tex={String.raw`\sum_{j=1}^{4}A_{1,j}=1.000`} />
           </div>
         </div>
@@ -793,12 +767,12 @@ function FigStageSoftmax() {
           <FirstRowAttentionMatrix
             symbol="A"
             values={weights.map((weight) => weight.toFixed(3))}
-            ariaLabel="A 权重矩阵与 S 使用相同坐标；第一行依次为 0.328、0.103、0.221、0.348"
+            ariaLabel={`A 权重矩阵与 S 使用相同坐标；第一行依次为 ${weights.map((weight) => formatNumber(weight)).join("、")}`}
           />
           <div className="score-index-notes">
-            <span><b><Formula tex="A_{1,2}=0.103" /></b>：Token 1 汇聚 Token 2 的 <Formula tex="v_2" /> 时，使用的权重为 10.3%</span>
+            <span><b><Formula tex={`A_{1,2}=${formatNumber(weights[1])}`} /></b>：Token 1 汇聚 Token 2 的 <Formula tex="v_2" /> 时，使用的权重约为 {(weights[1] * 100).toFixed(1)}%</span>
             <span><b>同一行权重和为 1</b>：<Formula tex={String.raw`\sum_{j=1}^{4}A_{1,j}=1`} /></span>
-            <strong><Formula tex="A_{1,4}=0.348" /> 最大，表示本例中 Token 1 从 Token 4 的 <Formula tex="v_4" /> 汇聚信息时采用的权重最高。</strong>
+            <strong><Formula tex={`A_{1,${maximumIndex + 1}}=${formatNumber(weights[maximumIndex])}`} /> 最大，表示本例中 Token 1 从 Token {maximumIndex + 1} 的 <Formula tex={`v_${maximumIndex + 1}`} /> 汇聚信息时采用的权重最高。</strong>
           </div>
         </div>
 
@@ -813,21 +787,14 @@ function FigStageSoftmax() {
             ))}
             <div className="total">
               <Formula tex={String.raw`Z_1=\sum_{u=1}^{4}e^{S_{1,u}}`} />
-              <strong>= 8.024</strong>
+              <strong>= {formatNumber(normalizer)}</strong>
             </div>
           </div>
-          <Formula block tex={String.raw`Z_1\approx2.631+0.830+1.773+2.790=8.024`} />
-          <div className="softmax-weight-calcs">
-            {weights.map((weight, i) => (
-              <div key={`weight-calc-${i}`}>
-                <span>第 {i + 1} 列 · <Formula tex={`A_{1,${i + 1}}`} /></span>
-                <Formula block tex={`A_{1,${i + 1}}=\\dfrac{e^{S_{1,${i + 1}}}}{Z_1}`} />
-                <Formula block tex={`=\\dfrac{${exps[i].toFixed(3)}}{8.024}`} />
-                <strong>= {weight.toFixed(3)}</strong>
-              </div>
-            ))}
+          <Formula block tex={String.raw`Z_1\approx${exps.map((value) => formatNumber(value)).join("+")}=${formatNumber(normalizer)}`} />
+          <div className="softmax-example">
+            <span>以第 2 列为例；其余三列使用同一个分母</span>
+            <Formula block tex={String.raw`A_{1,2}=\dfrac{e^{S_{1,2}}}{Z_1}\approx\dfrac{${formatNumber(exps[1])}}{${formatNumber(normalizer)}}=${formatNumber(weights[1])}`} />
           </div>
-          <Formula block tex={String.raw`A_{1,:}\approx[\,0.328,\ 0.103,\ 0.221,\ 0.348\,]`} />
         </div>
 
         <div className="softmax-key">
@@ -843,138 +810,52 @@ function FigStageSoftmax() {
 }
 
 function FigStageAggregate() {
-  const rows = [
-    { token: "Token 1", weight: "0.328", value: "[0.40,1.28]", contribution: "[0.13120,0.41984]" },
-    { token: "Token 2", weight: "0.103", value: "[1.08,0.60]", contribution: "[0.11124,0.06180]" },
-    { token: "Token 3", weight: "0.221", value: "[0.65,1.06]", contribution: "[0.14365,0.23426]" },
-    { token: "Token 4", weight: "0.348", value: "[0.92,1.72]", contribution: "[0.32016,0.59856]" },
-  ];
+  const weights = attentionDemo.A[0];
+  const output = attentionDemo.O[0];
+  const componentFormula = (dimension: number) => weights
+    .map((weight, index) => `${formatNumber(weight)}\\times${formatNumber(values[index][dimension], 2)}`)
+    .join("+");
 
   return (
     <div className="fig">
-      <div className="aggregate-walkthrough" aria-label="四个注意力权重分别乘对应的 Value，再逐项相加得到 Token 1 的新表示 b1">
+      <div className="aggregate-walkthrough" aria-label="A 的第一行乘完整 V 矩阵，得到 Token 1 的二维输出 b1">
         <div className="aggregate-heading">
           <span>向量阶段 ④ · 加权汇聚</span>
-          <b><Formula tex="A" /> 的第 1 行，按编号 <Formula tex="j" /> 与 <Formula tex="V" /> 的第 <Formula tex="j" /> 行一一配对</b>
-          <p>上一图已经算出 Token 1 的四个权重。每个 <Formula tex="A_{1,j}" /> 只乘编号相同的 <Formula tex="v_j" />；四项分别算完，再把四份贡献相加。</p>
+          <b><Formula tex="A" /> 的第 1 行乘完整 <Formula tex="V" /> 矩阵，直接得到 <Formula tex="b_1" /></b>
+          <p>四个权重负责在 Token 维上取舍信息；<Formula tex="V" /> 的两列是两个特征维度，所以同一行权重会分别与两列做点积，最终保留两个输出分量。</p>
         </div>
 
-        <div className="aggregate-meaning">
-          <div className="weight"><Formula block tex="A_{1,j}" /><span>取多少：Token 1 从 Token <Formula tex="j" /> 读取的比例</span></div>
-          <div className="value"><Formula block tex="v_j" /><span>取什么：Token <Formula tex="j" /> 真正提供的内容</span></div>
-          <div className="output"><Formula block tex="A_{1,j}v_j" /><span>这一项最终写入 <Formula tex="b_1" /> 的实际贡献</span></div>
-        </div>
-
-        <div className="aggregate-table-wrap">
-          <table className="aggregate-table">
-            <colgroup>
-              <col className="source-col" />
-              <col className="weight-col" />
-              <col className="operator-col" />
-              <col className="value-col" />
-              <col className="arrow-col" />
-              <col className="contribution-col" />
-            </colgroup>
-            <thead>
-              <tr>
-                <th>信息来源</th>
-                <th>① 注意力权重</th>
-                <th aria-label="乘以" />
-                <th>② Value 内容</th>
-                <th aria-label="得到" />
-                <th>③ 加权后的实际贡献</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row, i) => (
-                <tr key={row.token}>
-                  <th scope="row"><span>第 {i + 1} 项</span><b>{row.token}</b></th>
-                  <td className="weight">
-                    <Formula block tex={`A_{1,${i + 1}}=${row.weight}`} />
-                    <small>Token 1 的读取比例</small>
-                  </td>
-                  <td className="operator"><Formula tex={String.raw`\times`} /></td>
-                  <td className="value">
-                    <Formula block tex={`v_${i + 1}=${row.value}`} />
-                    <small>{row.token} 提供的内容</small>
-                  </td>
-                  <td className="arrow">→</td>
-                  <td className="contribution">
-                    <Formula block tex={`A_{1,${i + 1}}v_${i + 1}=${row.contribution}`} />
-                    <small>进入 <Formula tex="b_1" /> 的第 {i + 1} 份贡献</small>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="aggregate-component-sum">
-          <div className="aggregate-component-head">
-            <span>④ 逐维累加</span>
-            <b>四份二维向量相加，结果仍然是一个二维向量</b>
-            <p><b>4</b> 表示四个 Token 提供了四份贡献；<b>2</b> 表示每份贡献都有两个分量。求和消掉的是 Token 这一维，不会消掉向量内部的两个分量。</p>
-          </div>
-
-          <div className="aggregate-shape-rule" aria-label="四份一乘二向量沿 Token 维求和，得到一份一乘二向量">
-            <div><strong>4 份</strong><span>每份都是 <Formula tex={String.raw`1\times2`} /> 行向量</span></div>
-            <div className="sum"><Formula block tex={String.raw`\sum_{j=1}^{4}`} /><span>按相同位置分别相加</span></div>
-            <div><strong>1 份</strong><span>结果仍是 <Formula tex={String.raw`1\times2`} /> 行向量</span></div>
-          </div>
-
-          <div className="aggregate-axis-sums">
-            <div>
-              <span>第 1 个分量只和第 1 个分量相加</span>
-              <Formula block tex={String.raw`0.13120+0.11124+0.14365+0.32016=0.70625`} />
-            </div>
-            <div>
-              <span>第 2 个分量只和第 2 个分量相加</span>
-              <Formula block tex={String.raw`0.41984+0.06180+0.23426+0.59856=1.31446`} />
-            </div>
-          </div>
-
+        <div className="aggregate-equation">
           <Formula
             block
-            className="aggregate-recombine"
-            tex={String.raw`b_1=\begin{bmatrix}0.70625&1.31446\end{bmatrix}\approx\begin{bmatrix}0.706&1.314\end{bmatrix}`}
+            tex={String.raw`\underbrace{${rowVectorTex(weights)}}_{A_{1,:}\;[1\times4]}\;
+              \underbrace{${matrixTex(values, 2)}}_{V\;[4\times2]}
+              =\underbrace{${rowVectorTex(output)}}_{b_1\;[1\times2]}`}
           />
         </div>
 
-        <div className="aggregate-sum-arrow" aria-hidden="true"><span>两个分量重新并排，得到 <Formula tex="b_1" /></span><b>↓</b></div>
+        <div className="aggregate-rule">
+          <Formula block tex={String.raw`b_1=A_{1,:}V=\sum_{j=1}^{4}A_{1,j}v_j`} />
+          <p><Formula tex="A_{1,j}" /> 与 <Formula tex="V" /> 的第 <Formula tex="j" /> 行 <Formula tex="v_j" /> 一一对应；求和消掉四个 Token 这一维，不会消掉 <Formula tex="V" /> 的两个特征维度。</p>
+        </div>
+
+        <div className="aggregate-axis-sums">
+          <article>
+            <span><Formula tex="V" /> 第 1 列 → <Formula tex="b_{1,1}" /></span>
+            <Formula block tex={String.raw`b_{1,1}\approx${componentFormula(0)}=${formatNumber(output[0])}`} />
+          </article>
+          <article>
+            <span><Formula tex="V" /> 第 2 列 → <Formula tex="b_{1,2}" /></span>
+            <Formula block tex={String.raw`b_{1,2}\approx${componentFormula(1)}=${formatNumber(output[1])}`} />
+          </article>
+        </div>
 
         <div className="aggregate-result">
-          <div className="aggregate-result-head">
-            <span>⑤ 写入输出矩阵</span>
-            <b><Formula tex="b_1" /> 是输出矩阵 <Formula tex="O" /> 的第 1 行</b>
-          </div>
-          <div className="aggregate-matrix-flow">
-            <div className="aggregate-matrix-card vector">
-              <span>本节实际算出的行向量</span>
-              <Formula block tex={String.raw`b_1=\begin{bmatrix}0.706&1.314\end{bmatrix}`} />
-              <small><Formula tex={String.raw`b_1\in\mathbb{R}^{1\times2}`} />，已经融合 Token 1～4 的 Value 信息</small>
-            </div>
-
-            <div className="aggregate-stack-arrow" aria-hidden="true">
-              <span>放入第 1 行</span>
-              <b>→</b>
-            </div>
-
-            <div className="aggregate-matrix-card matrix">
-              <span>四个 Token 最终组成输出矩阵</span>
-              <Formula
-                block
-                tex={String.raw`O=\begin{bmatrix}0.706&1.314\\b_{2,1}&b_{2,2}\\b_{3,1}&b_{3,2}\\b_{4,1}&b_{4,2}\end{bmatrix}\in\mathbb{R}^{4\times2}`}
-              />
-              <small>再用 <Formula tex={String.raw`q_2,q_3,q_4`} /> 重复同一流程，就能依次填满第 2～4 行</small>
-            </div>
-          </div>
-        </div>
-
-        <div className="aggregate-precision-note">
-          表中使用上一图显示的三位小数权重，因此得到近似结果；使用 softmax 未舍入权重时为 <Formula tex={String.raw`[0.706397,1.313975]`} />，保留三位小数仍是 <Formula tex={String.raw`[0.706,1.314]`} />。
+          <b><Formula tex="b_1" /> 就是输出矩阵 <Formula tex="O=AV" /> 的第 1 行</b>
+          <span>换成 <Formula tex={String.raw`A_{2,:},A_{3,:},A_{4,:}`} /> 重复同一矩阵乘法，就依次得到 <Formula tex={String.raw`b_2,b_3,b_4`} />。</span>
         </div>
       </div>
-      <div className="fig-cap">图 · 向量阶段 ④ 汇聚：每个权重乘对应 <Formula tex="v_j" />，四份贡献相加得到 <Formula tex="b_1" /></div>
+      <div className="fig-cap">图 · 向量阶段 ④ 汇聚：<Formula tex="A_{1,:}" /> 与 <Formula tex="V" /> 的每一列做点积，得到二维输出 <Formula tex="b_1" /></div>
     </div>
   );
 }
@@ -988,12 +869,12 @@ function FigStageAggregate() {
 
 type Mat = number[][];
 
-/* ---- 统一数据（token₁..token₄，d=2；禁止改值）---- */
+/* ---- 统一数据（token₁..token₄，d=2）---- */
 const FMS_WORDS = tokenLabels;
 const FMS_DATA: { S: Mat; A: Mat; O: Mat } = {
-  S:  [[0.967, -0.186, 0.573, 1.026], [1.37, 1.067, 1.287, 2.024], [1.129, 0.258, 0.838, 1.4], [1.693, 0.245, 1.206, 2.04]],
-  A:  [[0.328, 0.103, 0.221, 0.348], [0.218, 0.161, 0.201, 0.42], [0.287, 0.12, 0.215, 0.377], [0.306, 0.072, 0.188, 0.433]],
-  O:  [[0.706, 1.314], [0.778, 1.311], [0.732, 1.317], [0.721, 1.38]],
+  S: roundedMatrix(attentionDemo.S),
+  A: roundedMatrix(attentionDemo.A),
+  O: roundedMatrix(attentionDemo.O),
 };
 
 /* 配色（字面色值，行内 style 用）——与全局 Q/K/V/Att/Out 一致 */
@@ -1112,7 +993,7 @@ function FigMatrixStage() {
             <Formula block tex={String.raw`S=QK^{\mathsf T}/\sqrt{d_k}`} />
             <FmsMatGrid name={<Formula tex="S" />} shape={<Formula tex={String.raw`[4\times4]`} />} pal={FMS_PAL.S} data={FMS_DATA.S} heat focusRow={0}
               rowLabels={FMS_WORDS} colLabels={FMS_WORDS} cornerLabel={<>行 <Formula tex="Q" />＼列 <Formula tex="K" /></>} digits={3} />
-            <div className="fms-row-link"><b>第 1 行</b><Formula tex={String.raw`S_{1,:}=[0.967,-0.186,0.573,1.026]`} /></div>
+            <div className="fms-row-link"><b>第 1 行</b><Formula tex={String.raw`S_{1,:}=${rowVectorTex(attentionDemo.S[0])}`} /></div>
           </div>
 
           <div className="fms-flow-op"><b>逐行</b><span>softmax</span><i>→</i></div>
@@ -1125,7 +1006,7 @@ function FigMatrixStage() {
             <Formula block tex={String.raw`A_{i,:}=\operatorname{softmax}(S_{i,:})`} />
             <FmsMatGrid name={<Formula tex="A" />} shape={<Formula tex={String.raw`[4\times4]`} />} pal={FMS_PAL.A} data={FMS_DATA.A} heat focusRow={0}
               rowLabels={FMS_WORDS} colLabels={FMS_WORDS} cornerLabel={<>行 <Formula tex="Q" />＼列 <Formula tex="K" /></>} digits={3} />
-            <div className="fms-row-link"><b>第 1 行</b><Formula tex={String.raw`A_{1,:}=[0.328,0.103,0.221,0.348]`} /></div>
+            <div className="fms-row-link"><b>第 1 行</b><Formula tex={String.raw`A_{1,:}=${rowVectorTex(attentionDemo.A[0])}`} /></div>
           </div>
 
           <div className="fms-flow-op"><b>每行</b><Formula tex={String.raw`\times V_{[4\times2]}`} /><i>→</i></div>
@@ -1138,7 +1019,7 @@ function FigMatrixStage() {
             <Formula block tex={String.raw`O=AV`} />
             <FmsMatGrid name={<Formula tex="O" />} shape={<Formula tex={String.raw`[4\times2]`} />} pal={FMS_PAL.O} data={FMS_DATA.O} focusRow={0}
               rowLabels={FMS_WORDS} colLabels={["维 1", "维 2"]} cornerLabel="token＼维" digits={3} />
-            <div className="fms-row-link"><b>第 1 行</b><Formula tex={String.raw`O_{1,:}=b_1=[0.706,1.314]`} /></div>
+            <div className="fms-row-link"><b>第 1 行</b><Formula tex={String.raw`O_{1,:}=b_1=${rowVectorTex(attentionDemo.O[0])}`} /></div>
           </div>
         </div>
 
@@ -1204,11 +1085,11 @@ function FigTransformer() {
         <Box x={120} y={278} w={210} h={50} fill="rgba(45,212,191,0.14)" stroke="#2dd4bf" label="Feed-Forward Network" sub="两层 MLP（逐位置作用）" lc="#2dd4bf" sc="#6e7aab" />
         <Box x={150} y={346} w={150} h={36} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
         <Arrow d="M225,204 V218" /><Arrow d="M225,258 V274" /><Arrow d="M225,328 V342" /><Arrow d="M225,382 V401" />
-        <Arrow d="M120,177 H100 V240 H150" color="#f5b042" dash="4 3" />
-        <Arrow d="M120,303 H100 V364 H150" color="#f5b042" dash="4 3" />
+        <Arrow d="M225,146 H100 V240 H150" color="#f5b042" dash="4 3" />
+        <Arrow d="M225,266 H100 V364 H150" color="#f5b042" dash="4 3" />
         <Box x={150} y={405} w={150} h={34} fill="rgba(244,114,182,0.14)" stroke="#f472b6" label="编码器输出 Memory" lc="#f472b6" />
 
-        <Box x={625} y={48} w={140} h={38} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Output Embedding" lc="#a9b4dc" />
+        <Box x={625} y={48} w={140} h={38} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Target Embedding" sub="目标序列右移一位" lc="#a9b4dc" />
         <Arrow d="M695,86 V90" />
         <circle cx="695" cy="106" r="14" fill="#070b18" stroke="#a78bfa" />
         <text x="695" y="111" textAnchor="middle" fill="#a78bfa" fontSize="15">+</text>
@@ -1229,9 +1110,9 @@ function FigTransformer() {
         <Box x={575} y={386} w={240} h={44} fill="rgba(45,212,191,0.14)" stroke="#2dd4bf" label="Feed-Forward Network" lc="#2dd4bf" />
         <Box x={620} y={442} w={150} h={32} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
         <Arrow d="M695,200 V212" /><Arrow d="M695,250 V264" /><Arrow d="M695,318 V330" /><Arrow d="M695,368 V382" /><Arrow d="M695,430 V438" />
-        <Arrow d="M575,177 H555 V233 H620" color="#f5b042" dash="4 3" />
-        <Arrow d="M575,293 H555 V351 H620" color="#f5b042" dash="4 3" />
-        <Arrow d="M575,408 H555 V458 H620" color="#f5b042" dash="4 3" />
+        <Arrow d="M695,146 H555 V233 H620" color="#f5b042" dash="4 3" />
+        <Arrow d="M695,259 H555 V351 H620" color="#f5b042" dash="4 3" />
+        <Arrow d="M695,377 H555 V458 H620" color="#f5b042" dash="4 3" />
         <Arrow d="M300,422 H455 V293 H571" color="#a78bfa" dash="4 3" />
         <text x="312" y="411" fill="#a78bfa" fontSize="11.5" fontWeight="700">Encoder Memory</text>
         <text x="466" y="283" fill="#a78bfa" fontSize="11.5">作为 K、V 来源</text>
@@ -1252,24 +1133,16 @@ function FigTransformer() {
 }
 
 function PositionEncodingFlow() {
-  const contentEmbedding = [
-    [0.3, 1.0],
-    [1.3, 0.2],
-    [0.5, 0.8],
-    [0.7, 1.2],
-  ];
   const positionEmbedding = [
     [0.1, 0.2],
     [0.2, 0.1],
     [0.3, 0.1],
     [0.4, 0.3],
   ];
-  const attentionInput = [
-    [0.4, 1.2],
-    [1.5, 0.3],
-    [0.8, 0.9],
-    [1.1, 1.5],
-  ];
+  const attentionInput = attentionDemo.X;
+  const contentEmbedding = attentionInput.map((row, rowIndex) =>
+    row.map((value, columnIndex) => value - positionEmbedding[rowIndex][columnIndex]),
+  );
   const rows = ["Token 1", "Token 2", "Token 3", "Token 4"];
   const cols = ["维 1", "维 2"];
 
@@ -1303,8 +1176,8 @@ function PositionEncodingFlow() {
 
       <div className="position-token-example">
         <span>把第 1 行单独展开</span>
-        <Formula block tex={String.raw`\underbrace{[0.30,\ 1.00]}_{e_1\;\text{内容}}+\underbrace{[0.10,\ 0.20]}_{p_1\;\text{位置}}=\underbrace{[0.40,\ 1.20]}_{x_1\;\text{输入}}`} />
-        <p>这就是前文一直使用的 <Formula tex="x_1" />；随后才有 <Formula tex={String.raw`q_1=x_1W^Q=[0.04,\ 1.16]`} />。因此位置编码位于 <Formula tex={String.raw`Q,\ K,\ V`} /> 投影之前。</p>
+        <Formula block tex={String.raw`\underbrace{${rowVectorTex(contentEmbedding[0], 2)}}_{e_1\;\text{内容}}+\underbrace{${rowVectorTex(positionEmbedding[0], 2)}}_{p_1\;\text{位置}}=\underbrace{${rowVectorTex(attentionInput[0], 2)}}_{x_1\;\text{输入}}`} />
+        <p>这就是前文一直使用的 <Formula tex="x_1" />；随后才有 <Formula tex={String.raw`q_1=x_1W^Q=${rowVectorTex(attentionDemo.Q[0], 2)}`} />。因此位置编码位于 <Formula tex={String.raw`Q,\ K,\ V`} /> 投影之前。</p>
       </div>
 
       <div className="position-methods">
@@ -1313,9 +1186,7 @@ function PositionEncodingFlow() {
           <b>one-hot 选择位置向量</b>
           <p>若使用可学习位置表 <Formula tex={String.raw`P_{\mathrm{pos}}\in\mathbb{R}^{L_{\max}\times d_{\mathrm{model}}}`} />（<Formula tex="L_{\max}" /> 是可表示的最大位置数），位置 <Formula tex="i" /> 的 one-hot 行向量 <Formula tex="r_i^{\mathsf T}" /> 只会选中 <Formula tex="P_{\mathrm{pos}}" /> 的第 <Formula tex="i" /> 行：</p>
           <Formula block tex={String.raw`r_3^{\mathsf T}=\begin{bmatrix}0&0&1&0&\cdots&0\end{bmatrix},\qquad p_3=r_3^{\mathsf T}P_{\mathrm{pos}}=(P_{\mathrm{pos}})_{3,:}`} />
-          <p>把内容和 one-hot 先拼接，再乘下面这个分块矩阵，结果仍是相加；这解释了图里为什么可以直接用 <Formula tex="e_i+p_i" />：</p>
-          <Formula block tex={String.raw`\begin{bmatrix}e_i&r_i^{\mathsf T}\end{bmatrix}\begin{bmatrix}I_{d_{\mathrm{model}}}\\P_{\mathrm{pos}}\end{bmatrix}=e_i+r_i^{\mathsf T}P_{\mathrm{pos}}=e_i+p_i=x_i`} />
-          <p><Formula tex="I_{d_{\mathrm{model}}}" /> 是 <Formula tex="d_{\mathrm{model}}" /> 阶单位矩阵；它让内容向量 <Formula tex="e_i" /> 原样通过。</p>
+          <p>查出的 <Formula tex="p_i" /> 与内容向量直接逐维相加：<Formula tex="x_i=e_i+p_i" />。这正是上方三张矩阵演示的计算。</p>
         </article>
 
         <article>
@@ -1335,7 +1206,7 @@ function PositionEncodingFlow() {
 
 
 /* ============================================================
- * SVG 图：普通 Attention vs FlashAttention 数据搬运对照
+ * HTML 图：普通 Attention vs FlashAttention 数据搬运对照
  * ============================================================ */
 function FigFlashCompare() {
   // 每步：label 文字，bad=true 表示这是"写回/读回 HBM"的瓶颈步
@@ -1446,14 +1317,11 @@ export default function Home() {
     };
   }, []);
 
-  const attn = useMemo(() => {
-    const q = queries[qIdx];
-    const logits = keys.map((k) => q.reduce((s, c, i) => s + c * k[i], 0));
-    const scaled = logits.map((v) => v / Math.sqrt(q.length));
-    const weights = softmax(scaled);
-    const output = values[0].map((_, d) => weights.reduce((s, w, i) => s + w * values[i][d], 0));
-    return { q, logits, scaled, weights, output };
-  }, [qIdx]);
+  const attn = {
+    scaled: attentionDemo.S[qIdx],
+    weights: attentionDemo.A[qIdx],
+    output: attentionDemo.O[qIdx],
+  };
 
   const [mr, mc] = selCell;
   const rowA = matrixA[mr];
@@ -1541,7 +1409,12 @@ export default function Home() {
           <section className="section" id="s1">
             <SecHead idx="01" title="热身：矩阵乘法到底怎么乘" />
             <p className="sec-lead">Attention 的主要线性运算由<b style={{ color: "#eef3ff" }}>矩阵乘法</b>完成，中间穿插缩放、mask 和 softmax。先用具体数字把矩阵乘法规则搞明白——<b style={{ color: "#f472b6" }}>点一下右边结果矩阵的任意格子</b>，左边高亮参与计算的行与列。</p>
-            <div className="mbox">
+            <div
+              className="mbox"
+              data-matrix-a={JSON.stringify(matrixA)}
+              data-matrix-b={JSON.stringify(matrixB)}
+              data-matrix-c={JSON.stringify(matrixC)}
+            >
               <div className="mcol">
                 <div className="mname"><Formula tex={String.raw`U_1\ [2\times3]`} /></div>
                 <table className="mtable">
@@ -1664,7 +1537,12 @@ export default function Home() {
                 <button key={w} className={`tab ${qIdx === i ? "active" : ""}`} onClick={() => setQIdx(i)}><Formula tex={`q_${i + 1}`} /> · {w}</button>
               ))}
             </div>
-            <div className="card">
+            <div
+              className="card attention-demo-card"
+              data-queries={JSON.stringify(queries)}
+              data-keys={JSON.stringify(keys)}
+              data-values={JSON.stringify(values)}
+            >
               <div style={{ display: "flex", gap: 22, flexWrap: "wrap", justifyContent: "center", alignItems: "center" }}>
                 <div style={{ textAlign: "center" }}>
                   <div className="mname">缩放分数 <Formula className="mname-formula" tex={String.raw`{\color{#38bdf8}S_{${qIdx + 1},:}=q_{${qIdx + 1}}K^{\mathsf T}/\sqrt{d_k}}`} /></div>
@@ -1815,7 +1693,7 @@ export default function Home() {
                 <button key={h.name} className={`tab ${headIdx === i ? "active" : ""}`} onClick={() => setHeadIdx(i)}>{h.name}</button>
               ))}
             </div>
-            <div className="fig">
+            <div className="fig head-demo" data-heads={JSON.stringify(heads)}>
               <div style={{ display: "flex", justifyContent: "center", overflowX: "auto" }}>
                 <table style={{ borderCollapse: "separate", borderSpacing: 4, margin: "0 auto" }}>
                   <tbody>
@@ -2013,7 +1891,7 @@ def attention_ref(q, k, v, mask=None):
 
           <div className="foot">
             参考：Vaswani et al. <i>Attention Is All You Need</i>（Figure 1）· The Annotated Transformer。<br />
-            全篇 Q/K/V/Attention/Output 配色一致，SVG 可自由放大查看。
+            全篇 Q/K/V/Attention/Output 配色一致，复杂图示支持横向滚动查看。
           </div>
 
         </div>

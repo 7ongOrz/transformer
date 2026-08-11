@@ -48,9 +48,10 @@ const standaloneJs = String.raw`
   addEventListener("scroll", syncScroll, { passive: true });
   syncScroll();
 
-  const matrixA = [[1, 2, 0], [0, 1, 3]];
-  const matrixB = [[2, 1], [1, 0], [0, 2]];
-  const matrixC = [[4, 1], [1, 6]];
+  const matrixDemo = document.querySelector("#s1 .mbox");
+  const matrixA = JSON.parse(matrixDemo.dataset.matrixA);
+  const matrixB = JSON.parse(matrixDemo.dataset.matrixB);
+  const matrixC = JSON.parse(matrixDemo.dataset.matrixC);
   const matrixCols = [...document.querySelectorAll("#s1 .mcol")];
   const resultButtons = [...document.querySelectorAll("#s1 button.mcell.res")];
   const calculation = document.querySelector("#s1 .mcalc");
@@ -63,9 +64,10 @@ const standaloneJs = String.raw`
   };
   resultButtons.forEach((button, index) => button.addEventListener("click", () => selectCell(Math.floor(index / 2), index % 2)));
 
-  const queries = [[0.04, 1.16], [1.41, 0.99], [0.53, 1.12], [0.65, 1.75]];
-  const keys = [[0.56, 1.16], [1.26, -0.27], [0.82, 0.67], [1.18, 1.21]];
-  const values = [[0.4, 1.28], [1.08, 0.6], [0.65, 1.06], [0.92, 1.72]];
+  const attentionDemo = document.querySelector("#s4 .attention-demo-card");
+  const queries = JSON.parse(attentionDemo.dataset.queries);
+  const keys = JSON.parse(attentionDemo.dataset.keys);
+  const values = JSON.parse(attentionDemo.dataset.values);
   const queryTabs = [...document.querySelectorAll("#s4 .tabs .tab")];
   const queryCells = [...document.querySelectorAll("#s4 .tabs + .card .mcell")];
   const softmax = (items) => {
@@ -91,11 +93,8 @@ const standaloneJs = String.raw`
   };
   queryTabs.forEach((button, index) => button.addEventListener("click", () => selectQuery(index)));
 
-  const heads = [
-    { note: "权重大量出现在非对角线位置 → 可能形成长距离关注。", matrix: [[0.58,0.12,0.22,0.08],[0.18,0.16,0.12,0.54],[0.66,0.08,0.20,0.06],[0.14,0.46,0.09,0.31]] },
-    { note: "权重集中在主对角线附近 → 可能形成局部关注。", matrix: [[0.62,0.27,0.07,0.04],[0.24,0.48,0.22,0.06],[0.07,0.24,0.48,0.21],[0.03,0.08,0.30,0.59]] },
-    { note: "权重分布较平均 → 可能形成全局关注。", matrix: [[0.28,0.24,0.25,0.23],[0.23,0.29,0.22,0.26],[0.27,0.20,0.30,0.23],[0.22,0.27,0.21,0.30]] },
-  ];
+  const headDemo = document.querySelector("#s5 .head-demo");
+  const heads = JSON.parse(headDemo.dataset.heads);
   const headTabs = [...document.querySelectorAll("#s5 .tabs .tab")];
   const headCells = [...document.querySelectorAll("#s5 .fig table tr:not(:first-child) td div")];
   const headCaption = document.querySelector("#s5 .fig .fig-cap");

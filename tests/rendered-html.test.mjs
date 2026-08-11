@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import { access, readFile } from "node:fs/promises";
 import test from "node:test";
+import { attentionDemo } from "../app/attention-demo.js";
+
+const rounded = (matrix, digits = 3) =>
+  matrix.map((row) => row.map((value) => Number(value.toFixed(digits))));
 
 async function render() {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
@@ -45,11 +49,52 @@ test("server-renders the Attention teaching page", async () => {
   assert.match(html, /位置矩阵/);
   assert.match(html, /输入矩阵/);
   assert.match(html, /one-hot 选择位置向量/);
+  assert.match(html, /A.*第 1 行乘完整.*V.*矩阵/);
+  assert.match(html, /data-queries=/);
   assert.match(html, /<svg\b/i);
   assert.match(html, /katex/);
   assert.doesNotMatch(html, /class="[^"]*\bmath-error\b/);
   assert.doesNotMatch(html, /20\s*(?:分钟|MIN)|TOTAL\s*·\s*20:00|20:00/i);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|react-loading-skeleton/i);
+});
+
+test("keeps the teaching matrices on one verified numerical chain", () => {
+  assert.deepEqual(rounded(attentionDemo.Q, 2), [
+    [0.04, 1.16],
+    [1.41, 0.99],
+    [0.53, 1.12],
+    [0.65, 1.75],
+  ]);
+  assert.deepEqual(rounded(attentionDemo.K, 2), [
+    [0.56, 1.16],
+    [1.26, -0.27],
+    [0.82, 0.67],
+    [1.18, 1.21],
+  ]);
+  assert.deepEqual(rounded(attentionDemo.V, 2), [
+    [0.4, 1.28],
+    [1.08, 0.6],
+    [0.65, 1.06],
+    [0.92, 1.72],
+  ]);
+  assert.deepEqual(rounded(attentionDemo.S), [
+    [0.967, -0.186, 0.573, 1.026],
+    [1.37, 1.067, 1.287, 2.024],
+    [1.129, 0.258, 0.838, 1.4],
+    [1.693, 0.245, 1.206, 2.04],
+  ]);
+  assert.deepEqual(rounded(attentionDemo.A), [
+    [0.328, 0.103, 0.221, 0.348],
+    [0.218, 0.161, 0.201, 0.42],
+    [0.287, 0.12, 0.215, 0.377],
+    [0.306, 0.072, 0.188, 0.433],
+  ]);
+  assert.deepEqual(rounded(attentionDemo.O), [
+    [0.706, 1.314],
+    [0.778, 1.311],
+    [0.732, 1.317],
+    [0.721, 1.38],
+  ]);
 });
 
 test("keeps project metadata and generated assets clean", async () => {
@@ -73,7 +118,7 @@ test("keeps project metadata and generated assets clean", async () => {
   assert.doesNotMatch(`${page}\n${layout}`, /20\s*(?:分钟|MIN)|20:00/i);
   assert.match(packageJson, /"name": "attention-operator-lab"/);
   assert.match(packageJson, /"katex":/);
-  assert.doesNotMatch(packageJson, /react-loading-skeleton/);
+  assert.doesNotMatch(packageJson, /drizzle|react-loading-skeleton/);
   assert.match(gitignore, /^\.DS_Store$/m);
   await assert.rejects(access(new URL("../.DS_Store", import.meta.url)));
   await assert.rejects(access(new URL("../app/_sites-preview", import.meta.url)));
@@ -114,8 +159,11 @@ test("ships the current teaching page as an offline standalone HTML file", async
   assert.match(html, /one-hot 选择位置向量/);
   assert.match(html, /FlashAttention：不改变数学/);
   assert.match(html, /data-standalone="attention"/);
+  assert.match(html, /data-queries=/);
+  assert.match(html, /JSON\.parse\(attentionDemo\.dataset\.queries\)/);
   assert.match(html, /data:font\/woff2;base64,/);
   assert.doesNotMatch(html, /class="[^"]*\bmath-error\b/);
   assert.doesNotMatch(html, /<(?:script|link|img)\b[^>]*(?:src|href)="https?:\/\//i);
   assert.doesNotMatch(html, /(?:href|src)="\/assets\//i);
+  assert.doesNotMatch(html, /(?:href|src)="\/(?!\/)/i);
 });

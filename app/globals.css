@@ -521,8 +521,6 @@ p {
 .legend-row .lq { background: var(--q); }
 .legend-row .lk { background: var(--k); }
 .legend-row .lv { background: var(--v); }
-.legend-row .la { background: var(--att); }
-.legend-row .lo { background: var(--out); }
 
 /* Attention 计算前置：先说明 Token / x / X / QKV 的来源 */
 .setup-guide {
@@ -846,46 +844,99 @@ p {
 /* 4×4 分数矩阵的坐标读法 */
 .score-reading-guide {
   margin: 18px 0;
-  padding: 16px 18px;
+  padding: 20px;
   border: 1px solid rgba(56, 189, 248, 0.24);
   border-radius: 12px;
   background: linear-gradient(180deg, rgba(15, 23, 48, 0.92), rgba(12, 20, 48, 0.92));
 }
 .score-reading-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 18px;
-  margin-bottom: 11px;
+  max-width: 860px;
+  margin: 0 auto 16px;
+  text-align: center;
 }
-.score-reading-head b {
+.score-reading-head > span {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--att);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.score-reading-head > b {
+  display: block;
   color: var(--t1);
-  font-size: 15px;
+  font-size: 20px;
+  line-height: 1.5;
 }
-.score-reading-head span {
+.score-reading-head > p {
+  margin: 6px 0 0;
   color: var(--t2);
-  font-size: 13.5px;
-  text-wrap: wrap;
+  font-size: 13px;
+  line-height: 1.65;
 }
 .score-reading-rules {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 12px;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 0.85fr) minmax(0, 1.3fr);
+  gap: 12px;
 }
-.score-reading-rules > span {
-  padding: 10px 12px;
+.score-reading-rules > article {
+  min-width: 0;
+  min-height: 145px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 15px 16px;
   border: 1px solid var(--hairline);
-  border-radius: 9px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.025);
+  text-align: center;
+}
+.score-reading-rules > article.row-rule {
+  border-color: rgba(245, 176, 66, 0.38);
+  background: rgba(245, 176, 66, 0.07);
+}
+.score-reading-rules > article.col-rule {
+  border-color: rgba(167, 139, 250, 0.38);
+  background: rgba(167, 139, 250, 0.07);
+}
+.score-reading-rules > article.cell-rule {
+  border-color: rgba(56, 189, 248, 0.4);
+  background: rgba(56, 189, 248, 0.07);
+}
+.score-reading-rules article > span {
   color: var(--t3);
-  font-size: 12.5px;
-  line-height: 1.6;
-  text-wrap: wrap;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
 }
-.score-reading-rules b {
+.score-reading-rules article > b {
+  display: block;
+  margin-top: 7px;
   color: var(--t1);
+  font-size: 16px;
+  line-height: 1.5;
 }
+.score-reading-rules article > p {
+  margin: 8px 0 0;
+  color: var(--t2);
+  font-size: 12.5px;
+  line-height: 1.65;
+}
+.score-reading-rules article > .math-block {
+  margin: 9px 0 0;
+  padding: 0;
+  overflow: visible;
+  color: var(--att);
+  font-size: 16px;
+}
+.score-reading-rules article > .math-block .katex-display {
+  text-align: center;
+}
+.score-reading-rules .row-rule > b .katex { color: var(--q); }
+.score-reading-rules .col-rule > b .katex { color: var(--k); }
+.score-reading-rules .cell-rule > b .katex { color: var(--att); }
 
 @media (max-width: 1050px) {
   .setup-flow,
@@ -898,13 +949,11 @@ p {
   .setup-types {
     grid-template-columns: 1fr;
   }
-  .score-reading-head {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 4px;
-  }
   .score-reading-rules {
     grid-template-columns: 1fr;
+  }
+  .score-reading-rules > article {
+    min-height: 0;
   }
 }
 @media (max-width: 700px) {
@@ -1021,7 +1070,7 @@ p {
   overflow-wrap: normal;
 }
 
-/* 向量阶段 ④：A 的一行如何逐项加权 V，并汇聚为 b₁ */
+/* 向量阶段 ④：A 的第一行乘完整 V，得到 b₁ */
 .aggregate-walkthrough {
   min-width: 1120px;
 }
@@ -1051,374 +1100,92 @@ p {
   font-size: 14px;
   line-height: 1.7;
 }
-.aggregate-meaning {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  max-width: 1050px;
-  margin: 0 auto 18px;
+.aggregate-equation {
+  padding: 22px 18px;
+  border: 1px solid rgba(244, 114, 182, 0.45);
+  border-radius: 13px;
+  background: rgba(244, 114, 182, 0.08);
 }
-.aggregate-meaning > div {
-  min-width: 0;
+.aggregate-equation .math-block {
+  margin: 0;
+  overflow: visible;
+  color: var(--out);
+  font-size: 20px;
+}
+.aggregate-equation .katex-display,
+.aggregate-rule .katex-display,
+.aggregate-axis-sums .katex-display {
+  text-align: center;
+}
+.aggregate-rule {
   display: grid;
-  grid-template-columns: 110px minmax(0, 1fr);
+  grid-template-columns: minmax(340px, 0.8fr) minmax(0, 1.2fr);
   align-items: center;
-  min-height: 74px;
-  padding: 10px 14px;
+  gap: 20px;
+  margin: 16px 0;
+  padding: 16px 18px;
   border: 1px solid var(--hairline);
   border-radius: 11px;
   background: rgba(255, 255, 255, 0.025);
 }
-.aggregate-meaning > div.weight {
-  border-color: rgba(56, 189, 248, 0.42);
-  background: rgba(56, 189, 248, 0.08);
-}
-.aggregate-meaning > div.value {
-  border-color: rgba(45, 212, 191, 0.42);
-  background: rgba(45, 212, 191, 0.08);
-}
-.aggregate-meaning > div.output {
-  border-color: rgba(244, 114, 182, 0.42);
-  background: rgba(244, 114, 182, 0.08);
-}
-.aggregate-meaning .math-block {
+.aggregate-rule .math-block {
   margin: 0;
-  padding: 0;
   overflow: visible;
+  color: var(--v);
   font-size: 18px;
 }
-.aggregate-meaning .katex-display {
-  text-align: center;
-}
-.aggregate-meaning > div > span {
-  color: var(--t2);
-  font-size: 12.5px;
-  line-height: 1.6;
-}
-.aggregate-meaning > div.weight > .math-block .katex { color: var(--att); }
-.aggregate-meaning > div.value > .math-block .katex { color: var(--v); }
-.aggregate-meaning > div.output > .math-block .katex { color: var(--out); }
-.aggregate-table-wrap {
-  padding: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 14px;
-  background: rgba(7, 11, 24, 0.56);
-}
-.aggregate-table {
-  width: 100%;
-  table-layout: fixed;
-  border-collapse: separate;
-  border-spacing: 8px;
-}
-.aggregate-table .source-col { width: 10%; }
-.aggregate-table .weight-col { width: 19%; }
-.aggregate-table .operator-col { width: 4%; }
-.aggregate-table .value-col { width: 22%; }
-.aggregate-table .arrow-col { width: 4%; }
-.aggregate-table .contribution-col { width: 41%; }
-.aggregate-table thead th {
-  padding: 3px 8px 7px;
-  color: var(--t2);
-  font-size: 13px;
-  font-weight: 700;
-  text-align: center;
-}
-.aggregate-table tbody th,
-.aggregate-table tbody td {
-  height: 78px;
-  padding: 9px 10px;
-  border-radius: 9px;
-  text-align: center;
-  vertical-align: middle;
-}
-.aggregate-table tbody th {
-  border: 1px solid var(--hairline);
-  background: rgba(255, 255, 255, 0.025);
-}
-.aggregate-table tbody th span,
-.aggregate-table tbody th b,
-.aggregate-table td small {
-  display: block;
-}
-.aggregate-table tbody th span {
-  margin-bottom: 4px;
-  color: var(--t3);
-  font-family: var(--mono);
-  font-size: 11px;
-}
-.aggregate-table tbody th b {
-  color: var(--t1);
-  font-size: 15px;
-}
-.aggregate-table td.weight {
-  border: 1px solid rgba(56, 189, 248, 0.42);
-  background: rgba(56, 189, 248, 0.09);
-}
-.aggregate-table td.value {
-  border: 1px solid rgba(45, 212, 191, 0.42);
-  background: rgba(45, 212, 191, 0.09);
-}
-.aggregate-table td.contribution {
-  border: 1px solid rgba(244, 114, 182, 0.42);
-  background: rgba(244, 114, 182, 0.09);
-}
-.aggregate-table td.weight .katex { color: var(--att); }
-.aggregate-table td.value .katex { color: var(--v); }
-.aggregate-table td.contribution .katex { color: var(--out); }
-.aggregate-table td .math-block {
-  margin: 0 0 6px;
-  padding: 0;
-  overflow: visible;
-  font-size: 17px;
-}
-.aggregate-table td .katex-display {
-  text-align: center;
-}
-.aggregate-table td small {
-  color: var(--t3);
-  font-size: 11px;
-  line-height: 1.4;
-}
-.aggregate-table td.operator,
-.aggregate-table td.arrow {
-  padding: 0;
-  color: var(--t2);
-  font-size: 25px;
-}
-.aggregate-table td.operator .katex {
-  color: var(--t2);
-}
-.aggregate-table td.arrow {
-  color: var(--out);
-  font-weight: 700;
-}
-.aggregate-component-sum {
-  max-width: 1050px;
-  margin: 20px auto 0;
-  padding: 18px 20px;
-  border: 1px solid rgba(244, 114, 182, 0.42);
-  border-radius: 13px;
-  background: rgba(244, 114, 182, 0.07);
-}
-.aggregate-component-head {
-  text-align: center;
-}
-.aggregate-component-head > span {
-  display: block;
-  color: var(--out);
-  font-family: var(--mono);
-  font-size: 12px;
-  font-weight: 700;
-}
-.aggregate-component-head > b {
-  display: block;
-  margin-top: 4px;
-  color: var(--t1);
-  font-size: 18px;
-}
-.aggregate-component-head p {
-  max-width: 850px;
-  margin: 7px auto 0;
+.aggregate-rule p {
+  margin: 0;
   color: var(--t2);
   font-size: 13px;
   line-height: 1.7;
-}
-.aggregate-component-head p b {
-  color: var(--out);
-}
-.aggregate-shape-rule {
-  display: grid;
-  grid-template-columns: minmax(250px, 1fr) 190px minmax(250px, 1fr);
-  align-items: center;
-  gap: 14px;
-  margin: 16px 0;
-}
-.aggregate-shape-rule > div {
-  min-height: 70px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 14px;
-  border: 1px solid var(--hairline);
-  border-radius: 10px;
-  background: rgba(7, 11, 24, 0.48);
-  text-align: center;
-}
-.aggregate-shape-rule strong {
-  color: var(--t1);
-  font-size: 18px;
-}
-.aggregate-shape-rule > div > span {
-  margin-top: 3px;
-  color: var(--t3);
-  font-size: 12px;
-}
-.aggregate-shape-rule > div.sum {
-  border-color: rgba(244, 114, 182, 0.4);
-  background: rgba(244, 114, 182, 0.1);
-}
-.aggregate-shape-rule .sum .math-block {
-  margin: 0;
-  padding: 0;
-  overflow: visible;
-  color: var(--out);
-  font-size: 19px;
 }
 .aggregate-axis-sums {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
-.aggregate-axis-sums > div {
+.aggregate-axis-sums > article {
   min-width: 0;
-  padding: 13px 14px;
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  border-radius: 10px;
+  padding: 15px 16px;
+  border: 1px solid rgba(56, 189, 248, 0.34);
+  border-radius: 11px;
   background: rgba(56, 189, 248, 0.07);
   text-align: center;
 }
-.aggregate-axis-sums > div > span {
+.aggregate-axis-sums > article > span {
   display: block;
   margin-bottom: 8px;
-  color: var(--t2);
-  font-size: 12px;
-}
-.aggregate-axis-sums .math-block {
-  margin: 0;
-  padding: 0;
-  overflow: visible;
-  color: var(--att);
-  font-size: 15px;
-}
-.aggregate-axis-sums .katex-display {
-  text-align: center;
-}
-.aggregate-component-sum > .aggregate-recombine {
-  margin: 16px 0 0;
-  padding: 12px 14px;
-  border: 1px solid rgba(244, 114, 182, 0.38);
-  border-radius: 10px;
-  background: rgba(244, 114, 182, 0.1);
-  color: var(--out);
-  font-size: 18px;
-  overflow: visible;
-}
-.aggregate-component-sum > .aggregate-recombine .katex-display {
-  text-align: center;
-}
-.aggregate-sum-arrow {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 58px;
-  color: var(--out);
-}
-.aggregate-sum-arrow > span {
-  font-family: var(--mono);
-  font-size: 11.5px;
-}
-.aggregate-sum-arrow b {
-  font-size: 28px;
-  line-height: 1;
-}
-.aggregate-result {
-  max-width: 1050px;
-  margin: 0 auto;
-  padding: 18px 22px;
-  border: 2px solid rgba(244, 114, 182, 0.58);
-  border-radius: 13px;
-  background: rgba(244, 114, 182, 0.11);
-}
-.aggregate-result-head {
-  margin-bottom: 15px;
-  text-align: center;
-}
-.aggregate-result-head > span,
-.aggregate-result-head > b {
-  display: block;
-}
-.aggregate-result-head > span {
-  margin-bottom: 5px;
-  color: var(--out);
-  font-family: var(--mono);
-  font-size: 12px;
-  font-weight: 700;
-}
-.aggregate-result-head > b {
-  color: var(--t1);
-  font-size: 17px;
-  line-height: 1.6;
-}
-.aggregate-matrix-flow {
-  display: grid;
-  grid-template-columns: minmax(330px, 0.9fr) 90px minmax(460px, 1.1fr);
-  align-items: center;
-  gap: 14px;
-}
-.aggregate-matrix-card {
-  min-width: 0;
-  min-height: 180px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 15px 18px;
-  border: 1px solid rgba(244, 114, 182, 0.34);
-  border-radius: 11px;
-  background: rgba(7, 11, 24, 0.48);
-  text-align: center;
-}
-.aggregate-matrix-card > span {
   color: var(--t2);
   font-size: 13px;
   font-weight: 700;
 }
-.aggregate-matrix-card > .math-block {
+.aggregate-axis-sums .math-block {
   margin: 0;
-  padding: 13px 0;
-  overflow: visible;
-  color: var(--out);
-  font-size: 18px;
-}
-.aggregate-matrix-card.matrix > .math-block {
+  color: var(--att);
   font-size: 16px;
 }
-.aggregate-matrix-card > .math-block .katex-display {
-  text-align: center;
-}
-.aggregate-matrix-card > small {
-  display: block;
-  color: var(--t3);
-  font-size: 11.5px;
-  line-height: 1.6;
-}
-.aggregate-stack-arrow {
-  display: flex;
-  flex-direction: column;
+.aggregate-result {
+  display: grid;
+  grid-template-columns: minmax(330px, 0.8fr) minmax(0, 1.2fr);
   align-items: center;
-  justify-content: center;
-  color: var(--out);
+  gap: 20px;
+  margin-top: 16px;
+  padding: 15px 18px;
+  border: 1px solid rgba(244, 114, 182, 0.45);
+  border-radius: 11px;
+  background: rgba(244, 114, 182, 0.08);
+}
+.aggregate-result > b {
+  color: var(--t1);
+  font-size: 16px;
   text-align: center;
 }
-.aggregate-stack-arrow span {
-  font-family: var(--mono);
-  font-size: 11px;
-}
-.aggregate-stack-arrow b {
-  font-size: 30px;
-  line-height: 1.1;
-}
-.aggregate-precision-note {
-  max-width: 1000px;
-  margin: 12px auto 0;
-  color: var(--t3);
-  font-size: 12px;
+.aggregate-result > span {
+  color: var(--t2);
+  font-size: 13px;
   line-height: 1.7;
-  text-align: center;
 }
-
 /* q1 打分：从 Query 到 S 第一行的三段式流程 */
 .score-explainer {
   min-width: 1080px;
@@ -2261,44 +2028,28 @@ p {
   margin-top: 10px;
   font-size: 17px;
 }
-.softmax-weight-calcs {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-  margin: 14px 0;
-}
-.softmax-weight-calcs > div {
-  min-width: 0;
-  padding: 11px 10px;
-  border: 1px solid rgba(56, 189, 248, 0.28);
-  border-radius: 9px;
+.softmax-example {
+  max-width: 720px;
+  margin: 14px auto 0;
+  padding: 12px 16px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 10px;
   background: rgba(56, 189, 248, 0.07);
-  text-align: center;
 }
-.softmax-weight-calcs > div > span {
+.softmax-example > span {
   display: block;
-  margin-bottom: 7px;
-  color: var(--t3);
-  font-family: var(--mono);
-  font-size: 11px;
+  margin-bottom: 6px;
+  color: var(--t2);
+  font-size: 12px;
 }
-.softmax-weight-calcs .math-block {
-  margin: 4px 0;
+.softmax-example .math-block {
+  margin: 0;
   padding: 0;
-  font-size: 14px;
-  overflow: visible;
-}
-.softmax-weight-calcs .katex-display {
-  text-align: center;
-}
-.softmax-weight-calcs > div > strong {
-  display: block;
-  margin-top: 6px;
   color: var(--att);
-  font-family: var(--mono);
-  font-size: 15px;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
+  font-size: 16px;
+}
+.softmax-example .katex-display {
+  text-align: center;
 }
 .softmax-key {
   margin-top: 16px;
@@ -2312,32 +2063,6 @@ p {
 .softmax-key b {
   color: var(--att);
 }
-/* 图下方的 shape 流转标注 */
-.fig-shapes {
-  margin: 10px auto 2px;
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: center;
-  font-family: var(--mono);
-  font-size: 11.5px;
-}
-.fig-shapes span {
-  padding: 4px 10px;
-  border-radius: 7px;
-  border: 1px solid var(--hairline);
-  background: var(--panel-3);
-  color: var(--t2);
-}
-.fig-shapes span b {
-  color: var(--accent);
-  font-weight: 600;
-}
-.fig-shapes em {
-  color: var(--t-dim);
-  font-style: normal;
-}
-
 /* ===== 代码块 ===== */
 pre {
   background: #060a18;
@@ -2353,12 +2078,6 @@ pre {
 pre code {
   color: var(--t2);
 }
-.tok-cm { color: var(--t-dim); font-style: italic; }
-.tok-kw { color: var(--k); }
-.tok-fn { color: var(--v); }
-.tok-st { color: var(--q); }
-.tok-nm { color: var(--out); }
-.tok-op { color: #9ec5ff; }
 .code-title {
   position: relative;
   display: block;
@@ -2471,19 +2190,6 @@ p code {
   min-height: 22px;
 }
 .mcalc b { color: var(--out); }
-.mbtn {
-  background: var(--att-soft);
-  border: 1px solid var(--att);
-  color: var(--att);
-  padding: 8px 18px;
-  border-radius: 9px;
-  font-size: 13px;
-  transition: 0.18s;
-}
-.mbtn:hover {
-  background: rgba(56, 189, 248, 0.22);
-}
-
 /* ===== 热力图 tab ===== */
 .tabs {
   display: flex;
@@ -2679,32 +2385,6 @@ p code {
 .detail-section .tab {
   padding: 10px 19px;
   font-size: 15px;
-}
-
-/* ===== 步骤网格 ===== */
-.steps {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-  margin: 24px 0 8px;
-}
-.steps article {
-  padding: 4px 0 4px 15px;
-  border-left: 3px solid var(--hairline-strong);
-}
-.steps article:nth-child(1) { border-color: var(--q); }
-.steps article:nth-child(2) { border-color: var(--k); }
-.steps article:nth-child(3) { border-color: var(--att); }
-.steps article:nth-child(4) { border-color: var(--v); }
-.steps b { color: var(--t1); }
-.steps p {
-  margin: 5px 0 0;
-  font-size: 13px;
-  color: var(--t3);
-  line-height: 1.55;
-}
-@media (max-width: 760px) {
-  .steps { grid-template-columns: 1fr 1fr; }
 }
 
 /* ===== 页脚 ===== */
