@@ -45,7 +45,9 @@ test("server-renders the Attention teaching page", async () => {
   assert.match(html, /mh-head-lane mh-head-1/);
   assert.match(html, /三个头各算一套/);
   assert.match(html, /为什么下一层仍然是/);
-  assert.match(html, /输入从一开始就是六维/);
+  assert.match(html, /缩小版 Transformer 多头层/);
+  assert.match(html, /原论文同样满足/);
+  assert.match(html, /它不在 Token 维上再次混合信息/);
   assert.match(html, /真实计算结果/);
   assert.match(html, /FlashAttention：不改变数学/);
   assert.match(html, /代码与算子测试：从原理到真实算子/);

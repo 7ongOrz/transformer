@@ -1234,10 +1234,10 @@ function FigMultiHeadCalculation() {
   return (
     <div className="mh-walkthrough">
       <div className="mh-overview">
-        <span>三头数值算例 · Token 1～4</span>
-        <b>输入从一开始就是六维：每个头输出二维，三个头拼接后仍是六维</b>
+        <span>缩小版 Transformer 多头层 · Token 1～4</span>
+        <b>输入 <Formula tex={String.raw`4\times6`} /> → 每头 <Formula tex={String.raw`4\times2`} /> → 拼接 <Formula tex={String.raw`4\times6`} /> → 输出 <Formula tex={String.raw`4\times6`} /></b>
         <Formula block tex={String.raw`L=4,\quad d_{\mathrm{model}}=6,\quad h=3,\quad d_k=d_v=d_{\mathrm{model}}/h=2`} />
-        <p>前文 <Formula tex={String.raw`4\times2`} /> 的单头算例与本节 <Formula tex={String.raw`4\times6`} /> 的三头算例相互独立。<Formula tex="L=4" /> 表示四个 Token；<Formula tex={String.raw`d_{\mathrm{model}}=h\,d_v=3\times2=6`} /> 表示每个 Token 始终保留六个模型特征。</p>
+        <p>前述 <Formula tex={String.raw`4\times2`} /> 单头数值链只展开 Attention 核心计算，不表示上一层把二维输出扩成六维。本节遵循标准 Transformer 的维度规则：<Formula tex={String.raw`d_{\mathrm{model}}=h\,d_v=3\times2=6`} />；原论文同样满足 <Formula tex={String.raw`512=8\times64`} />，因此多头层前后的模型宽度保持不变。</p>
       </div>
 
       <div className="mh-shape-route" aria-label="多头注意力张量形状变化">
@@ -1324,8 +1324,8 @@ function FigMultiHeadCalculation() {
         <header>
           <span>4</span>
           <div>
-            <b>按特征列拼接三个头，再乘 <Formula tex="W^O" /> 做输出投影</b>
-            <p>三个 <Formula tex={String.raw`[4\times2]`} /> 沿列拼成 <Formula tex={String.raw`H\ [4\times6]`} />；<Formula tex="W^O" /> 再混合六个跨头通道。四行始终对应 Token 1～4。</p>
+            <b>拼接三个头，再用 <Formula tex="W^O" /> 融合头间特征并保持模型宽度</b>
+            <p>三个 <Formula tex={String.raw`[4\times2]`} /> 沿特征列拼成 <Formula tex={String.raw`H\ [4\times6]`} />；<Formula tex="W^O" /> 对每个 Token 的六个跨头特征做线性组合，输出仍为 <Formula tex={String.raw`Y\ [4\times6]`} />。</p>
           </div>
         </header>
         <div className="mh-output-flow">
@@ -1344,7 +1344,7 @@ function FigMultiHeadCalculation() {
           </div>
           <div className="mh-output-op"><b>×</b><span>输出投影</span></div>
           <div className="mh-output-step">
-            <span>跨头混合参数</span>
+            <span>跨头特征融合参数</span>
             <FmsMatGrid
               data={multiHeadDemo.WO}
               name={<Formula tex="W^O" />}
@@ -1356,7 +1356,7 @@ function FigMultiHeadCalculation() {
               digits={2}
             />
           </div>
-          <div className="mh-output-op"><b>=</b><span>回到模型维度</span></div>
+          <div className="mh-output-op"><b>=</b><span>保持模型维度</span></div>
           <div className="mh-output-step">
             <span>多头最终输出</span>
             <FmsMatGrid
@@ -1378,8 +1378,8 @@ function FigMultiHeadCalculation() {
         </div>
         <div className="mh-output-detail">
           <div>
-            <b>输出投影到底做什么</b>
-            <p><Formula tex="W^O" /> 的每一列生成一个输出特征，稠密矩阵允许每个输出混合六个跨头通道。数值算例使用稀疏矩阵，Token 1 的第一个输出仍同时接收三个头的信息：</p>
+            <b><Formula tex="W^O" />：融合各头特征，并映射回 <Formula tex="d_{\mathrm{model}}" /></b>
+            <p>每个头的 <Formula tex={String.raw`A^{(r)}V^{(r)}`} /> 已经完成 Token 之间的信息汇聚；<Formula tex="W^O" /> 随后只沿每个 Token 的特征维工作，把不同头取回的内容进行可学习的线性融合。它不在 Token 维上再次混合信息，同时保证输出宽度适合残差连接和下一层。</p>
           </div>
           <Formula block tex={String.raw`y_{1,1}=\sum_{c=1}^{6}h_{1,c}W^O_{c,1}=${firstOutputTerms}=${formatNumber(multiHeadDemo.Y[0][0])}`} />
         </div>
