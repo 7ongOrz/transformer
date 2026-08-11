@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { access, readFile } from "node:fs/promises";
 import test from "node:test";
-import { attentionDemo } from "../app/attention-demo.js";
+import { attentionDemo, multiHeadDemo } from "../app/attention-demo.js";
 
 const rounded = (matrix, digits = 3) =>
   matrix.map((row) => row.map((value) => Number(value.toFixed(digits))));
@@ -41,6 +41,9 @@ test("server-renders the Attention teaching page", async () => {
   assert.match(html, /Self-Attention · 矩阵级/);
   assert.match(html, /与 Mask/);
   assert.match(html, /多头注意力（Multi-Head）/);
+  assert.match(html, /沿特征维拆头，不拆 Token/);
+  assert.match(html, /mh-head-lane mh-head-1/);
+  assert.match(html, /拼接不会把 4 个 Token 变成 2 个/);
   assert.match(html, /FlashAttention：不改变数学/);
   assert.match(html, /代码与算子测试：从原理到真实算子/);
   assert.match(html, /Transformer 全景：Attention 被装在哪里/);
@@ -56,6 +59,39 @@ test("server-renders the Attention teaching page", async () => {
   assert.doesNotMatch(html, /class="[^"]*\bmath-error\b/);
   assert.doesNotMatch(html, /20\s*(?:分钟|MIN)|TOTAL\s*·\s*20:00|20:00/i);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|react-loading-skeleton/i);
+});
+
+test("keeps the two-head walkthrough on one verified numerical chain", () => {
+  assert.equal(multiHeadDemo.heads.length, 2);
+  assert.deepEqual(multiHeadDemo.Q.map((row) => row.length), [4, 4, 4, 4]);
+  assert.deepEqual(multiHeadDemo.heads.map((head) => head.Q.map((row) => row.length)), [
+    [2, 2, 2, 2],
+    [2, 2, 2, 2],
+  ]);
+  assert.deepEqual(rounded(multiHeadDemo.heads[0].S), [
+    [0.707, 0, 0.707, 0],
+    [0, 0.707, 0.707, 0.707],
+    [0.707, 0.707, 1.414, 0.707],
+    [0, 0.707, 0.707, 0.707],
+  ]);
+  assert.deepEqual(rounded(multiHeadDemo.heads[1].A), [
+    [0.276, 0.136, 0.194, 0.393],
+    [0.242, 0.242, 0.345, 0.17],
+    [0.286, 0.141, 0.286, 0.286],
+    [0.249, 0.123, 0.123, 0.505],
+  ]);
+  assert.deepEqual(rounded(multiHeadDemo.H), [
+    [0.67, 0.665, 0.801, 0.927],
+    [0.427, 0.859, 1.175, 0.34],
+    [0.602, 0.801, 1, 0.718],
+    [0.427, 0.859, 0.618, 1.137],
+  ]);
+  assert.deepEqual(rounded(multiHeadDemo.Y), [
+    [1.07, 1.129, 1.135, 1.26],
+    [1.015, 1.029, 1.389, 0.77],
+    [1.102, 1.16, 1.301, 1.118],
+    [0.736, 1.427, 0.831, 1.566],
+  ]);
 });
 
 test("keeps the teaching matrices on one verified numerical chain", () => {
@@ -158,6 +194,8 @@ test("ships the current teaching page as an offline standalone HTML file", async
   assert.match(html, /输入矩阵/);
   assert.match(html, /one-hot 选择位置向量/);
   assert.match(html, /FlashAttention：不改变数学/);
+  assert.match(html, /沿特征维拆头，不拆 Token/);
+  assert.match(html, /多头最终输出/);
   assert.match(html, /data-standalone="attention"/);
   assert.match(html, /data-queries=/);
   assert.match(html, /JSON\.parse\(attentionDemo\.dataset\.queries\)/);

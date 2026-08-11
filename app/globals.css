@@ -2658,3 +2658,528 @@ p code {
 .fms-read b {
   color: var(--t1);
 }
+
+/* ============================================================
+ * Multi-Head 数值链
+ * ============================================================ */
+.mh-walkthrough {
+  display: grid;
+  gap: 18px;
+  margin: 24px 0 30px;
+}
+.mh-overview {
+  padding: 24px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: var(--radius);
+  background:
+    radial-gradient(560px 260px at 50% 0%, rgba(56, 189, 248, 0.12), transparent 72%),
+    var(--panel-3);
+  text-align: center;
+}
+.mh-overview > span {
+  display: block;
+  color: var(--att);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+.mh-overview > b {
+  display: block;
+  margin-top: 5px;
+  color: var(--t1);
+  font-size: 21px;
+  line-height: 1.5;
+}
+.mh-overview .math-block {
+  margin: 12px 0 8px;
+  font-size: 19px;
+}
+.mh-overview .katex-display {
+  text-align: center;
+}
+.mh-overview p {
+  max-width: 980px;
+  margin: 0 auto;
+  color: var(--t2);
+  font-size: 14.5px;
+  line-height: 1.75;
+}
+.mh-shape-route {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 2px 0 6px;
+}
+.mh-shape-route > div {
+  flex: 1 0 190px;
+  display: grid;
+  place-content: center;
+  gap: 3px;
+  min-height: 76px;
+  padding: 11px 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  background: var(--panel-3);
+  text-align: center;
+}
+.mh-shape-route > div > span {
+  color: var(--t3);
+  font-size: 11.5px;
+}
+.mh-shape-route > div > b {
+  color: var(--t1);
+  font-size: 14px;
+}
+.mh-shape-route > i {
+  flex: 0 0 22px;
+  display: grid;
+  place-items: center;
+  color: var(--att);
+  font-family: var(--mono);
+  font-size: 22px;
+  font-style: normal;
+}
+.mh-stage {
+  overflow-x: auto;
+  padding: 22px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(15, 23, 48, 0.92), rgba(9, 15, 34, 0.94));
+}
+.mh-stage > header {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  min-width: min(760px, 100%);
+  margin-bottom: 18px;
+}
+.mh-stage > header > span {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  border-radius: 9px;
+  background: var(--att-soft);
+  color: var(--att);
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 800;
+}
+.mh-stage > header b {
+  color: var(--t1);
+  font-size: 18px;
+  line-height: 1.55;
+}
+.mh-stage > header p {
+  margin: 4px 0 0;
+  color: var(--t2);
+  font-size: 14px;
+  line-height: 1.7;
+}
+.mh-projection-flow {
+  display: grid;
+  grid-template-columns: 300px 90px minmax(920px, 1fr);
+  gap: 16px;
+  align-items: center;
+  min-width: 1360px;
+}
+.mh-projection-source,
+.mh-output-step {
+  display: grid;
+  place-items: center;
+}
+.mh-projection-op,
+.mh-output-op {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 3px;
+  color: var(--t3);
+  font-family: var(--mono);
+  text-align: center;
+}
+.mh-projection-op .math-inline {
+  font-size: 12px;
+}
+.mh-projection-op i {
+  color: var(--att);
+  font-size: 28px;
+  font-style: normal;
+  line-height: 1;
+}
+.mh-projection-results {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.mh-split-matrix {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--hairline);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.025);
+}
+.mh-split-name {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 7px;
+  font-family: var(--mono);
+  font-size: 17px;
+  font-weight: 700;
+}
+.mh-split-name > span {
+  color: var(--t3);
+  font-size: 12px;
+  font-weight: 500;
+}
+.mh-split-matrix table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 3px;
+}
+.mh-split-matrix th,
+.mh-split-matrix td {
+  height: 38px;
+  padding: 0 7px;
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  text-align: center;
+  white-space: nowrap;
+}
+.mh-split-matrix thead th {
+  height: 28px;
+  color: var(--t3);
+  font-size: 10.5px;
+}
+.mh-split-matrix tbody th {
+  color: var(--t2);
+  font-size: 11px;
+}
+.mh-split-matrix td {
+  color: var(--t1);
+  font-size: 14px;
+  font-weight: 650;
+}
+.mh-split-matrix .mh-head-one {
+  border-color: rgba(56, 189, 248, 0.35);
+  background: rgba(56, 189, 248, 0.09);
+}
+.mh-split-matrix .mh-head-two {
+  border-color: rgba(167, 139, 250, 0.35);
+  background: rgba(167, 139, 250, 0.09);
+}
+.mh-split-matrix thead .mh-head-one { color: var(--att); }
+.mh-split-matrix thead .mh-head-two { color: var(--k); }
+.mh-parameters {
+  min-width: 950px;
+  margin-top: 16px;
+  padding: 13px 16px;
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.025);
+}
+.mh-parameters summary {
+  color: var(--t2);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.mh-parameter-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin: 18px 0 10px;
+}
+.mh-parameter-grid > .fms-mat {
+  justify-self: center;
+}
+.mh-parameters > p {
+  margin: 8px 0 0;
+  color: var(--t3);
+  font-size: 12.5px;
+  text-align: center;
+}
+.mh-head-inputs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(570px, 1fr));
+  gap: 16px;
+  min-width: 1180px;
+}
+.mh-head-1 {
+  --mh-color: #38bdf8;
+  --mh-soft: rgba(56, 189, 248, 0.08);
+  --mh-border: rgba(56, 189, 248, 0.42);
+}
+.mh-head-2 {
+  --mh-color: #a78bfa;
+  --mh-soft: rgba(167, 139, 250, 0.08);
+  --mh-border: rgba(167, 139, 250, 0.42);
+}
+.mh-head-input-card,
+.mh-head-lane {
+  min-width: 0;
+  padding: 17px;
+  border: 1px solid var(--mh-border);
+  border-radius: 13px;
+  background: var(--mh-soft);
+}
+.mh-head-card-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+}
+.mh-head-card-title > span,
+.mh-lane-title > span {
+  color: var(--mh-color);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+.mh-head-card-title > b {
+  color: var(--t2);
+  font-size: 12.5px;
+}
+.mh-head-input-card > .math-block {
+  margin: 8px 0 12px;
+  font-size: 15px;
+}
+.mh-head-input-card > .math-block .katex-display {
+  text-align: center;
+}
+.mh-head-input-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  align-items: start;
+}
+.mh-head-input-grid .fms-cell {
+  width: 50px;
+  min-width: 50px;
+  height: 42px;
+  font-size: 14px;
+}
+.mh-head-input-grid .fms-grid th {
+  font-size: 10.5px;
+}
+.mh-head-input-grid .fms-mat-name {
+  font-size: 16px;
+}
+.mh-token-slice {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px 14px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--hairline);
+  color: var(--t2);
+  font-size: 12.5px;
+}
+.mh-token-slice > span {
+  color: var(--mh-color);
+  font-family: var(--mono);
+  font-weight: 700;
+}
+.mh-head-lanes {
+  display: grid;
+  gap: 16px;
+  min-width: 1160px;
+}
+.mh-head-lane {
+  min-width: 1120px;
+}
+.mh-lane-title {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.mh-lane-title .math-inline {
+  overflow-x: auto;
+  color: var(--t1);
+  font-size: 14px;
+  text-align: right;
+}
+.mh-lane-flow {
+  display: grid;
+  grid-template-columns: minmax(300px, 1fr) 66px minmax(300px, 1fr) 66px minmax(190px, 0.7fr);
+  gap: 10px;
+  align-items: stretch;
+}
+.mh-lane-step {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  min-width: 0;
+  padding: 13px 10px;
+  border: 1px solid var(--hairline);
+  border-radius: 11px;
+  background: rgba(7, 11, 24, 0.48);
+}
+.mh-lane-step > span,
+.mh-output-step > span {
+  display: block;
+  margin-bottom: 9px;
+  color: var(--t2);
+  font-size: 12px;
+  font-weight: 700;
+}
+.mh-lane-step .fms-cell {
+  width: 54px;
+  min-width: 54px;
+  height: 43px;
+  font-size: 14px;
+}
+.mh-lane-step .fms-grid th {
+  font-size: 10.5px;
+}
+.mh-lane-step .fms-mat-name {
+  font-size: 16px;
+}
+.mh-lane-op {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 1px;
+  color: var(--t3);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  text-align: center;
+}
+.mh-lane-op b {
+  color: var(--t1);
+  font-size: 12px;
+}
+.mh-lane-op i {
+  color: var(--mh-color);
+  font-size: 26px;
+  font-style: normal;
+  line-height: 1;
+}
+.mh-first-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  margin-top: 13px;
+  padding: 10px 13px;
+  border-top: 1px solid var(--mh-border);
+}
+.mh-first-row > b {
+  color: var(--mh-color);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.mh-first-row .math-block {
+  margin: 0;
+  font-size: 13px;
+}
+.mh-first-row .katex-display {
+  text-align: left;
+}
+.mh-output-flow {
+  display: grid;
+  grid-template-columns: minmax(300px, 1fr) 72px minmax(270px, 0.8fr) 72px minmax(300px, 1fr);
+  gap: 12px;
+  align-items: center;
+  min-width: 1180px;
+}
+.mh-output-step {
+  align-content: start;
+  min-height: 310px;
+  padding: 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 11px;
+  background: rgba(7, 11, 24, 0.48);
+}
+.mh-output-step .fms-cell {
+  width: 55px;
+  min-width: 55px;
+  height: 44px;
+  font-size: 14px;
+}
+.mh-output-step .fms-grid th {
+  font-size: 10.5px;
+}
+.mh-output-op b {
+  color: var(--att);
+  font-size: 27px;
+  line-height: 1;
+}
+.mh-output-op span {
+  font-size: 10.5px;
+}
+.mh-output-row {
+  display: grid;
+  grid-template-columns: auto repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-items: center;
+  min-width: 980px;
+  margin-top: 16px;
+  padding: 13px 16px;
+  border: 1px solid rgba(244, 114, 182, 0.34);
+  border-radius: 10px;
+  background: rgba(244, 114, 182, 0.07);
+}
+.mh-output-row > span {
+  color: var(--out);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.mh-output-row .math-block {
+  margin: 0;
+  font-size: 14px;
+}
+.mh-output-row .katex-display {
+  text-align: center;
+}
+.mh-implementation-note {
+  padding: 18px 20px;
+  border-left: 3px solid var(--v);
+  border-radius: 0 12px 12px 0;
+  background: rgba(45, 212, 191, 0.08);
+}
+.mh-implementation-note > b {
+  display: block;
+  color: var(--t1);
+  font-size: 16px;
+}
+.mh-implementation-note .math-block {
+  margin: 10px 0;
+  font-size: 16px;
+}
+.mh-implementation-note p {
+  margin: 0;
+  color: var(--t2);
+  font-size: 14px;
+  line-height: 1.75;
+}
+@media (max-width: 760px) {
+  .mh-overview,
+  .mh-stage {
+    padding: 17px 15px;
+  }
+  .mh-overview > b {
+    font-size: 18px;
+  }
+  .mh-stage > header {
+    min-width: 0;
+  }
+  .mh-stage > header b {
+    font-size: 16px;
+  }
+}
