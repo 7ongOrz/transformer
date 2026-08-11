@@ -44,8 +44,8 @@ test("server-renders the Attention teaching page", async () => {
   assert.match(html, /把融合投影结果重排为三个头，不拆 Token/);
   assert.match(html, /mh-head-lane mh-head-1/);
   assert.match(html, /三个头各算一套/);
-  assert.match(html, /Y.*有什么用/);
-  assert.match(html, /不为 Head 1、2、3 指定固定语义/);
+  assert.match(html, /为什么下一层仍然是/);
+  assert.match(html, /输入从一开始就是六维/);
   assert.match(html, /真实计算结果/);
   assert.match(html, /FlashAttention：不改变数学/);
   assert.match(html, /代码与算子测试：从原理到真实算子/);
@@ -61,6 +61,7 @@ test("server-renders the Attention teaching page", async () => {
   assert.match(html, /katex/);
   assert.doesNotMatch(html, /class="[^"]*\bmath-error\b/);
   assert.doesNotMatch(html, /20\s*(?:分钟|MIN)|TOTAL\s*·\s*20:00|20:00/i);
+  assert.doesNotMatch(html, /这里只说明|这里故意|不把它们映射成具体词语|不为 Head 1、2、3 指定固定语义/);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|react-loading-skeleton/i);
 });
 

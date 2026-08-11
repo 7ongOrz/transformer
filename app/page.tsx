@@ -254,8 +254,8 @@ function AttentionSetupGuide() {
     <div className="setup-guide">
       <div className="setup-guide-head">
         <span>计算前置</span>
-        <b>先把 Token、<Formula tex="x_i" />、<Formula tex="X" />、<Formula tex="q_1" /> 放回同一条链路</b>
-        <p>本页只用 <code>Token 1～4</code> 表示序列中的四个位置，不把它们映射成具体词语；后面的每一行矩阵都与这四个位置一一对应。</p>
+        <b>Token、<Formula tex="x_i" />、<Formula tex="X" /> 与 <Formula tex="q_1" /> 的来源</b>
+        <p><code>Token 1～4</code> 表示序列中的四个位置；后续矩阵的第 <Formula tex="i" /> 行始终对应 Token <Formula tex="i" />。</p>
       </div>
 
       <div className="setup-flow">
@@ -267,7 +267,7 @@ function AttentionSetupGuide() {
               <span key={token}><b>Token {i + 1}</b><small>位置 {i + 1}</small></span>
             ))}
           </div>
-          <p>真实文本先经 tokenizer 变成离散的 token ID。这里省略具体文本，只保留位置标签。</p>
+          <p>文本经 tokenizer 转换成 token ID 序列，每个 ID 按其序列索引对应一个位置。</p>
         </article>
 
         <article className="setup-node">
@@ -296,13 +296,13 @@ function AttentionSetupGuide() {
 
       <div className="setup-dimension-note">
         <b>为什么只有二维？</b>
-        <span>为了能在页面上完整展开每一次乘法，本例设 <Formula tex={String.raw`d_{\mathrm{model}}=d_k=d_v=2`} />。真实模型通常是数百到数千维，算法完全相同，只是矩阵更大。</span>
+        <span>单头数值算例取 <Formula tex={String.raw`d_{\mathrm{model}}=d_k=d_v=2`} />，可以逐项核算矩阵乘法。真实模型通常使用数百到数千维，计算规则相同。</span>
       </div>
 
       <div className="setup-table-wrap">
         <table className="setup-table">
           <thead>
-            <tr><th>符号</th><th>本页中表示什么</th><th>从哪里来</th></tr>
+            <tr><th>符号</th><th>数学含义</th><th>从哪里来</th></tr>
           </thead>
           <tbody>
             <tr>
@@ -318,11 +318,11 @@ function AttentionSetupGuide() {
             <tr>
               <th><Formula tex="X" /></th>
               <td>把 <Formula tex={String.raw`x_1,\ldots,x_4`} /> 按行堆叠后的输入矩阵</td>
-              <td>本例 <Formula tex={String.raw`X\in\mathbb{R}^{4\times2}`} /></td>
+              <td>数值算例中 <Formula tex={String.raw`X\in\mathbb{R}^{4\times2}`} /></td>
             </tr>
             <tr>
               <th><Formula tex={String.raw`W^Q,W^K,W^V`} /></th>
-              <td>三组独立的线性投影参数：<Formula tex={String.raw`W^Q,W^K\in\mathbb{R}^{d_{\mathrm{model}}\times d_k}`} />，<Formula tex={String.raw`W^V\in\mathbb{R}^{d_{\mathrm{model}}\times d_v}`} />；本例均为 <Formula tex={String.raw`2\times2`} /></td>
+              <td>三组独立的线性投影参数：<Formula tex={String.raw`W^Q,W^K\in\mathbb{R}^{d_{\mathrm{model}}\times d_k}`} />，<Formula tex={String.raw`W^V\in\mathbb{R}^{d_{\mathrm{model}}\times d_v}`} />；数值算例中均为 <Formula tex={String.raw`2\times2`} /></td>
               <td>训练开始时初始化，训练中由反向传播学习；推理时保持固定</td>
             </tr>
             <tr>
@@ -332,7 +332,7 @@ function AttentionSetupGuide() {
             </tr>
             <tr>
               <th><Formula tex={String.raw`S,A`} /></th>
-              <td>缩放后的相关分数矩阵、softmax 后的权重矩阵；本例均属于 <Formula tex={String.raw`\mathbb{R}^{4\times4}`} /></td>
+              <td>缩放后的相关分数矩阵、softmax 后的权重矩阵；数值算例中均属于 <Formula tex={String.raw`\mathbb{R}^{4\times4}`} /></td>
               <td><Formula tex={String.raw`S=QK^{\mathsf T}/\sqrt{d_k},\quad A=\operatorname{softmax}(S)`} /></td>
             </tr>
             <tr>
@@ -347,7 +347,7 @@ function AttentionSetupGuide() {
       <div className="setup-types">
         <div><b>可训练参数</b><span>当前单头链路包含 Token Embedding 表 <Formula tex="E_{\mathrm{tok}}" /> 与投影矩阵 <Formula tex={String.raw`W^Q,\ W^K,\ W^V`} />；若采用可学习位置表，还包括 <Formula tex="P_{\mathrm{pos}}" />。它们训练初始通常随机，随后被学习；推理时不再重新随机。</span></div>
         <div><b>前向中间量</b><span><Formula tex={String.raw`X,\ Q,\ K,\ V,\ S,\ A,\ O`} />：随输入变化，每次前向重新计算，不是模型单独保存的参数。</span></div>
-        <div><b>本页固定数字</b><span>为便于手算而选定的教学样例；它们不是从某个真实模型中导出的数值，也不会在刷新页面时重新随机。</span></div>
+        <div><b>数值算例</b><span>矩阵采用便于手算核验的固定数值，不对应某个已训练模型，也不会在页面刷新时重新随机。</span></div>
       </div>
     </div>
   );
@@ -592,7 +592,7 @@ function FigStageScore() {
         <div className="score-explainer-head">
           <span>只展开 Token 1 的输出路径</span>
           <b>用 <Formula tex="q_1" /> 生成分数矩阵 <Formula tex="S" /> 的第 1 行</b>
-          <p>“用 <Formula tex="q_1" /> 打分”不是给 <Formula tex="q_1" /> 自己评分，而是为了计算 <Formula tex="b_1" />，取 <Formula tex="Q" /> 的第 1 行 <Formula tex="q_1" />，分别衡量它与四个 Key 的匹配程度。</p>
+          <p>“用 <Formula tex="q_1" /> 打分”表示取 <Formula tex="Q" /> 的第 1 行，分别衡量 <Formula tex="q_1" /> 与四个 Key 的匹配程度，由此计算 Token 1 的输出 <Formula tex="b_1" />。</p>
         </div>
 
         <div className="score-symbol-guide">
@@ -662,7 +662,7 @@ function FigStageScore() {
             <span>① 取 <Formula tex="Q" /> 的第 1 行</span>
             <b>Token 1 的 Query</b>
             <Formula block tex={`q_1=x_1W^Q=${rowVectorTex(q1, 2)}`} />
-            <p>它是 Token 1 的检索向量。这里只算 <Formula tex="b_1" />，所以使用 <Formula tex="q_1" />；若算 <Formula tex="b_2" />，就改用 <Formula tex="q_2" />。</p>
+            <p>它是 Token 1 的 Query 向量。计算 <Formula tex="b_1" /> 时使用 <Formula tex="q_1" />；计算 <Formula tex="b_2" /> 时使用 <Formula tex="q_2" />。</p>
           </article>
 
           <div className="score-flow-arrow" aria-hidden="true"><b>→</b><span>同一种计算<br />重复 4 次</span></div>
@@ -773,7 +773,7 @@ function FigStageSoftmax() {
           <div className="score-index-notes">
             <span><b><Formula tex={`A_{1,2}=${formatNumber(weights[1])}`} /></b>：Token 1 汇聚 Token 2 的 <Formula tex="v_2" /> 时，使用的权重约为 {(weights[1] * 100).toFixed(1)}%</span>
             <span><b>同一行权重和为 1</b>：<Formula tex={String.raw`\sum_{j=1}^{4}A_{1,j}=1`} /></span>
-            <strong><Formula tex={`A_{1,${maximumIndex + 1}}=${formatNumber(weights[maximumIndex])}`} /> 最大，表示本例中 Token 1 从 Token {maximumIndex + 1} 的 <Formula tex={`v_${maximumIndex + 1}`} /> 汇聚信息时采用的权重最高。</strong>
+            <strong><Formula tex={`A_{1,${maximumIndex + 1}}=${formatNumber(weights[maximumIndex])}`} /> 最大，表示 Token 1 从 Token {maximumIndex + 1} 的 <Formula tex={`v_${maximumIndex + 1}`} /> 汇聚信息时采用的权重最高。</strong>
           </div>
         </div>
 
@@ -1234,10 +1234,10 @@ function FigMultiHeadCalculation() {
   return (
     <div className="mh-walkthrough">
       <div className="mh-overview">
-        <span>统一数值算例 · Token 1～4</span>
-        <b>同一份六维输入生成三组二维 Q/K/V，每个头独立计算完整注意力</b>
+        <span>三头数值算例 · Token 1～4</span>
+        <b>输入从一开始就是六维：每个头输出二维，三个头拼接后仍是六维</b>
         <Formula block tex={String.raw`L=4,\quad d_{\mathrm{model}}=6,\quad h=3,\quad d_k=d_v=d_{\mathrm{model}}/h=2`} />
-        <p>这里故意让 Token 数、模型维度、头数与每头宽度分别取 4、6、3、2，避免把序列长度、特征宽度和注意力矩阵混为一谈。</p>
+        <p>前文 <Formula tex={String.raw`4\times2`} /> 的单头算例与本节 <Formula tex={String.raw`4\times6`} /> 的三头算例相互独立。<Formula tex="L=4" /> 表示四个 Token；<Formula tex={String.raw`d_{\mathrm{model}}=h\,d_v=3\times2=6`} /> 表示每个 Token 始终保留六个模型特征。</p>
       </div>
 
       <div className="mh-shape-route" aria-label="多头注意力张量形状变化">
@@ -1245,7 +1245,7 @@ function FigMultiHeadCalculation() {
         <i>→</i>
         <div><span>一次融合生成三头投影</span><b><Formula tex={String.raw`Q_{\mathrm{all}},K_{\mathrm{all}},V_{\mathrm{all}}\ [4\times6]`} /></b></div>
         <i>→</i>
-        <div><span>显式恢复头维</span><b><Formula tex={String.raw`3\times[4\times2]`} /></b></div>
+        <div><span>恢复头维，每头保留全部 Token</span><b><Formula tex={String.raw`3\ \mathrm{heads}\times[4\times2]`} /></b></div>
         <i>→</i>
         <div><span>每头一张完整权重图</span><b><Formula tex={String.raw`A^{(r)}\ [4\times4],\ H^{(r)}\ [4\times2]`} /></b></div>
         <i>→</i>
@@ -1257,7 +1257,7 @@ function FigMultiHeadCalculation() {
           <span>1</span>
           <div>
             <b>由同一个 <Formula tex="X" /> 一次融合生成三个头的 <Formula tex={String.raw`Q,K,V`} /></b>
-            <p>逻辑上每个头有独立的 <Formula tex={String.raw`W_i^Q,W_i^K,W_i^V`} />；代码把三组参数沿列拼成大矩阵，一次矩阵乘法得到 <Formula tex={String.raw`Q_{\mathrm{all}},K_{\mathrm{all}},V_{\mathrm{all}}`} />。</p>
+            <p>第 <Formula tex="r" /> 个头的 <Formula tex={String.raw`W_r^Q,W_r^K,W_r^V\in\mathbb{R}^{6\times2}`} /> 把六维输入投影到二维。代码沿列合并三个头的参数，形成 <Formula tex={String.raw`W^Q,W^K,W^V\in\mathbb{R}^{6\times6}`} />，一次得到 <Formula tex={String.raw`Q_{\mathrm{all}},K_{\mathrm{all}},V_{\mathrm{all}}`} />。</p>
           </div>
         </header>
         <div className="mh-projection-flow">
@@ -1284,13 +1284,13 @@ function FigMultiHeadCalculation() {
           </div>
         </div>
         <details className="mh-parameters">
-          <summary>查看本例固定的三个投影矩阵（真实模型中均为可训练参数）</summary>
+          <summary>查看融合后的三个投影矩阵 <Formula tex={String.raw`W^Q,W^K,W^V`} /></summary>
           <div className="mh-parameter-grid">
             <FmsMatGrid data={multiHeadDemo.WQ} name={<Formula tex="W^Q" />} shape={<Formula tex={String.raw`[6\times6]`} />} pal={FMS_PAL.Q} digits={1} />
             <FmsMatGrid data={multiHeadDemo.WK} name={<Formula tex="W^K" />} shape={<Formula tex={String.raw`[6\times6]`} />} pal={FMS_PAL.K} digits={1} />
             <FmsMatGrid data={multiHeadDemo.WV} name={<Formula tex="W^V" />} shape={<Formula tex={String.raw`[6\times6]`} />} pal={FMS_PAL.V} digits={1} />
           </div>
-          <p>这里选择稀疏、容易核算的固定矩阵，让三个头呈现清楚的不同模式；真实模型中的投影矩阵由训练学习，通常是稠密矩阵。</p>
+          <p>数值算例采用稀疏固定矩阵以便逐项核算；真实模型中的投影矩阵由训练学习，通常是稠密矩阵。</p>
         </details>
       </section>
 
@@ -1299,7 +1299,7 @@ function FigMultiHeadCalculation() {
           <span>2</span>
           <div>
             <b>把融合投影结果重排为三个头，不拆 Token</b>
-            <p><Formula tex={String.raw`Q_{\mathrm{all}}=[Q^{(1)}\mid Q^{(2)}\mid Q^{(3)}]`} />，<Formula tex="K" />、<Formula tex="V" /> 同理。这里分组的是投影结果的列，不是直接切原始 <Formula tex="X" />；每个头仍然拥有 Token 1～4，只是每个 Token 在本头中用两维表示。</p>
+            <p><Formula tex={String.raw`Q_{\mathrm{all}}=[Q^{(1)}\mid Q^{(2)}\mid Q^{(3)}]`} />，<Formula tex="K" />、<Formula tex="V" /> 同理。三个头划分的是投影结果的特征列，而不是原始 <Formula tex="X" /> 的 Token 行；每个头都保留 Token 1～4，并用二维向量表示每个 Token。</p>
           </div>
         </header>
         <div className="mh-head-inputs">
@@ -1312,7 +1312,7 @@ function FigMultiHeadCalculation() {
           <span>3</span>
           <div>
             <b>三个头各算一套 <Formula tex={String.raw`QK^{\mathsf T}\rightarrow\operatorname{softmax}\rightarrow AV`} /></b>
-            <p>下面三个头分别得到一张 <Formula tex={String.raw`A^{(r)}\ [4\times4]`} />。本例只用固定数字展示它们可以产生不同权重；真实模型没有预先规定每个头负责什么，具体关注内容由训练学习。</p>
+            <p>每个头都由 <Formula tex={String.raw`Q^{(r)},K^{(r)},V^{(r)}\ [4\times2]`} /> 计算一张权重矩阵 <Formula tex={String.raw`A^{(r)}\ [4\times4]`} />，再得到本头输出 <Formula tex={String.raw`H^{(r)}=A^{(r)}V^{(r)}\ [4\times2]`} />。</p>
           </div>
         </header>
         <div className="mh-head-lanes">
@@ -1379,16 +1379,16 @@ function FigMultiHeadCalculation() {
         <div className="mh-output-detail">
           <div>
             <b>输出投影到底做什么</b>
-            <p><Formula tex="W^O" /> 的每一列生成一个输出特征，真实模型中的稠密矩阵允许每个输出混合六个通道。本例为方便手算使用稀疏矩阵；Token 1 的第一个输出仍同时接收三个头的信息：</p>
+            <p><Formula tex="W^O" /> 的每一列生成一个输出特征，稠密矩阵允许每个输出混合六个跨头通道。数值算例使用稀疏矩阵，Token 1 的第一个输出仍同时接收三个头的信息：</p>
           </div>
           <Formula block tex={String.raw`y_{1,1}=\sum_{c=1}^{6}h_{1,c}W^O_{c,1}=${firstOutputTerms}=${formatNumber(multiHeadDemo.Y[0][0])}`} />
         </div>
         <div className="mh-output-purpose">
           <div>
-            <b><Formula tex={String.raw`Y\ [4\times6]`} /> 有什么用</b>
-            <p>第 <Formula tex="i" /> 行 <Formula tex="y_i" /> 是 Token <Formula tex="i" /> 融合三种关注结果后的新表示，继续送入残差连接、后续子层或下一层 Transformer。不同关注模式体现在上面的三张 <Formula tex={String.raw`A^{(1)},A^{(2)},A^{(3)}`} />；<Formula tex="Y" /> 保存的是它们已经取回并融合后的内容，而不是另一张注意力图。</p>
+            <b>为什么下一层仍然是 <Formula tex={String.raw`4\times6`} /></b>
+            <p>每个头只输出两个特征，三个头沿特征维拼接后正好回到 <Formula tex={String.raw`3\times2=d_{\mathrm{model}}=6`} />。头数决定层内有几个并行分支，不会在层与层之间累乘模型维度。</p>
           </div>
-          <Formula block tex={String.raw`X_{[4\times6]}+Y_{[4\times6]}\longrightarrow R_{[4\times6]}\longrightarrow\text{下一子层}`} />
+          <Formula block tex={String.raw`\begin{aligned}X^{(\ell)}_{[4\times6]}&\xrightarrow{\;3\text{ 个头，各 }[4\times2]\;}H_{[4\times6]}\xrightarrow{\;W^O_{[6\times6]}\;}Y^{(\ell)}_{[4\times6]}\\X^{(\ell)}_{[4\times6]}+Y^{(\ell)}_{[4\times6]}&\xrightarrow{\;\text{归一化、FFN 与残差}\;}X^{(\ell+1)}_{[4\times6]}\end{aligned}`} />
         </div>
       </section>
 
@@ -1551,7 +1551,7 @@ function PositionEncodingFlow() {
           <b>one-hot 选择位置向量</b>
           <p>若使用可学习位置表 <Formula tex={String.raw`P_{\mathrm{pos}}\in\mathbb{R}^{L_{\max}\times d_{\mathrm{model}}}`} />（<Formula tex="L_{\max}" /> 是可表示的最大位置数），位置 <Formula tex="i" /> 的 one-hot 行向量 <Formula tex="r_i^{\mathsf T}" /> 只会选中 <Formula tex="P_{\mathrm{pos}}" /> 的第 <Formula tex="i" /> 行：</p>
           <Formula block tex={String.raw`r_3^{\mathsf T}=\begin{bmatrix}0&0&1&0&\cdots&0\end{bmatrix},\qquad p_3=r_3^{\mathsf T}P_{\mathrm{pos}}=(P_{\mathrm{pos}})_{3,:}`} />
-          <p>查出的 <Formula tex="p_i" /> 与内容向量直接逐维相加：<Formula tex="x_i=e_i+p_i" />。这正是上方三张矩阵演示的计算。</p>
+          <p>查出的 <Formula tex="p_i" /> 与内容向量逐维相加：<Formula tex="x_i=e_i+p_i" />，因此输入向量同时包含 Token 内容与位置信息。</p>
         </article>
 
         <article>
@@ -1564,7 +1564,7 @@ function PositionEncodingFlow() {
         </article>
       </div>
 
-      <div className="position-demo-note">上方 2 维矩阵沿用全文的可手算数字，用来说明“如何相加并接到 <Formula tex="q_1" />”；它不是原始论文正弦公式的实际输出。真实模型中 <Formula tex="d_{\mathrm{model}}" /> 更大，计算规则不变。</div>
+      <div className="position-demo-note">二维位置矩阵用于展示 <Formula tex="x_i=e_i+p_i" /> 与后续 <Formula tex="q_i=x_iW^Q" /> 的连接关系，不是原始 Transformer 正弦公式的实际输出。真实模型的 <Formula tex="d_{\mathrm{model}}" /> 更大，计算规则不变。</div>
     </div>
   );
 }
@@ -1755,7 +1755,7 @@ export default function Home() {
                 <b style={{ color: "var(--att)", borderColor: "rgba(56,189,248,.4)" }}><Formula tex={String.raw`S,A\ [B,h,L_q,L_k]`} /></b>
                 <b style={{ color: "var(--out)", borderColor: "rgba(244,114,182,.4)" }}><Formula tex={String.raw`O\ [B,h,L_q,d_v]`} /></b>
               </div>
-              <div className="shape-note"><Formula tex="B" />：批大小；<Formula tex="h" />：头数；<Formula tex={String.raw`L_q,L_k`} />：Query / Key 序列长度；<Formula tex={String.raw`d_k,d_v`} />：每个头的 Key / Value 维度。这里的 <Formula tex="O" /> 是各头尚未拼接的输出；下文手算例取 <Formula tex={String.raw`B=h=1`} />，因此省略这两个长度为 1 的轴。</div>
+              <div className="shape-note"><Formula tex="B" />：批大小；<Formula tex="h" />：头数；<Formula tex={String.raw`L_q,L_k`} />：Query / Key 序列长度；<Formula tex={String.raw`d_k,d_v`} />：每个头的 Key / Value 维度。<Formula tex="O" /> 表示各头尚未拼接的输出；单头数值算例取 <Formula tex={String.raw`B=h=1`} />，因此省略这两个长度为 1 的轴。</div>
             </div>
 
             <div className="grid2" style={{ marginTop: 28 }}>
@@ -1835,12 +1835,12 @@ export default function Home() {
           {/* ===== 向量级 ===== */}
           <section className="section" id="s2">
             <SecHead idx="02" title="Self-Attention · 向量级（一步一步算）" />
-            <p className="sec-lead">先不急着做点积。下面先说明每个符号从哪里来，再只展开 Token 1，完整算出它如何读取 Token 1～4 的信息。没有 causal mask 时，四个位置都能按同样方式并行计算。</p>
+            <p className="sec-lead">每个符号的来源明确后，可以沿 Token 1 展开完整计算，观察它如何读取 Token 1～4 的信息。没有 causal mask 时，四个位置都按同样方式并行计算。</p>
 
             <AttentionSetupGuide />
 
             <h3>只展开 Token 1：从 <Formula tex="q_1" /> 到新表示 <Formula tex="b_1" /></h3>
-            <p className="section-bridge">为了演示一行怎样算，这里只求 Token 1 的输出 <Formula tex="b_1" />，所以取 <Formula tex="Q" /> 的第 1 行 <Formula tex={String.raw`q_1=x_1W^Q`} />。<Formula tex="q_1" /> 并非特殊变量：每个 <Formula tex="q_i" /> 都负责生成分数矩阵 <Formula tex="S" /> 的第 <Formula tex="i" /> 行；本节展开第 1 行，其余三行算法完全相同。</p>
+            <p className="section-bridge">Token 1 的输出 <Formula tex="b_1" /> 由 <Formula tex="Q" /> 的第 1 行 <Formula tex={String.raw`q_1=x_1W^Q`} /> 生成。一般地，<Formula tex="q_i" /> 生成分数矩阵 <Formula tex="S" /> 的第 <Formula tex="i" /> 行，并最终得到 <Formula tex="b_i" />；四行遵循相同算法。</p>
             <div className="legend-row">
               <span><i className="lq" />Query：用于发起匹配</span>
               <span><i className="lk" />Key：用于被 Query 匹配</span>
@@ -1864,16 +1864,16 @@ export default function Home() {
           {/* ===== 矩阵级 ===== */}
           <section className="section detail-section" id="s3">
             <SecHead idx="03" title="Self-Attention · 矩阵级" />
-            <p className="sec-lead">上一节只展开输出矩阵的第一行；这里把 <Formula tex={String.raw`q_1,\ldots,q_4`} />、<Formula tex={String.raw`k_1,\ldots,k_4`} />、<Formula tex={String.raw`v_1,\ldots,v_4`} /> 分别按行堆成 <Formula tex={String.raw`Q,K,V`} />，一次并行得到全部四行输出。数学没有变化，只是从“逐个位置理解”切换到“矩阵整体执行”。</p>
+            <p className="sec-lead"><Formula tex={String.raw`q_1,\ldots,q_4`} />、<Formula tex={String.raw`k_1,\ldots,k_4`} />、<Formula tex={String.raw`v_1,\ldots,v_4`} /> 分别按行堆成 <Formula tex={String.raw`Q,K,V`} /> 后，一次矩阵运算即可并行得到全部四行输出；它与逐个位置计算使用同一数学定义。</p>
             <div className="matrix-level-bridge">
               <div><b>只追踪 Token 1</b><Formula block tex={String.raw`b_1=\operatorname{softmax}\!\left(\frac{q_1K^{\mathsf T}}{\sqrt{d_k}}\right)V`} /></div>
               <span>四个 Query 行同时执行 →</span>
               <div><b>一次得到 Token 1～4</b><Formula block tex={String.raw`O=\operatorname{softmax}\!\left(\frac{QK^{\mathsf T}}{\sqrt{d_k}}\right)V`} /></div>
             </div>
             <ScoreMatrixReadingGuide />
-            <div className="note"><b>记号约定（先说清楚，避免和代码对不上）</b>：本文把 Token 按行堆叠，记作 <Formula tex={String.raw`Q_{\mathrm r}=X_{\mathrm r}W_{\mathrm r}^Q`} />，因此分数为 <Formula tex={String.raw`Q_{\mathrm r}K_{\mathrm r}^{\mathsf T}`} />。若把 Token 按列堆叠，则 <Formula tex={String.raw`X_{\mathrm c}=X_{\mathrm r}^{\mathsf T}`} />、<Formula tex={String.raw`W_{\mathrm c}^Q=(W_{\mathrm r}^Q)^{\mathsf T}`} />，于是 <Formula tex={String.raw`Q_{\mathrm c}=W_{\mathrm c}^QX_{\mathrm c}`} />，<Formula tex="K_{\mathrm c}" /> 同理；同一张“Query 行、Key 列”分数矩阵满足 <Formula tex={String.raw`Q_{\mathrm r}K_{\mathrm r}^{\mathsf T}=Q_{\mathrm c}^{\mathsf T}K_{\mathrm c}`} />。代码采用行向量约定，所以需要 <code>key.transpose(-2, -1)</code>。</div>
+            <div className="note"><b>记号约定</b>：Token 按行堆叠时，<Formula tex={String.raw`Q_{\mathrm r}=X_{\mathrm r}W_{\mathrm r}^Q`} />，分数为 <Formula tex={String.raw`Q_{\mathrm r}K_{\mathrm r}^{\mathsf T}`} />。Token 按列堆叠时，<Formula tex={String.raw`X_{\mathrm c}=X_{\mathrm r}^{\mathsf T}`} />、<Formula tex={String.raw`W_{\mathrm c}^Q=(W_{\mathrm r}^Q)^{\mathsf T}`} />，于是 <Formula tex={String.raw`Q_{\mathrm c}=W_{\mathrm c}^QX_{\mathrm c}`} />，<Formula tex="K_{\mathrm c}" /> 同理；同一张“Query 行、Key 列”分数矩阵满足 <Formula tex={String.raw`Q_{\mathrm r}K_{\mathrm r}^{\mathsf T}=Q_{\mathrm c}^{\mathsf T}K_{\mathrm c}`} />。代码采用行向量约定，因此使用 <code>key.transpose(-2, -1)</code>。</div>
             <FigMatrixStage />
-            <div className="note">现在这句公式对你不再是一串符号：<Formula tex={String.raw`QK^{\mathsf T}`} /> 是「两两算相关度」，softmax 是「分数变权重」，乘 <Formula tex={String.raw`V`} /> 是「按权重取内容」。上面这组数值，正是把向量级 4 步压成矩阵后一次性算出的结果。</div>
+            <div className="note"><Formula tex={String.raw`QK^{\mathsf T}`} /> 对所有 Query–Key 组合计算相关分数，softmax 将每行分数归一化为权重，乘 <Formula tex={String.raw`V`} /> 后得到每个 Query 的加权内容。向量级四步由此合并为矩阵级计算。</div>
           </section>
 
           {/* ===== Scale 与 Mask ===== */}
@@ -1947,7 +1947,7 @@ export default function Home() {
             {/* —— Mask：因果掩码与 padding —— */}
             <h3>Mask：让每个位置「只看到该看的」</h3>
             <p className="sec-lead">生成时每个位置必须「看到过去、看不到未来」。实现上用一个<b style={{ color: "#f5b042" }}>下三角因果掩码（Causal Mask）</b>：第 <Formula tex="i" /> 个位置只允许查看索引 <Formula tex={String.raw`0,\ldots,i`} /> 的 Key；padding 位则用 padding mask 屏蔽。</p>
-            <div className="note">为了展示生成序列的起始位置，下面在 Token 1～4 前额外加入一个 <code>&lt;BOS&gt;</code>，所以示意矩阵是 <Formula tex={String.raw`5\times5`} />；它只用于解释 mask，不改变前面 <Formula tex={String.raw`4\times4`} /> 的数值算例。</div>
+            <div className="note">因果 Mask 示例在 Token 1～4 前加入 <code>&lt;BOS&gt;</code>，因此矩阵形状为 <Formula tex={String.raw`5\times5`} />；前述 Attention 数值算例仍使用 <Formula tex={String.raw`4\times4`} /> 权重矩阵。</div>
 
             <div className="mask-grid">
               <table>
@@ -2045,7 +2045,7 @@ export default function Home() {
           {/* ===== 多头 ===== */}
           <section className="section detail-section" id="s5">
             <SecHead idx="05" title="多头注意力（Multi-Head）" />
-            <p className="sec-lead">多头注意力让同一份输入经过多组独立投影，每个头分别计算完整的 Token 关联，再把各头取回的内容拼接并通过 <Formula tex="W^O" /> 融合。实现中通常把多组投影合并成一次矩阵乘法后再恢复头维；它不是先算一次单头 Attention 再切开。下面使用 Token 1～4，完整计算三个头。</p>
+            <p className="sec-lead">多头注意力让同一输入经过多组独立投影，每个头分别计算完整的 Token 关联，再把各头输出拼接并通过 <Formula tex="W^O" /> 融合。实现通常先用融合矩阵完成投影，再通过 reshape 恢复头维；数值链采用四个 Token、六维模型空间和三个二维头。</p>
 
             <FigMultiHeadCalculation />
 
@@ -2057,7 +2057,6 @@ export default function Home() {
             <div className="note">其中 <Formula tex="h" /> 是头数，<Formula tex={String.raw`W^O\in\mathbb{R}^{(h d_v)\times d_{\mathrm{model}}}`} /> 把拼接结果投影回模型维度。通常取 <Formula tex={String.raw`d_k=d_v=d_{\mathrm{model}}/h`} />，所以主 FLOPs 量级与单头接近、表达能力更强；但投影层、显存占用与调度开销并不为零，并非真的「免费」。</div>
 
             <h3>同一输入下，三个头得到不同的注意力权重</h3>
-            <div className="note">这里只说明“不同头可以学习不同的关注关系”，不为 Head 1、2、3 指定固定语义。真实模型里某个头更关注位置、语法、实体还是其他特征，完全取决于数据与训练结果，也不保证能被简单命名。</div>
             <div className="tabs">
               {heads.map((h, i) => (
                 <button key={h.name} className={`tab ${headIdx === i ? "active" : ""}`} onClick={() => setHeadIdx(i)}>{h.name}</button>
@@ -2096,7 +2095,7 @@ export default function Home() {
           {/* ===== FlashAttention ===== */}
           <section className="section detail-section" id="s6">
             <SecHead idx="06" title="FlashAttention：不改变数学，改变算的方式" />
-            <p className="sec-lead">前面每一步都算清楚了。现在换个角度：这套 <Formula tex={String.raw`\operatorname{softmax}(QK^{\mathsf T}/\sqrt{d_k})V`} /> 在 GPU 上到底怎么跑？结论一句话——<b style={{ color: "#eef3ff" }}>FlashAttention 没有改变 Attention 的数学定义，改变的是计算顺序和数据搬运方式</b>。</p>
+            <p className="sec-lead"><Formula tex={String.raw`\operatorname{softmax}(QK^{\mathsf T}/\sqrt{d_k})V`} /> 在 GPU 上既涉及计算，也涉及数据搬运。<b style={{ color: "#eef3ff" }}>FlashAttention 不改变 Attention 的数学定义，改变的是计算顺序和数据搬运方式</b>。</p>
 
             <div className="eq-box">
               <Formula block tex={String.raw`O=\operatorname{softmax}\!\left(\frac{QK^{\mathsf T}}{\sqrt{d_k}}+M\right)V`} />
@@ -2151,7 +2150,7 @@ def attention_ref(q, k, v, mask=None):
     scores = q @ k.transpose(-2, -1)          # QK^T
     scores = scores / math.sqrt(q.size(-1))   # / sqrt(d_k)
     if mask is not None:
-        # 这里只支持 additive float mask（屏蔽位 = -inf）。
+        # additive float mask：屏蔽位置取 -inf。
         # 仅对 SDPA：布尔 mask 的 True=允许参与；这与
         # nn.MultiheadAttention 的 key_padding_mask 语义相反。
         # 若传入布尔 mask，需先转成 additive：
@@ -2159,7 +2158,7 @@ def attention_ref(q, k, v, mask=None):
         scores = scores + mask
     weights = torch.softmax(scores, dim=-1)   # softmax 按行
     return weights @ v                         # · V`}</code></pre>
-            <div className="note">这几行就是前面所有图的代码化身。它<b>正确但不够快</b>：会把整张分数矩阵物化到显存，长序列下又慢又费显存。生产里用下面这行替代。</div>
+            <div className="note">该参考实现逐项对应公式，但会把完整分数矩阵物化到显存；长序列下通常使用融合算子减少中间存储与显存读写。</div>
 
             <div className="code-title">② 真实算子 — PyTorch SDPA（按输入与设备选可用后端）</div>
             <pre><code>{`output = F.scaled_dot_product_attention(
@@ -2197,7 +2196,7 @@ def attention_ref(q, k, v, mask=None):
         # 拼头: (B, h, L, d_k) -> (B, L, d_model)
         out = out.transpose(1, 2).contiguous().view(B, L, self.h * self.d_k)
         return self.wo(out)`}</code></pre>
-            <div className="note">多头的工程本质就是<b>投影 → reshape/transpose 拆头 → 对每个头调 SDPA → 拼头 → 输出投影</b>。拆头靠 reshape + transpose 改变维度排布，让 <Formula tex="h" /> 个头作为独立 batch 维度并行计算，无需循环。上面设 <code>bias=False</code> 以严格对应无偏置公式；PyTorch 的 <code>nn.Linear</code> 内部计算 <Formula tex={String.raw`xW_{\mathrm{store}}^{\mathsf T}`} />，因此本文行向量公式里的 <Formula tex="W^Q" /> 对应 <Formula tex={String.raw`W_{\mathrm{store}}^{\mathsf T}`} />。</div>
+            <div className="note">多头实现依次执行<b>投影 → reshape/transpose 拆头 → SDPA → 拼头 → 输出投影</b>。reshape + transpose 将 <Formula tex="h" /> 个头变成独立批次维度并行计算，无需 Python 循环。<code>bias=False</code> 对应无偏置公式；PyTorch 的 <code>nn.Linear</code> 计算 <Formula tex={String.raw`xW_{\mathrm{store}}^{\mathsf T}`} />，因此行向量记法中的 <Formula tex="W^Q" /> 对应 <Formula tex={String.raw`W_{\mathrm{store}}^{\mathsf T}`} />。</div>
 
             <h3>算子测试，重点看这五类</h3>
             <div className="grid3">
@@ -2254,14 +2253,13 @@ def attention_ref(q, k, v, mask=None):
             </div>
 
             <h3>位置编码：把「顺序」补回去</h3>
-            <p className="sec-lead">这里把之前省略的计算链补完整：先说明位置向量怎样与内容向量组成 <Formula tex="X" />，再说明位置表如何取值，最后代入原始 Transformer 的正弦 / 余弦公式。</p>
+            <p className="sec-lead">位置向量与内容向量共同组成 <Formula tex="X" />；可学习位置表通过索引取值，原始 Transformer 则直接使用固定的正弦 / 余弦公式。</p>
             <PositionEncodingFlow />
             <div className="note">现代模型未必沿用“输入端直接相加”：例如 <b>RoPE</b> 在每层对 <Formula tex={String.raw`Q,\ K`} /> 做与位置相关的旋转，<b>ALiBi</b> 在注意力分数上加入线性位置偏置。注入位置不同，但目标相同——让 Attention 能感知顺序与距离。</div>
           </section>
 
           <div className="foot">
-            参考：Vaswani et al. <i>Attention Is All You Need</i>（Figure 1）· The Annotated Transformer。<br />
-            全篇 Q/K/V/Attention/Output 配色一致，复杂图示支持横向滚动查看。
+            参考：Vaswani et al. <i>Attention Is All You Need</i>（Figure 1）· The Annotated Transformer。
           </div>
 
         </div>
