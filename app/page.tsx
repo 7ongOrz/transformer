@@ -843,118 +843,87 @@ function FigStageSoftmax() {
 }
 
 function FigStageAggregate() {
-  // 统一数据：q1 主角路径，权重用三位小数近似
-  const weights3 = [0.328, 0.103, 0.221, 0.348];
-  const vvals = ["[0.40,1.28]", "[1.08,0.60]", "[0.65,1.06]", "[0.92,1.72]"];
-  // 乘积 A·v（保留 2 位便于标注；最终 b1 用三位小数近似权重算）
-  const products = [
-    ["0.13", "0.42"],
-    ["0.11", "0.06"],
-    ["0.14", "0.23"],
-    ["0.32", "0.60"],
+  const rows = [
+    { token: "Token 1", weight: "0.328", value: "[0.40,1.28]", contribution: "[0.13120,0.41984]" },
+    { token: "Token 2", weight: "0.103", value: "[1.08,0.60]", contribution: "[0.11124,0.06180]" },
+    { token: "Token 3", weight: "0.221", value: "[0.65,1.06]", contribution: "[0.14365,0.23426]" },
+    { token: "Token 4", weight: "0.348", value: "[0.92,1.72]", contribution: "[0.32016,0.59856]" },
   ];
-  const ys = [150, 230, 310, 390];
-  const b1y = (ys[0] + ys[3]) / 2; // 270 扇入汇聚点
-
-  const workoutWrap: React.CSSProperties = {
-    marginTop: 14,
-    padding: "14px 18px",
-    background: "rgba(7,11,24,0.6)",
-    border: "1px solid rgba(255,255,255,0.08)",
-    borderRadius: 10,
-    fontFamily: "var(--mono)",
-  };
-  const line: React.CSSProperties = {
-    fontSize: 16, lineHeight: 1.9, overflowX: "auto",
-  };
-  const note: React.CSSProperties = {
-    marginTop: 10, fontSize: 13.5, color: "#6e7aab", lineHeight: 1.7,
-  };
 
   return (
     <div className="fig">
-      <svg className="aggregate-figure" viewBox="0 0 1040 500" width="1040" role="img" aria-label="权重连向 v，扇入汇聚成 b1">
-        <defs>
-          <marker id="ag-ahv" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
-            <path d="M0,0 L8,4.5 L0,9 z" fill="#2dd4bf" />
-          </marker>
-          <marker id="ag-ahb" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
-            <path d="M0,0 L8,4.5 L0,9 z" fill="#f472b6" />
-          </marker>
-        </defs>
-
-        {/* 阶段标题 */}
-        <text x="105" y="44" textAnchor="middle" fill="#eef3ff" fontSize="16" fontWeight="700">① 权重 A<tspan baselineShift="sub" fontSize="11">1,j</tspan></text>
-        <text x="105" y="64" textAnchor="middle" fill="#6e7aab" fontSize="12" fontFamily="JetBrains Mono,monospace">（3 位小数）</text>
-        <text x="290" y="44" textAnchor="middle" fill="#eef3ff" fontSize="16" fontWeight="700">② 连向 v<tspan baselineShift="sub" fontSize="11">j</tspan>（乘积）</text>
-        <text x="470" y="44" textAnchor="middle" fill="#eef3ff" fontSize="16" fontWeight="700">③ 值向量 v<tspan baselineShift="sub" fontSize="11">j</tspan></text>
-        <text x="905" y="44" textAnchor="middle" fill="#eef3ff" fontSize="16" fontWeight="700">④ 扇入汇聚 b<tspan baselineShift="sub" fontSize="11">1</tspan></text>
-
-        {/* 列1：权重块 */}
-        {ys.map((y, i) => (
-          <g key={`w${i}`}>
-            <rect x={40} y={y - 26} width={130} height={52} rx={8} fill="rgba(56,189,248,0.18)" stroke="#38bdf8" strokeWidth={1.4} />
-            <text x={105} y={y - 5} textAnchor="middle" fontSize="15" fill="#7dd3fc" fontFamily="JetBrains Mono,monospace" fontWeight="700">A<tspan baselineShift="sub" fontSize="11">1,{i + 1}</tspan></text>
-            <text x={105} y={y + 18} textAnchor="middle" fontSize="18" fill="#7dd3fc" fontFamily="JetBrains Mono,monospace" fontWeight="700">{weights3[i].toFixed(3)}</text>
-          </g>
-        ))}
-
-        {/* 列2：权重 → v 连线（青），标注乘积 */}
-        {ys.map((y, i) => (
-          <g key={`c${i}`}>
-            <path d={`M170,${y} C240,${y} 330,${y} 398,${y}`} stroke="#2dd4bf" strokeWidth={1.6} fill="none" markerEnd="url(#ag-ahv)" />
-            <rect x={180} y={y - 44} width={210} height={40} rx={6} fill="#0c1430" stroke="rgba(45,212,191,0.55)" />
-            <text x={285} y={y - 27} textAnchor="middle" fontSize="12.5" fill="#2dd4bf" fontFamily="JetBrains Mono,monospace" fontWeight="700">
-              {weights3[i].toFixed(3)} × {vvals[i]}
-            </text>
-            <text x={285} y={y - 11} textAnchor="middle" fontSize="12.5" fill="#2dd4bf" fontFamily="JetBrains Mono,monospace" fontWeight="700">
-              = [{products[i][0]}, {products[i][1]}]
-            </text>
-          </g>
-        ))}
-
-        {/* 列3：v 块 */}
-        {ys.map((y, i) => (
-          <g key={`v${i}`}>
-            <rect x={400} y={y - 26} width={140} height={52} rx={8} fill="rgba(45,212,191,0.14)" stroke="#2dd4bf" strokeWidth={1.4} />
-            <text x={470} y={y - 5} textAnchor="middle" fontSize="15" fill="#2dd4bf" fontFamily="JetBrains Mono,monospace" fontWeight="700">v<tspan baselineShift="sub" fontSize="11">{i + 1}</tspan></text>
-            <text x={470} y={y + 18} textAnchor="middle" fontSize="18" fill="#2dd4bf" fontFamily="JetBrains Mono,monospace" fontWeight="700">{vvals[i]}</text>
-          </g>
-        ))}
-
-        {/* 列4：v → b1 扇入连线（粉） */}
-        {ys.map((y, i) => (
-          <path key={`f${i}`} d={`M540,${y} C680,${y} 740,${b1y} 828,${b1y}`} stroke="#f472b6" strokeWidth={1.5} fill="none" markerEnd="url(#ag-ahb)" opacity={0.9} />
-        ))}
-
-        {/* Σ 汇聚标注 */}
-        <text x={685} y={b1y - 20} textAnchor="middle" fill="#f472b6" fontSize="15" fontFamily="JetBrains Mono,monospace" fontWeight="700">Σ 加权求和 ↓</text>
-
-        {/* b1 输出块（显示精确值，与 s4 矩阵 O 第一行一致） */}
-        <rect x={830} y={b1y - 40} width={150} height={80} rx={12} fill="rgba(244,114,182,0.2)" stroke="#f472b6" strokeWidth={2.2} />
-        <text x={905} y={b1y - 10} textAnchor="middle" fontSize="19" fill="#f9a8d4" fontFamily="JetBrains Mono,monospace" fontWeight="700">b<tspan baselineShift="sub" fontSize="13">1</tspan> ★</text>
-        <text x={905} y={b1y + 18} textAnchor="middle" fontSize="18" fill="#f9a8d4" fontFamily="JetBrains Mono,monospace" fontWeight="700">[0.71, 1.31]</text>
-
-        {/* 底部导引 */}
-        <text x={520} y={455} textAnchor="middle" fill="#6e7aab" fontSize="13.5" fontFamily="JetBrains Mono,monospace">
-          每个权重乘对应 Value 得一份贡献，4 份相加得到 Token 1 的新表示（用三位小数近似权重计算）
-        </text>
-      </svg>
-
-      {/* 下方加权求和展开（用三位小数近似权重） */}
-      <div style={workoutWrap}>
-        <div style={line}>
-          <Formula block tex={String.raw`b_1=0.328\cdot[0.40,1.28]+0.103\cdot[1.08,0.60]+0.221\cdot[0.65,1.06]+0.348\cdot[0.92,1.72]`} />
+      <div className="aggregate-walkthrough" aria-label="四个注意力权重分别乘对应的 Value，再逐项相加得到 Token 1 的新表示 b1">
+        <div className="aggregate-heading">
+          <span>向量阶段 ④ · 加权汇聚</span>
+          <b><Formula tex="A" /> 的第 1 行，按编号 <Formula tex="j" /> 与 <Formula tex="V" /> 的第 <Formula tex="j" /> 行一一配对</b>
+          <p>上一图已经算出 Token 1 的四个权重。每个 <Formula tex="A_{1,j}" /> 只乘编号相同的 <Formula tex="v_j" />；四项分别算完，再把四份贡献相加。</p>
         </div>
-        <div style={line}>
-          <Formula block tex={String.raw`=[0.13120,0.41984]+[0.11124,0.06180]+[0.14365,0.23426]+[0.32016,0.59856]`} />
+
+        <div className="aggregate-meaning">
+          <div className="weight"><Formula block tex="A_{1,j}" /><span>取多少：Token 1 从 Token <Formula tex="j" /> 读取的比例</span></div>
+          <div className="value"><Formula block tex="v_j" /><span>取什么：Token <Formula tex="j" /> 真正提供的内容</span></div>
+          <div className="output"><Formula block tex="A_{1,j}v_j" /><span>这一项最终写入 <Formula tex="b_1" /> 的实际贡献</span></div>
         </div>
-        <div style={line}>
-          <Formula block tex={String.raw`=[0.70625,1.31446]\approx[0.706,1.314]\approx[0.71,1.31]`} />
+
+        <div className="aggregate-table-wrap">
+          <table className="aggregate-table">
+            <colgroup>
+              <col className="source-col" />
+              <col className="weight-col" />
+              <col className="operator-col" />
+              <col className="value-col" />
+              <col className="arrow-col" />
+              <col className="contribution-col" />
+            </colgroup>
+            <thead>
+              <tr>
+                <th>信息来源</th>
+                <th>① 注意力权重</th>
+                <th aria-label="乘以" />
+                <th>② Value 内容</th>
+                <th aria-label="得到" />
+                <th>③ 加权后的实际贡献</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row, i) => (
+                <tr key={row.token}>
+                  <th scope="row"><span>第 {i + 1} 项</span><b>{row.token}</b></th>
+                  <td className="weight">
+                    <Formula block tex={`A_{1,${i + 1}}=${row.weight}`} />
+                    <small>Token 1 的读取比例</small>
+                  </td>
+                  <td className="operator"><Formula tex={String.raw`\times`} /></td>
+                  <td className="value">
+                    <Formula block tex={`v_${i + 1}=${row.value}`} />
+                    <small>{row.token} 提供的内容</small>
+                  </td>
+                  <td className="arrow">→</td>
+                  <td className="contribution">
+                    <Formula block tex={`A_{1,${i + 1}}v_${i + 1}=${row.contribution}`} />
+                    <small>进入 <Formula tex="b_1" /> 的第 {i + 1} 份贡献</small>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-        <div style={note}>
-          注：下方用<b style={{ color: "#a9b4dc" }}>三位小数近似</b>权重计算，得到 <Formula tex={String.raw`[0.70625,1.31446]`} />；
-          矩阵级使用未舍入权重，得到 <Formula tex={String.raw`[0.706397,1.313975]`} />。两者保留三位小数均为 <Formula tex={String.raw`[0.706,1.314]`} />。
+
+        <div className="aggregate-sum-arrow" aria-hidden="true"><span>四份贡献逐维相加</span><b>↓</b></div>
+
+        <div className="aggregate-result">
+          <div>
+            <span>④ 得到 Token 1 的新表示</span>
+            <b><Formula tex="b_1" /> 已融合 Token 1～4 的 Value 信息</b>
+          </div>
+          <Formula
+            block
+            tex={String.raw`\begin{aligned}b_1&=\sum_{j=1}^{4}A_{1,j}v_j\\&=[0.70625,1.31446]\approx[0.706,1.314]\end{aligned}`}
+          />
+        </div>
+
+        <div className="aggregate-precision-note">
+          表中使用上一图显示的三位小数权重，因此得到近似结果；使用 softmax 未舍入权重时为 <Formula tex={String.raw`[0.706397,1.313975]`} />，保留三位小数仍是 <Formula tex={String.raw`[0.706,1.314]`} />。
         </div>
       </div>
       <div className="fig-cap">图 · 向量阶段 ④ 汇聚：每个权重乘对应 <Formula tex="v_j" />，四份贡献相加得到 <Formula tex="b_1" /></div>

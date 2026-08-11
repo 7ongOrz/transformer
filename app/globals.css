@@ -1010,9 +1010,6 @@ p {
   min-width: 720px;
   height: auto;
 }
-.fig > svg.aggregate-figure {
-  max-width: 1040px;
-}
 .fig-cap {
   margin-top: 12px;
   text-align: center;
@@ -1022,6 +1019,240 @@ p {
   color: var(--t3);
   text-wrap: wrap;
   overflow-wrap: normal;
+}
+
+/* 向量阶段 ④：A 的一行如何逐项加权 V，并汇聚为 b₁ */
+.aggregate-walkthrough {
+  min-width: 1120px;
+}
+.aggregate-heading {
+  max-width: 900px;
+  margin: 0 auto 18px;
+  text-align: center;
+}
+.aggregate-heading > span {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--v);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.aggregate-heading > b {
+  display: block;
+  color: var(--t1);
+  font-size: 21px;
+  line-height: 1.5;
+}
+.aggregate-heading p {
+  margin: 7px 0 0;
+  color: var(--t2);
+  font-size: 14px;
+  line-height: 1.7;
+}
+.aggregate-meaning {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  max-width: 1050px;
+  margin: 0 auto 18px;
+}
+.aggregate-meaning > div {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  align-items: center;
+  min-height: 74px;
+  padding: 10px 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.025);
+}
+.aggregate-meaning > div.weight {
+  border-color: rgba(56, 189, 248, 0.42);
+  background: rgba(56, 189, 248, 0.08);
+}
+.aggregate-meaning > div.value {
+  border-color: rgba(45, 212, 191, 0.42);
+  background: rgba(45, 212, 191, 0.08);
+}
+.aggregate-meaning > div.output {
+  border-color: rgba(244, 114, 182, 0.42);
+  background: rgba(244, 114, 182, 0.08);
+}
+.aggregate-meaning .math-block {
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  font-size: 18px;
+}
+.aggregate-meaning .katex-display {
+  text-align: center;
+}
+.aggregate-meaning > div > span {
+  color: var(--t2);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+.aggregate-meaning > div.weight > .math-block .katex { color: var(--att); }
+.aggregate-meaning > div.value > .math-block .katex { color: var(--v); }
+.aggregate-meaning > div.output > .math-block .katex { color: var(--out); }
+.aggregate-table-wrap {
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  background: rgba(7, 11, 24, 0.56);
+}
+.aggregate-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 8px;
+}
+.aggregate-table .source-col { width: 10%; }
+.aggregate-table .weight-col { width: 19%; }
+.aggregate-table .operator-col { width: 4%; }
+.aggregate-table .value-col { width: 22%; }
+.aggregate-table .arrow-col { width: 4%; }
+.aggregate-table .contribution-col { width: 41%; }
+.aggregate-table thead th {
+  padding: 3px 8px 7px;
+  color: var(--t2);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+}
+.aggregate-table tbody th,
+.aggregate-table tbody td {
+  height: 78px;
+  padding: 9px 10px;
+  border-radius: 9px;
+  text-align: center;
+  vertical-align: middle;
+}
+.aggregate-table tbody th {
+  border: 1px solid var(--hairline);
+  background: rgba(255, 255, 255, 0.025);
+}
+.aggregate-table tbody th span,
+.aggregate-table tbody th b,
+.aggregate-table td small {
+  display: block;
+}
+.aggregate-table tbody th span {
+  margin-bottom: 4px;
+  color: var(--t3);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+.aggregate-table tbody th b {
+  color: var(--t1);
+  font-size: 15px;
+}
+.aggregate-table td.weight {
+  border: 1px solid rgba(56, 189, 248, 0.42);
+  background: rgba(56, 189, 248, 0.09);
+}
+.aggregate-table td.value {
+  border: 1px solid rgba(45, 212, 191, 0.42);
+  background: rgba(45, 212, 191, 0.09);
+}
+.aggregate-table td.contribution {
+  border: 1px solid rgba(244, 114, 182, 0.42);
+  background: rgba(244, 114, 182, 0.09);
+}
+.aggregate-table td.weight .katex { color: var(--att); }
+.aggregate-table td.value .katex { color: var(--v); }
+.aggregate-table td.contribution .katex { color: var(--out); }
+.aggregate-table td .math-block {
+  margin: 0 0 6px;
+  padding: 0;
+  overflow: visible;
+  font-size: 17px;
+}
+.aggregate-table td .katex-display {
+  text-align: center;
+}
+.aggregate-table td small {
+  color: var(--t3);
+  font-size: 11px;
+  line-height: 1.4;
+}
+.aggregate-table td.operator,
+.aggregate-table td.arrow {
+  padding: 0;
+  color: var(--t2);
+  font-size: 25px;
+}
+.aggregate-table td.operator .katex {
+  color: var(--t2);
+}
+.aggregate-table td.arrow {
+  color: var(--out);
+  font-weight: 700;
+}
+.aggregate-sum-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 58px;
+  color: var(--out);
+}
+.aggregate-sum-arrow span {
+  font-family: var(--mono);
+  font-size: 11.5px;
+}
+.aggregate-sum-arrow b {
+  font-size: 28px;
+  line-height: 1;
+}
+.aggregate-result {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.72fr) minmax(520px, 1.28fr);
+  align-items: center;
+  gap: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 18px 22px;
+  border: 2px solid rgba(244, 114, 182, 0.58);
+  border-radius: 13px;
+  background: rgba(244, 114, 182, 0.11);
+}
+.aggregate-result > div > span,
+.aggregate-result > div > b {
+  display: block;
+}
+.aggregate-result > div > span {
+  margin-bottom: 5px;
+  color: var(--out);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+}
+.aggregate-result > div > b {
+  color: var(--t1);
+  font-size: 15px;
+  line-height: 1.6;
+}
+.aggregate-result > .math-block {
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  color: var(--out);
+  font-size: 18px;
+}
+.aggregate-result > .math-block .katex-display {
+  text-align: center;
+}
+.aggregate-precision-note {
+  max-width: 1000px;
+  margin: 12px auto 0;
+  color: var(--t3);
+  font-size: 12px;
+  line-height: 1.7;
+  text-align: center;
 }
 
 /* q1 打分：从 Query 到 S 第一行的三段式流程 */
