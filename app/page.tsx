@@ -594,6 +594,7 @@ function FigStageScore() {
           <p>“用 <Formula tex="q_1" /> 打分”不是给 <Formula tex="q_1" /> 自己评分，而是为了计算 <Formula tex="b_1" />，取 <Formula tex="Q" /> 的第 1 行 <Formula tex="q_1" />，分别衡量它与四个 Key 的匹配程度。</p>
         </div>
 
+        <div className="score-symbol-guide">
         <section className="score-symbol-origin">
           <div className="score-symbol-heading">
             <span>① 一个格</span>
@@ -631,37 +632,11 @@ function FigStageScore() {
           </div>
         </section>
 
-        <section className="score-row-expansion">
-          <div className="score-symbol-heading">
-            <span>② 从一个格扩展到一整行</span>
-            <b>固定 <Formula tex="q_1" />，从左到右依次换成 <Formula tex={String.raw`k_1,k_2,k_3,k_4`} /></b>
-            <p>同一个 <Formula tex="q_1" /> 重复使用四次；第 <Formula tex="j" /> 张卡使用 <Formula tex="k_j" />，结果稍后写入 <Formula tex="S" /> 的第 1 行、第 <Formula tex="j" /> 列。</p>
-          </div>
-          <div className="score-fixed-query">
-            <span>四次计算共同使用</span>
-            <Formula tex={String.raw`q_1=[0.04,\ 1.16]`} />
-            <small>它决定结果都属于 <Formula tex="S" /> 的第 1 行</small>
-          </div>
-          <div className="score-comparison-grid">
-            {comparisons.map((item, i) => (
-              <article className="score-comparison-card" key={item.key}>
-                <div>
-                  <span>第 {i + 1} 列</span>
-                  <b><Formula tex={item.key} /></b>
-                  <small>{item.token} · {item.vector}</small>
-                </div>
-                <Formula block tex={item.tex} />
-                <strong><Formula tex={item.scoreLabel} /> = {item.score}</strong>
-              </article>
-            ))}
-          </div>
-        </section>
-
         <section className="score-index-map">
           <div className="score-symbol-heading">
-            <span>③ 把四个分数放回矩阵</span>
-            <b>行由 <Formula tex="q_i" /> 决定，列由 <Formula tex="k_j" /> 决定</b>
-            <p>上一步四张卡从左到右的结果，按相同顺序写入 <Formula tex="S" /> 的第一行。</p>
+            <span>② 立刻放回矩阵定位</span>
+            <b><Formula tex="S_{1,1}" /> 是 <Formula tex="q_1" /> 行与 <Formula tex="k_1" /> 列的交点</b>
+            <p>同一规则继续换成 <Formula tex={String.raw`k_2,k_3,k_4`} />，就得到右侧三个格；四个格合起来是 <Formula tex="S" /> 的第一行。</p>
           </div>
           <div className="score-mini-matrix" aria-label="S 矩阵行由 q_i 决定，列由 k_j 决定；第一行依次为 0.967、负 0.186、0.573、1.026">
             <span className="corner"><Formula tex="S" /></span>
@@ -684,6 +659,33 @@ function FigStageScore() {
             <strong>蓝色第一行就是 <Formula tex="q_1" /> 与四个 <Formula tex="k_j" /> 比较后的四个原始分数。</strong>
           </div>
         </section>
+
+        <section className="score-row-expansion">
+          <div className="score-symbol-heading">
+            <span>③ 再展开第一行的四次计算</span>
+            <b>固定 <Formula tex="q_1" />，从左到右依次换成 <Formula tex={String.raw`k_1,k_2,k_3,k_4`} /></b>
+            <p>下方四张卡与上方矩阵的第一行一一对应：第 <Formula tex="j" /> 张卡算出的值，写入第 <Formula tex="j" /> 列。</p>
+          </div>
+          <div className="score-fixed-query">
+            <span>四次计算共同使用</span>
+            <Formula tex={String.raw`q_1=[0.04,\ 1.16]`} />
+            <small>它决定四个结果都属于 <Formula tex="S" /> 的第 1 行</small>
+          </div>
+          <div className="score-comparison-grid">
+            {comparisons.map((item, i) => (
+              <article className="score-comparison-card" key={item.key}>
+                <div>
+                  <span>第 {i + 1} 列</span>
+                  <b><Formula tex={item.key} /></b>
+                  <small>{item.token} · {item.vector}</small>
+                </div>
+                <Formula block tex={item.tex} />
+                <strong><Formula tex={item.scoreLabel} /> = {item.score}</strong>
+              </article>
+            ))}
+          </div>
+        </section>
+        </div>
 
         <div className="score-next-step">
           <b>此时还不是注意力权重。</b>
