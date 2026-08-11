@@ -777,7 +777,7 @@ function FigStageAggregate() {
 
   return (
     <div className="fig">
-      <svg viewBox="0 0 1040 500" width="1040" role="img" aria-label="权重连向 v，扇入汇聚成 b1">
+      <svg className="aggregate-figure" viewBox="0 0 1040 500" width="1040" role="img" aria-label="权重连向 v，扇入汇聚成 b1">
         <defs>
           <marker id="ag-ahv" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
             <path d="M0,0 L8,4.5 L0,9 z" fill="#2dd4bf" />

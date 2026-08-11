@@ -270,7 +270,7 @@ button {
   flex-wrap: wrap;
   margin-top: 26px;
 }
-.hero .chips span {
+.hero .chips > span {
   font-size: 12.5px;
   padding: 7px 14px;
   border-radius: 999px;
@@ -741,11 +741,12 @@ p {
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.025);
 }
-.setup-types b {
+.setup-types > div > b {
   color: var(--t1);
   font-size: 13.5px;
 }
-.setup-types span {
+.setup-types > div > span {
+  min-width: 0;
   color: var(--t3);
   font-size: 12.8px;
   line-height: 1.62;
@@ -768,6 +769,7 @@ p {
 }
 .calculation-route > div {
   display: grid;
+  grid-template-rows: 26px 50px auto;
   align-content: start;
   gap: 6px;
   min-width: 0;
@@ -780,13 +782,18 @@ p {
 .calculation-route > div:nth-child(1) { border-top-color: var(--q); }
 .calculation-route > div:nth-child(2) { border-top-color: var(--k); }
 .calculation-route > div:nth-child(4) { border-top-color: var(--out); }
-.calculation-route b {
+.calculation-route > div > b {
+  display: flex;
+  align-items: center;
   color: var(--t1);
   font-size: 14px;
+  line-height: 1.4;
 }
 .calculation-route .math-block {
+  display: flex;
+  align-items: center;
   width: 100%;
-  margin: 1px 0;
+  margin: 0;
   padding: 0;
   color: var(--t1);
   font-size: 14px;
@@ -1003,6 +1010,9 @@ p {
   min-width: 720px;
   height: auto;
 }
+.fig > svg.aggregate-figure {
+  max-width: 1040px;
+}
 .fig-cap {
   margin-top: 12px;
   text-align: center;
@@ -1200,7 +1210,7 @@ p {
   gap: 1px 7px;
   align-items: baseline;
 }
-.score-key-id span {
+.score-key-id > span {
   color: var(--t3);
   font-family: var(--mono);
   font-size: 10.5px;
