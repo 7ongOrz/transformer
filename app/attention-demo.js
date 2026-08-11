@@ -164,18 +164,15 @@ export const matrixMultiplicationDemo = {
 
 export const attentionHeads = [
   {
-    name: "Head 1 · 分组",
-    note: "Token 1/3 与 Token 2/4 分成两组，体现按特征相似性建立联系。",
+    name: "Head 1",
     matrix: multiHeadHeads[0].A,
   },
   {
-    name: "Head 2 · 方向",
-    note: "不同 Query 根据二维方向匹配不同 Key，四行呈现不同的关注分布。",
+    name: "Head 2",
     matrix: multiHeadHeads[1].A,
   },
   {
-    name: "Head 3 · 汇聚",
-    note: "四个 Query 都更关注 Token 3，体现一个头可以把信息汇聚到共同位置。",
+    name: "Head 3",
     matrix: multiHeadHeads[2].A,
   },
 ];

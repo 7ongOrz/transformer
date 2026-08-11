@@ -1153,14 +1153,18 @@ function MhHeadInputs({ headIndex }: { headIndex: number }) {
 function MhHeadLane({ headIndex }: { headIndex: number }) {
   const headNumber = headIndex + 1;
   const head = multiHeadDemo.heads[headIndex];
-  const pattern = heads[headIndex];
   return (
     <article className={`mh-head-lane mh-head-${headNumber}`}>
       <div className="mh-lane-title">
-        <span>{pattern.name}</span>
-        <Formula tex={String.raw`S^{(${headNumber})}=Q^{(${headNumber})}{K^{(${headNumber})}}^{\mathsf T}/\sqrt{2},\quad A^{(${headNumber})}=\operatorname{softmax}(S^{(${headNumber})}),\quad H^{(${headNumber})}=A^{(${headNumber})}V^{(${headNumber})}`} />
+        <span>HEAD {headNumber}</span>
+        <div className="mh-lane-formulas">
+          <Formula tex={String.raw`S^{(${headNumber})}=Q^{(${headNumber})}{K^{(${headNumber})}}^{\mathsf T}/\sqrt{2}`} />
+          <i>→</i>
+          <Formula tex={String.raw`A^{(${headNumber})}=\operatorname{softmax}(S^{(${headNumber})})`} />
+          <i>→</i>
+          <Formula tex={String.raw`H^{(${headNumber})}=A^{(${headNumber})}V^{(${headNumber})}`} />
+        </div>
       </div>
-      <p className="mh-pattern-note">{pattern.note}</p>
       <div className="mh-lane-flow">
         <div className="mh-lane-step">
           <span>① 点积并缩放</span>
@@ -1208,7 +1212,12 @@ function MhHeadLane({ headIndex }: { headIndex: number }) {
       </div>
       <div className="mh-first-row">
         <b>只追踪 Token 1：</b>
-        <Formula block tex={String.raw`q_1^{(${headNumber})}=${rowVectorTex(head.Q[0], 1)}\ \longrightarrow\ S_{1,:}^{(${headNumber})}=${rowVectorTex(head.S[0])}\ \longrightarrow\ A_{1,:}^{(${headNumber})}=${rowVectorTex(head.A[0])}\ \longrightarrow\ h_1^{(${headNumber})}=${rowVectorTex(head.H[0])}`} />
+        <div className="mh-first-row-chain">
+          <Formula tex={String.raw`q_1^{(${headNumber})}=${rowVectorTex(head.Q[0], 1)}`} /><i>→</i>
+          <Formula tex={String.raw`S_{1,:}^{(${headNumber})}=${rowVectorTex(head.S[0])}`} /><i>→</i>
+          <Formula tex={String.raw`A_{1,:}^{(${headNumber})}=${rowVectorTex(head.A[0])}`} /><i>→</i>
+          <Formula tex={String.raw`h_1^{(${headNumber})}=${rowVectorTex(head.H[0])}`} />
+        </div>
       </div>
     </article>
   );
@@ -1303,7 +1312,7 @@ function FigMultiHeadCalculation() {
           <span>3</span>
           <div>
             <b>三个头各算一套 <Formula tex={String.raw`QK^{\mathsf T}\rightarrow\operatorname{softmax}\rightarrow AV`} /></b>
-            <p>下面三张 <Formula tex={String.raw`A^{(r)}\ [4\times4]`} /> 就是三种关注模式：它们的行列都表示 Token，头数不会瓜分这张矩阵。</p>
+            <p>下面三个头分别得到一张 <Formula tex={String.raw`A^{(r)}\ [4\times4]`} />。本例只用固定数字展示它们可以产生不同权重；真实模型没有预先规定每个头负责什么，具体关注内容由训练学习。</p>
           </div>
         </header>
         <div className="mh-head-lanes">
@@ -1385,7 +1394,8 @@ function FigMultiHeadCalculation() {
 
       <div className="mh-implementation-note">
         <b>论文写法与代码写法是同一件事</b>
-        <Formula block tex={String.raw`W^Q=[W_1^Q\mid W_2^Q\mid W_3^Q]\quad\Longrightarrow\quad Q_{\mathrm{all}}=XW^Q=[Q^{(1)}\mid Q^{(2)}\mid Q^{(3)}]`} />
+        <Formula block tex={String.raw`W^Q=[W_1^Q\mid W_2^Q\mid W_3^Q]`} />
+        <Formula block tex={String.raw`Q_{\mathrm{all}}=XW^Q=[Q^{(1)}\mid Q^{(2)}\mid Q^{(3)}]`} />
         <p>论文为每个头分别写 <Formula tex={String.raw`W_i^Q,W_i^K,W_i^V`} />；工程代码把三组投影合并成一次矩阵乘法，再通过 <code>reshape + transpose</code> 恢复头维。代码并没有先算一次单头 Attention 再切开。</p>
       </div>
     </div>
@@ -2046,14 +2056,15 @@ export default function Home() {
             </div>
             <div className="note">其中 <Formula tex="h" /> 是头数，<Formula tex={String.raw`W^O\in\mathbb{R}^{(h d_v)\times d_{\mathrm{model}}}`} /> 把拼接结果投影回模型维度。通常取 <Formula tex={String.raw`d_k=d_v=d_{\mathrm{model}}/h`} />，所以主 FLOPs 量级与单头接近、表达能力更强；但投影层、显存占用与调度开销并不为零，并非真的「免费」。</div>
 
-            <h3>同一数值算例中的三种关注模式</h3>
+            <h3>同一输入下，三个头得到不同的注意力权重</h3>
+            <div className="note">这里只说明“不同头可以学习不同的关注关系”，不为 Head 1、2、3 指定固定语义。真实模型里某个头更关注位置、语法、实体还是其他特征，完全取决于数据与训练结果，也不保证能被简单命名。</div>
             <div className="tabs">
               {heads.map((h, i) => (
                 <button key={h.name} className={`tab ${headIdx === i ? "active" : ""}`} onClick={() => setHeadIdx(i)}>{h.name}</button>
               ))}
             </div>
             <div className="fig head-demo" data-heads={JSON.stringify(heads)}>
-              <div style={{ display: "flex", justifyContent: "center", overflowX: "auto" }}>
+              <div style={{ display: "flex", justifyContent: "center" }}>
                 <table style={{ borderCollapse: "separate", borderSpacing: 4, margin: "0 auto" }}>
                   <tbody>
                     <tr>
@@ -2078,7 +2089,7 @@ export default function Home() {
                   </tbody>
                 </table>
               </div>
-              <div className="fig-cap"><b>与上方逐头计算完全相同的权重矩阵</b>：{heads[headIdx].note} · 行=Query（谁在问）· 列=Key（看谁）</div>
+              <div className="fig-cap"><b>{heads[headIdx].name} 的真实计算结果</b> · 行=Query（谁在问）· 列=Key（看谁）</div>
             </div>
           </section>
 

@@ -42,7 +42,7 @@
 
   --radius: 16px;
   --radius-sm: 10px;
-  --maxw: 1600px;
+  --maxw: 1720px;
 }
 
 * {
@@ -2706,17 +2706,17 @@ p code {
   line-height: 1.75;
 }
 .mh-shape-route {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 22px minmax(0, 1fr) 22px minmax(0, 1fr) 22px minmax(0, 1fr) 22px minmax(0, 1fr);
   align-items: stretch;
   gap: 10px;
-  overflow-x: auto;
   padding: 2px 0 6px;
 }
 .mh-shape-route > div {
-  flex: 1 0 190px;
   display: grid;
   place-content: center;
   gap: 3px;
+  min-width: 0;
   min-height: 76px;
   padding: 11px 14px;
   border: 1px solid var(--hairline);
@@ -2733,7 +2733,6 @@ p code {
   font-size: 14px;
 }
 .mh-shape-route > i {
-  flex: 0 0 22px;
   display: grid;
   place-items: center;
   color: var(--att);
@@ -2742,7 +2741,6 @@ p code {
   font-style: normal;
 }
 .mh-stage {
-  overflow-x: auto;
   padding: 22px;
   border: 1px solid var(--hairline);
   border-radius: var(--radius);
@@ -2782,15 +2780,21 @@ p code {
 }
 .mh-projection-flow {
   display: grid;
-  grid-template-columns: 460px 100px minmax(1440px, 1fr);
-  gap: 16px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
   align-items: center;
-  min-width: 2030px;
+  min-width: 0;
 }
 .mh-projection-source,
 .mh-output-step {
   display: grid;
   place-items: center;
+}
+.mh-projection-source .fms-cell {
+  width: 48px;
+  min-width: 48px;
+  height: 42px;
+  font-size: 14px;
 }
 .mh-projection-op,
 .mh-output-op {
@@ -2810,6 +2814,7 @@ p code {
   font-size: 28px;
   font-style: normal;
   line-height: 1;
+  transform: rotate(90deg);
 }
 .mh-projection-results {
   display: grid;
@@ -2884,7 +2889,7 @@ p code {
 .mh-split-matrix thead .mh-head-two { color: var(--k); }
 .mh-split-matrix thead .mh-head-three { color: var(--v); }
 .mh-parameters {
-  min-width: 1320px;
+  min-width: 0;
   margin-top: 16px;
   padding: 13px 16px;
   border: 1px solid var(--hairline);
@@ -2906,6 +2911,12 @@ p code {
 .mh-parameter-grid > .fms-mat {
   justify-self: center;
 }
+.mh-parameter-grid .fms-cell {
+  width: 48px;
+  min-width: 48px;
+  height: 40px;
+  font-size: 13px;
+}
 .mh-parameters > p {
   margin: 8px 0 0;
   color: var(--t3);
@@ -2914,9 +2925,9 @@ p code {
 }
 .mh-head-inputs {
   display: grid;
-  grid-template-columns: minmax(1120px, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
-  min-width: 1120px;
+  min-width: 0;
 }
 .mh-head-1 {
   --mh-color: #38bdf8;
@@ -3004,10 +3015,10 @@ p code {
 .mh-head-lanes {
   display: grid;
   gap: 16px;
-  min-width: 1160px;
+  min-width: 0;
 }
 .mh-head-lane {
-  min-width: 1120px;
+  min-width: 0;
 }
 .mh-lane-title {
   display: grid;
@@ -3016,17 +3027,20 @@ p code {
   align-items: center;
   margin-bottom: 14px;
 }
-.mh-lane-title .math-inline {
-  overflow-x: auto;
+.mh-lane-formulas {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 10px;
   color: var(--t1);
-  font-size: 14px;
-  text-align: right;
+  font-size: 13.5px;
 }
-.mh-pattern-note {
-  margin: -5px 0 13px;
-  color: var(--t2);
-  font-size: 13px;
-  line-height: 1.6;
+.mh-lane-formulas i,
+.mh-first-row-chain i {
+  color: var(--mh-color);
+  font-family: var(--mono);
+  font-style: normal;
 }
 .mh-lane-flow {
   display: grid;
@@ -3098,19 +3112,19 @@ p code {
   font-size: 12px;
   white-space: nowrap;
 }
-.mh-first-row .math-block {
-  margin: 0;
+.mh-first-row-chain {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px 10px;
   font-size: 13px;
-}
-.mh-first-row .katex-display {
-  text-align: left;
 }
 .mh-output-flow {
   display: grid;
-  grid-template-columns: minmax(450px, 1fr) 72px minmax(510px, 1.1fr) 72px minmax(450px, 1fr);
+  grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1.08fr) 44px minmax(0, 1fr);
   gap: 12px;
   align-items: center;
-  min-width: 1600px;
+  min-width: 0;
 }
 .mh-output-step {
   align-content: start;
@@ -3142,7 +3156,7 @@ p code {
   grid-template-columns: auto minmax(0, 1fr);
   gap: 14px;
   align-items: center;
-  min-width: 1180px;
+  min-width: 0;
   margin-top: 16px;
   padding: 13px 16px;
   border: 1px solid rgba(244, 114, 182, 0.34);
@@ -3171,12 +3185,13 @@ p code {
   grid-template-columns: minmax(360px, 0.8fr) minmax(680px, 1.2fr);
   gap: 22px;
   align-items: center;
-  min-width: 1180px;
+  min-width: 0;
   margin-top: 14px;
   padding: 16px 18px;
   border-radius: 11px;
 }
 .mh-output-detail {
+  grid-template-columns: minmax(0, 1fr);
   border: 1px solid rgba(45, 212, 191, 0.34);
   background: rgba(45, 212, 191, 0.07);
 }
@@ -3198,7 +3213,6 @@ p code {
 }
 .mh-output-detail .math-block,
 .mh-output-purpose .math-block {
-  overflow-x: auto;
   margin: 0;
   font-size: 14px;
 }
@@ -3226,6 +3240,45 @@ p code {
   color: var(--t2);
   font-size: 14px;
   line-height: 1.75;
+}
+@media (max-width: 1500px) {
+  .mh-output-flow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .mh-output-step {
+    min-height: 0;
+  }
+  .mh-output-detail,
+  .mh-output-purpose {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 1100px) {
+  .mh-shape-route {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .mh-shape-route > i {
+    transform: rotate(90deg);
+  }
+  .mh-projection-results,
+  .mh-parameter-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .mh-lane-flow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .mh-lane-op i {
+    transform: rotate(90deg);
+  }
+  .mh-output-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .mh-output-row > span {
+    grid-row: auto;
+  }
+  .mh-output-row .math-block {
+    grid-column: 1;
+  }
 }
 @media (max-width: 760px) {
   .mh-overview,

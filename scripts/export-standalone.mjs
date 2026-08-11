@@ -105,7 +105,7 @@ const standaloneJs = String.raw`
       headCells[cell].style.background = "rgba(56,189,248," + (0.08 + value * 0.7).toFixed(3) + ")";
       headCells[cell].style.color = value > 0.4 ? "#fff" : "#a9b4dc";
     });
-    headCaption.innerHTML = "<b>人工示意</b>（非真实训练结果）：" + heads[index].note + " · 行=Query（谁在问）· 列=Key（看谁）";
+    headCaption.innerHTML = "<b>" + heads[index].name + " 的真实计算结果</b> · 行=Query（谁在问）· 列=Key（看谁）";
   };
   headTabs.forEach((button, index) => button.addEventListener("click", () => selectHead(index)));
 })();

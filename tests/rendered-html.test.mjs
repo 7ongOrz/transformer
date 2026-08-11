@@ -45,7 +45,8 @@ test("server-renders the Attention teaching page", async () => {
   assert.match(html, /mh-head-lane mh-head-1/);
   assert.match(html, /三个头各算一套/);
   assert.match(html, /Y.*有什么用/);
-  assert.match(html, /与上方逐头计算完全相同的权重矩阵/);
+  assert.match(html, /不为 Head 1、2、3 指定固定语义/);
+  assert.match(html, /真实计算结果/);
   assert.match(html, /FlashAttention：不改变数学/);
   assert.match(html, /代码与算子测试：从原理到真实算子/);
   assert.match(html, /Transformer 全景：Attention 被装在哪里/);
