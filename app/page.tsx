@@ -1390,8 +1390,8 @@ function TfBox({ x, y, w, h, fill, stroke, label, sub, lc, sc }: { x: number; y:
   return (
     <g>
       <rect x={x} y={y} width={w} height={h} rx="9" fill={fill} stroke={stroke} />
-      <text x={x + w / 2} y={y + h / 2 + (sub ? -5 : 5)} textAnchor="middle" fill={lc || "#eef3ff"} fontSize="15" fontWeight="700">{label}</text>
-      {sub && <text x={x + w / 2} y={y + h / 2 + 14} textAnchor="middle" fill={sc || "#6e7aab"} fontSize="12">{sub}</text>}
+      <text x={x + w / 2} y={y + h / 2 + (sub ? -5 : 4.5)} textAnchor="middle" fill={lc || "#eef3ff"} fontSize="14" fontWeight="700">{label}</text>
+      {sub && <text x={x + w / 2} y={y + h / 2 + 13} textAnchor="middle" fill={sc || "#6e7aab"} fontSize="11">{sub}</text>}
     </g>
   );
 }
@@ -1401,26 +1401,26 @@ function FigTransformer() {
   const Box = TfBox;
   return (
     <div className="fig">
-      <svg viewBox="0 0 940 600" width="940" role="img" aria-label="经典 Transformer Encoder-Decoder 结构图">
+      <svg className="transformer-figure" viewBox="0 0 940 600" width="940" role="img" aria-label="经典 Transformer Encoder-Decoder 结构图">
         <defs>
           <marker id="ah-t" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#6e7aab" /></marker>
         </defs>
-        <text x="225" y="26" textAnchor="middle" fill="#38bdf8" fontSize="17" fontWeight="700">Encoder（左）</text>
-        <text x="695" y="26" textAnchor="middle" fill="#f472b6" fontSize="17" fontWeight="700">Decoder（右）</text>
+        <text x="225" y="26" textAnchor="middle" fill="#38bdf8" fontSize="16" fontWeight="700">Encoder（左）</text>
+        <text x="695" y="26" textAnchor="middle" fill="#f472b6" fontSize="16" fontWeight="700">Decoder（右）</text>
 
         <Box x={155} y={48} w={140} h={38} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Input Embedding" lc="#a9b4dc" />
         <Arrow d="M225,86 V90" />
         <circle cx="225" cy="106" r="14" fill="#070b18" stroke="#a78bfa" />
-        <text x="225" y="111" textAnchor="middle" fill="#a78bfa" fontSize="15">+</text>
+        <text x="225" y="111" textAnchor="middle" fill="#a78bfa" fontSize="14">+</text>
         <rect x="35" y="84" width="115" height="44" rx="8" fill="#0c1430" stroke="rgba(167,139,250,0.45)" />
-        <text x="92.5" y="101" textAnchor="middle" fill="#a78bfa" fontSize="12">Positional</text>
-        <text x="92.5" y="119" textAnchor="middle" fill="#a78bfa" fontSize="12">Encoding</text>
+        <text x="92.5" y="101" textAnchor="middle" fill="#a78bfa" fontSize="11">Positional</text>
+        <text x="92.5" y="119" textAnchor="middle" fill="#a78bfa" fontSize="11">Encoding</text>
         <Arrow d="M150,106 H207" />
         <Arrow d="M225,120 V146" />
         <rect x="80" y="138" width="290" height="257" rx="14" fill="none" stroke="rgba(255,255,255,0.08)" strokeDasharray="5 5" />
         <g>
           <rect x="91" y="128" width="126" height="20" rx="7" fill="#0c1430" stroke="rgba(56,189,248,0.28)" />
-          <text x="154" y="142" textAnchor="middle" fill="#7e8ac0" fontSize="12" fontWeight="700">N× Encoder Layer</text>
+          <text x="154" y="142" textAnchor="middle" fill="#7e8ac0" fontSize="11" fontWeight="700">N× Encoder Layer</text>
         </g>
         <Box x={120} y={150} w={210} h={54} fill="rgba(56,189,248,0.14)" stroke="#38bdf8" label="Multi-Head Self-Attention" sub="本节讲的核心算子" lc="#38bdf8" sc="#6e7aab" />
         <Box x={150} y={222} w={150} h={36} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
@@ -1434,16 +1434,16 @@ function FigTransformer() {
         <Box x={625} y={48} w={140} h={38} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Target Embedding" sub="目标序列右移一位" lc="#a9b4dc" />
         <Arrow d="M695,86 V90" />
         <circle cx="695" cy="106" r="14" fill="#070b18" stroke="#a78bfa" />
-        <text x="695" y="111" textAnchor="middle" fill="#a78bfa" fontSize="15">+</text>
+        <text x="695" y="111" textAnchor="middle" fill="#a78bfa" fontSize="14">+</text>
         <rect x="790" y="84" width="115" height="44" rx="8" fill="#0c1430" stroke="rgba(167,139,250,0.45)" />
-        <text x="847.5" y="101" textAnchor="middle" fill="#a78bfa" fontSize="12">Positional</text>
-        <text x="847.5" y="119" textAnchor="middle" fill="#a78bfa" fontSize="12">Encoding</text>
+        <text x="847.5" y="101" textAnchor="middle" fill="#a78bfa" fontSize="11">Positional</text>
+        <text x="847.5" y="119" textAnchor="middle" fill="#a78bfa" fontSize="11">Encoding</text>
         <Arrow d="M790,106 H713" />
         <Arrow d="M695,120 V146" />
         <rect x="540" y="138" width="310" height="332" rx="14" fill="none" stroke="rgba(255,255,255,0.08)" strokeDasharray="5 5" />
         <g>
           <rect x="551" y="128" width="126" height="20" rx="7" fill="#0c1430" stroke="rgba(244,114,182,0.28)" />
-          <text x="614" y="142" textAnchor="middle" fill="#7e8ac0" fontSize="12" fontWeight="700">N× Decoder Layer</text>
+          <text x="614" y="142" textAnchor="middle" fill="#7e8ac0" fontSize="11" fontWeight="700">N× Decoder Layer</text>
         </g>
         <Box x={575} y={150} w={240} h={50} fill="rgba(245,176,66,0.14)" stroke="#f5b042" label="Masked Multi-Head Attention" sub="只能看过去（屏蔽未来位）" lc="#f5b042" sc="#6e7aab" />
         <Box x={620} y={216} w={150} h={34} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
@@ -1456,17 +1456,17 @@ function FigTransformer() {
         <Arrow d="M695,259 H555 V351 H620" color="#f5b042" dash="4 3" />
         <Arrow d="M695,377 H555 V458 H620" color="#f5b042" dash="4 3" />
         <Arrow d="M300,422 H455 V293 H571" color="#a78bfa" dash="4 3" />
-        <text x="312" y="411" fill="#a78bfa" fontSize="12" fontWeight="700">Encoder Memory</text>
-        <text x="466" y="283" fill="#a78bfa" fontSize="12">作为 K、V 来源</text>
+        <rect x="418" y="263" width="82" height="20" rx="7" fill="#0c1430" stroke="rgba(167,139,250,0.34)" />
+        <text x="459" y="277" textAnchor="middle" fill="#a78bfa" fontSize="10.5" fontWeight="700">提供 K、V</text>
         <Arrow d="M695,474 V489" />
         <Box x={585} y={493} w={220} h={46} fill="rgba(167,139,250,0.14)" stroke="#a78bfa" label="Linear + Softmax" sub="输出下一 Token 的概率" lc="#a78bfa" sc="#7e8ac0" />
 
         <g transform="translate(80,555)">
-          <rect x="0" y="0" width="14" height="14" rx="3" fill="rgba(56,189,248,0.14)" stroke="#38bdf8" /><text x="20" y="12" fill="#6e7aab" fontSize="13">Attention</text>
-          <rect x="110" y="0" width="14" height="14" rx="3" fill="rgba(45,212,191,0.14)" stroke="#2dd4bf" /><text x="130" y="12" fill="#6e7aab" fontSize="13">FFN</text>
-          <rect x="190" y="0" width="14" height="14" rx="3" fill="#0c1430" stroke="rgba(255,255,255,0.08)" /><text x="210" y="12" fill="#6e7aab" fontSize="13">Add&amp;Norm</text>
-          <rect x="310" y="0" width="14" height="14" rx="3" fill="#070b18" stroke="#a78bfa" /><text x="330" y="12" fill="#6e7aab" fontSize="13">位置编码</text>
-          <line x1="430" y1="7" x2="447" y2="7" stroke="#f5b042" strokeWidth="1.5" strokeDasharray="4 3" /><text x="457" y="12" fill="#6e7aab" fontSize="13">残差连接</text>
+          <rect x="0" y="0" width="14" height="14" rx="3" fill="rgba(56,189,248,0.14)" stroke="#38bdf8" /><text x="20" y="12" fill="#6e7aab" fontSize="12">Attention</text>
+          <rect x="110" y="0" width="14" height="14" rx="3" fill="rgba(45,212,191,0.14)" stroke="#2dd4bf" /><text x="130" y="12" fill="#6e7aab" fontSize="12">FFN</text>
+          <rect x="190" y="0" width="14" height="14" rx="3" fill="#0c1430" stroke="rgba(255,255,255,0.08)" /><text x="210" y="12" fill="#6e7aab" fontSize="12">Add&amp;Norm</text>
+          <rect x="310" y="0" width="14" height="14" rx="3" fill="#070b18" stroke="#a78bfa" /><text x="330" y="12" fill="#6e7aab" fontSize="12">位置编码</text>
+          <line x1="430" y1="7" x2="447" y2="7" stroke="#f5b042" strokeWidth="1.5" strokeDasharray="4 3" /><text x="457" y="12" fill="#6e7aab" fontSize="12">残差连接</text>
         </g>
       </svg>
       <div className="fig-cap">图 · 论文 Figure 1 重绘 — Attention 在 Encoder/Decoder 中共出现三次，是同一算子</div>

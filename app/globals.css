@@ -1121,6 +1121,9 @@ p {
   min-width: 720px;
   height: auto;
 }
+.fig > svg.transformer-figure {
+  max-width: 1180px;
+}
 .fig-cap {
   margin-top: 12px;
   text-align: center;
