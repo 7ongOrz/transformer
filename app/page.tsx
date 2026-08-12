@@ -2000,43 +2000,43 @@ export default function Home() {
                   </tr>
                   <tr>
                     <th><Formula tex="q_0" /> · &lt;BOS&gt;</th>
-                    <td><div className="mask-cell allow">0</div></td>
-                    <td><div className="mask-cell block">−∞</div></td>
-                    <td><div className="mask-cell block">−∞</div></td>
-                    <td><div className="mask-cell block">−∞</div></td>
-                    <td><div className="mask-cell block">−∞</div></td>
+                    <td><div className="mask-cell allow"><Formula tex="0" /></div></td>
+                    <td><div className="mask-cell block"><Formula tex="-\infty" /></div></td>
+                    <td><div className="mask-cell block"><Formula tex="-\infty" /></div></td>
+                    <td><div className="mask-cell block"><Formula tex="-\infty" /></div></td>
+                    <td><div className="mask-cell block"><Formula tex="-\infty" /></div></td>
                   </tr>
                   <tr>
                     <th><Formula tex="q_1" /> · Token 1</th>
-                    <td><div className="mask-cell allow">0</div></td>
-                    <td><div className="mask-cell allow">0</div></td>
-                    <td><div className="mask-cell block">−∞</div></td>
-                    <td><div className="mask-cell block">−∞</div></td>
-                    <td><div className="mask-cell block">−∞</div></td>
+                    <td><div className="mask-cell allow"><Formula tex="0" /></div></td>
+                    <td><div className="mask-cell allow"><Formula tex="0" /></div></td>
+                    <td><div className="mask-cell block"><Formula tex="-\infty" /></div></td>
+                    <td><div className="mask-cell block"><Formula tex="-\infty" /></div></td>
+                    <td><div className="mask-cell block"><Formula tex="-\infty" /></div></td>
                   </tr>
                   <tr>
                     <th><Formula tex="q_2" /> · Token 2</th>
-                    <td><div className="mask-cell allow">0</div></td>
-                    <td><div className="mask-cell allow">0</div></td>
-                    <td><div className="mask-cell allow">0</div></td>
-                    <td><div className="mask-cell block">−∞</div></td>
-                    <td><div className="mask-cell block">−∞</div></td>
+                    <td><div className="mask-cell allow"><Formula tex="0" /></div></td>
+                    <td><div className="mask-cell allow"><Formula tex="0" /></div></td>
+                    <td><div className="mask-cell allow"><Formula tex="0" /></div></td>
+                    <td><div className="mask-cell block"><Formula tex="-\infty" /></div></td>
+                    <td><div className="mask-cell block"><Formula tex="-\infty" /></div></td>
                   </tr>
                   <tr>
                     <th><Formula tex="q_3" /> · Token 3</th>
-                    <td><div className="mask-cell allow">0</div></td>
-                    <td><div className="mask-cell allow">0</div></td>
-                    <td><div className="mask-cell allow">0</div></td>
-                    <td><div className="mask-cell allow">0</div></td>
-                    <td><div className="mask-cell block">−∞</div></td>
+                    <td><div className="mask-cell allow"><Formula tex="0" /></div></td>
+                    <td><div className="mask-cell allow"><Formula tex="0" /></div></td>
+                    <td><div className="mask-cell allow"><Formula tex="0" /></div></td>
+                    <td><div className="mask-cell allow"><Formula tex="0" /></div></td>
+                    <td><div className="mask-cell block"><Formula tex="-\infty" /></div></td>
                   </tr>
                   <tr>
                     <th><Formula tex="q_4" /> · Token 4</th>
-                    <td><div className="mask-cell allow">0</div></td>
-                    <td><div className="mask-cell allow">0</div></td>
-                    <td><div className="mask-cell allow">0</div></td>
-                    <td><div className="mask-cell allow">0</div></td>
-                    <td><div className="mask-cell allow">0</div></td>
+                    <td><div className="mask-cell allow"><Formula tex="0" /></div></td>
+                    <td><div className="mask-cell allow"><Formula tex="0" /></div></td>
+                    <td><div className="mask-cell allow"><Formula tex="0" /></div></td>
+                    <td><div className="mask-cell allow"><Formula tex="0" /></div></td>
+                    <td><div className="mask-cell allow"><Formula tex="0" /></div></td>
                   </tr>
                 </tbody>
               </table>
@@ -2047,7 +2047,7 @@ export default function Home() {
             <div className="flow-chain">
               <b><Formula tex={String.raw`QK^{\mathsf T}`} /></b><em>→</em>
               <b>÷ <Formula tex={String.raw`\sqrt{d_k}`} /></b><em>→</em>
-              <b className="hi">+ Mask（−∞）</b><em>→</em>
+              <b className="hi">+ Mask（<Formula tex="-\infty" />）</b><em>→</em>
               <b>softmax</b><em>→</em>
               <b><Formula tex={String.raw`\times V`} /></b>
             </div>
