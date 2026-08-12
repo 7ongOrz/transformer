@@ -1486,8 +1486,13 @@ function PositionEncodingFlow() {
     row.map((value, columnIndex) => value - positionEmbedding[rowIndex][columnIndex]),
   );
   const rows = ["Token 1", "Token 2", "Token 3", "Token 4"];
-  const positionRows = ["位置 1", "位置 2", "位置 3", "位置 4"];
   const cols = ["维 1", "维 2"];
+  const sinusoidalRows = Array.from({ length: 4 }, (_, position) => [
+    Math.sin(position),
+    Math.cos(position),
+    Math.sin(position / 100),
+    Math.cos(position / 100),
+  ]);
 
   return (
     <div className="position-demo">
@@ -1525,107 +1530,86 @@ function PositionEncodingFlow() {
 
       <div className="position-addition-proof">
         <div className="position-addition-head">
-          <span>为什么使用相加？从“拼接”推到“相加”</span>
-          <b>分块矩阵乘法展开后，内容项与位置项自然相加</b>
-          <p>本页沿用行向量记法：<Formula tex="e_3" /> 是 Token 3 的内容向量，<Formula tex="r_3" /> 是位置 3 的 one-hot 地址。先把二者拼成扩展输入，再乘一个分块矩阵，乘法会自然拆成“内容贡献 + 位置贡献”。</p>
+          <span>数学补充 · 不是 Transformer 的实际前向步骤</span>
+          <b>PDF 为什么会提到“拼接”：它在把加法改写成一次矩阵乘法</b>
+          <p>模型真正运行的仍然是 <Formula tex="x_3=e_3+p_3" />。下面只是临时把内容向量 <Formula tex="e_3" /> 和“位置 3”的 one-hot 地址 <Formula tex="r_3" /> 并排写在一行，用完整数值说明分块矩阵乘法为什么会得到同一个结果。</p>
         </div>
 
-        <div className="position-block-flow" role="img" aria-label="Token 3 的内容向量与位置 one-hot 拼接，乘分块矩阵后展开成内容贡献加位置贡献">
-          <article className="position-block-card input">
-            <span>① 拼接扩展输入</span>
-            <b>左边是内容，右边是位置地址</b>
-            <Formula block tex={String.raw`\left[\begin{array}{cc|cccc}0.55&0.60&0&0&1&0\end{array}\right]`} />
-            <small><Formula tex={String.raw`[e_3\mid r_3]\in\mathbb{R}^{1\times6}`} />；其中 <Formula tex={String.raw`r_3=[0,0,1,0]`} /></small>
-          </article>
-          <div className="position-block-op"><b>×</b><span>线性变换</span></div>
-          <article className="position-block-card transform">
-            <span>② 分块线性层</span>
-            <b>上两行保留内容，下四行存位置表</b>
-            <Formula block tex={String.raw`\left[\begin{array}{cc}1&0\\0&1\\\hline0.05&0.10\\0.15&0.20\\0.25&0.30\\0.35&0.40\end{array}\right]`} />
-            <small><Formula tex={String.raw`\begin{bmatrix}I_2\\P_{\mathrm{pos}}\end{bmatrix}\in\mathbb{R}^{6\times2}`} /></small>
-          </article>
-          <div className="position-block-op"><b>=</b><span>按块展开</span></div>
-          <article className="position-block-card split">
-            <span>③ 乘法拆成两项</span>
-            <b>两部分各自变换，再在同一维度相加</b>
-            <Formula block tex={String.raw`[e_3\mid r_3]\begin{bmatrix}I_2\\P_{\mathrm{pos}}\end{bmatrix}=\underbrace{e_3I_2}_{\text{内容贡献}}+\underbrace{r_3P_{\mathrm{pos}}}_{\text{位置贡献}}`} />
-            <small>下一步只需看清右半项怎样从位置表中取出 <Formula tex="p_3" /></small>
-          </article>
-        </div>
-
-        <div className="position-selector-flow" role="img" aria-label="位置 3 的 one-hot 行向量乘位置矩阵，选中矩阵第 3 行得到稠密位置向量 p3">
-          <article className="position-selector-onehot">
-            <span>④ 放大位置贡献的左因子</span>
-            <b><Formula tex="r_3" /> · one-hot</b>
-            <div className="position-selector-labels">{positionRows.map((row) => <small key={row}>{row}</small>)}</div>
-            <div className="position-selector-cells">{[0, 0, 1, 0].map((value, index) => <strong className={index === 2 ? "active" : ""} key={index}>{value}</strong>)}</div>
-            <small><Formula tex={String.raw`r_3\in\mathbb{R}^{1\times4}`} />，只有第 3 个位置为 1</small>
-          </article>
-          <div className="position-selector-op"><b>×</b><span>矩阵乘法</span></div>
-          <article className="position-selector-table">
-            <span>位置贡献的右因子</span>
-            <FmsMatGrid data={positionEmbedding} name={<Formula tex="P_{\mathrm{pos}}" />} shape={<Formula tex={String.raw`[4\times2]`} />} pal={FMS_PAL.K} rowLabels={positionRows} colLabels={cols} cornerLabel="位置＼维" digits={2} focusRow={2} />
-            <small>高亮的第 3 行就是被 one-hot 中数字 1 选中的行</small>
-          </article>
-          <div className="position-selector-op"><b>=</b><span>取出第 3 行</span></div>
-          <article className="position-selector-dense">
-            <span>位置贡献的结果</span>
-            <b><Formula tex="p_3" /> · dense</b>
-            <div className="position-selector-dense-labels"><small>维 1</small><small>维 2</small></div>
-            <div className="position-selector-dense-cells"><strong>0.25</strong><strong>0.30</strong></div>
-            <small><Formula tex={String.raw`p_3\in\mathbb{R}^{1\times2}`} />，它不是 one-hot</small>
-          </article>
-        </div>
-
-        <div className="position-selector-equation">
-          <span>one-hot 选择位置向量：数字 1 只负责选中位置矩阵的一行</span>
-          <Formula block tex={String.raw`\begin{aligned}r_3P_{\mathrm{pos}}&=\begin{bmatrix}0&0&1&0\end{bmatrix}${matrixTex(positionEmbedding, 2)}\\&=0p_1+0p_2+1p_3+0p_4\\&=${rowVectorTex(positionEmbedding[2], 2)}=p_3\end{aligned}`} />
-          <p>三个 0 消去对应行，唯一的 1 保留第 3 行。因此 <Formula tex="r_3" /> 是位置地址，<Formula tex="p_3" /> 才是真正参与加法的稠密位置向量。实现中通常直接按索引读取第 3 行，不会真的构造 one-hot。</p>
-        </div>
-
-        <div className="position-selector-sum" aria-label="位置 3 的内容向量与选出的位置向量逐维相加得到 x3">
+        <div className="position-proof-terms" aria-label="PDF 拼接推导中的三个符号">
           <article>
-            <span>⑤ 内容贡献</span>
-            <Formula block tex={`e_3=${rowVectorTex(contentEmbedding[2], 2)}`} />
+            <span>真实数据 · 内容</span>
+            <Formula block tex={String.raw`e_3=\begin{bmatrix}0.55&0.60\end{bmatrix}`} />
+            <small>Token 3 的内容向量，shape 为 <Formula tex={String.raw`1\times2`} /></small>
           </article>
-          <div><b>+</b><span>逐维相加</span></div>
-          <article className="position">
-            <span>刚选出的位置信息</span>
-            <Formula block tex={`p_3=${rowVectorTex(positionEmbedding[2], 2)}`} />
+          <article className="address">
+            <span>仅用于推导 · 位置地址</span>
+            <Formula block tex={String.raw`r_3=\begin{bmatrix}0&0&1&0\end{bmatrix}`} />
+            <small>数字 1 表示“取位置表第 3 行”，不是位置向量本身</small>
           </article>
-          <div><b>=</b><span>宽度不变</span></div>
-          <article className="result">
-            <span>⑥ 送入 Attention</span>
-            <Formula block tex={`x_3=${rowVectorTex(attentionInput[2], 2)}`} />
+          <article className="temporary">
+            <span>临时写法 · 不是实际输入</span>
+            <Formula block tex={String.raw`[e_3\mid r_3]=\begin{bmatrix}0.55&0.60\mid0&0&1&0\end{bmatrix}`} />
+            <small>竖线只分隔两段；Transformer 不会真的构造这个 <Formula tex={String.raw`1\times6`} /> 向量</small>
           </article>
         </div>
 
-        <div className="position-addition-notes">
-          <div><b>一般形式</b><span><Formula tex={String.raw`[c_i\mid r_i]\begin{bmatrix}W^c\\W^p\end{bmatrix}=c_iW^c+r_iW^p`} />。本页取 <Formula tex={String.raw`W^c=I_2,\ W^p=P_{\mathrm{pos}}`} />，所以结果正好是 <Formula tex="e_i+p_i" />。</span></div>
-          <div><b>为什么宽度不变</b><span>扩展输入虽是 <Formula tex={String.raw`1\times6`} />，分块线性层会把它映回 <Formula tex={String.raw`1\times2`} />。文章中的“拼接”是推导工具，并不是把 <Formula tex="e_i" />、<Formula tex="p_i" /> 两个稠密向量直接拼长后交给 Attention。</span></div>
+        <div className="position-proof-calculation" role="img" aria-label="临时拼接向量乘分块矩阵，逐项展开后得到内容向量加位置向量">
+          <span>把每一个系数乘哪一行全部写出来</span>
+          <Formula block tex={String.raw`\begin{aligned}
+          &\underbrace{\begin{bmatrix}0.55&0.60\mid0&0&1&0\end{bmatrix}}_{[e_3\mid r_3]\;(1\times6)}
+          \underbrace{\begin{bmatrix}1&0\\0&1\\\hline0.05&0.10\\0.15&0.20\\0.25&0.30\\0.35&0.40\end{bmatrix}}_{[I_2;P_{\mathrm{pos}}]\;(6\times2)}\\[3pt]
+          ={}&0.55\begin{bmatrix}1&0\end{bmatrix}+0.60\begin{bmatrix}0&1\end{bmatrix}\\
+          &+0\begin{bmatrix}0.05&0.10\end{bmatrix}+0\begin{bmatrix}0.15&0.20\end{bmatrix}+1\begin{bmatrix}0.25&0.30\end{bmatrix}+0\begin{bmatrix}0.35&0.40\end{bmatrix}\\
+          ={}&\underbrace{\begin{bmatrix}0.55&0.60\end{bmatrix}}_{e_3\;\text{内容}}+\underbrace{\begin{bmatrix}0.25&0.30\end{bmatrix}}_{p_3\;\text{位置}}\\
+          ={}&\begin{bmatrix}0.80&0.90\end{bmatrix}=x_3
+          \end{aligned}`} />
+          <div className="position-proof-reading">
+            <div><b>前两个系数</b><span><Formula tex={String.raw`0.55,\ 0.60`} /> 乘单位矩阵两行，原样保留内容 <Formula tex="e_3" /></span></div>
+            <div><b>后四个系数</b><span><Formula tex={String.raw`0,0,1,0`} /> 只保留位置表第 3 行，得到 <Formula tex={String.raw`p_3=[0.25,0.30]`} /></span></div>
+            <div><b>最终结果</b><span>两组贡献都落在二维空间，因此相加后仍是 <Formula tex={String.raw`x_3\in\mathbb{R}^{1\times2}`} /></span></div>
+          </div>
+        </div>
+
+        <div className="position-proof-boundary">
+          <b>这个推导能说明什么，不能说明什么</b>
+          <p><Formula tex={String.raw`[c_i\mid r_i]\begin{bmatrix}W^c\\W^p\end{bmatrix}=c_iW^c+r_iW^p`} /> 是标准分块矩阵乘法；取 <Formula tex={String.raw`W^c=I_2,\ W^p=P_{\mathrm{pos}}`} /> 时，右边就是 <Formula tex="e_i+p_i" />。因此 PDF 的代数推导成立，但它只说明“相加是拼接后接特定线性映射的一个特例”，不代表任意拼接都与相加等价，也不代表能够从和里无条件恢复两部分。</p>
         </div>
       </div>
 
-      <div className="position-methods">
-        <article>
-          <span>为什么坐标可以是小数，甚至出现重复</span>
-          <b>位置由整行向量表示，不由某一个坐标表示</b>
-          <p>位置号 <Formula tex="i" /> 是离散索引；查表或公式计算后得到的 <Formula tex="p_i" /> 是稠密特征。即使两个位置的某一维相同，只要整行不同，它们仍是不同的位置表示：</p>
-          <Formula block tex={String.raw`\begin{bmatrix}0.10&0.20\end{bmatrix}\ne\begin{bmatrix}0.10&0.35\end{bmatrix}`} />
-          <p>这里第一维都为 0.10，但第二维不同。真实模型会联合使用全部 <Formula tex="d_{\mathrm{model}}" /> 个坐标，不会把某一个小数单独解释成“第几个位置”。</p>
-        </article>
+      <div className="position-sine-proof">
+        <div className="position-sine-head">
+          <span>原始 Transformer · 固定正弦 / 余弦位置编码</span>
+          <b>sin 不需要单调：位置不是一个数，而是一整行多频率坐标</b>
+          <p>如果只用一个 <Formula tex="\sin(\mathrm{pos})" />，周期重复当然会产生歧义。原论文使用成对的 sin/cos，并在不同维度采用从快到慢的多种频率；模型读取的是整行向量，而不是要求某一列随位置递增。</p>
+        </div>
 
-        <article>
-          <span>原始 Transformer 的具体做法</span>
-          <b>固定正弦 / 余弦位置编码</b>
-          <Formula block tex={String.raw`\begin{aligned}\mathrm{PE}_{(\mathrm{pos},2f)}&=\sin\!\left(\frac{\mathrm{pos}}{10000^{2f/d_{\mathrm{model}}}}\right)\\\mathrm{PE}_{(\mathrm{pos},2f+1)}&=\cos\!\left(\frac{\mathrm{pos}}{10000^{2f/d_{\mathrm{model}}}}\right)\end{aligned}`} />
-          <p>这里 <Formula tex="\mathrm{pos}" /> 是序列位置，<Formula tex="f" /> 是频率组索引。例如 <Formula tex={String.raw`d_{\mathrm{model}}=4,\ \mathrm{pos}=1`} /> 时，<Formula tex={String.raw`f=0,1`} /> 两组频率分别使用分母 1 和 100：</p>
-          <Formula block tex={String.raw`\begin{aligned}\mathrm{PE}(1)&=\begin{bmatrix}\sin(1)&\cos(1)&\sin(0.01)&\cos(0.01)\end{bmatrix}\\&\approx\begin{bmatrix}0.8415&0.5403&0.0100&0.99995\end{bmatrix}\end{aligned}`} />
-          <p>每个位置都由同一公式确定，不参与训练；它向模型提供绝对位置，并使固定位置偏移可由不同频率分量之间的线性关系表达。</p>
-        </article>
+        <div className="position-sine-overview">
+          <article className="position-sine-formula">
+            <span>生成规则</span>
+            <Formula block tex={String.raw`\begin{aligned}\mathrm{PE}_{(\mathrm{pos},2f)}&=\sin\!\left(\frac{\mathrm{pos}}{10000^{2f/d_{\mathrm{model}}}}\right)\\\mathrm{PE}_{(\mathrm{pos},2f+1)}&=\cos\!\left(\frac{\mathrm{pos}}{10000^{2f/d_{\mathrm{model}}}}\right)\end{aligned}`} />
+            <p><Formula tex="\mathrm{pos}" /> 是 Token 位置，<Formula tex="f" /> 是频率组。取 <Formula tex={String.raw`d_{\mathrm{model}}=4`} /> 时，两组分母分别是 1 和 100：前两维变化快，后两维变化慢。</p>
+          </article>
+          <article className="position-sine-matrix">
+            <span>位置 0～3 的完整编码</span>
+            <FmsMatGrid data={sinusoidalRows} name={<Formula tex="\mathrm{PE}" />} shape={<Formula tex={String.raw`[4\times4]`} />} pal={FMS_PAL.K} rowLabels={["pos 0", "pos 1", "pos 2", "pos 3"]} colLabels={["快 sin", "快 cos", "慢 sin", "慢 cos"]} cornerLabel="位置＼频率" digits={4} />
+            <p>第一列从 <Formula tex={String.raw`0\to0.8415\to0.9093\to0.1411`} />，明显不是单调的；但四列合起来，每个位置仍得到不同的“多频率指纹”。</p>
+          </article>
+        </div>
+
+        <div className="position-sine-reasons">
+          <article><b>不负责排序</b><span>位置编码不是把位置压成一个越来越大的标量，而是给每个位置一组可比较的特征。</span></article>
+          <article><b>多尺度变化</b><span>高频维度区分邻近位置，低频维度缓慢变化，帮助表示更长跨度；不同周期组合降低短范围内的混淆。</span></article>
+          <article><b>无需训练查表</b><span>任意新位置都能直接代入公式计算。原论文将“可能外推到更长序列”作为选择固定编码的理由之一，而不是性能保证。</span></article>
+        </div>
+
+        <div className="position-shift-proof">
+          <span>最关键的性质：固定相对距离对应固定旋转</span>
+          <Formula block tex={String.raw`\begin{bmatrix}\sin((\mathrm{pos}+k)\omega)&\cos((\mathrm{pos}+k)\omega)\end{bmatrix}=\begin{bmatrix}\sin(\mathrm{pos}\,\omega)&\cos(\mathrm{pos}\,\omega)\end{bmatrix}\begin{bmatrix}\cos(k\omega)&-\sin(k\omega)\\\sin(k\omega)&\cos(k\omega)\end{bmatrix}`} />
+          <p>对同一频率 <Formula tex="\omega" />，从位置 <Formula tex="\mathrm{pos}" /> 移动 <Formula tex="k" /> 步，相当于乘一个只由距离 <Formula tex="k" /> 决定的二维旋转矩阵。正因为 sin 与 cos 成对出现，模型才有机会用线性变换学习“向前或向后固定几步”的相对关系；这才是原论文强调的理由，单调性并不是目标。</p>
+        </div>
       </div>
 
-      <div className="position-demo-note">二维位置矩阵用于展示 <Formula tex="x_i=e_i+p_i" /> 与后续 <Formula tex="q_i=x_iW^Q" /> 的连接关系，不是原始 Transformer 正弦公式的实际输出。真实模型的 <Formula tex="d_{\mathrm{model}}" /> 更大，计算规则不变。</div>
+      <div className="position-demo-note">上方二维位置表用于展示 <Formula tex="x_i=e_i+p_i" /> 与后续 <Formula tex="q_i=x_iW^Q" /> 的连接关系；下方四维矩阵才按原始正弦公式计算。真实模型的 <Formula tex="d_{\mathrm{model}}" /> 更大，但“同维相加、成对 sin/cos、多频率”的规则不变。</div>
     </div>
   );
 }
