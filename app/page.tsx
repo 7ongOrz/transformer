@@ -1401,7 +1401,7 @@ function FigTransformer() {
   const Box = TfBox;
   return (
     <div className="fig">
-      <svg className="transformer-figure" viewBox="0 0 940 600" width="940" role="img" aria-label="经典 Transformer Encoder-Decoder 结构图">
+      <svg className="transformer-figure" viewBox="0 0 940 630" width="940" role="img" aria-label="经典 Transformer Encoder-Decoder 结构图">
         <defs>
           <marker id="ah-t" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 z" fill="#6e7aab" /></marker>
         </defs>
@@ -1416,20 +1416,20 @@ function FigTransformer() {
         <text x="92.5" y="101" textAnchor="middle" fill="#a78bfa" fontSize="11">Positional</text>
         <text x="92.5" y="119" textAnchor="middle" fill="#a78bfa" fontSize="11">Encoding</text>
         <Arrow d="M150,106 H207" />
-        <Arrow d="M225,120 V146" />
-        <rect x="80" y="138" width="290" height="257" rx="14" fill="none" stroke="rgba(255,255,255,0.08)" strokeDasharray="5 5" />
+        <Arrow d="M225,120 V170" />
+        <rect x="80" y="138" width="290" height="280" rx="14" fill="none" stroke="rgba(255,255,255,0.08)" strokeDasharray="5 5" />
         <g>
-          <rect x="91" y="128" width="126" height="20" rx="7" fill="#0c1430" stroke="rgba(56,189,248,0.28)" />
-          <text x="154" y="142" textAnchor="middle" fill="#7e8ac0" fontSize="11" fontWeight="700">N× Encoder Layer</text>
+          <rect x="91" y="146" width="118" height="20" rx="7" fill="#0c1430" stroke="rgba(56,189,248,0.28)" />
+          <text x="150" y="160" textAnchor="middle" fill="#7e8ac0" fontSize="11" fontWeight="700">N× Encoder Layer</text>
         </g>
-        <Box x={120} y={150} w={210} h={54} fill="rgba(56,189,248,0.14)" stroke="#38bdf8" label="Multi-Head Self-Attention" sub="本节讲的核心算子" lc="#38bdf8" sc="#6e7aab" />
-        <Box x={150} y={222} w={150} h={36} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
-        <Box x={120} y={278} w={210} h={50} fill="rgba(45,212,191,0.14)" stroke="#2dd4bf" label="Feed-Forward Network" sub="两层 MLP（逐位置作用）" lc="#2dd4bf" sc="#6e7aab" />
-        <Box x={150} y={346} w={150} h={36} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
-        <Arrow d="M225,204 V218" /><Arrow d="M225,258 V274" /><Arrow d="M225,328 V342" /><Arrow d="M225,382 V401" />
-        <Arrow d="M225,146 H100 V240 H150" color="#f5b042" dash="4 3" />
-        <Arrow d="M225,266 H100 V364 H150" color="#f5b042" dash="4 3" />
-        <Box x={150} y={405} w={150} h={34} fill="rgba(244,114,182,0.14)" stroke="#f472b6" label="编码器输出 Memory" lc="#f472b6" />
+        <Box x={120} y={174} w={210} h={54} fill="rgba(56,189,248,0.14)" stroke="#38bdf8" label="Multi-Head Self-Attention" sub="本节讲的核心算子" lc="#38bdf8" sc="#6e7aab" />
+        <Box x={150} y={246} w={150} h={36} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
+        <Box x={120} y={302} w={210} h={50} fill="rgba(45,212,191,0.14)" stroke="#2dd4bf" label="Feed-Forward Network" sub="两层 MLP（逐位置作用）" lc="#2dd4bf" sc="#6e7aab" />
+        <Box x={150} y={370} w={150} h={36} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
+        <Arrow d="M225,228 V242" /><Arrow d="M225,282 V298" /><Arrow d="M225,352 V366" /><Arrow d="M225,406 V425" />
+        <Arrow d="M225,170 H100 V264 H150" color="#f5b042" dash="4 3" />
+        <Arrow d="M225,290 H100 V388 H150" color="#f5b042" dash="4 3" />
+        <Box x={150} y={429} w={150} h={34} fill="rgba(244,114,182,0.14)" stroke="#f472b6" label="编码器输出 Memory" lc="#f472b6" />
 
         <Box x={625} y={48} w={140} h={38} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Target Embedding" sub="目标序列右移一位" lc="#a9b4dc" />
         <Arrow d="M695,86 V90" />
@@ -1439,29 +1439,29 @@ function FigTransformer() {
         <text x="847.5" y="101" textAnchor="middle" fill="#a78bfa" fontSize="11">Positional</text>
         <text x="847.5" y="119" textAnchor="middle" fill="#a78bfa" fontSize="11">Encoding</text>
         <Arrow d="M790,106 H713" />
-        <Arrow d="M695,120 V146" />
-        <rect x="540" y="138" width="310" height="332" rx="14" fill="none" stroke="rgba(255,255,255,0.08)" strokeDasharray="5 5" />
+        <Arrow d="M695,120 V170" />
+        <rect x="540" y="138" width="310" height="370" rx="14" fill="none" stroke="rgba(255,255,255,0.08)" strokeDasharray="5 5" />
         <g>
-          <rect x="551" y="128" width="126" height="20" rx="7" fill="#0c1430" stroke="rgba(244,114,182,0.28)" />
-          <text x="614" y="142" textAnchor="middle" fill="#7e8ac0" fontSize="11" fontWeight="700">N× Decoder Layer</text>
+          <rect x="551" y="146" width="118" height="20" rx="7" fill="#0c1430" stroke="rgba(244,114,182,0.28)" />
+          <text x="610" y="160" textAnchor="middle" fill="#7e8ac0" fontSize="11" fontWeight="700">N× Decoder Layer</text>
         </g>
-        <Box x={575} y={150} w={240} h={50} fill="rgba(245,176,66,0.14)" stroke="#f5b042" label="Masked Multi-Head Attention" sub="只能看过去（屏蔽未来位）" lc="#f5b042" sc="#6e7aab" />
-        <Box x={620} y={216} w={150} h={34} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
-        <Box x={575} y={268} w={240} h={50} fill="rgba(56,189,248,0.14)" stroke="#38bdf8" label="Cross-Attention" sub="Q: Decoder · K,V: Encoder Memory" lc="#38bdf8" sc="#6e7aab" />
-        <Box x={620} y={334} w={150} h={34} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
-        <Box x={575} y={386} w={240} h={44} fill="rgba(45,212,191,0.14)" stroke="#2dd4bf" label="Feed-Forward Network" lc="#2dd4bf" />
-        <Box x={620} y={442} w={150} h={32} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
-        <Arrow d="M695,200 V212" /><Arrow d="M695,250 V264" /><Arrow d="M695,318 V330" /><Arrow d="M695,368 V382" /><Arrow d="M695,430 V438" />
-        <Arrow d="M695,146 H555 V233 H620" color="#f5b042" dash="4 3" />
-        <Arrow d="M695,259 H555 V351 H620" color="#f5b042" dash="4 3" />
-        <Arrow d="M695,377 H555 V458 H620" color="#f5b042" dash="4 3" />
-        <Arrow d="M300,422 H455 V293 H571" color="#a78bfa" dash="4 3" />
-        <rect x="418" y="263" width="82" height="20" rx="7" fill="#0c1430" stroke="rgba(167,139,250,0.34)" />
-        <text x="459" y="277" textAnchor="middle" fill="#a78bfa" fontSize="10.5" fontWeight="700">提供 K、V</text>
-        <Arrow d="M695,474 V489" />
-        <Box x={585} y={493} w={220} h={46} fill="rgba(167,139,250,0.14)" stroke="#a78bfa" label="Linear + Softmax" sub="输出下一 Token 的概率" lc="#a78bfa" sc="#7e8ac0" />
+        <Box x={575} y={174} w={240} h={50} fill="rgba(245,176,66,0.14)" stroke="#f5b042" label="Masked Multi-Head Attention" sub="只能看过去（屏蔽未来位）" lc="#f5b042" sc="#6e7aab" />
+        <Box x={620} y={240} w={150} h={34} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
+        <Box x={575} y={292} w={240} h={50} fill="rgba(56,189,248,0.14)" stroke="#38bdf8" label="Cross-Attention" sub="Q: Decoder · K,V: Encoder Memory" lc="#38bdf8" sc="#6e7aab" />
+        <Box x={620} y={358} w={150} h={34} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
+        <Box x={575} y={410} w={240} h={44} fill="rgba(45,212,191,0.14)" stroke="#2dd4bf" label="Feed-Forward Network" lc="#2dd4bf" />
+        <Box x={620} y={466} w={150} h={32} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
+        <Arrow d="M695,224 V236" /><Arrow d="M695,274 V288" /><Arrow d="M695,342 V354" /><Arrow d="M695,392 V406" /><Arrow d="M695,454 V462" />
+        <Arrow d="M695,170 H555 V257 H620" color="#f5b042" dash="4 3" />
+        <Arrow d="M695,283 H555 V375 H620" color="#f5b042" dash="4 3" />
+        <Arrow d="M695,401 H555 V482 H620" color="#f5b042" dash="4 3" />
+        <Arrow d="M300,446 H455 V317 H571" color="#a78bfa" dash="4 3" />
+        <rect x="354" y="294" width="82" height="20" rx="7" fill="#0c1430" stroke="rgba(167,139,250,0.34)" />
+        <text x="395" y="308" textAnchor="middle" fill="#a78bfa" fontSize="10.5" fontWeight="700">提供 K、V</text>
+        <Arrow d="M695,498 V513" />
+        <Box x={585} y={517} w={220} h={46} fill="rgba(167,139,250,0.14)" stroke="#a78bfa" label="Linear + Softmax" sub="输出下一 Token 的概率" lc="#a78bfa" sc="#7e8ac0" />
 
-        <g transform="translate(80,555)">
+        <g transform="translate(80,590)">
           <rect x="0" y="0" width="14" height="14" rx="3" fill="rgba(56,189,248,0.14)" stroke="#38bdf8" /><text x="20" y="12" fill="#6e7aab" fontSize="12">Attention</text>
           <rect x="110" y="0" width="14" height="14" rx="3" fill="rgba(45,212,191,0.14)" stroke="#2dd4bf" /><text x="130" y="12" fill="#6e7aab" fontSize="12">FFN</text>
           <rect x="190" y="0" width="14" height="14" rx="3" fill="#0c1430" stroke="rgba(255,255,255,0.08)" /><text x="210" y="12" fill="#6e7aab" fontSize="12">Add&amp;Norm</text>
