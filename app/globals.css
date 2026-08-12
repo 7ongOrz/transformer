@@ -1917,6 +1917,75 @@ p {
   font-size: 13.5px;
   line-height: 1.65;
 }
+.position-block-flow {
+  display: grid;
+  grid-template-columns: minmax(270px, 0.82fr) 48px minmax(230px, 0.7fr) 48px minmax(390px, 1.2fr);
+  gap: 10px;
+  align-items: stretch;
+  margin-bottom: 14px;
+}
+.position-block-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 11px;
+  background: rgba(7, 11, 24, 0.5);
+  text-align: center;
+}
+.position-block-card.input { border-color: rgba(169, 180, 220, 0.34); }
+.position-block-card.transform { border-color: rgba(167, 139, 250, 0.4); }
+.position-block-card.split {
+  border-color: rgba(45, 212, 191, 0.42);
+  background: rgba(45, 212, 191, 0.06);
+}
+.position-block-card > span {
+  color: var(--v);
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 800;
+}
+.position-block-card > b {
+  margin-top: 3px;
+  color: var(--t1);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.position-block-card .math-block {
+  margin: 12px 0 9px;
+  overflow: visible;
+  font-size: 15px;
+}
+.position-block-card.transform .math-block { font-size: 13.5px; }
+.position-block-card.split .math-block { font-size: 14.5px; }
+.position-block-card .katex-display { text-align: center; }
+.position-block-card > small {
+  color: var(--t3);
+  font-size: 12px;
+  line-height: 1.55;
+}
+.position-block-op {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 6px;
+  text-align: center;
+}
+.position-block-op b {
+  color: var(--v);
+  font-family: var(--mono);
+  font-size: 30px;
+  line-height: 1;
+}
+.position-block-op span {
+  color: var(--t3);
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.35;
+}
 .position-selector-flow {
   display: grid;
   grid-template-columns: minmax(210px, 0.78fr) 54px minmax(330px, 1.2fr) 54px minmax(220px, 0.82fr);
