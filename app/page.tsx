@@ -144,7 +144,7 @@ function QKVMat({
             justifySelf: "center",
             color: accent,
             fontWeight: 700,
-            fontSize: 13,
+            fontSize: 14,
             fontFamily: "var(--mono)",
             letterSpacing: 0.4,
           }}
@@ -238,7 +238,7 @@ function QKVMat({
             gridRow: 3,
             justifySelf: "center",
             color: "var(--t3)",
-            fontSize: 11,
+            fontSize: 12,
             fontFamily: "var(--mono)",
           }}
         >
@@ -502,7 +502,7 @@ function FigStageQKV() {
           gap: 18,
           flexWrap: "wrap",
           color: "var(--t3)",
-          fontSize: 12,
+          fontSize: 13,
           fontFamily: "var(--mono)",
         }}
       >
@@ -511,7 +511,7 @@ function FigStageQKV() {
         <span style={{ color: CK }}>→ <Formula tex={String.raw`k_1=[0.4\times0.8+1.2\times0.2,\ 0.4\times(-0.4)+1.2\times1.1]=[0.56,\ 1.16]`} /></span>
         <span style={{ color: CV }}>→ <Formula tex={String.raw`v_1=[0.4\times0.7+1.2\times0.1,\ 0.4\times0.2+1.2\times1.0]=[0.40,\ 1.28]`} /></span>
       </div>
-      <div style={{ textAlign: "center", color: "var(--t3)", fontSize: 12, marginTop: 10 }}>
+      <div style={{ textAlign: "center", color: "var(--t3)", fontSize: 13, marginTop: 10 }}>
         图 · 每一行都对应同序号 Token。后面只追踪第 1 行的 <b style={{ color: CQ }}><Formula tex={String.raw`q_1=[0.04,\ 1.16]`} /></b>，
         但它仍要与全部 <Formula tex="k_j" /> 比较，并用全部 <Formula tex="v_j" /> 形成 <Formula tex="b_1" />。
       </div>
@@ -638,7 +638,7 @@ function FigStageScore() {
           <article className="score-query-card">
             <span>① 取 <Formula tex="Q" /> 的第 1 行</span>
             <b>Token 1 的 Query</b>
-            <Formula block tex={`q_1=x_1W^Q=${rowVectorTex(q1, 2)}`} />
+            <Formula block tex={`q_1=${rowVectorTex(q1, 2)}`} />
             <p>它是 Token 1 的 Query 向量。计算 <Formula tex="b_1" /> 时使用 <Formula tex="q_1" />；计算 <Formula tex="b_2" /> 时使用 <Formula tex="q_2" />。</p>
           </article>
 
@@ -654,7 +654,7 @@ function FigStageScore() {
                 <div className="score-key-id">
                   <span>第 {i + 1} 列 · <Formula tex={item.scoreLabel} /></span>
                   <b><Formula tex={item.key} /></b>
-                  <small>{item.token} · {item.vector}</small>
+                  <small><span>{item.token}</span><span>{item.key} = {item.vector}</span></small>
                 </div>
                 <Formula block tex={item.tex} />
                 <strong>= {item.score}</strong>
@@ -776,7 +776,7 @@ function FigStageSoftmax() {
         </div>
 
         <div className="softmax-key">
-          <b>关键：</b>softmax 改变的是整行的相对分配；任意一个分数变化，四个权重都会重新计算。
+          <b>关键：</b>softmax 改变的是整行的相对分配；任意一个分数变化，四个权重都会重新计算。实际内核通常先减去该行最大值再求指数，数学结果不变，数值更稳定。
         </div>
       </div>
 
@@ -1391,7 +1391,7 @@ function TfBox({ x, y, w, h, fill, stroke, label, sub, lc, sc }: { x: number; y:
     <g>
       <rect x={x} y={y} width={w} height={h} rx="9" fill={fill} stroke={stroke} />
       <text x={x + w / 2} y={y + h / 2 + (sub ? -5 : 5)} textAnchor="middle" fill={lc || "#eef3ff"} fontSize="15" fontWeight="700">{label}</text>
-      {sub && <text x={x + w / 2} y={y + h / 2 + 14} textAnchor="middle" fill={sc || "#6e7aab"} fontSize="11.5">{sub}</text>}
+      {sub && <text x={x + w / 2} y={y + h / 2 + 14} textAnchor="middle" fill={sc || "#6e7aab"} fontSize="12">{sub}</text>}
     </g>
   );
 }
@@ -1413,14 +1413,14 @@ function FigTransformer() {
         <circle cx="225" cy="106" r="14" fill="#070b18" stroke="#a78bfa" />
         <text x="225" y="111" textAnchor="middle" fill="#a78bfa" fontSize="15">+</text>
         <rect x="35" y="84" width="115" height="44" rx="8" fill="#0c1430" stroke="rgba(167,139,250,0.45)" />
-        <text x="92.5" y="101" textAnchor="middle" fill="#a78bfa" fontSize="11.5">Positional</text>
-        <text x="92.5" y="119" textAnchor="middle" fill="#a78bfa" fontSize="11.5">Encoding</text>
+        <text x="92.5" y="101" textAnchor="middle" fill="#a78bfa" fontSize="12">Positional</text>
+        <text x="92.5" y="119" textAnchor="middle" fill="#a78bfa" fontSize="12">Encoding</text>
         <Arrow d="M150,106 H207" />
         <Arrow d="M225,120 V146" />
         <rect x="80" y="138" width="290" height="257" rx="14" fill="none" stroke="rgba(255,255,255,0.08)" strokeDasharray="5 5" />
         <g>
           <rect x="91" y="128" width="126" height="20" rx="7" fill="#0c1430" stroke="rgba(56,189,248,0.28)" />
-          <text x="154" y="142" textAnchor="middle" fill="#7e8ac0" fontSize="10.8" fontWeight="700">N× Encoder Layer</text>
+          <text x="154" y="142" textAnchor="middle" fill="#7e8ac0" fontSize="12" fontWeight="700">N× Encoder Layer</text>
         </g>
         <Box x={120} y={150} w={210} h={54} fill="rgba(56,189,248,0.14)" stroke="#38bdf8" label="Multi-Head Self-Attention" sub="本节讲的核心算子" lc="#38bdf8" sc="#6e7aab" />
         <Box x={150} y={222} w={150} h={36} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
@@ -1436,14 +1436,14 @@ function FigTransformer() {
         <circle cx="695" cy="106" r="14" fill="#070b18" stroke="#a78bfa" />
         <text x="695" y="111" textAnchor="middle" fill="#a78bfa" fontSize="15">+</text>
         <rect x="790" y="84" width="115" height="44" rx="8" fill="#0c1430" stroke="rgba(167,139,250,0.45)" />
-        <text x="847.5" y="101" textAnchor="middle" fill="#a78bfa" fontSize="11.5">Positional</text>
-        <text x="847.5" y="119" textAnchor="middle" fill="#a78bfa" fontSize="11.5">Encoding</text>
+        <text x="847.5" y="101" textAnchor="middle" fill="#a78bfa" fontSize="12">Positional</text>
+        <text x="847.5" y="119" textAnchor="middle" fill="#a78bfa" fontSize="12">Encoding</text>
         <Arrow d="M790,106 H713" />
         <Arrow d="M695,120 V146" />
         <rect x="540" y="138" width="310" height="332" rx="14" fill="none" stroke="rgba(255,255,255,0.08)" strokeDasharray="5 5" />
         <g>
           <rect x="551" y="128" width="126" height="20" rx="7" fill="#0c1430" stroke="rgba(244,114,182,0.28)" />
-          <text x="614" y="142" textAnchor="middle" fill="#7e8ac0" fontSize="10.8" fontWeight="700">N× Decoder Layer</text>
+          <text x="614" y="142" textAnchor="middle" fill="#7e8ac0" fontSize="12" fontWeight="700">N× Decoder Layer</text>
         </g>
         <Box x={575} y={150} w={240} h={50} fill="rgba(245,176,66,0.14)" stroke="#f5b042" label="Masked Multi-Head Attention" sub="只能看过去（屏蔽未来位）" lc="#f5b042" sc="#6e7aab" />
         <Box x={620} y={216} w={150} h={34} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
@@ -1456,8 +1456,8 @@ function FigTransformer() {
         <Arrow d="M695,259 H555 V351 H620" color="#f5b042" dash="4 3" />
         <Arrow d="M695,377 H555 V458 H620" color="#f5b042" dash="4 3" />
         <Arrow d="M300,422 H455 V293 H571" color="#a78bfa" dash="4 3" />
-        <text x="312" y="411" fill="#a78bfa" fontSize="11.5" fontWeight="700">Encoder Memory</text>
-        <text x="466" y="283" fill="#a78bfa" fontSize="11.5">作为 K、V 来源</text>
+        <text x="312" y="411" fill="#a78bfa" fontSize="12" fontWeight="700">Encoder Memory</text>
+        <text x="466" y="283" fill="#a78bfa" fontSize="12">作为 K、V 来源</text>
         <Arrow d="M695,474 V489" />
         <Box x={585} y={493} w={220} h={46} fill="rgba(167,139,250,0.14)" stroke="#a78bfa" label="Linear + Softmax" sub="输出下一 Token 的概率" lc="#a78bfa" sc="#7e8ac0" />
 
@@ -1525,9 +1525,9 @@ function PositionEncodingFlow() {
 
       <div className="position-addition-proof">
         <div className="position-addition-head">
-          <span>为什么使用相加，而不是直接拼接？先分清 one-hot 与位置向量</span>
+          <span>为什么使用相加，而不是直接拼接？先分清 one-hot 选行器与位置向量</span>
           <b>one-hot 选择位置向量：数字 1 只负责选中位置矩阵的一行</b>
-          <p>本页取 <Formula tex={String.raw`L_{\max}=4,\ d_{\mathrm{model}}=2`} />。因此 one-hot <Formula tex="r_3" /> 是 <Formula tex={String.raw`1\times4`} />，位置矩阵 <Formula tex="P_{\mathrm{pos}}" /> 是 <Formula tex={String.raw`4\times2`} />；两者相乘后得到可与 Token 内容相加的 <Formula tex={String.raw`1\times2`} /> 向量 <Formula tex="p_3" />。</p>
+          <p>本页取 <Formula tex={String.raw`L_{\max}=4,\ d_{\mathrm{model}}=2`} />。因此 one-hot <Formula tex="r_3" /> 是 <Formula tex={String.raw`1\times4`} />，位置矩阵 <Formula tex="P_{\mathrm{pos}}" /> 是 <Formula tex={String.raw`4\times2`} />；两者相乘后得到可与 Token 内容相加的 <Formula tex={String.raw`1\times2`} /> 向量 <Formula tex="p_3" />。这是把“按位置查表”写成矩阵乘法的等价形式，实际代码通常直接按索引取行，不会真的构造 one-hot。</p>
         </div>
 
         <div className="position-selector-flow" role="img" aria-label="位置 3 的 one-hot 行向量乘位置矩阵，选中矩阵第 3 行得到稠密位置向量 p3">
@@ -1557,7 +1557,7 @@ function PositionEncodingFlow() {
         <div className="position-selector-equation">
           <span>把“第 3 个 one-hot 位置选中第 3 行”完整写成矩阵乘法</span>
           <Formula block tex={String.raw`\begin{aligned}r_3P_{\mathrm{pos}}&=\begin{bmatrix}0&0&1&0\end{bmatrix}${matrixTex(positionEmbedding, 2)}\\&=0p_1+0p_2+1p_3+0p_4\\&=${rowVectorTex(positionEmbedding[2], 2)}=p_3\end{aligned}`} />
-          <p>矩阵乘法会用 one-hot 的四个系数分别乘四行；前三个 0 消去对应行，唯一的 1 保留第 3 行。因此 one-hot 是“地址”，小数向量 <Formula tex="p_3" /> 才是从该地址读出的“内容”。</p>
+          <p>矩阵乘法会用 one-hot 的四个系数分别乘四行；三个 0 消去对应行，唯一的 1 保留第 3 行。因此 one-hot 是“地址”，小数向量 <Formula tex="p_3" /> 才是从该地址读出的“内容”。固定正弦位置编码也可以按位置排成同样的矩阵，只是每一行由公式生成而不是训练得到。</p>
         </div>
 
         <div className="position-selector-sum" aria-label="位置 3 的内容向量与选出的位置向量逐维相加得到 x3">
@@ -1579,7 +1579,7 @@ function PositionEncodingFlow() {
 
         <div className="position-addition-notes">
           <div><b>为什么是小数</b><span><Formula tex="p_i" /> 是稠密特征向量，不是把位置编号直接写进去。它的数值来自可学习位置表，或来自正弦、余弦公式；单个坐标可以相同，区分位置时看的是整行向量。</span></div>
-          <div><b>与拼接的关系</b><span><Formula tex={String.raw`[u_i\mid r_i]\begin{bmatrix}E_{\mathrm{tok}}\\P_{\mathrm{pos}}\end{bmatrix}=u_iE_{\mathrm{tok}}+r_iP_{\mathrm{pos}}=e_i+p_i`} />。因此特定的“拼接 + 分块线性变换”可直接写成相加，同时保持宽度为 <Formula tex="d_{\mathrm{model}}" />。</span></div>
+          <div><b>与拼接的关系</b><span>令 <Formula tex="u_i" /> 表示 token ID 的 one-hot、<Formula tex="r_i" /> 表示位置 one-hot，则 <Formula tex={String.raw`[u_i\mid r_i]\begin{bmatrix}E_{\mathrm{tok}}\\P_{\mathrm{pos}}\end{bmatrix}=u_iE_{\mathrm{tok}}+r_iP_{\mathrm{pos}}=e_i+p_i`} />。这说明相加可写成一次分块查表后的线性组合，同时保持宽度为 <Formula tex="d_{\mathrm{model}}" />；它不是先把两个稠密向量直接拼长再交给 Attention。</span></div>
         </div>
       </div>
 
@@ -1598,7 +1598,7 @@ function PositionEncodingFlow() {
           <Formula block tex={String.raw`\begin{aligned}\mathrm{PE}_{(\mathrm{pos},2f)}&=\sin\!\left(\frac{\mathrm{pos}}{10000^{2f/d_{\mathrm{model}}}}\right)\\\mathrm{PE}_{(\mathrm{pos},2f+1)}&=\cos\!\left(\frac{\mathrm{pos}}{10000^{2f/d_{\mathrm{model}}}}\right)\end{aligned}`} />
           <p>这里 <Formula tex="\mathrm{pos}" /> 是序列位置，<Formula tex="f" /> 是频率组索引。例如 <Formula tex={String.raw`d_{\mathrm{model}}=4,\ \mathrm{pos}=1`} /> 时，<Formula tex={String.raw`f=0,1`} /> 两组频率分别使用分母 1 和 100：</p>
           <Formula block tex={String.raw`\begin{aligned}\mathrm{PE}(1)&=\begin{bmatrix}\sin(1)&\cos(1)&\sin(0.01)&\cos(0.01)\end{bmatrix}\\&\approx\begin{bmatrix}0.8415&0.5403&0.0100&0.99995\end{bmatrix}\end{aligned}`} />
-          <p>每个位置都由同一公式确定，不参与训练；不同维度使用不同频率，使模型能区分绝对位置与相对间距。</p>
+          <p>每个位置都由同一公式确定，不参与训练；它向模型提供绝对位置，并使固定位置偏移可由不同频率分量之间的线性关系表达。</p>
         </article>
       </div>
 
@@ -1645,7 +1645,7 @@ function FigFlashCompare() {
           ))}
         </div>
         <div className="fc-col">
-          <div className="fc-col-h good">FlashAttention · 分块进片上，只写最终 <Formula tex="O" /> 与每行统计量</div>
+          <div className="fc-col-h good">FlashAttention · 分块进片上，不把完整 <Formula tex={String.raw`S,\ A`} /> 写回 HBM</div>
           {flash.map((s, i) => (
             <div key={i} className="fc-line">
               <Step t={s.t} tone={s.good ? "good" : undefined} />
@@ -1654,7 +1654,7 @@ function FigFlashCompare() {
           ))}
         </div>
       </div>
-      <div className="fig-cap">图 · 左侧每物化一次 <Formula tex={String.raw`L\times L`} /> 矩阵都要一次 HBM 写与读；右侧在 SRAM 内完成累加，<Formula tex={String.raw`\mathcal O(L^2)`} /> 中间矩阵从不落地显存</div>
+      <div className="fig-cap">图 · 左侧会把 <Formula tex={String.raw`L\times L`} /> 的 <Formula tex={String.raw`S,\ A`} /> 写入并读回 HBM；右侧按块计算，只保存输出与行统计量等线性规模状态，不物化完整注意力矩阵</div>
     </div>
   );
 }
@@ -2140,7 +2140,7 @@ export default function Home() {
             </div>
 
             <h3>长序列朴素 Attention 常受 HBM 访存限制</h3>
-            <p className="sec-lead">对长度为 <Formula tex="L" /> 的 self-attention（此时 <Formula tex={String.raw`L_q=L_k=L`} />），朴素实现会把整张 <Formula tex="L\times L" /> 的分数矩阵 <Formula tex="S" /> 和权重矩阵 <Formula tex="A" /> 写进 HBM（显存）再读回。序列一长，<b>显存读写</b>就可能成为主要开销——具体瓶颈取决于序列长度、head dimension、硬件和实现。FlashAttention 重点优化这个 IO 瓶颈：<b style={{ color: "#2dd4bf" }}>把 <Formula tex={String.raw`Q,\ K,\ V`} /> 切成小块，分批搬进 SRAM，在片上计算并在线更新，只写回最终输出 <Formula tex="O" /> 与反向所需的行归一化统计量</b>——中间的 <Formula tex="L\times L" /> 矩阵不在 HBM 中物化。</p>
+            <p className="sec-lead">对长度为 <Formula tex="L" /> 的 self-attention（此时 <Formula tex={String.raw`L_q=L_k=L`} />），朴素实现会把整张 <Formula tex="L\times L" /> 的分数矩阵 <Formula tex="S" /> 和权重矩阵 <Formula tex="A" /> 写进 HBM（显存）再读回。序列一长，<b>显存读写</b>就可能成为主要开销——具体瓶颈取决于序列长度、head dimension、硬件和实现。FlashAttention 重点优化这个 IO 瓶颈：<b style={{ color: "#2dd4bf" }}>把 <Formula tex={String.raw`Q,\ K,\ V`} /> 切成小块，分批搬进 SRAM，在片上计算并在线更新输出与行归一化统计量</b>；它会按内核调度读写这些线性规模状态，但不会把完整的 <Formula tex={String.raw`S,\ A\in\mathbb{R}^{L\times L}`} /> 物化到 HBM。</p>
 
             <FigFlashCompare />
 
@@ -2207,7 +2207,7 @@ def attention_ref(q, k, v, mask=None):
 )
 # 需要对照不同后端时，可强制选择内核：
 # with torch.nn.attention.sdpa_kernel(SDPBackend.FLASH_ATTENTION): ...`}</code></pre>
-            <div className="note"><b>F.scaled_dot_product_attention</b>（SDPA）根据输入形状、数据类型、设备和可用内核，从 math、Flash、Memory‑Efficient 等后端中选择可用实现——FlashAttention 只是其中之一。某个 fused 后端受限时会尝试其他可用实现，最终才可能回退到 math；它既不保证命中 flash，也不是实测后选择「最快」（后端种类随版本演进，新版还有 cuDNN 等）。可用 <code>sdpa_kernel</code> 强制指定后端做对照验证。它与参考实现实数等价；<b>只有命中 fused 后端时</b>才能避免/减少完整注意力矩阵的显存物化，回退到 math 则和参考实现一样会物化中间量。</div>
+            <div className="note"><b>F.scaled_dot_product_attention</b>（SDPA）会根据设备、数据类型、shape 与后端可用性进行调度；常见实现包括 PyTorch math、FlashAttention 和 Memory‑Efficient Attention，具体后端集合会随版本与构建变化。它不会在每次调用时逐个实测再挑最快，因此既不能只凭 API 名称断言命中 FlashAttention，也不应假设一定回退到某个固定后端。可用 <code>sdpa_kernel</code> 限定后端做对照验证。各实现与参考公式在实数下等价；浮点归约顺序不同，结果应在合理容差内比较。</div>
 
             <div className="code-title">③ 多头自注意力 — reshape → transpose → SDPA → concat → <Formula tex="W^O" /></div>
             <pre><code>{`class MultiHeadAttention(nn.Module):

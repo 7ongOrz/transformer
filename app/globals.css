@@ -444,7 +444,7 @@ p {
 .math-block {
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 2px 0;
+  padding: 5px 0;
 }
 /* 长公式左对齐，避免窄窗居中导致左侧被裁且无法滚动回 */
 .math-block .katex-display {
@@ -665,7 +665,7 @@ p {
 }
 .setup-tokens small {
   color: var(--t3);
-  font-size: 10.5px;
+  font-size: 12px;
 }
 .setup-dimension-note {
   display: grid;
@@ -794,7 +794,7 @@ p {
   margin: 0;
   padding: 0;
   color: var(--t1);
-  font-size: 14px;
+  font-size: 15px;
   overflow-x: auto;
 }
 .calculation-route .math-block .katex-display {
@@ -803,7 +803,7 @@ p {
 }
 .calculation-route > div > span {
   color: var(--t3);
-  font-size: 12.5px;
+  font-size: 13.5px;
   line-height: 1.55;
   text-wrap: wrap;
 }
@@ -859,7 +859,7 @@ p {
   margin-bottom: 4px;
   color: var(--att);
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
 }
@@ -908,7 +908,7 @@ p {
 .score-reading-rules article > span {
   color: var(--t3);
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
 }
 .score-reading-rules article > b {
@@ -999,11 +999,11 @@ p {
 }
 .qkv-projection-flow {
   display: grid;
-  grid-template-columns: 250px 56px minmax(620px, 1fr);
+  grid-template-columns: 260px 58px minmax(690px, 1fr);
   align-items: stretch;
   gap: 10px;
-  min-width: 950px;
-  max-width: 1100px;
+  min-width: 1040px;
+  max-width: 1240px;
   margin: 0 auto;
 }
 .qkv-source {
@@ -1016,7 +1016,7 @@ p {
 .qkv-source > div:last-child {
   color: var(--t3);
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 12.5px;
   text-align: center;
 }
 .qkv-projection-branches {
@@ -1060,7 +1060,7 @@ p {
 }
 .qkv-projection-note > div {
   color: var(--t3);
-  font-size: 11.5px;
+  font-size: 13px;
   line-height: 1.55;
 }
 .qkv-fanout {
@@ -1125,7 +1125,7 @@ p {
   margin-top: 12px;
   text-align: center;
   font-family: var(--mono);
-  font-size: 12.5px;
+  font-size: 13.5px;
   line-height: 1.7;
   color: var(--t3);
   text-wrap: wrap;
@@ -1146,7 +1146,7 @@ p {
   margin-bottom: 5px;
   color: var(--v);
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 700;
   letter-spacing: 0.08em;
 }
@@ -1159,7 +1159,7 @@ p {
 .aggregate-heading p {
   margin: 7px 0 0;
   color: var(--t2);
-  font-size: 14px;
+  font-size: 14.5px;
   line-height: 1.7;
 }
 .aggregate-equation {
@@ -1199,7 +1199,7 @@ p {
 .aggregate-rule p {
   margin: 0;
   color: var(--t2);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.7;
 }
 .aggregate-axis-sums {
@@ -1219,7 +1219,7 @@ p {
   display: block;
   margin-bottom: 8px;
   color: var(--t2);
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 700;
 }
 .aggregate-axis-sums .math-block {
@@ -1245,8 +1245,13 @@ p {
 }
 .aggregate-result > span {
   color: var(--t2);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.7;
+}
+@media (max-width: 1400px) {
+  .aggregate-axis-sums {
+    grid-template-columns: 1fr;
+  }
 }
 /* q1 打分：从 Query 到 S 第一行的三段式流程 */
 .score-explainer {
@@ -1296,7 +1301,7 @@ p {
   display: block;
   color: var(--t3);
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.06em;
 }
@@ -1304,18 +1309,18 @@ p {
   display: block;
   margin-top: 2px;
   color: var(--t1);
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.45;
 }
 .score-symbol-heading p {
   margin: 5px 0 0;
   color: var(--t2);
-  font-size: 12px;
+  font-size: 13.5px;
   line-height: 1.6;
 }
 .score-symbol-flow {
   display: grid;
-  grid-template-columns: 148px 44px 184px 66px minmax(190px, 1fr);
+  grid-template-columns: 152px 40px 184px 66px minmax(190px, 1fr);
   gap: 8px;
   align-items: center;
   margin-top: 13px;
@@ -1335,7 +1340,7 @@ p {
 .score-symbol-roles > div > span {
   display: block;
   color: var(--t3);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.45;
 }
 .score-symbol-node .math-block,
@@ -1343,7 +1348,7 @@ p {
   margin: 5px 0;
   padding: 0;
   overflow: visible;
-  font-size: 12px;
+  font-size: 14px;
 }
 .score-symbol-node .katex-display,
 .score-symbol-roles .katex-display {
@@ -1352,7 +1357,7 @@ p {
 .score-symbol-node small {
   display: block;
   color: var(--t3);
-  font-size: 10px;
+  font-size: 12px;
 }
 .score-symbol-roles {
   display: grid;
@@ -1392,7 +1397,7 @@ p {
 .score-symbol-projections > div > span,
 .score-symbol-operation > span,
 .score-symbol-operation > small {
-  font-size: 9.5px;
+  font-size: 12px;
   line-height: 1.3;
 }
 .score-symbol-projections b,
@@ -1432,7 +1437,7 @@ p {
   min-height: 29px;
   place-items: center;
   border-radius: 6px;
-  font-size: 10.5px;
+  font-size: 12px;
 }
 .score-mini-matrix .corner {
   color: var(--t3);
@@ -1465,7 +1470,7 @@ p {
 }
 .score-mini-matrix .cell.scored > strong {
   color: var(--t1);
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-variant-numeric: tabular-nums;
   line-height: 1.2;
   white-space: nowrap;
@@ -1489,7 +1494,7 @@ p {
 .score-index-notes > span,
 .score-index-notes > strong {
   color: var(--t2);
-  font-size: 11px;
+  font-size: 12.5px;
   line-height: 1.55;
 }
 .score-index-notes > span b {
@@ -1503,7 +1508,7 @@ p {
 }
 .score-explainer-flow {
   display: grid;
-  grid-template-columns: 252px 48px minmax(400px, 1fr) 48px 300px;
+  grid-template-columns: 220px 36px minmax(520px, 1fr) 36px 300px;
   gap: 10px;
   align-items: stretch;
 }
@@ -1535,7 +1540,7 @@ p {
 .score-column-head > span {
   color: var(--t3);
   font-family: var(--mono);
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-weight: 700;
 }
 .score-query-card > b,
@@ -1559,7 +1564,7 @@ p {
 .score-row-card p {
   margin: 0;
   color: var(--t2);
-  font-size: 12.5px;
+  font-size: 13.5px;
   line-height: 1.68;
 }
 .score-row-card p b {
@@ -1584,7 +1589,7 @@ p {
   padding: 5px 7px;
   color: var(--t1);
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 12.5px;
   text-align: center;
 }
 .score-row-matrix > div > span {
@@ -1626,7 +1631,7 @@ p {
 .score-flow-arrow span {
   color: var(--t3);
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 12px;
   line-height: 1.45;
 }
 .score-comparisons {
@@ -1647,7 +1652,7 @@ p {
 }
 .score-comparison {
   display: grid;
-  grid-template-columns: 122px minmax(0, 1fr) 76px;
+  grid-template-columns: 140px minmax(0, 1fr) 70px;
   gap: 10px;
   align-items: center;
   min-width: 0;
@@ -1665,7 +1670,7 @@ p {
 .score-key-id > span {
   color: var(--t3);
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 12px;
 }
 .score-key-id b {
   color: var(--k);
@@ -1674,10 +1679,13 @@ p {
 }
 .score-key-id small {
   grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px 7px;
   color: var(--t2);
   font-family: var(--mono);
-  font-size: 10.5px;
-  white-space: nowrap;
+  font-size: 12px;
+  white-space: normal;
 }
 .score-comparison .math-block {
   min-width: 0;
@@ -1714,16 +1722,16 @@ p {
 .score-row-labels span {
   color: var(--t3);
   font-family: var(--mono);
-  font-size: 9.5px;
+  font-size: 12px;
 }
 .score-row-labels b {
   color: var(--t2);
-  font-size: 10.5px;
+  font-size: 12px;
 }
 .score-row-labels strong {
   color: var(--att);
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 12.5px;
 }
 .score-next-step {
   display: flex;
@@ -1841,7 +1849,7 @@ p {
 .position-matrix-op span {
   color: var(--t3);
   font-family: var(--mono);
-  font-size: 11.5px;
+  font-size: 12px;
   line-height: 1.45;
 }
 .position-token-example {
@@ -1938,7 +1946,7 @@ p {
 .position-selector-sum article > span {
   color: var(--t3);
   font-family: var(--mono);
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-weight: 700;
 }
 .position-selector-onehot > b,
@@ -1952,7 +1960,7 @@ p {
 .position-selector-dense > small {
   margin-top: 9px;
   color: var(--t3);
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.5;
 }
 .position-selector-labels,
@@ -1968,7 +1976,7 @@ p {
 .position-selector-dense-labels small {
   color: var(--t3);
   font-family: var(--mono);
-  font-size: 9.5px;
+  font-size: 12px;
   text-align: center;
 }
 .position-selector-cells {
@@ -2017,7 +2025,7 @@ p {
 .position-selector-op span {
   color: var(--t3);
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 12px;
   line-height: 1.35;
 }
 .position-selector-dense-labels,
@@ -2098,7 +2106,7 @@ p {
 .position-selector-sum > div span {
   color: var(--t3);
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 12px;
 }
 .position-addition-notes {
   display: grid;
@@ -2198,9 +2206,9 @@ p {
 }
 .softmax-flow {
   display: grid;
-  grid-template-columns: minmax(250px, 1fr) 56px minmax(280px, 1.12fr) 56px minmax(250px, 1fr);
+  grid-template-columns: minmax(294px, 1.08fr) 36px minmax(294px, 1fr) 36px minmax(294px, 1.08fr);
   align-items: stretch;
-  gap: 10px;
+  gap: 8px;
 }
 .softmax-panel {
   min-width: 0;
@@ -2252,7 +2260,7 @@ p {
 .softmax-arrow span {
   margin-bottom: -4px;
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 12px;
 }
 .softmax-matrix-guide {
   margin-top: 20px;
@@ -2295,7 +2303,7 @@ p {
   border: 1px solid var(--hairline);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.025);
-  font-size: 11.5px;
+  font-size: 12.5px;
   text-align: left;
 }
 .softmax-matrix-guide .score-index-notes > strong {
@@ -2897,7 +2905,7 @@ p code {
 }
 .fms-corner {
   color: var(--t-dim);
-  font-size: 11px;
+  font-size: 12px;
 }
 .fms-collab {
   color: var(--k);
@@ -3040,11 +3048,11 @@ p code {
 }
 .mh-shape-route > div > span {
   color: var(--t3);
-  font-size: 11.5px;
+  font-size: 12.5px;
 }
 .mh-shape-route > div > b {
   color: var(--t1);
-  font-size: 14px;
+  font-size: 14.5px;
 }
 .mh-shape-route > i {
   display: grid;
@@ -3121,7 +3129,7 @@ p code {
   text-align: center;
 }
 .mh-projection-op .math-inline {
-  font-size: 12px;
+  font-size: 13px;
 }
 .mh-projection-op i {
   color: var(--att);
@@ -3154,7 +3162,7 @@ p code {
 }
 .mh-split-name > span {
   color: var(--t3);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
 }
 .mh-split-matrix table {
@@ -3165,22 +3173,22 @@ p code {
 .mh-split-matrix th,
 .mh-split-matrix td {
   height: 38px;
-  padding: 0 7px;
+  padding: 0 6px;
   border: 1px solid var(--hairline);
   border-radius: 6px;
   font-family: var(--mono);
-  font-size: 12.5px;
+  font-size: 13px;
   text-align: center;
   white-space: nowrap;
 }
 .mh-split-matrix thead th {
   height: 28px;
   color: var(--t3);
-  font-size: 10.5px;
+  font-size: 12px;
 }
 .mh-split-matrix tbody th {
   color: var(--t2);
-  font-size: 11px;
+  font-size: 12px;
 }
 .mh-split-matrix td {
   color: var(--t1);
@@ -3212,7 +3220,7 @@ p code {
 }
 .mh-parameters summary {
   color: var(--t2);
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 700;
   cursor: pointer;
 }
@@ -3234,7 +3242,7 @@ p code {
 .mh-parameters > p {
   margin: 8px 0 0;
   color: var(--t3);
-  font-size: 12.5px;
+  font-size: 13px;
   text-align: center;
 }
 .mh-head-inputs {
@@ -3276,13 +3284,13 @@ p code {
 .mh-lane-title > span {
   color: var(--mh-color);
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 800;
   letter-spacing: 0.06em;
 }
 .mh-head-card-title > b {
   color: var(--t2);
-  font-size: 12.5px;
+  font-size: 13.5px;
 }
 .mh-head-input-card > .math-block {
   margin: 8px 0 12px;
@@ -3304,7 +3312,7 @@ p code {
   font-size: 14px;
 }
 .mh-head-input-grid .fms-grid th {
-  font-size: 10.5px;
+  font-size: 12px;
 }
 .mh-head-input-grid .fms-mat-name {
   font-size: 16px;
@@ -3319,7 +3327,7 @@ p code {
   padding-top: 12px;
   border-top: 1px solid var(--hairline);
   color: var(--t2);
-  font-size: 12.5px;
+  font-size: 13.5px;
 }
 .mh-token-slice > span {
   color: var(--mh-color);
@@ -3377,7 +3385,7 @@ p code {
   display: block;
   margin-bottom: 9px;
   color: var(--t2);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
 }
 .mh-lane-step .fms-cell {
@@ -3387,7 +3395,7 @@ p code {
   font-size: 14px;
 }
 .mh-lane-step .fms-grid th {
-  font-size: 10.5px;
+  font-size: 12px;
 }
 .mh-lane-step .fms-mat-name {
   font-size: 16px;
@@ -3399,12 +3407,12 @@ p code {
   gap: 1px;
   color: var(--t3);
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 12px;
   text-align: center;
 }
 .mh-lane-op b {
   color: var(--t1);
-  font-size: 12px;
+  font-size: 13px;
 }
 .mh-lane-op i {
   color: var(--mh-color);
@@ -3423,7 +3431,7 @@ p code {
 }
 .mh-first-row > b {
   color: var(--mh-color);
-  font-size: 12px;
+  font-size: 13px;
   white-space: nowrap;
 }
 .mh-first-row-chain {
@@ -3431,7 +3439,7 @@ p code {
   align-items: center;
   flex-wrap: wrap;
   gap: 5px 10px;
-  font-size: 13px;
+  font-size: 13.5px;
 }
 .mh-output-flow {
   display: grid;
@@ -3455,7 +3463,7 @@ p code {
   font-size: 14px;
 }
 .mh-output-step .fms-grid th {
-  font-size: 10.5px;
+  font-size: 12px;
 }
 .mh-output-op b {
   color: var(--att);
@@ -3463,7 +3471,7 @@ p code {
   line-height: 1;
 }
 .mh-output-op span {
-  font-size: 10.5px;
+  font-size: 12px;
 }
 .mh-output-row {
   display: grid;
@@ -3481,7 +3489,7 @@ p code {
   grid-row: 1 / span 2;
   color: var(--out);
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   white-space: nowrap;
 }
