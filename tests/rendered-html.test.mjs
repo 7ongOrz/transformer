@@ -50,9 +50,10 @@ test("server-renders the Attention teaching page", async () => {
   assert.match(html, /它不在 Token 维上再次混合信息/);
   assert.match(html, /真实计算结果/);
   assert.match(html, /FlashAttention：不改变数学/);
-  assert.match(html, /SDPA · 核心运算/);
-  assert.match(html, /Grid 是全部 thread block 的集合/);
-  assert.match(html, /tile 是算法切出的数据子矩阵/);
+  assert.match(html, /SDPA.*Scaled Dot-Product Attention/);
+  assert.match(html, /数学没有变化：仍然是打分、归一化、汇聚/);
+  assert.match(html, /Grid 包含多个 thread block/);
+  assert.match(html, /tile 是矩阵数据块/);
   assert.match(html, /固定 Query 行 1～2/);
   assert.match(html, /0\.706.*1\.314/);
   assert.match(html, /代码实现：从公式到 PyTorch/);
@@ -227,7 +228,7 @@ test("keeps project metadata and generated assets clean", async () => {
   assert.match(page, /function FigFlashCompare/);
   assert.match(page, /代码实现：从公式到 PyTorch/);
   assert.match(page, /E_\{\\mathrm\{tok\}\}/);
-  assert.match(page, /\\mathcal O/);
+  assert.match(page, /O\(L²d\)/);
   assert.doesNotMatch(page, /d_\{model\}|L_\{max\}|W[ᵠᵏᵛ]|tex="(?:Q\/K\/V|S\/P|dQ,dK,dV)"/);
   assert.match(layout, /Transformer 核心算子详解/);
   assert.doesNotMatch(`${page}\n${layout}`, /20\s*(?:分钟|MIN)|20:00/i);
@@ -285,9 +286,10 @@ test("ships the current teaching page as an offline standalone HTML file", async
   assert.match(html, /sin 不要求单调/);
   assert.match(html, /固定相对距离对应固定旋转/);
   assert.match(html, /FlashAttention：不改变数学/);
-  assert.match(html, /SDPA · 核心运算/);
-  assert.match(html, /Grid 是全部 thread block 的集合/);
-  assert.match(html, /tile 是算法切出的数据子矩阵/);
+  assert.match(html, /SDPA.*Scaled Dot-Product Attention/);
+  assert.match(html, /数学没有变化：仍然是打分、归一化、汇聚/);
+  assert.match(html, /Grid 包含多个 thread block/);
+  assert.match(html, /tile 是矩阵数据块/);
   assert.match(html, /固定 Query 行 1～2/);
   assert.match(html, /0\.706.*1\.314/);
   assert.match(html, /把融合投影结果重排为三个头，不拆 Token/);
