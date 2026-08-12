@@ -347,7 +347,7 @@ function AttentionSetupGuide() {
       <div className="setup-types">
         <div><b>可训练参数</b><span>当前单头链路包含 Token Embedding 表 <Formula tex="E_{\mathrm{tok}}" /> 与投影矩阵 <Formula tex={String.raw`W^Q,\ W^K,\ W^V`} />；若采用可学习位置表，还包括 <Formula tex="P_{\mathrm{pos}}" />。它们训练初始通常随机，随后被学习；推理时不再重新随机。</span></div>
         <div><b>前向中间量</b><span><Formula tex={String.raw`X,\ Q,\ K,\ V,\ S,\ A,\ O`} />：随输入变化，每次前向重新计算，不是模型单独保存的参数。</span></div>
-        <div><b>数值算例</b><span>矩阵采用便于手算核验的固定数值，不对应某个已训练模型，也不会在页面刷新时重新随机。</span></div>
+        <div><b>数值算例</b><span>矩阵使用固定数值，便于逐项核算；这些数值不对应某个已训练模型。</span></div>
       </div>
     </div>
   );
@@ -357,9 +357,9 @@ function ScoreMatrixReadingGuide() {
   return (
     <div className="score-reading-guide">
       <div className="score-reading-head">
-        <span>先统一矩阵坐标</span>
-        <b>读懂 <Formula tex={String.raw`4\times4`} /> 分数矩阵，只看“行、列、格”</b>
-        <p>后面的真实数值矩阵都沿用同一规则，不需要逐个记忆 16 个单元格。</p>
+        <span>矩阵坐标</span>
+        <b><Formula tex={String.raw`4\times4`} /> 分数矩阵的行、列与单元格</b>
+        <p>全部 <Formula tex={String.raw`4\times4`} /> 数值矩阵沿用相同的行列语义。</p>
       </div>
       <div className="score-reading-rules">
         <article className="row-rule">
@@ -512,7 +512,7 @@ function FigStageQKV() {
         <span style={{ color: CV }}>→ <Formula tex={String.raw`v_1=[0.4\times0.7+1.2\times0.1,\ 0.4\times0.2+1.2\times1.0]=[0.40,\ 1.28]`} /></span>
       </div>
       <div style={{ textAlign: "center", color: "var(--t3)", fontSize: 13, marginTop: 10 }}>
-        图 · 每一行都对应同序号 Token。后面只追踪第 1 行的 <b style={{ color: CQ }}><Formula tex={String.raw`q_1=[0.04,\ 1.16]`} /></b>，
+        图 · 每一行都对应同序号 Token。以第 1 行的 <b style={{ color: CQ }}><Formula tex={String.raw`q_1=[0.04,\ 1.16]`} /></b> 为例，
         但它仍要与全部 <Formula tex="k_j" /> 比较，并用全部 <Formula tex="v_j" /> 形成 <Formula tex="b_1" />。
       </div>
     </div>
@@ -955,7 +955,7 @@ function FigMatrixStage() {
           <span className="fms-banner-tag">从第一行扩展到全部四行</span>
           <Formula block tex={String.raw`\underbrace{Q_{[4\times2]}K^{\mathsf T}_{[2\times4]}/\sqrt{2}}_{S_{[4\times4]}}\ \xrightarrow{\ \text{逐行 softmax}\ }\ A_{[4\times4]}\ \xrightarrow{\ \times V_{[4\times2]}\ }\ O_{[4\times2]}`} />
           <div className="fms-prep">
-            <span>上一节已完成投影，不再重复展开：</span>
+            <span><Formula tex={String.raw`Q,\ K,\ V`} /> 已由输入投影得到：</span>
             <b style={{ color: FMS_PAL.Q.c }}><Formula tex={String.raw`Q\ [4\times2]`} /></b>
             <b style={{ color: FMS_PAL.K.c }}><Formula tex={String.raw`K\ [4\times2]`} /></b>
             <b style={{ color: FMS_PAL.V.c }}><Formula tex={String.raw`V\ [4\times2]`} /></b>
@@ -1004,10 +1004,10 @@ function FigMatrixStage() {
         <div className="fms-legend-row">
           <div className="fms-legend">
             <span className="fms-focus-swatch" />
-            <span className="fms-legend-text">橙色框 = 上一节逐项算过的 Token 1 路径</span>
+            <span className="fms-legend-text">橙色框 = Token 1 的逐项计算路径</span>
           </div>
           <div className="fms-read">
-            矩阵级没有新增算法：高亮的第一行就是上一节的 <Formula tex={String.raw`q_1\rightarrow S_{1,:}\rightarrow A_{1,:}\rightarrow b_1`} />；其余三行遵循同一规则，由 GPU 与第一行并行计算。
+            高亮第一行对应 <Formula tex={String.raw`q_1\rightarrow S_{1,:}\rightarrow A_{1,:}\rightarrow b_1`} />；其余三行遵循同一规则，并可与第一行并行计算。
           </div>
         </div>
       </div>
@@ -1214,7 +1214,7 @@ function FigMultiHeadCalculation() {
         <span>缩小版 Transformer 多头层 · Token 1～4</span>
         <b>输入 <Formula tex={String.raw`4\times6`} /> → 每头 <Formula tex={String.raw`4\times2`} /> → 拼接 <Formula tex={String.raw`4\times6`} /> → 输出 <Formula tex={String.raw`4\times6`} /></b>
         <Formula block tex={String.raw`L=4,\quad d_{\mathrm{model}}=6,\quad h=3,\quad d_k=d_v=d_{\mathrm{model}}/h=2`} />
-        <p>前述 <Formula tex={String.raw`4\times2`} /> 单头数值链只展开 Attention 核心计算，不表示上一层把二维输出扩成六维。本节遵循标准 Transformer 的维度规则：<Formula tex={String.raw`d_{\mathrm{model}}=h\,d_v=3\times2=6`} />；原论文同样满足 <Formula tex={String.raw`512=8\times64`} />，因此多头层前后的模型宽度保持不变。</p>
+        <p><Formula tex={String.raw`4\times2`} /> 单头算例独立展示 Attention 核心计算。标准多头层满足 <Formula tex={String.raw`d_{\mathrm{model}}=h\,d_v`} />；此处取 <Formula tex={String.raw`6=3\times2`} />，原始 Transformer 取 <Formula tex={String.raw`512=8\times64`} />，因此多头层的输入与输出宽度保持一致。</p>
       </div>
 
       <div className="mh-shape-route" aria-label="多头注意力张量形状变化">
@@ -1422,7 +1422,7 @@ function FigTransformer() {
           <rect x="91" y="146" width="118" height="20" rx="7" fill="#0c1430" stroke="rgba(56,189,248,0.28)" />
           <text x="150" y="160" textAnchor="middle" fill="#7e8ac0" fontSize="11" fontWeight="700">N× Encoder Layer</text>
         </g>
-        <Box x={120} y={174} w={210} h={54} fill="rgba(56,189,248,0.14)" stroke="#38bdf8" label="Multi-Head Self-Attention" sub="本节讲的核心算子" lc="#38bdf8" sc="#6e7aab" />
+        <Box x={120} y={174} w={210} h={54} fill="rgba(56,189,248,0.14)" stroke="#38bdf8" label="Multi-Head Self-Attention" sub="全局上下文建模" lc="#38bdf8" sc="#6e7aab" />
         <Box x={150} y={246} w={150} h={36} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
         <Box x={120} y={302} w={210} h={50} fill="rgba(45,212,191,0.14)" stroke="#2dd4bf" label="Feed-Forward Network" sub="两层 MLP（逐位置作用）" lc="#2dd4bf" sc="#6e7aab" />
         <Box x={150} y={370} w={150} h={36} fill="#0c1430" stroke="rgba(255,255,255,0.08)" label="Add &amp; Norm" lc="#a9b4dc" />
@@ -1525,36 +1525,36 @@ function PositionEncodingFlow() {
       <div className="position-token-example">
         <span>把第 1 行单独展开</span>
         <Formula block tex={String.raw`\underbrace{${rowVectorTex(contentEmbedding[0], 2)}}_{e_1\;\text{内容}}+\underbrace{${rowVectorTex(positionEmbedding[0], 2)}}_{p_1\;\text{位置}}=\underbrace{${rowVectorTex(attentionInput[0], 2)}}_{x_1\;\text{输入}}`} />
-        <p>这就是前文一直使用的 <Formula tex="x_1" />；随后才有 <Formula tex={String.raw`q_1=x_1W^Q=${rowVectorTex(attentionDemo.Q[0], 2)}`} />。因此位置编码位于 <Formula tex={String.raw`Q,\ K,\ V`} /> 投影之前。</p>
+        <p><Formula tex="x_1" /> 随后参与投影：<Formula tex={String.raw`q_1=x_1W^Q=${rowVectorTex(attentionDemo.Q[0], 2)}`} />。因此位置编码位于 <Formula tex={String.raw`Q,\ K,\ V`} /> 投影之前。</p>
       </div>
 
       <div className="position-addition-proof">
         <div className="position-addition-head">
-          <span>数学补充 · 不是 Transformer 的实际前向步骤</span>
-          <b>PDF 为什么会提到“拼接”：它在把加法改写成一次矩阵乘法</b>
-          <p>模型真正运行的仍然是 <Formula tex="x_3=e_3+p_3" />。下面只是临时把内容向量 <Formula tex="e_3" /> 和“位置 3”的 one-hot 地址 <Formula tex="r_3" /> 并排写在一行，用完整数值说明分块矩阵乘法为什么会得到同一个结果。</p>
+          <span>等价线性表示</span>
+          <b>相加可以写成拼接向量经过特定分块线性变换</b>
+          <p>在输入端相加的位置编码方案中，直接计算 <Formula tex="x_3=e_3+p_3" />。若将内容向量 <Formula tex="e_3" /> 与位置 one-hot <Formula tex="r_3" /> 沿特征维拼接，并选取分块矩阵 <Formula tex={String.raw`[I_2;P_{\mathrm{pos}}]`} />，同一结果也可表示为一次矩阵乘法。</p>
         </div>
 
-        <div className="position-proof-terms" aria-label="PDF 拼接推导中的三个符号">
+        <div className="position-proof-terms" aria-label="内容向量、位置索引与联合表示">
           <article>
-            <span>真实数据 · 内容</span>
+            <span>内容向量</span>
             <Formula block tex={String.raw`e_3=\begin{bmatrix}0.55&0.60\end{bmatrix}`} />
             <small>Token 3 的内容向量，shape 为 <Formula tex={String.raw`1\times2`} /></small>
           </article>
           <article className="address">
-            <span>仅用于推导 · 位置地址</span>
+            <span>位置索引 · one-hot</span>
             <Formula block tex={String.raw`r_3=\begin{bmatrix}0&0&1&0\end{bmatrix}`} />
             <small>数字 1 表示“取位置表第 3 行”，不是位置向量本身</small>
           </article>
           <article className="temporary">
-            <span>临时写法 · 不是实际输入</span>
+            <span>联合表示 · 拼接</span>
             <Formula block tex={String.raw`[e_3\mid r_3]=\begin{bmatrix}0.55&0.60\mid0&0&1&0\end{bmatrix}`} />
-            <small>竖线只分隔两段；Transformer 不会真的构造这个 <Formula tex={String.raw`1\times6`} /> 向量</small>
+            <small>沿特征维拼接后为 <Formula tex={String.raw`1\times6`} />；输入端相加方案直接使用 <Formula tex="e_3+p_3" /></small>
           </article>
         </div>
 
-        <div className="position-proof-calculation" role="img" aria-label="临时拼接向量乘分块矩阵，逐项展开后得到内容向量加位置向量">
-          <span>把每一个系数乘哪一行全部写出来</span>
+        <div className="position-proof-calculation" role="img" aria-label="拼接向量乘分块矩阵，逐项展开后得到内容向量加位置向量">
+          <span>分块矩阵乘法的逐项展开</span>
           <Formula block tex={String.raw`\begin{aligned}
           &\underbrace{\begin{bmatrix}0.55&0.60\mid0&0&1&0\end{bmatrix}}_{[e_3\mid r_3]\;(1\times6)}
           \underbrace{\begin{bmatrix}1&0\\0&1\\\hline0.05&0.10\\0.15&0.20\\0.25&0.30\\0.35&0.40\end{bmatrix}}_{[I_2;P_{\mathrm{pos}}]\;(6\times2)}\\[3pt]
@@ -1571,16 +1571,16 @@ function PositionEncodingFlow() {
         </div>
 
         <div className="position-proof-boundary">
-          <b>这个推导能说明什么，不能说明什么</b>
-          <p><Formula tex={String.raw`[c_i\mid r_i]\begin{bmatrix}W^c\\W^p\end{bmatrix}=c_iW^c+r_iW^p`} /> 是标准分块矩阵乘法；取 <Formula tex={String.raw`W^c=I_2,\ W^p=P_{\mathrm{pos}}`} /> 时，右边就是 <Formula tex="e_i+p_i" />。因此 PDF 的代数推导成立，但它只说明“相加是拼接后接特定线性映射的一个特例”，不代表任意拼接都与相加等价，也不代表能够从和里无条件恢复两部分。</p>
+          <b>适用范围</b>
+          <p><Formula tex={String.raw`[c_i\mid r_i]\begin{bmatrix}W^c\\W^p\end{bmatrix}=c_iW^c+r_iW^p`} /> 是标准分块矩阵乘法。取 <Formula tex={String.raw`W^c=I_2,\ W^p=P_{\mathrm{pos}}`} /> 时，右边等于 <Formula tex="e_i+p_i" />。该等价关系依赖特定分块结构；一般拼接与任意线性映射不等价于直接相加，和向量也不能无条件分解回内容项与位置项。</p>
         </div>
       </div>
 
       <div className="position-sine-proof">
         <div className="position-sine-head">
           <span>原始 Transformer · 固定正弦 / 余弦位置编码</span>
-          <b>sin 不需要单调：位置不是一个数，而是一整行多频率坐标</b>
-          <p>如果只用一个 <Formula tex="\sin(\mathrm{pos})" />，周期重复当然会产生歧义。原论文使用成对的 sin/cos，并在不同维度采用从快到慢的多种频率；模型读取的是整行向量，而不是要求某一列随位置递增。</p>
+          <b>sin 不要求单调：位置由整行多频率向量表示</b>
+          <p>单一 <Formula tex="\sin(\mathrm{pos})" /> 坐标具有周期性。成对的 sin/cos 与多组不同频率共同构成位置向量；模型使用整行向量区分位置，而不依赖某一维单调递增。</p>
         </div>
 
         <div className="position-sine-overview">
@@ -1599,17 +1599,17 @@ function PositionEncodingFlow() {
         <div className="position-sine-reasons">
           <article><b>不负责排序</b><span>位置编码不是把位置压成一个越来越大的标量，而是给每个位置一组可比较的特征。</span></article>
           <article><b>多尺度变化</b><span>高频维度区分邻近位置，低频维度缓慢变化，帮助表示更长跨度；不同周期组合降低短范围内的混淆。</span></article>
-          <article><b>无需训练查表</b><span>任意新位置都能直接代入公式计算。原论文将“可能外推到更长序列”作为选择固定编码的理由之一，而不是性能保证。</span></article>
+          <article><b>无需训练查表</b><span>任意位置都可直接代入公式计算，因此编码函数能够生成训练长度之外的位置；这不等同于模型必然具备长度外推能力。</span></article>
         </div>
 
         <div className="position-shift-proof">
           <span>最关键的性质：固定相对距离对应固定旋转</span>
           <Formula block tex={String.raw`\begin{bmatrix}\sin((\mathrm{pos}+k)\omega)&\cos((\mathrm{pos}+k)\omega)\end{bmatrix}=\begin{bmatrix}\sin(\mathrm{pos}\,\omega)&\cos(\mathrm{pos}\,\omega)\end{bmatrix}\begin{bmatrix}\cos(k\omega)&-\sin(k\omega)\\\sin(k\omega)&\cos(k\omega)\end{bmatrix}`} />
-          <p>对同一频率 <Formula tex="\omega" />，从位置 <Formula tex="\mathrm{pos}" /> 移动 <Formula tex="k" /> 步，相当于乘一个只由距离 <Formula tex="k" /> 决定的二维旋转矩阵。正因为 sin 与 cos 成对出现，模型才有机会用线性变换学习“向前或向后固定几步”的相对关系；这才是原论文强调的理由，单调性并不是目标。</p>
+          <p>对同一频率 <Formula tex="\omega" />，从位置 <Formula tex="\mathrm{pos}" /> 移动 <Formula tex="k" /> 步，相当于乘一个只由距离 <Formula tex="k" /> 决定的二维旋转矩阵。sin/cos 对使固定相对位移可表示为只依赖 <Formula tex="k" /> 的线性旋转；单调性不是这一设计的目标。</p>
         </div>
       </div>
 
-      <div className="position-demo-note">上方二维位置表用于展示 <Formula tex="x_i=e_i+p_i" /> 与后续 <Formula tex="q_i=x_iW^Q" /> 的连接关系；下方四维矩阵才按原始正弦公式计算。真实模型的 <Formula tex="d_{\mathrm{model}}" /> 更大，但“同维相加、成对 sin/cos、多频率”的规则不变。</div>
+      <div className="position-demo-note">二维数值表展示 <Formula tex="x_i=e_i+p_i" /> 与 <Formula tex="q_i=x_iW^Q" /> 的连接关系；四维矩阵展示固定正弦编码的具体数值。两者都要求内容向量与位置向量维度一致，并在 <Formula tex={String.raw`Q,\ K,\ V`} /> 投影前逐元素相加。</div>
     </div>
   );
 }
@@ -1809,7 +1809,7 @@ export default function Home() {
                 <p className="t3">它是多数主流大模型（GPT / LLaMA / Claude，以及大量文生图、文生视频模型）的共同骨架。掌握它，等于拿到理解生成式 AI 主流路线的钥匙。</p>
               </div>
               <div className="card">
-                <h3 style={{ marginTop: 0 }}>算子视角的一句话</h3>
+                <h3 style={{ marginTop: 0 }}>算子计算结构</h3>
                 <p className="t3">Attention 的核心就是<b style={{ color: "#eef3ff" }}>两次矩阵乘法（<Formula tex={String.raw`QK^{\mathsf T}`} /> 计算相关分数、<Formula tex="AV" /> 加权汇聚）+ 一个 softmax</b>；完整多头还包括 <Formula tex={String.raw`Q,\ K,\ V`} /> 与 <Formula tex="W^O" /> 四个投影，共六次矩阵乘法；QKV 融合后则是四次 GEMM。</p>
               </div>
             </div>
@@ -1874,7 +1874,7 @@ export default function Home() {
             <div className="mcalc">
               <Formula tex={`(U_3)_{${mr + 1},${mc + 1}}=${rowA.map((v, i) => `${v}\\times${colB[i]}`).join("+")}=${matrixC[mr][mc]}`} />
             </div>
-            <div className="note">规则只有一句：<Formula tex={String.raw`(U_3)_{i,j}=\sum_{r=1}^{3}(U_1)_{i,r}(U_2)_{r,j}`} />，即 <Formula tex="U_1" /> 的第 <Formula tex="i" /> 行与 <Formula tex="U_2" /> 的第 <Formula tex="j" /> 列<b>逐项相乘再相加</b>。这里用 <Formula tex={String.raw`U_1,U_2,U_3`} />，把字母 <Formula tex="A" /> 留给后文的注意力权重矩阵。</div>
+            <div className="note"><Formula tex={String.raw`(U_3)_{i,j}=\sum_{r=1}^{3}(U_1)_{i,r}(U_2)_{r,j}`} />：<Formula tex="U_1" /> 的第 <Formula tex="i" /> 行与 <Formula tex="U_2" /> 的第 <Formula tex="j" /> 列<b>逐项相乘再相加</b>。记号 <Formula tex={String.raw`U_1,U_2,U_3`} /> 用于矩阵乘法示例；<Formula tex="A" /> 专指注意力权重矩阵。</div>
           </section>
 
           {/* ===== 向量级 ===== */}
@@ -1903,7 +1903,7 @@ export default function Home() {
             <FigStageSoftmax />
             <FigStageAggregate />
 
-            <div className="note">换成 <Formula tex={String.raw`q_2,q_3,q_4`} /> 重复同一过程，就分别得到 <Formula tex={String.raw`b_2,b_3,b_4`} />。把四个输出按行堆叠，便是 <Formula tex={String.raw`O=\begin{bmatrix}b_1\\b_2\\b_3\\b_4\end{bmatrix}`} />；下一节用矩阵一次算完这四行。</div>
+            <div className="note"><Formula tex={String.raw`q_2,q_3,q_4`} /> 遵循相同过程，分别得到 <Formula tex={String.raw`b_2,b_3,b_4`} />。四个输出按行堆叠为 <Formula tex={String.raw`O=\begin{bmatrix}b_1\\b_2\\b_3\\b_4\end{bmatrix}`} />；矩阵形式可并行计算全部四行。</div>
           </section>
 
           {/* ===== 矩阵级 ===== */}
@@ -1992,7 +1992,7 @@ export default function Home() {
             {/* —— Mask：因果掩码与 padding —— */}
             <h3>Mask：让每个位置「只看到该看的」</h3>
             <p className="sec-lead">生成时每个位置必须「看到过去、看不到未来」。实现上用一个<b style={{ color: "#f5b042" }}>下三角因果掩码（Causal Mask）</b>：第 <Formula tex="i" /> 个位置只允许查看索引 <Formula tex={String.raw`0,\ldots,i`} /> 的 Key；padding 位则用 padding mask 屏蔽。</p>
-            <div className="note">因果 Mask 示例在 Token 1～4 前加入 <code>&lt;BOS&gt;</code>，因此矩阵形状为 <Formula tex={String.raw`5\times5`} />；前述 Attention 数值算例仍使用 <Formula tex={String.raw`4\times4`} /> 权重矩阵。</div>
+            <div className="note">因果 Mask 示例在 Token 1～4 前加入 <code>&lt;BOS&gt;</code>，因此矩阵形状为 <Formula tex={String.raw`5\times5`} />；Attention 数值链使用 <Formula tex={String.raw`4\times4`} /> 权重矩阵。</div>
 
             <div className="mask-grid">
               <table>
@@ -2176,13 +2176,13 @@ export default function Home() {
                 <p className="t3">注意力主体仍是 <Formula tex={String.raw`\mathcal O\!\left(L^2(d_k+d_v)\right)`} /> 量级；但在线归一化有额外运算、反向可能靠重算换显存，实际运算条数并非完全不变。省下的是访存与中间存储，收益随 shape / dtype / 硬件 / mask 变化。</p>
               </div>
             </div>
-            <div className="note">参考：FlashAttention（Dao 等，2022）、FlashAttention‑2（Dao，2023）在分块与并行划分上进一步优化。下一节看它如何对应到真实的算子调用与测试。</div>
+            <div className="note">FlashAttention（Dao 等，2022）与 FlashAttention‑2（Dao，2023）通过分块、在线 softmax 和并行划分优化显存访问。</div>
           </section>
 
           {/* ===== Transformer 收尾定位 ===== */}
           <section className="section detail-section" id="s7">
             <SecHead idx="07" title="代码与算子测试：从原理到真实算子" />
-            <p className="sec-lead">原理看懂了，落到代码就两层：一层<b style={{ color: "#eef3ff" }}>透明的参考实现</b>用于对照，一层<b style={{ color: "#2dd4bf" }}>真实算子</b>用于生产。算子测试就围着这两层展开。</p>
+            <p className="sec-lead">算子实现可分为两层：<b style={{ color: "#eef3ff" }}>透明参考实现</b>用于数学对照，<b style={{ color: "#2dd4bf" }}>框架融合算子</b>用于实际执行；测试比较二者的前向、反向、精度、Mask 与性能。</p>
 
             <div className="code-title">① 透明参考实现 — 逐行对应公式</div>
             <pre><code>{`import math
@@ -2222,7 +2222,7 @@ def attention_ref(q, k, v, mask=None):
         super().__init__()
         assert d_model % h == 0
         self.h, self.d_k = h, d_model // h
-        # 与上文 Q=XW^Q 等无偏置公式保持一致
+        # 使用无偏置投影，对应 Q=XW^Q 等公式
         self.wq = nn.Linear(d_model, d_model, bias=False)
         self.wk = nn.Linear(d_model, d_model, bias=False)
         self.wv = nn.Linear(d_model, d_model, bias=False)
@@ -2267,19 +2267,19 @@ def attention_ref(q, k, v, mask=None):
               </div>
             </div>
 
-            <div className="note ok"><b>一句话总结</b>：Attention 把「每个位置该关注谁」变成 <Formula tex={String.raw`QK^{\mathsf T}\!/\sqrt{d_k}`} /> 算分、softmax 变权重、再乘 <Formula tex="V" /> 取内容；多头扩展视角，FlashAttention 换算的方式不换数学，配上位置编码装进 Encoder/Decoder，就是撑起多数主流大模型的 Transformer。</div>
+            <div className="note ok"><b>核心结论</b>：Attention 用 <Formula tex={String.raw`QK^{\mathsf T}\!/\sqrt{d_k}`} /> 计算位置间的匹配分数，经 softmax 得到权重，再乘 <Formula tex="V" /> 汇聚内容；多头并行学习多组关系，FlashAttention 在保持数学定义不变的前提下优化计算与数据搬运。</div>
           </section>
 
           {/* ===== 代码 ===== */}
           <section className="section detail-section" id="s8">
-            <SecHead idx="08" title="Transformer 全景：Attention 被装在哪里" />
-            <p className="sec-lead">Attention 本身只是一个算子。把它装进完整模型，就是这篇被引用几万次的论文——<b style={{ color: "#38bdf8" }}>左 Encoder</b>、<b style={{ color: "#f472b6" }}>右 Decoder</b>，各堆叠 <Formula tex="N" /> 层。</p>
+            <SecHead idx="08" title="Transformer 全景：Attention 在模型中的位置" />
+            <p className="sec-lead">完整 Transformer 由 <b style={{ color: "#38bdf8" }}>Encoder</b> 与 <b style={{ color: "#f472b6" }}>Decoder</b> 组成，两侧分别堆叠 <Formula tex="N" /> 层，并在不同位置调用 Attention。</p>
             <FigTransformer />
             <div className="grid2">
               <div className="note"><b>Encoder</b>：对源序列做 Self‑Attention + FFN，逐层提炼表示，输出的 Memory 作为 Cross‑Attention 的 <Formula tex={String.raw`K,\ V`} /> 来源。</div>
               <div className="note"><b>Decoder</b>：先用 <b>Masked</b> Self‑Attention（屏蔽未来位防作弊），再通过 <b>Cross‑Attention</b> 把编码器 Memory 投影成 <Formula tex={String.raw`K,\ V`} /> 来读取，最后预测下一个词。</div>
             </div>
-            <div className="note warn">这张图里 <b>Attention 出现了三次</b>（Encoder 自注意、Decoder 掩码自注意、Decoder 交叉注意）——是同一个算子的三种调用。这一节只为定位：讲清楚 Attention 在整个模型里扮演什么角色。</div>
+            <div className="note warn"><b>Attention 的三种调用</b>：Encoder Self‑Attention 建模源序列内部关系；Decoder Masked Self‑Attention 建模已生成内容；Cross‑Attention 读取 Encoder Memory。</div>
 
             <h3>现代大模型怎么取舍</h3>
             <div className="grid3">
