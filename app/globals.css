@@ -1917,15 +1917,16 @@ p {
   font-size: 13.5px;
   line-height: 1.65;
 }
-.position-proof-terms {
+.position-address-flow {
   display: grid;
-  grid-template-columns: 0.85fr 1fr 1.35fr;
-  gap: 12px;
+  grid-template-columns: minmax(220px, 0.85fr) 54px minmax(390px, 1.45fr) 54px minmax(260px, 1fr);
+  gap: 10px;
+  align-items: stretch;
 }
-.position-proof-terms article {
+.position-address-flow article {
   display: flex;
   min-width: 0;
-  min-height: 156px;
+  min-height: 154px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -1935,13 +1936,16 @@ p {
   background: rgba(7, 11, 24, 0.5);
   text-align: center;
 }
-.position-proof-terms article.address { border-color: rgba(167, 139, 250, 0.4); }
-.position-proof-terms article.temporary {
-  border-style: dashed;
+.position-address-flow article.lookup {
   border-color: rgba(45, 212, 191, 0.5);
   background: rgba(45, 212, 191, 0.045);
 }
-.position-proof-terms article > span,
+.position-address-flow article.result {
+  border-color: rgba(245, 176, 66, 0.48);
+  background: rgba(245, 176, 66, 0.055);
+}
+.position-address-flow article > span,
+.position-general-proof > span,
 .position-proof-calculation > span,
 .position-sine-head > span,
 .position-sine-overview article > span,
@@ -1951,16 +1955,76 @@ p {
   font-size: 12.5px;
   font-weight: 800;
 }
-.position-proof-terms article .math-block {
+.position-address-flow article.result > span { color: var(--q); }
+.position-address-flow article .math-block {
   margin: 12px 0 8px;
   overflow: visible;
   font-size: 16px;
 }
-.position-proof-terms article .katex-display { text-align: center; }
-.position-proof-terms article > small {
+.position-address-flow article.lookup .math-block { font-size: 14.5px; }
+.position-address-flow article .katex-display { text-align: center; }
+.position-address-flow article > small {
   color: var(--t3);
   font-size: 12px;
   line-height: 1.55;
+}
+.position-address-op {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: var(--v);
+  text-align: center;
+}
+.position-address-op b {
+  font-family: var(--mono);
+  font-size: 28px;
+  line-height: 1;
+}
+.position-address-op span {
+  color: var(--t3);
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+.position-general-proof {
+  margin-top: 14px;
+  padding: 17px 20px;
+  border: 1px solid rgba(45, 212, 191, 0.28);
+  border-radius: 11px;
+  background: rgba(7, 11, 24, 0.5);
+  text-align: center;
+}
+.position-general-proof > .math-block {
+  margin: 13px 0;
+  overflow: visible;
+  font-size: 18px;
+}
+.position-general-proof > .math-block .katex-display { text-align: center; }
+.position-general-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.position-general-steps > div {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px;
+  padding: 10px 12px;
+  border-left: 3px solid var(--v);
+  background: rgba(45, 212, 191, 0.045);
+  text-align: left;
+}
+.position-general-steps b {
+  color: var(--v);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.position-general-steps span {
+  color: var(--t2);
+  font-size: 12px;
+  line-height: 1.6;
 }
 .position-proof-calculation {
   margin-top: 14px;
@@ -2000,11 +2064,83 @@ p {
   font-size: 12px;
   line-height: 1.6;
 }
+.position-attention-impact {
+  margin-top: 14px;
+  padding: 17px 20px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 11px;
+  background: rgba(56, 189, 248, 0.045);
+  text-align: center;
+}
+.position-impact-head > span {
+  display: block;
+  color: var(--att);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 800;
+}
+.position-impact-head > b {
+  display: block;
+  margin-top: 3px;
+  color: var(--t1);
+  font-size: 16px;
+}
+.position-impact-projections {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+  margin-top: 12px;
+}
+.position-impact-projections .math-block {
+  margin: 0;
+  padding: 11px 8px;
+  overflow: visible;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  background: rgba(7, 11, 24, 0.46);
+  font-size: 13.5px;
+}
+.position-attention-impact > .math-block {
+  margin: 13px 0 9px;
+  overflow: visible;
+  font-size: 15px;
+}
+.position-impact-projections .katex-display,
+.position-attention-impact > .math-block .katex-display { text-align: center; }
+.position-impact-terms {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.position-impact-terms span {
+  padding: 7px 9px;
+  border: 1px solid rgba(56, 189, 248, 0.22);
+  border-radius: 7px;
+  background: rgba(56, 189, 248, 0.06);
+  color: var(--att);
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.position-attention-impact > p {
+  max-width: 980px;
+  margin: 10px auto 0;
+  color: var(--t2);
+  font-size: 12.5px;
+  line-height: 1.7;
+}
 .position-proof-boundary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
   margin-top: 14px;
   padding: 13px 15px;
   border-left: 3px solid var(--q);
   background: rgba(245, 176, 66, 0.06);
+}
+.position-proof-boundary > div + div {
+  padding-left: 14px;
+  border-left: 1px solid rgba(245, 176, 66, 0.22);
 }
 .position-proof-boundary b {
   display: block;

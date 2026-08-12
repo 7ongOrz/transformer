@@ -1499,7 +1499,7 @@ function PositionEncodingFlow() {
       <div className="position-demo-head">
         <span>进入第一层 Attention 之前</span>
         <b>内容矩阵 <Formula tex="E_{\mathrm{seq}}" /> + 位置矩阵 <Formula tex="P_{\mathrm{seq}}" /> = 输入矩阵 <Formula tex="X" /></b>
-        <p>Self-Attention 只看向量间的关系，本身分不出 Token 的先后顺序。位置编码先把位置 <Formula tex="i" /> 的向量 <Formula tex="p_i" /> 注入内容 embedding <Formula tex="e_i" />，再把结果 <Formula tex="x_i" /> 送去生成 <Formula tex={String.raw`Q,\ K,\ V`} />。</p>
+        <p>Self-Attention 本身不包含 Token 的先后顺序。位置 <Formula tex="i" /> 的内容向量 <Formula tex="e_i" /> 与位置向量 <Formula tex="p_i" /> 同为 <Formula tex="d_{\mathrm{model}}" /> 维，因此可以逐元素相加；<Formula tex="p_i" /> 可以来自可学习位置表，也可以由固定公式生成。</p>
       </div>
 
       <div className="position-matrix-flow" role="img" aria-label="四个 Token 的内容向量逐行加上位置向量，得到 Attention 输入矩阵 X">
@@ -1512,7 +1512,7 @@ function PositionEncodingFlow() {
         <div className="position-matrix-stage">
           <span>② 位置信息</span>
           <FmsMatGrid data={positionEmbedding} name={<Formula tex="P_{\mathrm{seq}}" />} shape={<Formula tex={String.raw`[4\times2]`} />} pal={FMS_PAL.K} rowLabels={rows} colLabels={cols} cornerLabel="位置＼维" digits={2} />
-          <small>第 <Formula tex="i" /> 行只对应序列位置 <Formula tex="i" /></small>
+          <small>第 <Formula tex="i" /> 行就是 <Formula tex="p_i" />；此处使用二维固定数值</small>
         </div>
         <div className="position-matrix-op"><b>=</b><span>得到当前层输入</span></div>
         <div className="position-matrix-stage result">
@@ -1530,31 +1530,43 @@ function PositionEncodingFlow() {
 
       <div className="position-addition-proof">
         <div className="position-addition-head">
-          <span>等价线性表示</span>
-          <b>相加可以写成拼接向量经过特定分块线性变换</b>
-          <p>在输入端相加的位置编码方案中，直接计算 <Formula tex="x_3=e_3+p_3" />。若将内容向量 <Formula tex="e_3" /> 与位置 one-hot <Formula tex="r_3" /> 沿特征维拼接，并选取分块矩阵 <Formula tex={String.raw`[I_2;P_{\mathrm{pos}}]`} />，同一结果也可表示为一次矩阵乘法。</p>
+          <span>从位置地址到位置向量</span>
+          <b>one-hot 只负责指出位置，<Formula tex="p_i" /> 才是真正加入内容的向量</b>
+          <p>把 <Formula tex="L" /> 个位置向量按行堆成 <Formula tex="P_{\mathrm{pos}}" />。位置 <Formula tex="i" /> 的 one-hot 行向量 <Formula tex="r_i" /> 只有第 <Formula tex="i" /> 项为 1，因此 <Formula tex={String.raw`r_iP_{\mathrm{pos}}`} /> 恰好选中第 <Formula tex="i" /> 行：<Formula tex={String.raw`p_i=r_iP_{\mathrm{pos}}`} />。</p>
         </div>
 
-        <div className="position-proof-terms" aria-label="内容向量、位置索引与联合表示">
-          <article>
-            <span>内容向量</span>
+        <div className="position-address-flow" role="img" aria-label="Token 3 的内容向量加上由 one-hot 地址选中的位置向量，得到 Attention 输入">
+          <article className="content">
+            <span>内容分支</span>
             <Formula block tex={String.raw`e_3=\begin{bmatrix}0.55&0.60\end{bmatrix}`} />
-            <small>Token 3 的内容向量，shape 为 <Formula tex={String.raw`1\times2`} /></small>
+            <small>Token 3 的内容向量 <Formula tex={String.raw`[1\times2]`} /></small>
           </article>
-          <article className="address">
-            <span>位置索引 · one-hot</span>
-            <Formula block tex={String.raw`r_3=\begin{bmatrix}0&0&1&0\end{bmatrix}`} />
-            <small>数字 1 表示“取位置表第 3 行”，不是位置向量本身</small>
+          <div className="position-address-op"><b>+</b><span>同维相加</span></div>
+          <article className="lookup">
+            <span>位置分支 · 地址查表</span>
+            <Formula block tex={String.raw`\underbrace{r_3}_{[0\;0\;1\;0]}P_{\mathrm{pos}}=P_{\mathrm{pos}}[3,:]=\underbrace{\begin{bmatrix}0.25&0.30\end{bmatrix}}_{p_3}`} />
+            <small><Formula tex="r_3" /> 是 <Formula tex={String.raw`1\times4`} /> 的地址；<Formula tex="p_3" /> 才是 <Formula tex={String.raw`1\times2`} /> 的位置向量</small>
           </article>
-          <article className="temporary">
-            <span>联合表示 · 拼接</span>
-            <Formula block tex={String.raw`[e_3\mid r_3]=\begin{bmatrix}0.55&0.60\mid0&0&1&0\end{bmatrix}`} />
-            <small>沿特征维拼接后为 <Formula tex={String.raw`1\times6`} />；输入端相加方案直接使用 <Formula tex="e_3+p_3" /></small>
+          <div className="position-address-op"><b>=</b><span>得到输入</span></div>
+          <article className="result">
+            <span>合并结果</span>
+            <Formula block tex={String.raw`x_3=e_3+p_3=\begin{bmatrix}0.80&0.90\end{bmatrix}`} />
+            <small><Formula tex={String.raw`x_3\in\mathbb{R}^{1\times2}`} />，维度保持不变</small>
           </article>
+        </div>
+
+        <div className="position-general-proof">
+          <span>拼接后做一次分块线性变换</span>
+          <Formula block tex={String.raw`\underbrace{[e_i\mid r_i]}_{1\times(d_{\mathrm{model}}+L)}\underbrace{\begin{bmatrix}W^e\\W^p\end{bmatrix}}_{(d_{\mathrm{model}}+L)\times d_{\mathrm{model}}}=e_iW^e+r_iW^p=e_iW^e+p_i`} />
+          <div className="position-general-steps">
+            <div><b>① 分块展开</b><span>拼接输入分别乘内容块 <Formula tex="W^e" /> 与位置块 <Formula tex="W^p" />，两个结果在同一 <Formula tex="d_{\mathrm{model}}" /> 维空间相加。</span></div>
+            <div><b>② one-hot 选行</b><span>令 <Formula tex={String.raw`W^p=P_{\mathrm{pos}}`} />，则 <Formula tex={String.raw`r_iW^p=p_i`} />；one-hot 只是把位置编号转换成位置向量。</span></div>
+            <div><b>③ 直接相加</b><span>再取 <Formula tex={String.raw`W^e=I_{d_{\mathrm{model}}}`} />，内容原样通过，于是输出正好变成 <Formula tex="e_i+p_i" />。</span></div>
+          </div>
         </div>
 
         <div className="position-proof-calculation" role="img" aria-label="拼接向量乘分块矩阵，逐项展开后得到内容向量加位置向量">
-          <span>分块矩阵乘法的逐项展开</span>
+          <span>取 <Formula tex={String.raw`W^e=I_2,\ W^p=P_{\mathrm{pos}}`} /> 后的完整数值验证</span>
           <Formula block tex={String.raw`\begin{aligned}
           &\underbrace{\begin{bmatrix}0.55&0.60\mid0&0&1&0\end{bmatrix}}_{[e_3\mid r_3]\;(1\times6)}
           \underbrace{\begin{bmatrix}1&0\\0&1\\\hline0.05&0.10\\0.15&0.20\\0.25&0.30\\0.35&0.40\end{bmatrix}}_{[I_2;P_{\mathrm{pos}}]\;(6\times2)}\\[3pt]
@@ -1570,9 +1582,26 @@ function PositionEncodingFlow() {
           </div>
         </div>
 
+        <div className="position-attention-impact">
+          <div className="position-impact-head">
+            <span>进入 Attention 后</span>
+            <b>位置项会直接改变 <Formula tex={String.raw`Q,\ K,\ V`} /> 与注意力分数</b>
+          </div>
+          <div className="position-impact-projections">
+            <Formula block tex={String.raw`q_i=(e_i+p_i)W^Q=e_iW^Q+p_iW^Q`} />
+            <Formula block tex={String.raw`k_j=(e_j+p_j)W^K=e_jW^K+p_jW^K`} />
+            <Formula block tex={String.raw`v_j=(e_j+p_j)W^V=e_jW^V+p_jW^V`} />
+          </div>
+          <Formula block tex={String.raw`q_i k_j^{\mathsf T}=\left(e_iW^Q+p_iW^Q\right)\left(e_jW^K+p_jW^K\right)^{\mathsf T}`} />
+          <div className="position-impact-terms">
+            <span>内容 ↔ 内容</span><span>内容 ↔ 位置</span><span>位置 ↔ 内容</span><span>位置 ↔ 位置</span>
+          </div>
+          <p>模型不需要先从 <Formula tex="x_i" /> 中还原 <Formula tex="e_i" /> 与 <Formula tex="p_i" />：只要 <Formula tex="p_i" /> 改变了投影结果，它就会影响匹配分数与 Value 汇聚。“发生混合”不等于“位置信息消失”。</p>
+        </div>
+
         <div className="position-proof-boundary">
-          <b>适用范围</b>
-          <p><Formula tex={String.raw`[c_i\mid r_i]\begin{bmatrix}W^c\\W^p\end{bmatrix}=c_iW^c+r_iW^p`} /> 是标准分块矩阵乘法。取 <Formula tex={String.raw`W^c=I_2,\ W^p=P_{\mathrm{pos}}`} /> 时，右边等于 <Formula tex="e_i+p_i" />。该等价关系依赖特定分块结构；一般拼接与任意线性映射不等价于直接相加，和向量也不能无条件分解回内容项与位置项。</p>
+          <div><b>等价成立的条件</b><p>“拼接 + 线性层”等于直接相加，需要 <Formula tex={String.raw`W^e=I_{d_{\mathrm{model}}}`} />、<Formula tex={String.raw`W^p=P_{\mathrm{pos}}`} /> 这一特定分块结构；任意拼接和任意线性映射并不与相加等价。</p></div>
+          <div><b>原始 Transformer 的前向计算</b><p>令 <Formula tex={String.raw`e_i=\sqrt{d_{\mathrm{model}}}\,\operatorname{Emb}(\mathrm{token}_i)`} />、<Formula tex="p_i=\mathrm{PE}(i)" />，模型直接计算 <Formula tex="x_i=e_i+p_i" />；不会显式构造 <Formula tex={String.raw`\mathrm{one\text{-}hot}`} />、拼接向量或分块矩阵。</p></div>
         </div>
       </div>
 
@@ -1587,12 +1616,12 @@ function PositionEncodingFlow() {
           <article className="position-sine-formula">
             <span>生成规则</span>
             <Formula block tex={String.raw`\begin{aligned}\mathrm{PE}_{(\mathrm{pos},2f)}&=\sin\!\left(\frac{\mathrm{pos}}{10000^{2f/d_{\mathrm{model}}}}\right)\\\mathrm{PE}_{(\mathrm{pos},2f+1)}&=\cos\!\left(\frac{\mathrm{pos}}{10000^{2f/d_{\mathrm{model}}}}\right)\end{aligned}`} />
-            <p><Formula tex="\mathrm{pos}" /> 是 Token 位置，<Formula tex="f" /> 是频率组。取 <Formula tex={String.raw`d_{\mathrm{model}}=4`} /> 时，两组分母分别是 1 和 100：前两维变化快，后两维变化慢。</p>
+            <p><Formula tex="\mathrm{pos}" /> 是 Token 位置，<Formula tex="f" /> 是频率组。偶数 <Formula tex="d_{\mathrm{model}}" /> 包含 <Formula tex={String.raw`d_{\mathrm{model}}/2`} /> 组 sin/cos；取 <Formula tex={String.raw`d_{\mathrm{model}}=4`} /> 时共有两组，分母分别是 1 和 100。</p>
           </article>
           <article className="position-sine-matrix">
             <span>位置 0～3 的完整编码</span>
-            <FmsMatGrid data={sinusoidalRows} name={<Formula tex="\mathrm{PE}" />} shape={<Formula tex={String.raw`[4\times4]`} />} pal={FMS_PAL.K} rowLabels={["pos 0", "pos 1", "pos 2", "pos 3"]} colLabels={["快 sin", "快 cos", "慢 sin", "慢 cos"]} cornerLabel="位置＼频率" digits={4} />
-            <p>第一列从 <Formula tex={String.raw`0\to0.8415\to0.9093\to0.1411`} />，明显不是单调的；但四列合起来，每个位置仍得到不同的“多频率指纹”。</p>
+            <FmsMatGrid data={sinusoidalRows} name={<Formula tex="\mathrm{PE}" />} shape={<Formula tex={String.raw`[4\times4]`} />} pal={FMS_PAL.K} rowLabels={["pos 0", "pos 1", "pos 2", "pos 3"]} colLabels={["高频 sin", "高频 cos", "低频 sin", "低频 cos"]} cornerLabel="位置＼频率" digits={4} />
+            <p>“高频 / 低频”描述的是数值随 <Formula tex="\mathrm{pos}" /> 变化的快慢，不是计算速度。四个维度合起来，为每个位置形成不同的多频率向量。</p>
           </article>
         </div>
 
@@ -1745,7 +1774,7 @@ export default function Home() {
     ["s4", "缩放与 Mask"],
     ["s5", "多头注意力"],
     ["s6", "FlashAttention"],
-    ["s7", "代码与算子测试"],
+    ["s7", "代码实现"],
     ["s8", "Transformer 定位"],
   ];
 
@@ -2179,10 +2208,10 @@ export default function Home() {
             <div className="note">FlashAttention（Dao 等，2022）与 FlashAttention‑2（Dao，2023）通过分块、在线 softmax 和并行划分优化显存访问。</div>
           </section>
 
-          {/* ===== Transformer 收尾定位 ===== */}
+          {/* ===== 代码实现 ===== */}
           <section className="section detail-section" id="s7">
-            <SecHead idx="07" title="代码与算子测试：从原理到真实算子" />
-            <p className="sec-lead">算子实现可分为两层：<b style={{ color: "#eef3ff" }}>透明参考实现</b>用于数学对照，<b style={{ color: "#2dd4bf" }}>框架融合算子</b>用于实际执行；测试比较二者的前向、反向、精度、Mask 与性能。</p>
+            <SecHead idx="07" title="代码实现：从公式到 PyTorch" />
+            <p className="sec-lead"><b style={{ color: "#eef3ff" }}>透明参考实现</b>逐项对应缩放点积、Mask、softmax 与 Value 汇聚；<b style={{ color: "#2dd4bf" }}>PyTorch SDPA</b> 执行相同数学定义。多头代码还包括投影、拆头、拼接与 <Formula tex="W^O" />。</p>
 
             <div className="code-title">① 透明参考实现 — 逐行对应公式</div>
             <pre><code>{`import math
@@ -2242,30 +2271,6 @@ def attention_ref(q, k, v, mask=None):
         out = out.transpose(1, 2).contiguous().view(B, L, self.h * self.d_k)
         return self.wo(out)`}</code></pre>
             <div className="note">多头实现依次执行<b>投影 → reshape/transpose 拆头 → SDPA → 拼头 → 输出投影</b>。reshape + transpose 将 <Formula tex="h" /> 个头变成独立批次维度并行计算，无需 Python 循环。<code>bias=False</code> 对应无偏置公式；PyTorch 的 <code>nn.Linear</code> 计算 <Formula tex={String.raw`xW_{\mathrm{store}}^{\mathsf T}`} />，因此行向量记法中的 <Formula tex="W^Q" /> 对应 <Formula tex={String.raw`W_{\mathrm{store}}^{\mathsf T}`} />。</div>
-
-            <h3>算子测试，重点看这五类</h3>
-            <div className="grid3">
-              <div className="card">
-                <h3 style={{ marginTop: 0 }}>① 前向正确性</h3>
-                <p className="t3">Flash / SDPA 输出与透明参考实现逐元素比对；覆盖不同 shape、<Formula tex={String.raw`[B,1,1,L_k]`} /> 等可广播到 <Formula tex={String.raw`[B,h,L_q,L_k]`} /> 的 mask、<Formula tex={String.raw`L_q\ne L_k`} /> 的 cross-attention、非连续内存等输入组合。</p>
-              </div>
-              <div className="card">
-                <h3 style={{ marginTop: 0 }}>② 反向正确性</h3>
-                <p className="t3">设训练损失为 <Formula tex="\mathcal L" />，比较 <Formula tex={String.raw`\nabla_Q\mathcal L,\ \nabla_K\mathcal L,\ \nabla_V\mathcal L`} />，不能只验前向——梯度路径才是算子真正容易出错的地方。</p>
-              </div>
-              <div className="card">
-                <h3 style={{ marginTop: 0 }}>③ Mask 语义</h3>
-                <p className="t3">覆盖 causal、padding、无 mask；改动未来 token 后，过去位置的输出必须保持不变。</p>
-              </div>
-              <div className="card">
-                <h3 style={{ marginTop: 0 }}>④ 精度与容差</h3>
-                <p className="t3">FP32 / FP16 / BF16。归约顺序不同导致不能逐位相等，用合理的绝对+相对误差判定。</p>
-              </div>
-              <div className="card">
-                <h3 style={{ marginTop: 0 }}>⑤ 性能与显存</h3>
-                <p className="t3">预热 + GPU 同步 + 多轮统计延迟、吞吐、峰值显存，并记录实际命中的后端。</p>
-              </div>
-            </div>
 
             <div className="note ok"><b>核心结论</b>：Attention 用 <Formula tex={String.raw`QK^{\mathsf T}\!/\sqrt{d_k}`} /> 计算位置间的匹配分数，经 softmax 得到权重，再乘 <Formula tex="V" /> 汇聚内容；多头并行学习多组关系，FlashAttention 在保持数学定义不变的前提下优化计算与数据搬运。</div>
           </section>
