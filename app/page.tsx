@@ -575,7 +575,7 @@ function FigStageScore() {
         <div className="score-symbol-guide">
           <section className="score-symbol-origin">
             <div className="score-symbol-heading">
-              <span>先追踪一个格</span>
+              <span>单个分数的来源</span>
               <b><Formula tex="S_{1,1}" /> 从哪里来</b>
               <p>同一个 <Formula tex="x_1" /> 经过两组不同的投影参数，得到角色不同的 <Formula tex="q_1" /> 与 <Formula tex="k_1" />；它们做缩放点积，才产生一个分数。</p>
             </div>
@@ -618,7 +618,7 @@ function FigStageScore() {
 
           <section className="score-index-map">
             <div className="score-symbol-heading">
-              <span>再认两个下标</span>
+              <span>下标与矩阵坐标</span>
               <b><Formula tex="S_{i,j}" /> 在矩阵中的坐标</b>
             </div>
             <FirstRowAttentionMatrix
@@ -1531,8 +1531,8 @@ function PositionEncodingFlow() {
       <div className="position-addition-proof">
         <div className="position-addition-head">
           <span>为什么使用相加，而不是拼接</span>
-          <b>先看一般线性变换，再看单位矩阵特例</b>
-          <p>以下采用列向量记法。内容向量 <Formula tex={String.raw`e_i\in\mathbb{R}^{d_{\mathrm{model}}\times1}`} /> 与位置 one-hot <Formula tex={String.raw`r_i\in\mathbb{R}^{L\times1}`} /> 拼接后，得到 <Formula tex={String.raw`[e_i;r_i]\in\mathbb{R}^{(d_{\mathrm{model}}+L)\times1}`} />。</p>
+          <b>拼接输入经分块线性变换可写成内容项与位置项之和</b>
+          <p>内容和位置索引拼接后，经过某种特定结构的线性变换，可以写成内容项与位置项之和。列向量记法中，内容向量 <Formula tex={String.raw`e_i\in\mathbb{R}^{d_{\mathrm{model}}\times1}`} /> 与位置 one-hot <Formula tex={String.raw`r_i\in\mathbb{R}^{L\times1}`} /> 拼接后，得到 <Formula tex={String.raw`[e_i;r_i]\in\mathbb{R}^{(d_{\mathrm{model}}+L)\times1}`} />。</p>
         </div>
 
         <div className="position-proof-terms" aria-label="内容列向量、位置 one-hot 列向量与拼接列向量">
@@ -1554,7 +1554,7 @@ function PositionEncodingFlow() {
         </div>
 
         <div className="position-linear-equation">
-          <span>一般形式 · 此时不使用单位矩阵</span>
+          <span>分块线性变换</span>
           <Formula block tex={String.raw`\begin{aligned}
           \underbrace{W}_{d_{\mathrm{model}}\times(d_{\mathrm{model}}+L)}
           \underbrace{\begin{bmatrix}e_i\\r_i\end{bmatrix}}_{(d_{\mathrm{model}}+L)\times1}
@@ -1567,11 +1567,11 @@ function PositionEncodingFlow() {
             <div><b>内容分块</b><span><Formula tex={String.raw`W^e\in\mathbb{R}^{d_{\mathrm{model}}\times d_{\mathrm{model}}}`} /> 负责变换内容，因此一般结果保留为 <Formula tex="W^e e_i" />。</span></div>
             <div><b>位置分块</b><span>令 <Formula tex={String.raw`W^p=P_{\mathrm{seq}}^{\mathsf T}=[p_1\ p_2\ \cdots\ p_L]`} />，one-hot 只选中第 <Formula tex="i" /> 列，所以 <Formula tex={String.raw`W^p r_i=p_i`} />。</span></div>
           </div>
-          <p className="position-general-result">一般结论是 <Formula tex="W^e e_i+p_i" />；到这里还不能直接写成 <Formula tex="e_i+p_i" />。</p>
+          <p className="position-general-result">输出的一般形式为 <Formula tex="W^e e_i+p_i" />；取 <Formula tex={String.raw`W^e=I_{d_{\mathrm{model}}}`} /> 时化为 <Formula tex="e_i+p_i" />。</p>
         </div>
 
         <div className="position-proof-calculation" role="img" aria-label="取内容分块为二维单位矩阵后，Token 3 的拼接列向量经过分块线性变换得到内容与位置之和">
-          <span>教学数值特例 · 取 <Formula tex={String.raw`W^e=I_2`} /></span>
+          <span>单位矩阵数值例 · <Formula tex={String.raw`W^e=I_2`} /></span>
           <Formula block tex={String.raw`\begin{aligned}
           &\underbrace{\left[\begin{array}{cc|cccc}1&0&0.05&0.15&0.25&0.35\\0&1&0.10&0.20&0.30&0.40\end{array}\right]}_{W=[I_2\;W^p]\;(2\times6)}
           \underbrace{\left[\begin{array}{c}0.55\\0.60\\\hline0\\0\\1\\0\end{array}\right]}_{[e_3;r_3]\;(6\times1)}\\[4pt]
@@ -1582,15 +1582,15 @@ function PositionEncodingFlow() {
           =\begin{bmatrix}0.80\\0.90\end{bmatrix}=x_3
           \end{aligned}`} />
           <div className="position-proof-reading">
-            <div><b>为何取单位矩阵</b><span>仅为演示方便：<Formula tex={String.raw`I_2e_3=e_3`} />，内容数值原样通过。</span></div>
-            <div><b>位置如何得到</b><span><Formula tex={String.raw`r_3=[0,0,1,0]^{\mathsf T}`} /> 选中 <Formula tex="W^p" /> 第 3 列，得到 <Formula tex="p_3" />。</span></div>
-            <div><b>特例结果</b><span>此时一般式 <Formula tex="W^e e_3+p_3" /> 才化为 <Formula tex="e_3+p_3=x_3" />。</span></div>
+            <div><b>内容块 <Formula tex="W^e" /></b><span>取 <Formula tex={String.raw`W^e=I_2`} />，因此 <Formula tex={String.raw`I_2e_3=e_3`} />，内容数值保持不变。</span></div>
+            <div><b>位置块 <Formula tex="W^p" /></b><span><Formula tex={String.raw`r_3=[0,0,1,0]^{\mathsf T}`} /> 选中 <Formula tex="W^p" /> 第 3 列，得到 <Formula tex="p_3" />。</span></div>
+            <div><b>输出</b><span><Formula tex={String.raw`W^e=I_2`} /> 时，<Formula tex="W^e e_3+p_3" /> 化为 <Formula tex="e_3+p_3=x_3" />。</span></div>
           </div>
         </div>
 
         <div className="position-proof-boundary">
-          <b>等价解释与实际计算</b>
-          <p>上面的推导说明：“内容与位置索引拼接后经过分块线性变换”可写成“变换后的内容 <Formula tex="W^e e_i" /> 与位置向量 <Formula tex="p_i" /> 相加”。单位矩阵只是让这个一般式化为 <Formula tex="e_i+p_i" /> 的教学特例。原始 Transformer 的前向过程不会显式构造 one-hot、拼接向量或矩阵 <Formula tex="W" />，而是让位置编码与 embedding 具有相同的 <Formula tex="d_{\mathrm{model}}" /> 维度并直接相加。</p>
+          <b>与 Transformer 输入相加的关系</b>
+          <p><Formula tex={String.raw`W[e_i;r_i]=W^e e_i+p_i`} /> 描述拼接输入经过分块线性变换后的结果；取 <Formula tex={String.raw`W^e=I_{d_{\mathrm{model}}}`} /> 即得到 <Formula tex="e_i+p_i" />。原始 Transformer 的前向过程直接将同为 <Formula tex="d_{\mathrm{model}}" /> 维的 embedding 与位置编码相加，不显式构造 one-hot、拼接向量或矩阵 <Formula tex="W" />。</p>
         </div>
       </div>
       <div className="position-sine-proof">
@@ -1835,7 +1835,7 @@ export default function Home() {
           {/* ===== 矩阵乘法 ===== */}
           <section className="section" id="s1">
             <SecHead idx="01" title="热身：矩阵乘法到底怎么乘" />
-            <p className="sec-lead">Attention 的主要线性运算由<b style={{ color: "#eef3ff" }}>矩阵乘法</b>完成，中间穿插缩放、mask 和 softmax。先用具体数字把矩阵乘法规则搞明白——<b style={{ color: "#f472b6" }}>点一下右边结果矩阵的任意格子</b>，左边高亮参与计算的行与列。</p>
+            <p className="sec-lead">Attention 的主要线性运算由<b style={{ color: "#eef3ff" }}>矩阵乘法</b>完成，中间穿插缩放、mask 和 softmax。右侧结果矩阵支持逐格查看：<b style={{ color: "#f472b6" }}>点击任意格子</b>，左侧将高亮参与计算的行与列。</p>
             <div
               className="mbox"
               data-matrix-a={JSON.stringify(matrixA)}
