@@ -1920,8 +1920,32 @@ p {
   font-size: 13.5px;
   line-height: 1.65;
 }
+.position-proof-terms {
+  display: grid;
+  grid-template-columns: 0.85fr 1fr 1.35fr;
+  gap: 12px;
+}
+.position-proof-terms article {
+  display: flex;
+  min-width: 0;
+  min-height: 156px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  border: 1px solid rgba(169, 180, 220, 0.28);
+  border-radius: 11px;
+  background: rgba(7, 11, 24, 0.5);
+  text-align: center;
+}
+.position-proof-terms article.address { border-color: rgba(167, 139, 250, 0.4); }
+.position-proof-terms article.combined {
+  border-color: rgba(45, 212, 191, 0.5);
+  background: rgba(45, 212, 191, 0.045);
+}
+.position-proof-terms article > span,
+.position-linear-equation > span,
 .position-proof-calculation > span,
-.position-proof-example > span,
 .position-sine-head > span,
 .position-sine-overview article > span,
 .position-shift-proof > span {
@@ -1930,39 +1954,80 @@ p {
   font-size: 12.5px;
   font-weight: 800;
 }
-.position-proof-calculation,
-.position-proof-example {
+.position-proof-terms article .math-block {
+  margin: 12px 0 8px;
+  overflow: visible;
+  font-size: 16px;
+}
+.position-proof-terms article .katex-display { text-align: center; }
+.position-proof-terms article > small {
+  color: var(--t3);
+  font-size: 12px;
+  line-height: 1.55;
+}
+.position-linear-equation {
+  margin-top: 14px;
+  padding: 17px 20px;
+  border: 1px solid rgba(45, 212, 191, 0.34);
+  border-radius: 11px;
+  background: rgba(45, 212, 191, 0.045);
+  text-align: center;
+}
+.position-linear-equation .math-block {
+  margin: 14px 0 9px;
+  overflow: visible;
+  font-size: 18px;
+}
+.position-linear-equation .katex-display { text-align: center; }
+.position-linear-equation p {
+  max-width: 1000px;
+  margin: 0 auto;
+  color: var(--t2);
+  font-size: 13px;
+  line-height: 1.7;
+}
+.position-proof-calculation {
+  margin-top: 14px;
   padding: 18px 20px;
   border: 1px solid var(--hairline);
   border-radius: 11px;
   background: rgba(7, 11, 24, 0.5);
   text-align: center;
 }
-.position-proof-calculation .math-block,
-.position-proof-example .math-block {
-  margin: 14px 0 10px;
+.position-proof-calculation .math-block {
+  margin: 15px 0 12px;
   overflow: visible;
+  font-size: 15.5px;
 }
-.position-proof-calculation .math-block { font-size: 18px; }
-.position-proof-example {
-  margin-top: 12px;
-  border-color: rgba(245, 176, 66, 0.32);
-  background: rgba(245, 176, 66, 0.045);
+.position-proof-calculation .katex-display { text-align: center; }
+.position-proof-reading {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
 }
-.position-proof-example > span { color: var(--q); }
-.position-proof-example .math-block { font-size: 16.5px; }
-.position-proof-calculation .katex-display,
-.position-proof-example .katex-display { text-align: center; }
-.position-proof-calculation p,
-.position-proof-example p {
-  margin: 0;
+.position-proof-reading > div {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  padding: 10px 12px;
+  border-left: 3px solid var(--v);
+  background: rgba(45, 212, 191, 0.045);
+  text-align: left;
+}
+.position-proof-reading b {
+  color: var(--v);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.position-proof-reading span {
   color: var(--t2);
-  font-size: 13px;
-  line-height: 1.7;
+  font-size: 12px;
+  line-height: 1.6;
 }
 .position-proof-boundary {
-  margin-top: 12px;
-  padding: 12px 15px;
+  margin-top: 14px;
+  padding: 13px 15px;
   border-left: 3px solid var(--q);
   background: rgba(245, 176, 66, 0.06);
 }
