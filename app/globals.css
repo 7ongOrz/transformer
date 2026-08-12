@@ -2684,6 +2684,265 @@ p code {
   line-height: 25px;
 }
 
+/* FlashAttention：CUDA 调度层级与 tile 数值过程 */
+.flash-concept-grid .card {
+  min-width: 0;
+}
+.flash-concept-grid .card > h3 {
+  color: var(--v);
+}
+.flash-gpu-map,
+.flash-tile-demo {
+  padding: 20px;
+}
+.flash-gpu-hierarchy {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 64px minmax(0, 1fr) 64px minmax(0, 1.15fr);
+  gap: 10px;
+  align-items: stretch;
+}
+.flash-gpu-node {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  background: var(--panel-3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  text-align: center;
+}
+.flash-gpu-node > span,
+.flash-memory-path span,
+.flash-tile-source > span,
+.flash-tile-result > span {
+  color: var(--t-dim);
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.flash-gpu-node > b {
+  color: var(--t1);
+  font-family: var(--mono);
+  font-size: 19px;
+}
+.flash-gpu-node small,
+.flash-memory-path small,
+.flash-tile-demo small {
+  color: var(--t-dim);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.flash-grid-blocks,
+.flash-warp-row,
+.flash-sm-parts {
+  width: 100%;
+  display: grid;
+  gap: 6px;
+}
+.flash-grid-blocks {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.flash-warp-row {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.flash-sm-parts {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.flash-sm-parts i:last-child {
+  grid-column: 1 / -1;
+}
+.flash-grid-blocks i,
+.flash-warp-row i,
+.flash-sm-parts i {
+  min-width: 0;
+  padding: 8px 5px;
+  border: 1px solid rgba(45, 212, 191, 0.25);
+  border-radius: 7px;
+  background: rgba(45, 212, 191, 0.08);
+  color: var(--v);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-style: normal;
+}
+.flash-gpu-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: var(--t-dim);
+  text-align: center;
+}
+.flash-gpu-arrow b {
+  color: var(--v);
+  font-size: 25px;
+}
+.flash-gpu-arrow span {
+  font-size: 12px;
+}
+.flash-memory-path {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1.45fr) auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+}
+.flash-memory-path > div {
+  min-width: 0;
+  min-height: 112px;
+  padding: 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  background: rgba(56, 189, 248, 0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  text-align: center;
+}
+.flash-memory-path > div.on-chip {
+  border-color: rgba(45, 212, 191, 0.38);
+  background: rgba(45, 212, 191, 0.09);
+}
+.flash-memory-path b {
+  color: var(--t1);
+  font-family: var(--mono);
+  font-size: 16px;
+}
+.flash-memory-path em {
+  color: var(--v);
+  font-family: var(--mono);
+  font-size: 13px;
+  font-style: normal;
+  white-space: nowrap;
+}
+.flash-gpu-map .fig-cap,
+.flash-tile-demo .fig-cap {
+  margin-top: 16px;
+}
+.flash-tile-source,
+.flash-tile-result {
+  padding: 16px 18px;
+  border: 1px solid var(--hairline);
+  border-radius: 11px;
+  background: rgba(56, 189, 248, 0.06);
+  text-align: center;
+}
+.flash-tile-source .math-block,
+.flash-tile-result .math-block {
+  margin: 10px 0;
+}
+.flash-tile-stages {
+  margin: 14px 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.flash-tile-stage {
+  min-width: 0;
+  padding: 17px;
+  border: 1px solid rgba(45, 212, 191, 0.25);
+  border-radius: 11px;
+  background: var(--panel-3);
+}
+.flash-tile-stage.second {
+  border-color: rgba(244, 114, 182, 0.28);
+}
+.flash-tile-stage header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.flash-tile-stage header > span {
+  padding: 5px 9px;
+  border-radius: 6px;
+  background: rgba(45, 212, 191, 0.12);
+  color: var(--v);
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+}
+.flash-tile-stage.second header > span {
+  background: rgba(244, 114, 182, 0.12);
+  color: var(--out);
+}
+.flash-tile-stage header > b {
+  color: var(--t2);
+  font-size: 15px;
+}
+.flash-tile-stage > .math-block {
+  min-height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.flash-tile-stage .katex {
+  font-size: 0.96em;
+}
+.flash-state-list {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 9px 13px;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid var(--hairline);
+}
+.flash-state-list > span {
+  color: var(--t-dim);
+  font-size: 13px;
+  font-weight: 650;
+}
+.flash-state-list > .math {
+  min-width: 0;
+  color: var(--t1);
+  text-align: left;
+}
+.flash-tile-result {
+  border-color: rgba(45, 212, 191, 0.38);
+  background: rgba(45, 212, 191, 0.08);
+}
+
+@media (max-width: 900px) {
+  .flash-gpu-hierarchy,
+  .flash-memory-path,
+  .flash-tile-stages {
+    grid-template-columns: 1fr;
+  }
+  .flash-gpu-arrow,
+  .flash-memory-path > em {
+    min-height: 28px;
+  }
+  .flash-gpu-arrow b {
+    transform: rotate(90deg);
+  }
+  .flash-memory-path > em {
+    text-align: center;
+    white-space: normal;
+  }
+}
+
+@media (max-width: 560px) {
+  .flash-gpu-map,
+  .flash-tile-demo {
+    padding: 13px;
+  }
+  .flash-state-list {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .flash-tile-stage header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
 /* 矩阵级及后续章节统一提高正文、公式和图注可读性 */
 .detail-section .sec-lead {
   max-width: none;

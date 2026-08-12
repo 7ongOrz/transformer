@@ -50,6 +50,11 @@ test("server-renders the Attention teaching page", async () => {
   assert.match(html, /它不在 Token 维上再次混合信息/);
   assert.match(html, /真实计算结果/);
   assert.match(html, /FlashAttention：不改变数学/);
+  assert.match(html, /SDPA · 核心运算/);
+  assert.match(html, /Grid 是全部 thread block 的集合/);
+  assert.match(html, /tile 是算法切出的数据子矩阵/);
+  assert.match(html, /固定 Query 行 1～2/);
+  assert.match(html, /0\.706.*1\.314/);
   assert.match(html, /代码实现：从公式到 PyTorch/);
   assert.match(html, /Transformer 全景：Attention 在模型中的位置/);
   assert.match(html, /生成分数矩阵/);
@@ -162,6 +167,51 @@ test("keeps the teaching matrices on one verified numerical chain", () => {
   ]);
 });
 
+test("keeps the FlashAttention tile walkthrough numerically equivalent", () => {
+  const scores = attentionDemo.S.slice(0, 2);
+  const values = attentionDemo.V;
+  let maximum = [-Infinity, -Infinity];
+  let denominator = [0, 0];
+  let accumulator = [[0, 0], [0, 0]];
+
+  for (let tile = 0; tile < 2; tile += 1) {
+    const scoreTile = scores.map((row) => row.slice(tile * 2, tile * 2 + 2));
+    const valueTile = values.slice(tile * 2, tile * 2 + 2);
+    const nextMaximum = scoreTile.map((row, query) =>
+      Math.max(maximum[query], ...row),
+    );
+    const oldScale = nextMaximum.map((value, query) =>
+      Math.exp(maximum[query] - value),
+    );
+    const probabilities = scoreTile.map((row, query) =>
+      row.map((value) => Math.exp(value - nextMaximum[query])),
+    );
+
+    denominator = denominator.map((value, query) =>
+      oldScale[query] * value
+      + probabilities[query].reduce((sum, probability) => sum + probability, 0),
+    );
+    accumulator = accumulator.map((row, query) => row.map((value, column) =>
+      oldScale[query] * value
+      + probabilities[query].reduce(
+        (sum, probability, key) => sum + probability * valueTile[key][column],
+        0,
+      ),
+    ));
+    maximum = nextMaximum;
+  }
+
+  assert.deepEqual(rounded([maximum]), [[1.026, 2.024]]);
+  assert.deepEqual(rounded([denominator]), [[2.876, 2.383]]);
+  assert.deepEqual(rounded(accumulator), [[2.032, 3.78], [1.854, 3.124]]);
+  assert.deepEqual(
+    rounded(accumulator.map((row, query) =>
+      row.map((value) => value / denominator[query]),
+    )),
+    rounded(attentionDemo.O.slice(0, 2)),
+  );
+});
+
 test("keeps project metadata and generated assets clean", async () => {
   const [page, layout, packageJson, gitignore] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
@@ -235,6 +285,11 @@ test("ships the current teaching page as an offline standalone HTML file", async
   assert.match(html, /sin 不要求单调/);
   assert.match(html, /固定相对距离对应固定旋转/);
   assert.match(html, /FlashAttention：不改变数学/);
+  assert.match(html, /SDPA · 核心运算/);
+  assert.match(html, /Grid 是全部 thread block 的集合/);
+  assert.match(html, /tile 是算法切出的数据子矩阵/);
+  assert.match(html, /固定 Query 行 1～2/);
+  assert.match(html, /0\.706.*1\.314/);
   assert.match(html, /把融合投影结果重排为三个头，不拆 Token/);
   assert.match(html, /多头最终输出/);
   assert.match(html, /代码实现：从公式到 PyTorch/);

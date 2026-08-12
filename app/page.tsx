@@ -1645,11 +1645,11 @@ function FigFlashCompare() {
   ];
   const flash: { t: React.ReactNode; good?: boolean }[] = [
     { t: <>切分 <Formula tex={String.raw`Q,\ K,\ V`} /></> },
-    { t: "小块加载进 SRAM", good: true },
+    { t: "tile 加载到片上存储", good: true },
     { t: "片上算局部分数" },
     { t: <>在线更新 <Formula tex={String.raw`m,\ \ell,\ o`} /></>, good: true },
     { t: <>处理下一个 <Formula tex={String.raw`K,\ V`} /> 块</> },
-    { t: <>写出最终 <Formula tex="O" /> 与行归一化统计量</> },
+    { t: <>写出最终 <Formula tex="O" />；训练时保存行统计量</> },
   ];
   const Step = ({ t, tone }: { t: React.ReactNode; tone?: "bad" | "good" }) => (
     <div className={`fc-step ${tone ?? ""}`}>{t}</div>
@@ -1677,6 +1677,87 @@ function FigFlashCompare() {
         </div>
       </div>
       <div className="fig-cap">图 · 左侧会把 <Formula tex={String.raw`L\times L`} /> 的 <Formula tex={String.raw`S,\ A`} /> 写入并读回 HBM；右侧按块计算，只保存输出与行统计量等线性规模状态，不物化完整注意力矩阵</div>
+    </div>
+  );
+}
+
+function FigFlashGpuMap() {
+  return (
+    <div className="fig flash-gpu-map">
+      <div className="flash-gpu-hierarchy">
+        <article className="flash-gpu-node grid-node">
+          <span>一次 CUDA kernel launch</span>
+          <b>Grid</b>
+          <div className="flash-grid-blocks" aria-label="Grid 中的多个 thread block">
+            <i>Block 0</i><i>Block 1</i><i>Block 2</i><i>…</i>
+          </div>
+          <small>Grid 是全部 thread block 的集合</small>
+        </article>
+        <div className="flash-gpu-arrow"><b>→</b><span>硬件调度</span></div>
+        <article className="flash-gpu-node block-node">
+          <span>协作执行单位</span>
+          <b>Thread block</b>
+          <div className="flash-warp-row"><i>warp 0</i><i>warp 1</i><i>…</i></div>
+          <small>一个 block 的线程都在同一个 SM 上执行</small>
+        </article>
+        <div className="flash-gpu-arrow"><b>→</b><span>驻留</span></div>
+        <article className="flash-gpu-node sm-node">
+          <span>GPU 硬件执行单元</span>
+          <b>SM</b>
+          <div className="flash-sm-parts"><i>shared memory</i><i>registers</i><i>Tensor Cores / ALUs</i></div>
+          <small>一个 SM 可同时驻留多个 block，数量受片上资源限制</small>
+        </article>
+      </div>
+
+      <div className="flash-memory-path" aria-label="FlashAttention 从 HBM 搬运 tile 到片上存储并写回输出的数据流">
+        <div><span>HBM / global memory</span><b><Formula tex={String.raw`Q,\ K,\ V`} /></b><small>容量大，片外访问代价高</small></div>
+        <em>加载 tile →</em>
+        <div className="on-chip"><span>SM 片上</span><b>shared memory + registers</b><small>暂存 tile 与 <Formula tex={String.raw`m,\ell,o`} />，完成矩阵乘与在线 softmax</small></div>
+        <em>写回 →</em>
+        <div><span>HBM / global memory</span><b><Formula tex="O" /></b><small>不写回完整 <Formula tex={String.raw`S,\ A`} /></small></div>
+      </div>
+
+      <div className="fig-cap"><b>概念边界</b> · tile 是算法切出的数据子矩阵，不是 CUDA 层级中的 thread block；内核通常让一个 block 协作处理一个或多个 tile，但具体映射会随 FlashAttention 版本、shape 与 GPU 架构变化</div>
+    </div>
+  );
+}
+
+function FigFlashNumericTiles() {
+  return (
+    <div className="fig flash-tile-demo">
+      <div className="flash-tile-source">
+        <span>固定 Query 行 1～2，沿 Key / Value 方向扫描两个 tile</span>
+        <Formula block tex={String.raw`S_{1:2,:}=\left[\begin{array}{cc|cc}0.967&-0.186&0.573&1.026\\1.370&1.067&1.287&2.024\end{array}\right]`} />
+        <small>竖线左侧对应 Token 1～2，右侧对应 Token 3～4；本例沿用前文同一组 <Formula tex={String.raw`Q,\ K,\ V`} /> 数值且不加 mask。</small>
+      </div>
+
+      <div className="flash-tile-stages">
+        <article className="flash-tile-stage first">
+          <header><span>第 1 轮</span><b>读入 <Formula tex={String.raw`K_{1:2},\ V_{1:2}`} /></b></header>
+          <Formula block tex={String.raw`S^{(1)}=\begin{bmatrix}0.967&-0.186\\1.370&1.067\end{bmatrix},\quad V^{(1)}=\begin{bmatrix}0.40&1.28\\1.08&0.60\end{bmatrix}`} />
+          <div className="flash-state-list">
+            <span>行最大值</span><Formula tex={String.raw`m^{(1)}=[0.967,\ 1.370]`} />
+            <span>指数和</span><Formula tex={String.raw`\ell^{(1)}=[1.316,\ 1.738]`} />
+            <span>未归一化输出</span><Formula tex={String.raw`o^{(1)}=\begin{bmatrix}0.741&1.469\\1.198&1.723\end{bmatrix}`} />
+          </div>
+        </article>
+
+        <article className="flash-tile-stage second">
+          <header><span>第 2 轮</span><b>读入 <Formula tex={String.raw`K_{3:4},\ V_{3:4}`} /></b></header>
+          <Formula block tex={String.raw`S^{(2)}=\begin{bmatrix}0.573&1.026\\1.287&2.024\end{bmatrix},\quad V^{(2)}=\begin{bmatrix}0.65&1.06\\0.92&1.72\end{bmatrix}`} />
+          <div className="flash-state-list">
+            <span>旧状态缩放</span><Formula tex={String.raw`\rho=e^{m^{(1)}-m^{(2)}}=[0.943,\ 0.520]`} />
+            <span>更新后状态</span><Formula tex={String.raw`m^{(2)}=[1.026,\ 2.024],\quad\ell^{(2)}=[2.876,\ 2.383]`} />
+            <span>更新后输出累加</span><Formula tex={String.raw`o^{(2)}=\begin{bmatrix}2.032&3.780\\1.854&3.124\end{bmatrix}`} />
+          </div>
+        </article>
+      </div>
+
+      <div className="flash-tile-result">
+        <span>扫描完成后才做最终归一化</span>
+        <Formula block tex={String.raw`O_{1:2,:}=\operatorname{diag}(\ell^{(2)})^{-1}o^{(2)}=\begin{bmatrix}0.706&1.314\\0.778&1.311\end{bmatrix}`} />
+        <small>结果与前文直接计算完整 <Formula tex={String.raw`\operatorname{softmax}(S)V`} /> 的前两行一致；区别只在中间过程没有把完整 <Formula tex={String.raw`S,\ A`} /> 写回 HBM。</small>
+      </div>
     </div>
   );
 }
@@ -2161,8 +2242,28 @@ export default function Home() {
               <Formula block tex={String.raw`O=\operatorname{softmax}\!\left(\frac{QK^{\mathsf T}}{\sqrt{d_k}}+M\right)V`} />
             </div>
 
+            <h3>先分清 SDPA、MHA 与 FlashAttention</h3>
+            <div className="grid3 flash-concept-grid">
+              <div className="card">
+                <h3 style={{ marginTop: 0 }}>SDPA · 核心运算</h3>
+                <p className="t3"><b>Scaled Dot-Product Attention</b>，即「缩放点积注意力」，就是上面的公式。它描述输入 <Formula tex={String.raw`Q,\ K,\ V`} /> 如何得到 <Formula tex="O" />，不是某一种固定 GPU 内核。</p>
+              </div>
+              <div className="card">
+                <h3 style={{ marginTop: 0 }}>MHA · 模型结构</h3>
+                <p className="t3">Multi-Head Attention 先投影并拆成多个 Head，每个 Head 各做一次 SDPA，再拼接并乘 <Formula tex="W^O" />。它决定模型如何组织多个注意力子空间。</p>
+              </div>
+              <div className="card">
+                <h3 style={{ marginTop: 0 }}>FlashAttention · 实现算法</h3>
+                <p className="t3">FlashAttention 是 SDPA 的一种精确、高 IO 效率实现。它使用 tiling 与在线 softmax 改写执行顺序，但不改变模型结构和数学定义。</p>
+              </div>
+            </div>
+            <div className="note"><code>torch.nn.functional.scaled_dot_product_attention</code> 是 PyTorch 的统一 SDPA 入口。框架会根据设备、dtype、shape、mask 与可用后端选择 FlashAttention、Memory-Efficient 或 math 等实现，因此<b>调用 SDPA 不等于一定命中 FlashAttention</b>。</div>
+
             <h3>长序列朴素 Attention 常受 HBM 访存限制</h3>
-            <p className="sec-lead">对长度为 <Formula tex="L" /> 的 self-attention（此时 <Formula tex={String.raw`L_q=L_k=L`} />），朴素实现会把整张 <Formula tex="L\times L" /> 的分数矩阵 <Formula tex="S" /> 和权重矩阵 <Formula tex="A" /> 写进 HBM（显存）再读回。序列一长，<b>显存读写</b>就可能成为主要开销——具体瓶颈取决于序列长度、head dimension、硬件和实现。FlashAttention 重点优化这个 IO 瓶颈：<b style={{ color: "#2dd4bf" }}>把 <Formula tex={String.raw`Q,\ K,\ V`} /> 切成小块，分批搬进 SRAM，在片上计算并在线更新输出与行归一化统计量</b>；它会按内核调度读写这些线性规模状态，但不会把完整的 <Formula tex={String.raw`S,\ A\in\mathbb{R}^{L\times L}`} /> 物化到 HBM。</p>
+            <p className="sec-lead">对长度为 <Formula tex="L" /> 的 self-attention（此时 <Formula tex={String.raw`L_q=L_k=L`} />），朴素实现会把整张 <Formula tex="L\times L" /> 的分数矩阵 <Formula tex="S" /> 和权重矩阵 <Formula tex="A" /> 写进 HBM（显存）再读回。序列一长，<b>显存读写</b>就可能成为主要开销——具体瓶颈取决于序列长度、head dimension、硬件和实现。FlashAttention 重点优化这个 IO 瓶颈：<b style={{ color: "#2dd4bf" }}>把 <Formula tex={String.raw`Q,\ K,\ V`} /> 切成 tile，分批搬进片上存储，在片上计算并在线更新输出与行归一化统计量</b>；论文用 SRAM 概括片上存储，在 NVIDIA CUDA 内核中主要体现为 shared memory 与 registers。完整的 <Formula tex={String.raw`S,\ A\in\mathbb{R}^{L\times L}`} /> 不会被物化到 HBM。</p>
+
+            <h3>从 Grid 到 SM：tile 在 GPU 上如何被执行</h3>
+            <FigFlashGpuMap />
 
             <FigFlashCompare />
 
@@ -2175,6 +2276,9 @@ export default function Home() {
               <Formula block tex={String.raw`o_{\mathrm{new}}=e^{m-m_{\mathrm{new}}}\odot o+e^{S_t-m_{\mathrm{new}}}V_t`} />
             </div>
             <div className="note"><Formula tex={String.raw`\operatorname{rowmax},\ \operatorname{rowsum}`} /> 都按行计算，<Formula tex="\odot" /> 表示按 Query 行广播的逐元素缩放。全部 Key / Value 块处理完后，<Formula tex={String.raw`O_{\mathrm{blk}}=\operatorname{diag}(\ell)^{-1}o`} /> 表示把 <Formula tex="o" /> 的每一行除以对应的 <Formula tex="\ell_i" />。当新块出现更大分数时，旧累加按 <Formula tex="e^{m-m_{\mathrm{new}}}" /> 缩小，因此<b>无需保存过去的全部分数</b>。</div>
+
+            <h3>同一组数值：把 <Formula tex={String.raw`4\times4`} /> 分数矩阵切成两个 tile</h3>
+            <FigFlashNumericTiles />
 
             <h3>三个要点</h3>
             <div className="grid3">
