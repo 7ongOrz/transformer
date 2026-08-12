@@ -48,14 +48,32 @@ test("server-renders the Attention teaching page", async () => {
   assert.match(html, /缩小版 Transformer 多头层/);
   assert.match(html, /原始 Transformer 取/);
   assert.match(html, /它不在 Token 维上再次混合信息/);
-  assert.match(html, /真实计算结果/);
+  assert.match(html, /数值链计算结果/);
   assert.match(html, /FlashAttention：不改变数学/);
   assert.match(html, /SDPA.*Scaled Dot-Product Attention/);
   assert.match(html, /数学没有变化：仍然是打分、归一化、汇聚/);
   assert.match(html, /Grid 包含多个 thread block/);
-  assert.match(html, /tile 是矩阵数据块/);
-  assert.match(html, /固定 Query 行 1～2/);
-  assert.match(html, /0\.706.*1\.314/);
+  assert.match(html, /同一输入 · 固定一个 Query 行/);
+  assert.match(html, /普通 Softmax/);
+  assert.match(html, /实数精确计算下，两种路径对应的全局权重完全相同/);
+  assert.match(html, /分母与分子同时缩小四倍/);
+  assert.match(html, /归一化后得到相同权重/);
+  assert.match(html, /最终输出相同/);
+  assert.match(html, /旧结果先乘换算比例/);
+  assert.match(html, /旧结果 \+ 新 tile/);
+  assert.match(html, /收尾 · 全部 tile 扫描完成后统一归一化/);
+  assert.match(html, /FlashAttention-2 风格映射/);
+  assert.match(html, /registers 行状态/);
+  assert.match(html, /只写回最终输出与行统计/);
+  assert.match(html, /每轮只处理一个 Key \/ Value tile/);
+  assert.match(html, /最后一个 tile 完成/);
+  assert.match(html, /把每行分母.*放在对角线上/);
+  assert.match(html, /64 MiB.*batch.*head/);
+  assert.match(html, /减少的是数据搬运/);
+  assert.match(html, /与前文.*4.*4.*使用同一坐标/);
+  assert.match(html, /BOS.*序列开始标记.*不是因果 Mask 的组成部分/);
+  assert.match(html, /masked_fill\(~mask, float\(&quot;-inf&quot;\)\)/);
+  assert.doesNotMatch(html, /5\s*[×x]\s*5/);
   assert.match(html, /代码实现：从公式到 PyTorch/);
   assert.match(html, /Transformer 全景：Attention 在模型中的位置/);
   assert.match(html, /生成分数矩阵/);
@@ -78,12 +96,14 @@ test("server-renders the Attention teaching page", async () => {
   assert.match(html, /固定相对距离对应固定旋转/);
   assert.doesNotMatch(html, /① 拼接扩展输入/);
   assert.match(html, /A.*第 1 行乘完整.*V.*矩阵/);
+  assert.match(html, /matrix-calc-option active/);
+  assert.match(html, /query-title-option active/);
   assert.match(html, /data-queries=/);
   assert.match(html, /<svg\b/i);
   assert.match(html, /katex/);
   assert.doesNotMatch(html, /class="[^"]*\bmath-error\b/);
   assert.doesNotMatch(html, /20\s*(?:分钟|MIN)|TOTAL\s*·\s*20:00|20:00/i);
-  assert.doesNotMatch(html, /这里只说明|这里故意|不把它们映射成具体词语|不为 Head 1、2、3 指定固定语义/);
+  assert.doesNotMatch(html, /这里只说明|这里故意|不把它们映射成具体词语|不为 Head 1、2、3 指定固定语义|按(?:照)?(?:你的|用户)?要求|给听众|讲解时/);
   assert.doesNotMatch(html, /PDF 为什么|数学补充 · 不是|仅用于推导|临时写法|上一节|下一节|这一节只为|页面刷新|被引用几万次|原理看懂了|与上文|先看一般线性变换|此时不使用单位矩阵|教学数值特例|仅为演示方便|到这里还不能|上面的推导/);
   assert.doesNotMatch(html, /算子测试|前向正确性|反向正确性|性能与显存/);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|react-loading-skeleton/i);
@@ -169,47 +189,52 @@ test("keeps the teaching matrices on one verified numerical chain", () => {
 });
 
 test("keeps the FlashAttention tile walkthrough numerically equivalent", () => {
-  const scores = attentionDemo.S.slice(0, 2);
-  const values = attentionDemo.V;
-  let maximum = [-Infinity, -Infinity];
-  let denominator = [0, 0];
-  let accumulator = [[0, 0], [0, 0]];
+  const scores = [1, 2, 3, 4].map(Math.log);
+  const values = [10, 20, 30, 40];
+  const globalWeights = scores.map(Math.exp);
+  const globalDenominator = globalWeights.reduce((sum, value) => sum + value, 0);
+  const ordinaryOutput = globalWeights.reduce(
+    (sum, weight, index) => sum + weight * values[index],
+    0,
+  ) / globalDenominator;
+
+  let maximum = -Infinity;
+  let denominator = 0;
+  let accumulator = 0;
+  const snapshots = [];
 
   for (let tile = 0; tile < 2; tile += 1) {
-    const scoreTile = scores.map((row) => row.slice(tile * 2, tile * 2 + 2));
+    const scoreTile = scores.slice(tile * 2, tile * 2 + 2);
     const valueTile = values.slice(tile * 2, tile * 2 + 2);
-    const nextMaximum = scoreTile.map((row, query) =>
-      Math.max(maximum[query], ...row),
-    );
-    const oldScale = nextMaximum.map((value, query) =>
-      Math.exp(maximum[query] - value),
-    );
-    const probabilities = scoreTile.map((row, query) =>
-      row.map((value) => Math.exp(value - nextMaximum[query])),
-    );
+    const nextMaximum = Math.max(maximum, ...scoreTile);
+    const oldScale = Math.exp(maximum - nextMaximum);
+    const probabilities = scoreTile.map((value) => Math.exp(value - nextMaximum));
 
-    denominator = denominator.map((value, query) =>
-      oldScale[query] * value
-      + probabilities[query].reduce((sum, probability) => sum + probability, 0),
-    );
-    accumulator = accumulator.map((row, query) => row.map((value, column) =>
-      oldScale[query] * value
-      + probabilities[query].reduce(
-        (sum, probability, key) => sum + probability * valueTile[key][column],
+    denominator = oldScale * denominator
+      + probabilities.reduce((sum, probability) => sum + probability, 0);
+    accumulator = oldScale * accumulator
+      + probabilities.reduce(
+        (sum, probability, key) => sum + probability * valueTile[key],
         0,
-      ),
-    ));
+      );
     maximum = nextMaximum;
+    snapshots.push({ maximum, denominator, accumulator });
   }
 
-  assert.deepEqual(rounded([maximum]), [[1.026, 2.024]]);
-  assert.deepEqual(rounded([denominator]), [[2.876, 2.383]]);
-  assert.deepEqual(rounded(accumulator), [[2.032, 3.78], [1.854, 3.124]]);
   assert.deepEqual(
-    rounded(accumulator.map((row, query) =>
-      row.map((value) => value / denominator[query]),
-    )),
-    rounded(attentionDemo.O.slice(0, 2)),
+    snapshots.map(({ denominator: value, accumulator: output }) => [
+      Number(value.toFixed(3)),
+      Number(output.toFixed(3)),
+    ]),
+    [[1.5, 25], [2.5, 75]],
+  );
+  assert.equal(Number(maximum.toFixed(3)), Number(Math.log(4).toFixed(3)));
+  assert.equal(Number(denominator.toFixed(3)), 2.5);
+  assert.equal(Number(accumulator.toFixed(3)), 75);
+  assert.equal(accumulator / denominator, ordinaryOutput);
+  assert.deepEqual(
+    scores.map((score) => Number((Math.exp(score - maximum) / denominator).toFixed(1))),
+    [0.1, 0.2, 0.3, 0.4],
   );
 });
 
@@ -229,6 +254,7 @@ test("keeps project metadata and generated assets clean", async () => {
   assert.match(page, /代码实现：从公式到 PyTorch/);
   assert.match(page, /E_\{\\mathrm\{tok\}\}/);
   assert.match(page, /O\(L²d\)/);
+  assert.doesNotMatch(page, /\\frac\{\[\\tfrac14/);
   assert.doesNotMatch(page, /d_\{model\}|L_\{max\}|W[ᵠᵏᵛ]|tex="(?:Q\/K\/V|S\/P|dQ,dK,dV)"/);
   assert.match(layout, /Transformer 核心算子详解/);
   assert.doesNotMatch(`${page}\n${layout}`, /20\s*(?:分钟|MIN)|20:00/i);
@@ -289,18 +315,39 @@ test("ships the current teaching page as an offline standalone HTML file", async
   assert.match(html, /SDPA.*Scaled Dot-Product Attention/);
   assert.match(html, /数学没有变化：仍然是打分、归一化、汇聚/);
   assert.match(html, /Grid 包含多个 thread block/);
-  assert.match(html, /tile 是矩阵数据块/);
-  assert.match(html, /固定 Query 行 1～2/);
-  assert.match(html, /0\.706.*1\.314/);
+  assert.match(html, /同一输入 · 固定一个 Query 行/);
+  assert.match(html, /普通 Softmax/);
+  assert.match(html, /实数精确计算下，两种路径对应的全局权重完全相同/);
+  assert.match(html, /分母与分子同时缩小四倍/);
+  assert.match(html, /归一化后得到相同权重/);
+  assert.match(html, /最终输出相同/);
+  assert.match(html, /旧结果先乘换算比例/);
+  assert.match(html, /旧结果 \+ 新 tile/);
+  assert.match(html, /收尾 · 全部 tile 扫描完成后统一归一化/);
+  assert.match(html, /FlashAttention-2 风格映射/);
+  assert.match(html, /registers 行状态/);
+  assert.match(html, /只写回最终输出与行统计/);
+  assert.match(html, /每轮只处理一个 Key \/ Value tile/);
+  assert.match(html, /最后一个 tile 完成/);
+  assert.match(html, /把每行分母.*放在对角线上/);
+  assert.match(html, /64 MiB.*batch.*head/);
+  assert.match(html, /减少的是数据搬运/);
+  assert.match(html, /与前文.*4.*4.*使用同一坐标/);
+  assert.match(html, /BOS.*序列开始标记.*不是因果 Mask 的组成部分/);
+  assert.match(html, /masked_fill\(~mask, float\(&quot;-inf&quot;\)\)/);
+  assert.doesNotMatch(html, /5\s*[×x]\s*5/);
   assert.match(html, /把融合投影结果重排为三个头，不拆 Token/);
   assert.match(html, /多头最终输出/);
   assert.match(html, /代码实现：从公式到 PyTorch/);
   assert.match(html, /data-standalone="attention"/);
   assert.match(html, /data-queries=/);
   assert.match(html, /JSON\.parse\(attentionDemo\.dataset\.queries\)/);
+  assert.match(html, /matrixCalculations\.forEach/);
+  assert.match(html, /queryTitles\.forEach/);
+  assert.doesNotMatch(html, /calculation\.innerHTML\s*=\s*"C\[/);
   assert.match(html, /data:font\/woff2;base64,/);
   assert.doesNotMatch(html, /class="[^"]*\bmath-error\b/);
-  assert.doesNotMatch(html, /PDF 为什么|数学补充 · 不是|仅用于推导|临时写法|上一节|下一节|这一节只为|页面刷新|被引用几万次|原理看懂了|与上文|先看一般线性变换|此时不使用单位矩阵|教学数值特例|仅为演示方便|到这里还不能|上面的推导/);
+  assert.doesNotMatch(html, /PDF 为什么|数学补充 · 不是|仅用于推导|临时写法|上一节|下一节|这一节只为|页面刷新|被引用几万次|原理看懂了|与上文|先看一般线性变换|此时不使用单位矩阵|教学数值特例|仅为演示方便|到这里还不能|上面的推导|按(?:照)?(?:你的|用户)?要求|给听众|讲解时/);
   assert.doesNotMatch(html, /算子测试|前向正确性|反向正确性|性能与显存/);
   assert.doesNotMatch(html, /<(?:script|link|img)\b[^>]*(?:src|href)="https?:\/\//i);
   assert.doesNotMatch(html, /(?:href|src)="\/assets\//i);

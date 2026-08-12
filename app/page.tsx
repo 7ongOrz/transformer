@@ -273,9 +273,9 @@ function AttentionSetupGuide() {
         <article className="setup-node">
           <span className="setup-step">2</span>
           <strong>每个位置得到输入向量 <Formula tex="x_i" /></strong>
-          <Formula block tex={String.raw`e_i=E_{\mathrm{tok}}[\operatorname{tokenId}_i,:]`} />
+          <Formula block tex={String.raw`e_i=\operatorname{Embed}(\operatorname{tokenId}_i)`} />
           <Formula block tex={String.raw`x_i=e_i+p_i`} />
-          <p>首层通常由 token embedding 与位置信息组成；后续层的 <Formula tex="x_i" /> 来自上一层输出。现代模型也可能用 RoPE 等方式注入位置。</p>
+          <p>采用输入端绝对位置编码时，首层由 token embedding 与位置向量相加；原始 Transformer 会先把 embedding 乘 <Formula tex={String.raw`\sqrt{d_{\mathrm{model}}}`} />。后续层的 <Formula tex="x_i" /> 来自上一层输出，现代模型也可能用 RoPE 等方式注入位置。</p>
         </article>
 
         <article className="setup-node">
@@ -1214,7 +1214,7 @@ function FigMultiHeadCalculation() {
         <span>缩小版 Transformer 多头层 · Token 1～4</span>
         <b>输入 <Formula tex={String.raw`4\times6`} /> → 每头 <Formula tex={String.raw`4\times2`} /> → 拼接 <Formula tex={String.raw`4\times6`} /> → 输出 <Formula tex={String.raw`4\times6`} /></b>
         <Formula block tex={String.raw`L=4,\quad d_{\mathrm{model}}=6,\quad h=3,\quad d_k=d_v=d_{\mathrm{model}}/h=2`} />
-        <p><Formula tex={String.raw`4\times2`} /> 单头算例独立展示 Attention 核心计算。标准多头层满足 <Formula tex={String.raw`d_{\mathrm{model}}=h\,d_v`} />；此处取 <Formula tex={String.raw`6=3\times2`} />，原始 Transformer 取 <Formula tex={String.raw`512=8\times64`} />，因此多头层的输入与输出宽度保持一致。</p>
+        <p><Formula tex={String.raw`4\times2`} /> 单头算例独立展示 Attention 核心计算。原始 Transformer 与常见实现通常取 <Formula tex={String.raw`d_k=d_v=d_{\mathrm{model}}/h`} />，因而 <Formula tex={String.raw`h\,d_v=d_{\mathrm{model}}`} />；此处取 <Formula tex={String.raw`6=3\times2`} />，原始 Transformer 取 <Formula tex={String.raw`512=8\times64`} />。更一般地，<Formula tex="W^O" /> 负责把拼接宽度 <Formula tex={String.raw`h\,d_v`} /> 映射回 <Formula tex="d_{\mathrm{model}}" />。</p>
       </div>
 
       <div className="mh-shape-route" aria-label="多头注意力张量形状变化">
@@ -1363,7 +1363,7 @@ function FigMultiHeadCalculation() {
         <div className="mh-output-purpose">
           <div>
             <b>为什么下一层仍然是 <Formula tex={String.raw`4\times6`} /></b>
-            <p>每个头只输出两个特征，三个头沿特征维拼接后正好回到 <Formula tex={String.raw`3\times2=d_{\mathrm{model}}=6`} />。头数决定层内有几个并行分支，不会在层与层之间累乘模型维度。</p>
+            <p>本例中三个二维头拼接为 <Formula tex={String.raw`3\times2=6`} /> 维，<Formula tex={String.raw`W^O\in\mathbb{R}^{6\times6}`} /> 再输出六维。一般情况下，即使 <Formula tex={String.raw`h\,d_v`} /> 与 <Formula tex="d_{\mathrm{model}}" /> 不同，<Formula tex={String.raw`W^O\in\mathbb{R}^{(h d_v)\times d_{\mathrm{model}}}`} /> 也会映射回模型宽度；头数不会在层与层之间累乘维度。</p>
           </div>
           <Formula block tex={String.raw`\begin{aligned}X^{(\ell)}_{[4\times6]}&\xrightarrow{\;3\text{ 个头，各 }[4\times2]\;}H_{[4\times6]}\xrightarrow{\;W^O_{[6\times6]}\;}Y^{(\ell)}_{[4\times6]}\\X^{(\ell)}_{[4\times6]}+Y^{(\ell)}_{[4\times6]}&\xrightarrow{\;\text{归一化、FFN 与残差}\;}X^{(\ell+1)}_{[4\times6]}\end{aligned}`} />
         </div>
@@ -1469,7 +1469,7 @@ function FigTransformer() {
           <line x1="430" y1="7" x2="447" y2="7" stroke="#f5b042" strokeWidth="1.5" strokeDasharray="4 3" /><text x="457" y="12" fill="#6e7aab" fontSize="12">残差连接</text>
         </g>
       </svg>
-      <div className="fig-cap">图 · 论文 Figure 1 重绘 — Attention 在 Encoder/Decoder 中共出现三次，是同一算子</div>
+      <div className="fig-cap">图 · 论文 Figure 1 重绘 — 三处 Attention 共享缩放点积核心，但 Query / Key / Value 的来源与因果 Mask 不同</div>
     </div>
   );
 }
@@ -1499,14 +1499,14 @@ function PositionEncodingFlow() {
       <div className="position-demo-head">
         <span>进入第一层 Attention 之前</span>
         <b>内容矩阵 <Formula tex="E_{\mathrm{seq}}" /> + 位置矩阵 <Formula tex="P_{\mathrm{seq}}" /> = 输入矩阵 <Formula tex="X" /></b>
-        <p>Self-Attention 本身不包含 Token 的先后顺序。位置 <Formula tex="i" /> 的内容向量 <Formula tex="e_i" /> 与位置向量 <Formula tex="p_i" /> 同为 <Formula tex="d_{\mathrm{model}}" /> 维，因此可以逐元素相加；<span className="position-source-choice"><Formula tex="p_i" /> 可以来自可学习位置表，也可以由固定公式生成。</span></p>
+        <p>没有位置编码或位置偏置时，双向 Self-Attention 对 Token 排列是置换等变的，不会自行获得先后顺序。位置 <Formula tex="i" /> 的内容向量 <Formula tex="e_i" /> 与位置向量 <Formula tex="p_i" /> 同为 <Formula tex="d_{\mathrm{model}}" /> 维，因此可以逐元素相加；原始 Transformer 在相加前还会将 token embedding 乘 <Formula tex={String.raw`\sqrt{d_{\mathrm{model}}}`} />。<Formula tex="p_i" /> 可由可学习位置表或固定公式生成。</p>
       </div>
 
       <div className="position-matrix-flow" role="img" aria-label="四个 Token 的内容向量逐行加上位置向量，得到 Attention 输入矩阵 X">
         <div className="position-matrix-stage">
           <span>① Token 内容</span>
           <FmsMatGrid data={contentEmbedding} name={<Formula tex="E_{\mathrm{seq}}" />} shape={<Formula tex={String.raw`[4\times2]`} />} pal={{ c: "#a9b4dc", t: "rgba(169,180,220,0.08)" }} rowLabels={rows} colLabels={cols} cornerLabel="位置＼维" digits={2} />
-          <small>四个 <Formula tex="e_i" /> 按行堆叠；每行来自 <Formula tex="E_{\mathrm{tok}}" /> 的查表结果</small>
+          <small>四个 <Formula tex="e_i" /> 按行堆叠；每行是进入位置相加前的内容向量</small>
         </div>
         <div className="position-matrix-op"><b>+</b><span>逐行、逐维相加</span></div>
         <div className="position-matrix-stage">
@@ -1624,7 +1624,7 @@ function PositionEncodingFlow() {
         </div>
       </div>
 
-      <div className="position-demo-note">二维数值表展示 <Formula tex="x_i=e_i+p_i" /> 与 <Formula tex="q_i=x_iW^Q" /> 的连接关系；四维矩阵展示固定正弦编码的具体数值。两者都要求内容向量与位置向量维度一致，并在 <Formula tex={String.raw`Q,\ K,\ V`} /> 投影前逐元素相加。</div>
+      <div className="position-demo-note">二维数值表展示 <Formula tex="x_i=e_i+p_i" /> 与 <Formula tex="q_i=x_iW^Q" /> 的连接关系；四维矩阵展示固定正弦编码的具体数值。输入端相加的绝对位置编码要求内容向量与位置向量维度一致，并在 <Formula tex={String.raw`Q,\ K,\ V`} /> 投影前逐元素相加。</div>
     </div>
   );
 }
@@ -1632,24 +1632,57 @@ function PositionEncodingFlow() {
 
 function FigFlashCompare() {
   return (
-    <div className="fig flash-io-compare">
-      <div className="flash-io-lane normal">
-        <b>普通实现</b>
-        <div className="flash-io-matrices">
-          <span><Formula tex={String.raw`S_{L\times L}`} /> → HBM</span>
-          <span><Formula tex={String.raw`A_{L\times L}`} /> → HBM</span>
-        </div>
-        <strong>完整矩阵反复读写</strong>
+    <div className="fig flash-memory-compare">
+      <div className="flash-memory-lanes">
+        <article className="flash-memory-lane normal">
+          <header><b>普通分步前向</b><span>完整中间矩阵进入 HBM</span></header>
+          <div className="flash-io-flow">
+            <span><Formula tex={String.raw`QK^{\mathsf T}`} /></span><b>→</b>
+            <span><Formula tex={String.raw`S_{L\times L}`} /></span><em>写 / 读 HBM</em>
+            <span><Formula tex={String.raw`\operatorname{softmax}(S)`} /></span><b>→</b>
+            <span><Formula tex={String.raw`A_{L\times L}`} /></span><em>写 / 读 HBM</em>
+            <span><Formula tex="AV" /></span>
+          </div>
+          <div className="flash-memory-formula"><span>若分别保留两张中间矩阵</span><Formula tex={String.raw`S+A=2L^2`} /><span>个元素</span></div>
+        </article>
+
+        <article className="flash-memory-lane flash">
+          <header><b>FlashAttention 前向</b><span>一个 tile 算完立即消费</span></header>
+          <div className="flash-io-flow">
+            <span><Formula tex={String.raw`Q_{\mathrm{blk}}`} /></span><b>+</b>
+            <span><Formula tex={String.raw`K_t,V_t`} /></span><em>从 HBM 载入 tile</em>
+            <span><Formula tex={String.raw`S^{(t)}`} /> · 片上</span><b>→</b>
+            <span>更新 <Formula tex={String.raw`m,\ell,o`} /></span><em>丢弃当前 score tile</em>
+            <span>循环下一个 tile</span><b>→</b>
+            <span>写回 <Formula tex="O" /> 与行统计</span>
+          </div>
+          <Formula block tex={String.raw`\text{HBM 不保存完整 }S,A`} />
+        </article>
       </div>
-      <div className="flash-io-lane flash">
-        <b>FlashAttention</b>
-        <div className="flash-io-matrices">
-          <span><Formula tex={String.raw`S^{(t)}`} /> → 片上</span>
-          <span><Formula tex={String.raw`m,\ell,o`} /> → 下一 tile</span>
+
+      <div className="flash-memory-number">
+        <div>
+          <span>例：<Formula tex={String.raw`L=4096`} />，FP16 / BF16 每个元素 2 Byte</span>
+          <Formula block tex={String.raw`L^2\times2\ \mathrm{Byte}=4096^2\times2\ \mathrm{Byte}=32\ \mathrm{MiB}`} />
         </div>
-        <strong><Formula tex="O" /> → HBM</strong>
+        <strong>每张约 32 MiB；两张合计约 64 MiB / batch / head</strong>
+        <small>FlashAttention 不把这两张 <Formula tex={String.raw`L\times L`} /> 前向中间矩阵写入 HBM；额外保留输出 <Formula tex="O" /> 与每行归一化统计，其规模随 <Formula tex="L" /> 线性增长。</small>
       </div>
-      <div className="fig-cap">完整 <Formula tex={String.raw`S,\ A\in\mathbb{R}^{L\times L}`} /> 是否写回 HBM，是两种执行方式的核心差别</div>
+
+      <div className="flash-speed-reasons">
+        <article><b>少写</b><span>不把完整 <Formula tex={String.raw`S,A`} /> 写入 HBM</span></article>
+        <article><b>少读</b><span>softmax 与 <Formula tex="AV" /> 直接消费片上 tile</span></article>
+        <article><b>融合</b><span>打分、归一化、汇聚在同一执行链完成</span></article>
+        <article><b>计算量不变</b><span>仍计算全部分数：O(L²d)</span></article>
+      </div>
+
+      <div className="flash-memory-conclusion">
+        <Formula tex={String.raw`\text{更少的 HBM 往返}`} />
+        <b>→</b>
+        <Formula tex={String.raw`\text{更低的临时显存占用}`} />
+        <b>+</b>
+        <Formula tex={String.raw`\text{更短的数据等待时间}`} />
+      </div>
     </div>
   );
 }
@@ -1657,57 +1690,200 @@ function FigFlashCompare() {
 function FigFlashGpuMap() {
   return (
     <div className="fig flash-gpu-map">
-      <div className="flash-gpu-compact">
-        <div className="flash-grid-node">
-          <b>Grid</b>
-          <div><span>Block 0</span><span>Block 1</span><span>Block 2</span><span>…</span></div>
-        </div>
-        <i>调度 Block</i><b>→</b>
-        <div className="flash-sm-node">
-          <b>SM</b>
-          <div><span>shared memory：<Formula tex={String.raw`K_t,V_t`} /> tile</span><span>registers：<Formula tex={String.raw`m,\ell,o`} /></span></div>
+      <div className="flash-gpu-parallel">
+        <strong>FlashAttention-2 风格映射 · 一个 block 处理一个 Query 块</strong>
+        <div>
+          <span>Block 0 · <Formula tex={String.raw`Q_{\mathrm{blk},0}`} /></span>
+          <span>Block 1 · <Formula tex={String.raw`Q_{\mathrm{blk},1}`} /></span>
+          <span>Block 2 · <Formula tex={String.raw`Q_{\mathrm{blk},2}`} /></span>
+          <span>…</span>
         </div>
       </div>
-      <div className="flash-memory-path" aria-label="FlashAttention 从 HBM 搬运 tile 到片上存储并写回输出的数据流">
-        <span>HBM · <Formula tex={String.raw`Q,K,V`} /></span><b>tile →</b><span>SM 片上计算</span><b>→</b><span>HBM · <Formula tex="O" /></span>
+
+      <div className="flash-gpu-flow" aria-label="一个 thread block 扫描所有 Key Value tile 并写回一个 Query 块输出的流程">
+        <div className="flash-gpu-hbm source">
+          <b>HBM · 全局显存</b>
+          <div><span><Formula tex={String.raw`Q_{\mathrm{blk}}`} /></span><span><Formula tex={String.raw`K_1,V_1`} /></span><span><Formula tex={String.raw`K_2,V_2`} /></span><span>…</span><span><Formula tex={String.raw`K_T,V_T`} /></span></div>
+        </div>
+
+        <div className="flash-gpu-transfer"><b>↓</b><span><Formula tex={String.raw`Q_{\mathrm{blk}}`} /> 只加载一次；每轮加载一组 <Formula tex={String.raw`K_t,V_t`} /></span></div>
+
+        <div className="flash-gpu-kernel">
+          <header>
+            <b>一个 thread block 在 SM 上处理一个 <Formula tex={String.raw`Q_{\mathrm{blk}}`} /></b>
+            <span>片上存储容量有限，所以沿 Key / Value 方向逐 tile 扫描</span>
+          </header>
+
+          <div className="flash-gpu-init">
+            <span><i>1</i><b>准备 Query 块与行状态</b></span>
+            <div className="flash-gpu-init-state"><span>片上复用：<Formula tex={String.raw`Q_{\mathrm{blk}}`} /></span><span>registers 行状态：<Formula tex={String.raw`m=-\infty,\ \ell=0,\ o=0`} /></span></div>
+          </div>
+
+          <div className="flash-gpu-loop">
+            <div className="flash-gpu-loop-title"><b>循环 <Formula tex={String.raw`t=1,2,\ldots,T`} /></b><span>每轮只处理一个 Key / Value tile</span></div>
+            <div className="flash-gpu-loop-steps">
+              <article><i>2</i><b>载入当前 tile</b><Formula tex={String.raw`K_t,V_t\ \to\ \text{shared memory}`} /></article>
+              <em>→</em>
+              <article><i>3</i><b>计算分数 tile</b><Formula tex={String.raw`S_t=Q_{\mathrm{blk}}K_t^{\mathsf T}/\sqrt{d_k}+M_t`} /></article>
+              <em>→</em>
+              <article><i>4</i><b>在线更新行状态</b><Formula tex={String.raw`m,\ell,o\ \leftarrow\ \operatorname{update}(S_t,V_t)`} /></article>
+              <em>→</em>
+              <article><i>5</i><b>释放临时分数</b><span>丢弃 <Formula tex={String.raw`S_t`} />，不写回 HBM</span></article>
+            </div>
+            <div className="flash-gpu-loop-back"><span>仍有下一个 tile</span><b>↺</b><Formula tex={String.raw`t\leftarrow t+1`} /></div>
+          </div>
+
+          <div className="flash-gpu-finish">
+            <article><i>6</i><b>最后一个 tile 完成</b><span>此时 <Formula tex={String.raw`m,\ell,o`} /> 已汇总所有 Key / Value</span></article>
+            <em>→</em>
+            <article><i>7</i><b>统一归一化</b><Formula tex={String.raw`O_{\mathrm{blk}}[i,:]=o[i,:]/\ell_i`} /></article>
+          </div>
+        </div>
+
+        <div className="flash-gpu-transfer output"><span>只写回最终输出与行统计</span><b>↓</b></div>
+
+        <div className="flash-gpu-hbm output">
+          <b>HBM · 写回</b>
+          <div><span><Formula tex={String.raw`O_{\mathrm{blk}}`} /></span><span>每行归一化统计</span></div>
+        </div>
       </div>
-      <div className="fig-cap">Grid 包含多个 thread block；block 被调度到 SM。tile 是矩阵数据块，不是 thread block</div>
+      <div className="fig-cap">Grid 包含多个 thread block；上图展开其中一个 block：Query 块留在片上，Key / Value tile 依次流过，全部扫描完成后才归一化并写回输出。</div>
     </div>
   );
 }
 
 function FigFlashNumericTiles() {
   return (
-    <div className="fig flash-tile-demo">
-      <div className="flash-tile-source">
-        <span>固定 Query 行 1～2，沿 Key / Value 方向扫描两个 tile</span>
-        <Formula block tex={String.raw`S_{1:2,:}=\left[\begin{array}{cc|cc}0.967&-0.186&0.573&1.026\\1.370&1.067&1.287&2.024\end{array}\right]`} />
-        <small>竖线左侧对应 Token 1～2，右侧对应 Token 3～4；本例沿用前文同一组 <Formula tex={String.raw`Q,\ K,\ V`} /> 数值且不加 mask。</small>
+    <div className="fig flash-exact-demo">
+      <div className="flash-example-input">
+        <span>同一输入 · 固定一个 Query 行</span>
+        <Formula block tex={String.raw`S_1=\left[\begin{array}{cc|cc}\ln1&\ln2&\ln3&\ln4\end{array}\right],\qquad V=\begin{bmatrix}10\\20\\30\\40\end{bmatrix}`} />
+        <small>竖线表示切成两个 tile；选择 <Formula tex={String.raw`\ln1,\ldots,\ln4`} />，是因为 <Formula tex={String.raw`e^{\ln n}=n`} />，可以把每一步算成整洁的分数。<Formula tex={String.raw`p_t`} /> 表示当前 tile 的未归一化指数权重。</small>
       </div>
 
-      <div className="flash-tile-stages">
-        <article className="flash-tile-stage first">
-          <header><span>第 1 轮</span><b>读入 <Formula tex={String.raw`K_{1:2},\ V_{1:2}`} /></b></header>
-          <div className="flash-round-grid">
-            <Formula block tex={String.raw`S^{(1)}=\begin{bmatrix}0.967&-0.186\\1.370&1.067\end{bmatrix},\quad V^{(1)}=\begin{bmatrix}0.40&1.28\\1.08&0.60\end{bmatrix}`} />
-            <Formula block tex={String.raw`\begin{aligned}m_1^{(1)}&=\max(0.967,-0.186)=0.967\\p_1^{(1)}&=e^{s_1^{(1)}-m_1^{(1)}}=[1,\ 0.316]\\\ell_1^{(1)}&=1+0.316=1.316\\o_1^{(1)}&=p_1^{(1)}V^{(1)}=[0.741,\ 1.469]\end{aligned}`} />
+      <div className="flash-exact-columns">
+        <article className="flash-exact-lane normal">
+          <header><span>普通 Softmax</span><b>一次看完四个位置</b></header>
+          <div className="flash-calc-step">
+            <i>1 · 取指数</i>
+            <Formula block tex={String.raw`e^{S_1}=[1,\ 2,\ 3,\ 4]`} />
+          </div>
+          <div className="flash-calc-step">
+            <i>2 · 求全局分母</i>
+            <Formula block tex={String.raw`Z=1+2+3+4=10`} />
+          </div>
+          <div className="flash-calc-step">
+            <i>3 · 得到 Softmax 权重</i>
+            <Formula block tex={String.raw`A_1=e^{S_1}/Z=[0.1,\ 0.2,\ 0.3,\ 0.4]`} />
+          </div>
+          <div className="flash-calc-step final">
+            <i>4 · 权重乘 Value</i>
+            <Formula block tex={String.raw`N=1(10)+2(20)+3(30)+4(40)=300`} />
+            <Formula block tex={String.raw`O_1=N/Z=300/10=30`} />
           </div>
         </article>
 
-        <article className="flash-tile-stage second">
-          <header><span>第 2 轮</span><b>读入 <Formula tex={String.raw`K_{3:4},\ V_{3:4}`} /></b></header>
-          <div className="flash-round-grid">
-            <Formula block tex={String.raw`S^{(2)}=\begin{bmatrix}0.573&1.026\\1.287&2.024\end{bmatrix},\quad V^{(2)}=\begin{bmatrix}0.65&1.06\\0.92&1.72\end{bmatrix}`} />
-            <Formula block tex={String.raw`\begin{aligned}m_1^{(2)}&=\max(0.967,0.573,1.026)=1.026\\\rho_1&=e^{0.967-1.026}=0.943\\\ell_1^{(2)}&=0.943(1.316)+e^{0.573-1.026}+1=2.876\\o_1^{(2)}&=0.943[0.741,1.469]+[0.636,1]V^{(2)}\\&=[2.032,\ 3.780]\end{aligned}`} />
+        <article className="flash-exact-lane flash">
+          <header><span>FlashAttention</span><b>每次只看两个位置</b></header>
+          <div className="flash-pass-order">
+            <span><small>初始状态</small><Formula tex={String.raw`m_0=-\infty,\ \ell_0=0,\ o_0=0`} /></span>
+            <b>→</b>
+            <span><small>扫描 Tile 1</small><Formula tex={String.raw`m_1,\ell_1,o_1`} /></span>
+            <b>→</b>
+            <span><small>扫描 Tile 2</small><Formula tex={String.raw`m_2,\ell_2,o_2`} /></span>
+            <b>→</b>
+            <span><small>全部 tile 完成</small><Formula tex={String.raw`O_1=o_2/\ell_2`} /></span>
+          </div>
+          <div className="flash-tile-round first">
+            <i>Tile 1 · <Formula tex={String.raw`[\ln1,\ln2]`} /></i>
+            <div className="flash-update-step">
+              <span>① 当前最大值</span>
+              <div><Formula block tex={String.raw`m_1=\max(\ln1,\ln2)=\ln2`} /></div>
+            </div>
+            <div className="flash-update-step">
+              <span>② tile 指数权重</span>
+              <div><Formula block tex={String.raw`p_1=e^{[\ln1,\ln2]-\ln2}=[\tfrac12,\ 1]`} /></div>
+            </div>
+            <div className="flash-update-step">
+              <span>③ 累计分母</span>
+              <div><Formula block tex={String.raw`\ell_1=\tfrac12+1=\tfrac32`} /></div>
+            </div>
+            <div className="flash-update-step">
+              <span>④ 累计分子</span>
+              <div><Formula block tex={String.raw`o_1=[\tfrac12,1]\begin{bmatrix}10\\20\end{bmatrix}=25`} /></div>
+            </div>
+          </div>
+
+          <div className="flash-tile-round second">
+            <i>Tile 2 · <Formula tex={String.raw`[\ln3,\ln4]`} /></i>
+            <strong className="flash-update-rule">旧结果先乘换算比例 <Formula tex="\rho" />，再分别与新 tile 的分子贡献、分母贡献相加</strong>
+            <div className="flash-update-step">
+              <span>① 更新最大值与比例</span>
+              <div>
+                <Formula block tex={String.raw`m_2=\max(\ln2,\ln3,\ln4)=\ln4`} />
+                <Formula block tex={String.raw`\rho=e^{m_1-m_2}=e^{\ln2-\ln4}=\tfrac12`} />
+              </div>
+            </div>
+            <div className="flash-update-step">
+              <span>② 旧结果先乘 <Formula tex="\rho" /></span>
+              <div>
+                <Formula block tex={String.raw`\ell_{\mathrm{old}}=\rho\ell_1=\tfrac12\times\tfrac32=\tfrac34`} />
+                <Formula block tex={String.raw`o_{\mathrm{old}}=\rho o_1=\tfrac12\times25=\tfrac{25}{2}`} />
+              </div>
+            </div>
+            <div className="flash-update-step">
+              <span>③ 新 tile 的贡献</span>
+              <div>
+                <Formula block tex={String.raw`p_2=e^{[\ln3,\ln4]-\ln4}=[\tfrac34,\ 1]`} />
+                <Formula block tex={String.raw`\Delta\ell_2=\tfrac34+1=\tfrac74`} />
+                <Formula block tex={String.raw`\Delta o_2=[\tfrac34,1]\begin{bmatrix}30\\40\end{bmatrix}=\tfrac{125}{2}`} />
+              </div>
+            </div>
+            <div className="flash-update-step combine">
+              <span>④ 旧结果 + 新 tile</span>
+              <div>
+                <Formula block tex={String.raw`\ell_2=\ell_{\mathrm{old}}+\Delta\ell_2=\tfrac34+\tfrac74=\tfrac52`} />
+                <Formula block tex={String.raw`o_2=o_{\mathrm{old}}+\Delta o_2=\tfrac{25}{2}+\tfrac{125}{2}=75`} />
+              </div>
+            </div>
+          </div>
+
+          <div className="flash-calc-step final">
+            <i>收尾 · 全部 tile 扫描完成后统一归一化</i>
+            <Formula block tex={String.raw`O_1=o_2/\ell_2=75/(\tfrac52)=30`} />
           </div>
         </article>
       </div>
 
-      <div className="flash-tile-result">
-        <span>扫描完成后才做最终归一化</span>
-        <Formula block tex={String.raw`O_1=o_1^{(2)}/\ell_1^{(2)}=[2.032,3.780]/2.876=[0.706,1.314]`} />
-        <Formula block tex={String.raw`O_{1:2,:}=\begin{bmatrix}0.706&1.314\\0.778&1.311\end{bmatrix}`} />
-        <small>第 2 行同理；结果与直接计算完整 <Formula tex={String.raw`\operatorname{softmax}(S)V`} /> 一致。</small>
+      <div className="flash-exact-result">
+        <span>实数精确计算下，两种路径对应的全局权重完全相同</span>
+        <div className="flash-equivalence-chain">
+          <div className="flash-equivalence-step">
+            <i>相同的整体缩放</i>
+            <Formula block tex={String.raw`e^{S_1-\ln4}=\tfrac14e^{S_1}`} />
+          </div>
+          <div className="flash-equivalence-step">
+            <i>分母与分子同时缩小四倍</i>
+            <Formula block tex={String.raw`\ell_2=Z/4=10/4=\tfrac52,\qquad o_2=N/4=300/4=75`} />
+          </div>
+          <div className="flash-equivalence-step">
+            <i>归一化后得到相同权重</i>
+            <Formula block tex={String.raw`A_1^{\mathrm{Flash}}=\frac1{\ell_2}[\tfrac14,\ \tfrac12,\ \tfrac34,\ 1]=[0.1,\ 0.2,\ 0.3,\ 0.4]=A_1^{\mathrm{普通}}`} />
+          </div>
+          <div className="flash-equivalence-step final">
+            <i>最终输出相同</i>
+            <Formula block tex={String.raw`O_1^{\mathrm{Flash}}=o_2/\ell_2=75/(\tfrac52)=30=O_1^{\mathrm{普通}}`} />
+          </div>
+        </div>
+      </div>
+
+      <div className="flash-exact-key">
+        <Formula tex={String.raw`\rho=e^{m_{\mathrm{old}}-m_{\mathrm{new}}}`} />
+        <span>把旧 tile 的分子、分母换算到新最大值的尺度</span>
+        <b>→</b>
+        <span>加入新 tile</span>
+        <b>→</b>
+        <span>最后统一归一化</span>
       </div>
     </div>
   );
@@ -1781,8 +1957,6 @@ export default function Home() {
   };
 
   const [mr, mc] = selCell;
-  const rowA = matrixA[mr];
-  const colB = matrixB.map((r) => r[mc]);
 
   const navItems = [
     ["s0", "为什么重要"],
@@ -1853,11 +2027,11 @@ export default function Home() {
             <div className="grid2" style={{ marginTop: 28 }}>
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>这个算子为什么重要</h3>
-                <p className="t3">它是多数主流大模型（GPT / LLaMA / Claude，以及大量文生图、文生视频模型）的共同骨架。掌握它，等于拿到理解生成式 AI 主流路线的钥匙。</p>
+                <p className="t3">它是 GPT、LLaMA 等语言模型以及许多视觉生成模型的核心模块。掌握 Attention，才能继续理解 Transformer 与现代生成模型的主要计算路径。</p>
               </div>
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>算子计算结构</h3>
-                <p className="t3">Attention 的核心就是<b style={{ color: "#eef3ff" }}>两次矩阵乘法（<Formula tex={String.raw`QK^{\mathsf T}`} /> 计算相关分数、<Formula tex="AV" /> 加权汇聚）+ 一个 softmax</b>；完整多头还包括 <Formula tex={String.raw`Q,\ K,\ V`} /> 与 <Formula tex="W^O" /> 四个投影，共六次矩阵乘法；QKV 融合后则是四次 GEMM。</p>
+                <p className="t3">Attention 的核心就是<b style={{ color: "#eef3ff" }}>两次矩阵乘法（<Formula tex={String.raw`QK^{\mathsf T}`} /> 计算相关分数、<Formula tex="AV" /> 加权汇聚）+ 一个 softmax</b>；完整多头还包括 <Formula tex={String.raw`Q,\ K,\ V`} /> 与 <Formula tex="W^O" /> 四个投影，共六次矩阵乘法；自注意力把 QKV 合并为一次投影时则是四次 GEMM。</p>
               </div>
             </div>
           </section>
@@ -1866,12 +2040,7 @@ export default function Home() {
           <section className="section" id="s1">
             <SecHead idx="01" title="热身：矩阵乘法到底怎么乘" />
             <p className="sec-lead">Attention 的主要线性运算由<b style={{ color: "#eef3ff" }}>矩阵乘法</b>完成，中间穿插缩放、mask 和 softmax。右侧结果矩阵支持逐格查看：<b style={{ color: "#f472b6" }}>点击任意格子</b>，左侧将高亮参与计算的行与列。</p>
-            <div
-              className="mbox"
-              data-matrix-a={JSON.stringify(matrixA)}
-              data-matrix-b={JSON.stringify(matrixB)}
-              data-matrix-c={JSON.stringify(matrixC)}
-            >
+            <div className="mbox">
               <div className="mcol">
                 <div className="mname"><Formula tex={String.raw`U_1\ [2\times3]`} /></div>
                 <table className="mtable">
@@ -1919,7 +2088,15 @@ export default function Home() {
               </div>
             </div>
             <div className="mcalc">
-              <Formula tex={`(U_3)_{${mr + 1},${mc + 1}}=${rowA.map((v, i) => `${v}\\times${colB[i]}`).join("+")}=${matrixC[mr][mc]}`} />
+              {matrixC.flatMap((row, rowIndex) => row.map((value, columnIndex) => (
+                <span
+                  key={`${rowIndex}-${columnIndex}`}
+                  className={`matrix-calc-option ${rowIndex === mr && columnIndex === mc ? "active" : ""}`}
+                  data-matrix-index={rowIndex * row.length + columnIndex}
+                >
+                  <Formula tex={`(U_3)_{${rowIndex + 1},${columnIndex + 1}}=${matrixA[rowIndex].map((entry, i) => `${entry}\\times${matrixB[i][columnIndex]}`).join("+")}=${value}`} />
+                </span>
+              )))}
             </div>
             <div className="note"><Formula tex={String.raw`(U_3)_{i,j}=\sum_{r=1}^{3}(U_1)_{i,r}(U_2)_{r,j}`} />：<Formula tex="U_1" /> 的第 <Formula tex="i" /> 行与 <Formula tex="U_2" /> 的第 <Formula tex="j" /> 列<b>逐项相乘再相加</b>。记号 <Formula tex={String.raw`U_1,U_2,U_3`} /> 用于矩阵乘法示例；<Formula tex="A" /> 专指注意力权重矩阵。</div>
           </section>
@@ -1971,7 +2148,7 @@ export default function Home() {
           {/* ===== Scale 与 Mask ===== */}
           <section className="section detail-section" id="s4">
             <SecHead idx="04" title={<>缩放 <Formula tex={String.raw`\sqrt{d_k}`} /> 与 Mask</>} />
-            <p className="sec-lead">公式里多了一个「除以 <Formula tex={String.raw`\sqrt{d_k}`} />」，叫<b style={{ color: "#eef3ff" }}>缩放（Scale）</b>。原因一句：维度 <Formula tex="d_k" /> 越大，点积数值越大，softmax 更易饱和（趋于一个 1、其余 0），梯度可能变得很小。</p>
+            <p className="sec-lead">公式里多了一个「除以 <Formula tex={String.raw`\sqrt{d_k}`} />」，叫<b style={{ color: "#eef3ff" }}>缩放（Scale）</b>。维度 <Formula tex="d_k" /> 增大时，未缩放点积的分布通常更分散，softmax 更易饱和（趋于一个 1、其余 0），梯度可能变得很小。</p>
             <div className="grid2">
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>不缩放会怎样</h3>
@@ -1979,7 +2156,7 @@ export default function Home() {
               </div>
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>除以 <Formula tex={String.raw`\sqrt{d_k}`} /> 的效果</h3>
-                <p className="t3">把点积方差<b style={{ color: "#eef3ff" }}>拉回 1 附近</b>，让 softmax 处在温和区间，梯度健康。这是算子实现里最易漏、但必须有的细节。</p>
+                <p className="t3">在常用独立同分布假设下，把点积方差<b style={{ color: "#eef3ff" }}>拉回 1 附近</b>，降低 softmax 过早饱和的风险。这是缩放点积注意力定义中的必要步骤。</p>
               </div>
             </div>
             <div className="note">
@@ -2002,7 +2179,11 @@ export default function Home() {
             >
               <div style={{ display: "flex", gap: 22, flexWrap: "wrap", justifyContent: "center", alignItems: "center" }}>
                 <div style={{ textAlign: "center" }}>
-                  <div className="mname">缩放分数 <Formula className="mname-formula" tex={String.raw`{\color{#38bdf8}S_{${qIdx + 1},:}=q_{${qIdx + 1}}K^{\mathsf T}/\sqrt{d_k}}`} /></div>
+                  <div className="mname">缩放分数 {tokenLabels.map((_, index) => (
+                    <span key={index} className={`query-title-option ${qIdx === index ? "active" : ""}`} data-query-index={index}>
+                      <Formula className="mname-formula" tex={String.raw`{\color{#38bdf8}S_{${index + 1},:}=q_{${index + 1}}K^{\mathsf T}/\sqrt{d_k}}`} />
+                    </span>
+                  ))}</div>
                   <div style={{ display: "flex", gap: 8 }}>
                     {attn.scaled.map((v, i) => (
                       <div key={i} style={{ textAlign: "center" }}>
@@ -2014,7 +2195,11 @@ export default function Home() {
                 </div>
                 <span className="msign">→</span>
                 <div style={{ textAlign: "center" }}>
-                  <div className="mname">权重 <Formula className="mname-formula" tex={String.raw`{\color{#38bdf8}A_{${qIdx + 1},:}=\operatorname{softmax}(S_{${qIdx + 1},:})}`} /></div>
+                  <div className="mname">权重 {tokenLabels.map((_, index) => (
+                    <span key={index} className={`query-title-option ${qIdx === index ? "active" : ""}`} data-query-index={index}>
+                      <Formula className="mname-formula" tex={String.raw`{\color{#38bdf8}A_{${index + 1},:}=\operatorname{softmax}(S_{${index + 1},:})}`} />
+                    </span>
+                  ))}</div>
                   <div style={{ display: "flex", gap: 8 }}>
                     {attn.weights.map((v, i) => (
                       <div key={i} style={{ textAlign: "center" }}>
@@ -2026,7 +2211,11 @@ export default function Home() {
                 </div>
                 <span className="msign">→</span>
                 <div style={{ textAlign: "center" }}>
-                  <div className="mname">输出 <Formula className="mname-formula" tex={String.raw`{\color{#f472b6}b_{${qIdx + 1}}=\sum_j A_{${qIdx + 1},j}v_j}`} /></div>
+                  <div className="mname">输出 {tokenLabels.map((_, index) => (
+                    <span key={index} className={`query-title-option ${qIdx === index ? "active" : ""}`} data-query-index={index}>
+                      <Formula className="mname-formula" tex={String.raw`{\color{#f472b6}b_{${index + 1}}=\sum_j A_{${index + 1},j}v_j}`} />
+                    </span>
+                  ))}</div>
                   <div style={{ display: "flex", gap: 8 }}>
                     {attn.output.map((v, i) => (
                       <div key={i} className="mcell" style={{ cursor: "default", color: "#f472b6", borderColor: "#f472b6" }}>{v.toFixed(2)}</div>
@@ -2038,31 +2227,20 @@ export default function Home() {
 
             {/* —— Mask：因果掩码与 padding —— */}
             <h3>Mask：让每个位置「只看到该看的」</h3>
-            <p className="sec-lead">生成时每个位置必须「看到过去、看不到未来」。实现上用一个<b style={{ color: "#f5b042" }}>下三角因果掩码（Causal Mask）</b>：第 <Formula tex="i" /> 个位置只允许查看索引 <Formula tex={String.raw`0,\ldots,i`} /> 的 Key；padding 位则用 padding mask 屏蔽。</p>
-            <div className="note">因果 Mask 示例在 Token 1～4 前加入 <code>&lt;BOS&gt;</code>，因此矩阵形状为 <Formula tex={String.raw`5\times5`} />；Attention 数值链使用 <Formula tex={String.raw`4\times4`} /> 权重矩阵。</div>
+            <p className="sec-lead">自回归生成时，每个位置必须「看到自身与过去、看不到未来」。实现上使用<b style={{ color: "#f5b042" }}>下三角因果掩码（Causal Mask）</b>：Token <Formula tex="i" /> 只允许查看 Token <Formula tex={String.raw`1,\ldots,i`} /> 对应的 Key；padding 位则由 padding mask 另行屏蔽。</p>
 
             <div className="mask-grid">
               <table>
                 <tbody>
                   <tr>
                     <th></th>
-                    <th><Formula tex="k_0" /><br /><small style={{ color: "#4d577f" }}>&lt;BOS&gt;</small></th>
                     <th><Formula tex="k_1" /><br /><small style={{ color: "#4d577f" }}>Token 1</small></th>
                     <th><Formula tex="k_2" /><br /><small style={{ color: "#4d577f" }}>Token 2</small></th>
                     <th><Formula tex="k_3" /><br /><small style={{ color: "#4d577f" }}>Token 3</small></th>
                     <th><Formula tex="k_4" /><br /><small style={{ color: "#4d577f" }}>Token 4</small></th>
                   </tr>
                   <tr>
-                    <th><Formula tex="q_0" /> · &lt;BOS&gt;</th>
-                    <td><div className="mask-cell allow"><Formula tex="0" /></div></td>
-                    <td><div className="mask-cell block"><Formula tex="-\infty" /></div></td>
-                    <td><div className="mask-cell block"><Formula tex="-\infty" /></div></td>
-                    <td><div className="mask-cell block"><Formula tex="-\infty" /></div></td>
-                    <td><div className="mask-cell block"><Formula tex="-\infty" /></div></td>
-                  </tr>
-                  <tr>
                     <th><Formula tex="q_1" /> · Token 1</th>
-                    <td><div className="mask-cell allow"><Formula tex="0" /></div></td>
                     <td><div className="mask-cell allow"><Formula tex="0" /></div></td>
                     <td><div className="mask-cell block"><Formula tex="-\infty" /></div></td>
                     <td><div className="mask-cell block"><Formula tex="-\infty" /></div></td>
@@ -2072,13 +2250,11 @@ export default function Home() {
                     <th><Formula tex="q_2" /> · Token 2</th>
                     <td><div className="mask-cell allow"><Formula tex="0" /></div></td>
                     <td><div className="mask-cell allow"><Formula tex="0" /></div></td>
-                    <td><div className="mask-cell allow"><Formula tex="0" /></div></td>
                     <td><div className="mask-cell block"><Formula tex="-\infty" /></div></td>
                     <td><div className="mask-cell block"><Formula tex="-\infty" /></div></td>
                   </tr>
                   <tr>
                     <th><Formula tex="q_3" /> · Token 3</th>
-                    <td><div className="mask-cell allow"><Formula tex="0" /></div></td>
                     <td><div className="mask-cell allow"><Formula tex="0" /></div></td>
                     <td><div className="mask-cell allow"><Formula tex="0" /></div></td>
                     <td><div className="mask-cell allow"><Formula tex="0" /></div></td>
@@ -2090,12 +2266,11 @@ export default function Home() {
                     <td><div className="mask-cell allow"><Formula tex="0" /></div></td>
                     <td><div className="mask-cell allow"><Formula tex="0" /></div></td>
                     <td><div className="mask-cell allow"><Formula tex="0" /></div></td>
-                    <td><div className="mask-cell allow"><Formula tex="0" /></div></td>
                   </tr>
                 </tbody>
               </table>
             </div>
-            <div className="fig-cap">因果掩码矩阵：绿色 <b style={{ color: "#34d399" }}><Formula tex="0" /></b> = 允许看，红色 <b style={{ color: "#f472b6" }}><Formula tex="-\infty" /></b> = 屏蔽。第 <Formula tex="i" /> 行只允许查看第 <Formula tex={String.raw`0,\ldots,i`} /> 列</div>
+            <div className="fig-cap">与前文 <Formula tex={String.raw`S,A\in\mathbb{R}^{4\times4}`} /> 使用同一坐标：绿色 <b style={{ color: "#34d399" }}><Formula tex="0" /></b> = 允许看，红色 <b style={{ color: "#f472b6" }}><Formula tex="-\infty" /></b> = 屏蔽；第 <Formula tex="i" /> 行只允许查看第 <Formula tex={String.raw`1,\ldots,i`} /> 列</div>
 
             <h3 style={{ marginTop: 30 }}>Mask 加在哪一步</h3>
             <div className="flow-chain">
@@ -2109,6 +2284,7 @@ export default function Home() {
               <Formula block tex={String.raw`O=\operatorname{softmax}\!\left(\frac{QK^{\mathsf T}}{\sqrt{d_k}}+M\right)V,\quad M_{i,j}=\begin{cases}0 & i\ge j\\ -\infty & i<j\end{cases}`} />
             </div>
             <div className="note warn"><b>实现陷阱</b>：Mask 必须在 softmax <b>之前</b>加 <code>−∞</code>。若在 softmax 后再乘 0，屏蔽位虽然归零，但剩余权重之和不再为 1，输出尺度会出错。</div>
+            <div className="note"><b>位置机制与 Mask 的职责不同</b>：位置编码或位置偏置向模型提供顺序与距离信息；Mask 则直接规定某条 Query–Key 连接是否允许参与 softmax。加入位置编码后，因果生成仍然需要 Mask 阻断未来信息。</div>
 
             <h3 style={{ marginTop: 24 }}>同一个因果约束，两种执行方式</h3>
             <div className="grid2">
@@ -2118,9 +2294,9 @@ export default function Home() {
                   输入 <b style={{ color: "#f5b042" }}>&lt;BOS&gt;</b> → 预测 Token 1<br />
                   输入 <b style={{ color: "#f5b042" }}>&lt;BOS&gt; Token 1</b> → 预测 Token 2<br />
                   输入 <b style={{ color: "#f5b042" }}>&lt;BOS&gt; Token 1 Token 2</b> → 预测 Token 3<br />
-                  ……直到 <b style={{ color: "#f5b042" }}>&lt;end&gt;</b>
+                  ……直到 <b style={{ color: "#f5b042" }}>&lt;EOS&gt;</b>
                 </p>
-                <p className="t3">每步只能用已生成的内容，天生串行；配合 KV cache 时 Key 本身就只有历史前缀，不一定需要显式的完整三角 mask。</p>
+                <p className="t3">每一步依赖此前已生成的内容，因此解码按步串行；配合 KV cache 时 Key 本身就只有历史前缀，不一定需要显式的完整三角 mask。</p>
               </div>
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>训练（整句并行）</h3>
@@ -2129,9 +2305,10 @@ export default function Home() {
                   目标 <b style={{ color: "#f472b6" }}>Token 1 Token 2 Token 3 Token 4</b><br />
                   一次前向 + 因果 Mask
                 </p>
-                <p className="t3">训练靠 causal mask 一次性实现整句并行，每个位置「假装只看到过去」——因果约束由 mask 显式施加。</p>
+                <p className="t3">训练通过 causal mask 并行处理整句，同时让每个位置只接收允许的历史前缀；因果约束由 mask 显式施加。</p>
               </div>
             </div>
+            <div className="note"><code>&lt;BOS&gt;</code> 是序列开始标记，只负责为“预测第一个 Token”提供首个输入；它不是因果 Mask 的组成部分，也不改变下三角约束的定义。<code>&lt;EOS&gt;</code> 则表示序列结束。</div>
           </section>
 
           {/* ===== 多头 ===== */}
@@ -2146,7 +2323,7 @@ export default function Home() {
               <Formula block tex={String.raw`\operatorname{head}_i=\operatorname{Attention}(XW_i^Q,\,XW_i^K,\,XW_i^V)`} />
               <Formula block tex={String.raw`\operatorname{MHA}=\operatorname{Concat}(\operatorname{head}_1,\ldots,\operatorname{head}_h)\,W^O`} />
             </div>
-            <div className="note">其中 <Formula tex="h" /> 是头数，<Formula tex={String.raw`W^O\in\mathbb{R}^{(h d_v)\times d_{\mathrm{model}}}`} /> 把拼接结果投影回模型维度。通常取 <Formula tex={String.raw`d_k=d_v=d_{\mathrm{model}}/h`} />，所以主 FLOPs 量级与单头接近、表达能力更强；但投影层、显存占用与调度开销并不为零，并非真的「免费」。</div>
+            <div className="note">其中 <Formula tex="h" /> 是头数，<Formula tex={String.raw`W^O\in\mathbb{R}^{(h d_v)\times d_{\mathrm{model}}}`} /> 把拼接结果投影回模型维度。原始 Transformer 与常见实现取 <Formula tex={String.raw`d_k=d_v=d_{\mathrm{model}}/h`} />，所以主 FLOPs 量级与同模型宽度的单头接近、表达能力更强；但 <Formula tex={String.raw`h\,d_v=d_{\mathrm{model}}`} /> 不是多头注意力在数学上的必要条件。</div>
 
             <h3>同一输入下，三个头得到不同的注意力权重</h3>
             <div className="tabs">
@@ -2180,14 +2357,14 @@ export default function Home() {
                   </tbody>
                 </table>
               </div>
-              <div className="fig-cap"><b>{heads[headIdx].name} 的真实计算结果</b> · 行=Query（谁在问）· 列=Key（看谁）</div>
+              <div className="fig-cap"><b>{heads[headIdx].name} 的数值链计算结果</b> · 行=Query（谁在问）· 列=Key（看谁）</div>
             </div>
           </section>
 
           {/* ===== FlashAttention ===== */}
           <section className="section detail-section" id="s6">
             <SecHead idx="06" title="FlashAttention：不改变数学，改变算的方式" />
-            <p className="sec-lead"><b style={{ color: "#eef3ff" }}>SDPA</b> 是 Scaled Dot-Product Attention（缩放点积注意力）；FlashAttention 是 SDPA 的一种精确实现。</p>
+            <p className="sec-lead"><b style={{ color: "#eef3ff" }}>SDPA</b> 是 Scaled Dot-Product Attention（缩放点积注意力）；FlashAttention 将同一个 SDPA 分块执行。它在实数精确计算下与普通实现完全等价，不是近似注意力；实际浮点内核会因归约顺序不同产生微小舍入差异。</p>
 
             <h3>数学没有变化：仍然是打分、归一化、汇聚</h3>
             <div className="eq-box">
@@ -2195,28 +2372,28 @@ export default function Home() {
               <Formula block tex={String.raw`A=\operatorname{softmax}(S)`} />
               <Formula block tex={String.raw`O=AV`} />
             </div>
-            <div className="note"><code>F.scaled_dot_product_attention</code> 是 PyTorch 的 SDPA 入口；它可能选择 FlashAttention 或其他后端，API 名称本身不代表实际命中的内核。</div>
 
-            <h3>区别只在中间矩阵放在哪里</h3>
-            <FigFlashCompare />
-
-            <h3>分块后，每个 Query 行只维护三个状态</h3>
-            <div className="eq-box">
-              <Formula block tex={String.raw`S_t=Q_{\mathrm{blk}}K_t^{\mathsf T}/\sqrt{d_k}+M_{\mathrm{blk},t},\qquad m_0=-\infty,\ \ell_0=0,\ o_0=0`} />
-              <Formula block tex={String.raw`m_{\mathrm{new}}=\max\!\left(m,\,\operatorname{rowmax}(S_t)\right)`} />
-              <Formula block tex={String.raw`\ell_{\mathrm{new}}=e^{m-m_{\mathrm{new}}}\odot\ell+\operatorname{rowsum}\!\left(e^{S_t-m_{\mathrm{new}}}\right)`} />
-              <Formula block tex={String.raw`o_{\mathrm{new}}=e^{m-m_{\mathrm{new}}}\odot o+e^{S_t-m_{\mathrm{new}}}V_t`} />
-              <Formula block tex={String.raw`O_{\mathrm{blk}}=\operatorname{diag}(\ell)^{-1}o`} />
-            </div>
-            <div className="flash-symbol-row"><span><Formula tex="m" />：行最大值</span><span><Formula tex="\ell" />：指数和</span><span><Formula tex="o" />：未归一化输出</span></div>
-
-            <h3>矩阵举例：把同一个 <Formula tex={String.raw`4\times4`} /> 分数矩阵切成两个 tile</h3>
+            <h3>同一组数字：普通 Softmax 与 FlashAttention 逐步对照</h3>
             <FigFlashNumericTiles />
 
-            <h3>这些 tile 在 GPU 上放在哪里</h3>
+            <h3>从数值例收束成通用更新公式</h3>
+            <div className="eq-box">
+              <Formula block tex={String.raw`m_{\mathrm{new}}=\max\!\left(m,\,\operatorname{rowmax}(S_t)\right)`} />
+              <Formula block tex={String.raw`\rho=e^{m-m_{\mathrm{new}}}`} />
+              <Formula block tex={String.raw`\ell_{\mathrm{new}}=\underbrace{\rho\odot\ell}_{\text{旧分母乘换算比例}}+\underbrace{\operatorname{rowsum}\!\left(e^{S_t-m_{\mathrm{new}}}\right)}_{\text{新 tile 分母}}`} />
+              <Formula block tex={String.raw`o_{\mathrm{new}}=\underbrace{\rho\odot o}_{\text{旧分子乘换算比例}}+\underbrace{e^{S_t-m_{\mathrm{new}}}V_t}_{\text{新 tile 分子}}`} />
+              <Formula block tex={String.raw`O_{\mathrm{blk}}[i,:]=\frac{o[i,:]}{\ell_i}\qquad\Longleftrightarrow\qquad O_{\mathrm{blk}}=\operatorname{diag}(\ell)^{-1}o`} />
+            </div>
+            <div className="flash-symbol-row"><span><Formula tex="m" />：已扫描分数的最大值</span><span><Formula tex="\ell" />：Softmax 分母</span><span><Formula tex="o" />：未归一化的 <Formula tex="AV" /> 分子</span></div>
+            <div className="flash-diag-explainer"><Formula tex={String.raw`\operatorname{diag}(\ell)`} /><span>把每行分母 <Formula tex={String.raw`\ell_i`} /> 放在对角线上；左乘其逆矩阵，等价于让 <Formula tex="o" /> 的第 <Formula tex="i" /> 行除以 <Formula tex={String.raw`\ell_i`} />。</span></div>
+
+            <h3>为什么能够节省显存并加速</h3>
+            <FigFlashCompare />
+
+            <h3>tile 在 GPU 上怎样循环</h3>
             <FigFlashGpuMap />
 
-            <div className="flash-summary-row"><span>精确计算，不是近似</span><span>不物化完整 S、A</span><span>计算量仍为 O(L²d)</span></div>
+            <div className="flash-summary-row"><span>数学定义精确等价；浮点结果按容差比较</span><span>HBM 不物化完整 S、A</span><span>算术量仍为 O(L²d)，减少的是数据搬运</span></div>
           </section>
 
           {/* ===== 代码实现 ===== */}
@@ -2235,20 +2412,17 @@ def attention_ref(q, k, v, mask=None):
     scores = q @ k.transpose(-2, -1)          # QK^T
     scores = scores / math.sqrt(q.size(-1))   # / sqrt(d_k)
     if mask is not None:
-        # additive float mask：屏蔽位置取 -inf。
-        # 仅对 SDPA：布尔 mask 的 True=允许参与；这与
-        # nn.MultiheadAttention 的 key_padding_mask 语义相反。
-        # 若传入布尔 mask，需先转成 additive：
-        # mask = torch.where(bool_mask, 0.0, float("-inf"))
-        scores = scores + mask
+        # 与 SDPA 一致：bool mask 中 True=允许；float mask 直接相加。
+        scores = (scores.masked_fill(~mask, float("-inf"))
+                  if mask.dtype == torch.bool else scores + mask)
     weights = torch.softmax(scores, dim=-1)   # softmax 按行
     return weights @ v                         # · V`}</code></pre>
-            <div className="note">该参考实现逐项对应公式，但会把完整分数矩阵物化到显存；长序列下通常使用融合算子减少中间存储与显存读写。</div>
+            <div className="note">该参考实现接受与 SDPA 相同的两类 mask：布尔值 <code>True</code> 表示允许参与，浮点 mask 直接加到分数上；这与 <code>nn.MultiheadAttention</code> 的布尔 <code>key_padding_mask</code> 语义相反。参考实现会物化完整分数矩阵，长序列下通常使用融合算子减少中间存储与显存读写。</div>
 
             <div className="code-title">② 真实算子 — PyTorch SDPA（按输入与设备选可用后端）</div>
             <pre><code>{`output = F.scaled_dot_product_attention(
     q, k, v,
-    attn_mask=mask,     # causal / padding / 自定义
+    attn_mask=mask,     # bool: True=允许；float: 加到分数上
     dropout_p=0.0,
     is_causal=False,
 )
@@ -2293,7 +2467,7 @@ def attention_ref(q, k, v, mask=None):
             <FigTransformer />
             <div className="grid2">
               <div className="note"><b>Encoder</b>：对源序列做 Self‑Attention + FFN，逐层提炼表示，输出的 Memory 作为 Cross‑Attention 的 <Formula tex={String.raw`K,\ V`} /> 来源。</div>
-              <div className="note"><b>Decoder</b>：先用 <b>Masked</b> Self‑Attention（屏蔽未来位防作弊），再通过 <b>Cross‑Attention</b> 把编码器 Memory 投影成 <Formula tex={String.raw`K,\ V`} /> 来读取，最后预测下一个词。</div>
+              <div className="note"><b>Decoder</b>：先用 <b>Masked</b> Self‑Attention（屏蔽未来位以保证自回归因果性），再通过 <b>Cross‑Attention</b> 把编码器 Memory 投影成 <Formula tex={String.raw`K,\ V`} /> 来读取，最后预测下一个词。</div>
             </div>
             <div className="note warn"><b>Attention 的三种调用</b>：Encoder Self‑Attention 建模源序列内部关系；Decoder Masked Self‑Attention 建模已生成内容；Cross‑Attention 读取 Encoder Memory。</div>
 
@@ -2309,7 +2483,7 @@ def attention_ref(q, k, v, mask=None):
               </div>
               <div className="card">
                 <h3 style={{ marginTop: 0 }}>GPT / LLaMA（Decoder‑only）</h3>
-                <p className="t3">只保留 Decoder，主要用 causal self‑attention 自回归生成——没有独立 Encoder 和 Cross‑Attention。</p>
+                <p className="t3">采用只含 causal self‑attention 的 Decoder-style 堆叠做自回归生成，不含独立 Encoder 与 Cross‑Attention。</p>
               </div>
             </div>
 
@@ -2320,7 +2494,7 @@ def attention_ref(q, k, v, mask=None):
           </section>
 
           <div className="foot">
-            参考：Vaswani et al. <i>Attention Is All You Need</i>（Figure 1）· The Annotated Transformer。
+            参考：Vaswani et al. <i>Attention Is All You Need</i> · Dao et al. <i>FlashAttention</i> / <i>FlashAttention-2</i> · PyTorch SDPA 文档。
           </div>
 
         </div>

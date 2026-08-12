@@ -48,19 +48,14 @@ const standaloneJs = String.raw`
   addEventListener("scroll", syncScroll, { passive: true });
   syncScroll();
 
-  const matrixDemo = document.querySelector("#s1 .mbox");
-  const matrixA = JSON.parse(matrixDemo.dataset.matrixA);
-  const matrixB = JSON.parse(matrixDemo.dataset.matrixB);
-  const matrixC = JSON.parse(matrixDemo.dataset.matrixC);
   const matrixCols = [...document.querySelectorAll("#s1 .mcol")];
   const resultButtons = [...document.querySelectorAll("#s1 button.mcell.res")];
-  const calculation = document.querySelector("#s1 .mcalc");
+  const matrixCalculations = [...document.querySelectorAll("#s1 .matrix-calc-option")];
   const selectCell = (row, col) => {
     [...matrixCols[0].querySelectorAll(".mcell")].forEach((cell, index) => cell.classList.toggle("hl-row", Math.floor(index / 3) === row));
     [...matrixCols[1].querySelectorAll(".mcell")].forEach((cell, index) => cell.classList.toggle("hl-col", index % 2 === col));
     resultButtons.forEach((cell, index) => cell.classList.toggle("hl-res", index === row * 2 + col));
-    const terms = matrixA[row].map((value, index) => "(" + value + "×" + matrixB[index][col] + ")").join(" + ");
-    calculation.innerHTML = "C[" + row + "][" + col + "] = " + terms + " = <b>" + matrixC[row][col] + "</b>";
+    matrixCalculations.forEach((formula, index) => formula.classList.toggle("active", index === row * 2 + col));
   };
   resultButtons.forEach((button, index) => button.addEventListener("click", () => selectCell(Math.floor(index / 2), index % 2)));
 
@@ -70,6 +65,7 @@ const standaloneJs = String.raw`
   const values = JSON.parse(attentionDemo.dataset.values);
   const queryTabs = [...document.querySelectorAll("#s4 .tabs .tab")];
   const queryCells = [...document.querySelectorAll("#s4 .tabs + .card .mcell")];
+  const queryTitles = [...document.querySelectorAll("#s4 .query-title-option")];
   const softmax = (items) => {
     const max = Math.max(...items);
     const exponents = items.map((value) => Math.exp(value - max));
@@ -78,6 +74,7 @@ const standaloneJs = String.raw`
   };
   const selectQuery = (index) => {
     queryTabs.forEach((tab, tabIndex) => tab.classList.toggle("active", tabIndex === index));
+    queryTitles.forEach((title) => title.classList.toggle("active", Number(title.dataset.queryIndex) === index));
     const q = queries[index];
     const scaled = keys.map((key) => (q[0] * key[0] + q[1] * key[1]) / Math.sqrt(q.length));
     const weights = softmax(scaled);
@@ -105,7 +102,7 @@ const standaloneJs = String.raw`
       headCells[cell].style.background = "rgba(56,189,248," + (0.08 + value * 0.7).toFixed(3) + ")";
       headCells[cell].style.color = value > 0.4 ? "#fff" : "#a9b4dc";
     });
-    headCaption.innerHTML = "<b>" + heads[index].name + " 的真实计算结果</b> · 行=Query（谁在问）· 列=Key（看谁）";
+    headCaption.innerHTML = "<b>" + heads[index].name + " 的数值链计算结果</b> · 行=Query（谁在问）· 列=Key（看谁）";
   };
   headTabs.forEach((button, index) => button.addEventListener("click", () => selectHead(index)));
 })();

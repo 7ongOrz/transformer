@@ -1791,9 +1791,6 @@ p {
   font-size: 15px;
   line-height: 1.72;
 }
-.position-source-choice {
-  white-space: nowrap;
-}
 .position-matrix-flow {
   display: grid;
   grid-template-columns: minmax(250px, 1fr) 70px minmax(250px, 1fr) 70px minmax(250px, 1fr);
@@ -2530,6 +2527,14 @@ p code {
   min-height: 22px;
 }
 .mcalc b { color: var(--out); }
+.matrix-calc-option,
+.query-title-option {
+  display: none;
+}
+.matrix-calc-option.active,
+.query-title-option.active {
+  display: inline-block;
+}
 /* ===== 热力图 tab ===== */
 .tabs {
   display: flex;
@@ -2625,62 +2630,296 @@ p code {
   font-style: normal;
 }
 
-/* FlashAttention：公式、矩阵 tile 与 GPU 映射 */
-.flash-io-compare,
-.flash-gpu-map,
-.flash-tile-demo {
+/* FlashAttention：同例对照、Online Softmax 与显存 / IO */
+.flash-exact-demo,
+.flash-memory-compare,
+.flash-gpu-map {
   padding: 18px;
 }
-.flash-io-compare {
+.flash-exact-demo .katex-display,
+.flash-memory-compare .katex-display {
+  text-align: center;
+}
+.flash-example-input,
+.flash-exact-result {
+  padding: 17px 20px;
+  border: 1px solid var(--hairline);
+  border-radius: 11px;
+  background: rgba(56, 189, 248, 0.06);
+  text-align: center;
+}
+.flash-example-input > span,
+.flash-exact-result > span {
+  color: var(--att);
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+}
+.flash-example-input > .math-block {
+  margin: 10px 0;
+}
+.flash-example-input > small,
+.flash-memory-number > small {
+  color: var(--t-dim);
+  font-size: 14px;
+  line-height: 1.65;
+}
+.flash-exact-columns {
+  margin: 14px 0;
   display: grid;
   grid-template-columns: 1fr;
   gap: 14px;
+  align-items: start;
 }
-.flash-io-lane {
+.flash-exact-lane {
   min-width: 0;
   padding: 16px;
-  border: 1px solid var(--hairline);
+  border: 1px solid rgba(245, 176, 66, 0.28);
   border-radius: 11px;
   background: var(--panel-3);
-  display: grid;
-  grid-template-columns: 150px minmax(0, 1fr) 220px;
-  gap: 16px;
-  align-items: center;
-  text-align: center;
-}
-.flash-io-lane.flash {
-  border-color: rgba(45, 212, 191, 0.35);
-  background: rgba(45, 212, 191, 0.07);
-}
-.flash-io-lane > b {
-  color: var(--q);
-  font-family: var(--mono);
-  font-size: 16px;
-}
-.flash-io-lane.flash > b {
-  color: var(--v);
-}
-.flash-io-matrices {
-  min-width: 0;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 10px;
 }
-.flash-io-matrices > span,
-.flash-io-lane > strong {
-  padding: 8px 10px;
+.flash-exact-lane.flash {
+  border-color: rgba(45, 212, 191, 0.34);
+}
+.flash-exact-lane.normal {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.flash-exact-lane.normal > header {
+  grid-column: 1 / -1;
+}
+.flash-exact-lane.flash {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: start;
+}
+.flash-exact-lane.flash > header {
+  grid-column: 1 / -1;
+}
+.flash-exact-lane.flash > .flash-pass-order {
+  grid-column: 1 / -1;
+}
+.flash-exact-lane.flash > .flash-tile-round.first {
+  grid-column: 1;
+}
+.flash-exact-lane.flash > .flash-tile-round.second {
+  grid-column: 1;
+}
+.flash-exact-lane.flash > .flash-calc-step.final {
+  grid-column: 1 / -1;
+}
+.flash-pass-order {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid rgba(45, 212, 191, 0.22);
+  border-radius: 9px;
+  background: rgba(45, 212, 191, 0.04);
+}
+.flash-pass-order > span {
+  min-width: 0;
+  min-height: 56px;
+  padding: 8px 9px;
+  border: 1px solid var(--hairline);
   border-radius: 7px;
-  background: rgba(245, 176, 66, 0.1);
-  color: var(--t2);
+  background: var(--panel-3);
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 3px;
+  text-align: center;
+}
+.flash-pass-order > span > small {
+  color: var(--t-dim);
+  font-size: 12px;
+  font-weight: 650;
+}
+.flash-pass-order > b {
+  color: var(--v);
+  font-size: 18px;
+}
+.flash-exact-lane > header,
+.flash-memory-lane > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 11px;
+  border-bottom: 1px solid var(--hairline);
+}
+.flash-exact-lane > header > span {
+  color: var(--q);
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 800;
+}
+.flash-memory-lane > header > b {
+  color: var(--q);
+  font-family: var(--sans);
+  font-size: 16px;
+  font-weight: 750;
+}
+.flash-exact-lane.flash > header > span,
+.flash-memory-lane.flash > header > b {
+  color: var(--v);
+}
+.flash-exact-lane > header > b {
+  color: var(--t-dim);
+  font-size: 13px;
+}
+.flash-memory-lane > header > span {
+  color: var(--t-dim);
   font-size: 14px;
-  white-space: nowrap;
 }
-.flash-io-lane > strong {
-  font-weight: 600;
+.flash-calc-step,
+.flash-tile-round {
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.018);
 }
-.flash-io-lane.flash .flash-io-matrices > span,
-.flash-io-lane.flash > strong {
-  background: rgba(45, 212, 191, 0.1);
+.flash-calc-step > i,
+.flash-tile-round > i {
+  color: var(--t-dim);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+}
+.flash-calc-step > .math-block,
+.flash-update-step > div > .math-block {
+  margin: 4px 0 0;
+  min-width: 0;
+}
+.flash-calc-step.final {
+  border-color: rgba(244, 114, 182, 0.28);
+  background: rgba(244, 114, 182, 0.06);
+}
+.flash-tile-round.first {
+  border-color: rgba(45, 212, 191, 0.25);
+  background: rgba(45, 212, 191, 0.05);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.flash-tile-round.first > i {
+  grid-column: 1 / -1;
+}
+.flash-tile-round.first > .flash-update-step {
+  margin-top: 0;
+  padding: 9px 10px;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  background: var(--panel-3);
+}
+.flash-tile-round.second {
+  border-color: rgba(167, 139, 250, 0.27);
+  background: rgba(167, 139, 250, 0.05);
+}
+.flash-update-rule {
+  display: block;
+  margin: 9px 0;
+  padding: 9px 11px;
+  border: 1px solid rgba(167, 139, 250, 0.28);
+  border-radius: 8px;
+  background: rgba(167, 139, 250, 0.1);
+  color: var(--t1);
+  font-size: 14px;
+  text-align: center;
+}
+.flash-update-step {
+  min-width: 0;
+  margin-top: 7px;
+  padding: 8px 0 0;
+  border-top: 1px solid var(--hairline);
+  display: grid;
+  grid-template-columns: 122px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+}
+.flash-update-step > span {
+  color: var(--t-dim);
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.flash-update-step > div {
+  min-width: 0;
+}
+.flash-update-step.combine {
+  padding: 9px;
+  border: 1px solid rgba(244, 114, 182, 0.25);
+  border-radius: 8px;
+  background: rgba(244, 114, 182, 0.06);
+}
+.flash-exact-result {
+  border-color: rgba(45, 212, 191, 0.38);
+  background: rgba(45, 212, 191, 0.08);
+}
+.flash-exact-result > span {
+  color: var(--v);
+}
+.flash-equivalence-chain {
+  margin-top: 11px;
+  display: grid;
+  gap: 8px;
+}
+.flash-equivalence-step {
+  min-width: 0;
+  padding: 10px 13px;
+  border: 1px solid rgba(45, 212, 191, 0.22);
+  border-radius: 9px;
+  background: rgba(7, 11, 24, 0.2);
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  text-align: left;
+}
+.flash-equivalence-step > i {
+  color: var(--t-dim);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+}
+.flash-equivalence-step > .math-block {
+  min-width: 0;
+  margin: 0;
+}
+.flash-equivalence-step.final {
+  border-color: rgba(244, 114, 182, 0.28);
+  background: rgba(244, 114, 182, 0.06);
+}
+.flash-exact-key,
+.flash-memory-conclusion {
+  margin-top: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+  flex-wrap: wrap;
+  color: var(--t2);
+  text-align: center;
+}
+.flash-exact-key > .math-inline,
+.flash-exact-key > span,
+.flash-memory-conclusion > .math-inline {
+  padding: 8px 11px;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  background: var(--panel-3);
+}
+.flash-exact-key > b,
+.flash-memory-conclusion > b {
+  color: var(--v);
 }
 .flash-symbol-row,
 .flash-summary-row {
@@ -2708,200 +2947,494 @@ p code {
   color: var(--v);
   font-weight: 650;
 }
-.flash-gpu-compact {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto minmax(0, 1fr);
-  gap: 12px;
-  align-items: center;
-}
-.flash-gpu-compact > i,
-.flash-gpu-compact > b {
-  color: var(--v);
-  font-family: var(--mono);
-  font-size: 13px;
-  font-style: normal;
-}
-.flash-gpu-compact > b {
-  font-size: 24px;
-}
-.flash-grid-node,
-.flash-sm-node {
-  min-width: 0;
-  padding: 14px;
-  border: 1px solid var(--hairline);
-  border-radius: 10px;
-  background: var(--panel-3);
-  text-align: center;
-}
-.flash-grid-node > b,
-.flash-sm-node > b {
-  color: var(--t1);
-  font-family: var(--mono);
-  font-size: 18px;
-}
-.flash-grid-node > div,
-.flash-sm-node > div {
-  display: grid;
-  gap: 7px;
+.flash-diag-explainer {
   margin-top: 10px;
-}
-.flash-grid-node > div {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-.flash-sm-node > div {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-.flash-grid-node > div > span,
-.flash-sm-node > div > span {
-  padding: 8px 6px;
-  border: 1px solid rgba(45, 212, 191, 0.25);
-  border-radius: 7px;
-  background: rgba(45, 212, 191, 0.08);
-  color: var(--v);
-  font-family: var(--mono);
-  font-size: 12px;
-}
-.flash-memory-path {
-  margin-top: 12px;
-  padding: 11px;
+  padding: 11px 14px;
   border: 1px solid var(--hairline);
   border-radius: 9px;
+  background: var(--panel-3);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: 10px;
   color: var(--t2);
-  font-family: var(--mono);
-}
-.flash-memory-path b {
-  color: var(--v);
-}
-.flash-gpu-map .fig-cap,
-.flash-tile-demo .fig-cap {
-  margin-top: 16px;
-}
-.flash-tile-source > span,
-.flash-tile-result > span {
-  color: var(--t-dim);
-  font-family: var(--mono);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-}
-.flash-tile-demo small {
-  color: var(--t-dim);
   font-size: 14px;
   line-height: 1.6;
-}
-.flash-tile-source,
-.flash-tile-result {
-  padding: 16px 18px;
-  border: 1px solid var(--hairline);
-  border-radius: 11px;
-  background: rgba(56, 189, 248, 0.06);
   text-align: center;
 }
-.flash-tile-source .math-block,
-.flash-tile-result .math-block {
-  margin: 10px 0;
+.flash-diag-explainer > .math-inline {
+  flex: 0 0 auto;
+  color: var(--att);
 }
-.flash-tile-stages {
-  margin: 14px 0;
+.flash-memory-lanes {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
 }
-.flash-tile-stage {
+.flash-memory-lane {
   min-width: 0;
-  padding: 17px;
-  border: 1px solid rgba(45, 212, 191, 0.25);
+  padding: 16px;
+  border: 1px solid rgba(245, 176, 66, 0.28);
   border-radius: 11px;
   background: var(--panel-3);
 }
-.flash-tile-stage.second {
-  border-color: rgba(244, 114, 182, 0.28);
+.flash-memory-lane.flash {
+  border-color: rgba(45, 212, 191, 0.34);
 }
-.flash-tile-stage header {
+.flash-io-flow {
+  margin: 12px 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  text-align: center;
+}
+.flash-io-flow > span,
+.flash-io-flow > em {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 7px 9px;
+  border-radius: 7px;
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.45;
+}
+.flash-io-flow > span {
+  border: 1px solid var(--hairline);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--t2);
+  font-weight: 550;
+}
+.flash-io-flow > em {
+  background: rgba(245, 176, 66, 0.1);
+  color: var(--q);
+  font-size: 14px;
+  font-weight: 650;
+  font-style: normal;
+}
+.flash-io-flow > span .katex {
+  font-size: 1.08em;
+}
+.flash-memory-lane.flash .flash-io-flow > em {
+  background: rgba(45, 212, 191, 0.1);
+  color: var(--v);
+}
+.flash-io-flow > b {
+  color: var(--t-dim);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1;
+}
+.flash-memory-formula {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 38px;
+  color: var(--t2);
+}
+.flash-memory-lane > .math-block {
+  margin: 0;
+}
+.flash-memory-number {
+  margin-top: 14px;
+  padding: 16px 18px;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 11px;
+  background: rgba(56, 189, 248, 0.06);
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(220px, 0.85fr);
+  gap: 8px 18px;
+  align-items: center;
+}
+.flash-memory-number > div {
+  min-width: 0;
+  text-align: center;
+}
+.flash-memory-number > div > span {
+  color: var(--t-dim);
+  font-size: 13px;
+}
+.flash-memory-number > div > .math-block {
+  margin: 5px 0 0;
+}
+.flash-memory-number > strong {
+  padding: 12px;
+  border-radius: 9px;
+  background: rgba(244, 114, 182, 0.1);
+  color: var(--out);
+  text-align: center;
+}
+.flash-memory-number > small {
+  grid-column: 1 / -1;
+  text-align: center;
+}
+.flash-speed-reasons {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.flash-speed-reasons > article {
+  padding: 12px;
+  border: 1px solid var(--hairline);
+  border-radius: 9px;
+  background: var(--panel-3);
+  display: grid;
+  gap: 5px;
+  text-align: center;
+}
+.flash-speed-reasons > article > b {
+  color: var(--v);
+}
+.flash-speed-reasons > article > span {
+  color: var(--t2);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.flash-gpu-parallel {
+  padding: 13px 15px;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 10px;
+  background: rgba(56, 189, 248, 0.06);
+  display: grid;
+  grid-template-columns: minmax(260px, 0.8fr) minmax(0, 1.2fr);
+  gap: 14px;
+  align-items: center;
+}
+.flash-gpu-parallel > strong {
+  color: var(--att);
+  font-size: 15px;
+}
+.flash-gpu-parallel > div {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+}
+.flash-gpu-parallel > div > span {
+  padding: 7px 8px;
+  border: 1px solid var(--hairline);
+  border-radius: 7px;
+  background: var(--panel-3);
+  color: var(--t2);
+  font-size: 13px;
+  text-align: center;
+}
+.flash-gpu-flow {
+  margin-top: 14px;
+  display: grid;
+  justify-items: stretch;
+}
+.flash-gpu-hbm {
+  padding: 13px 15px;
+  border: 1px solid rgba(244, 114, 182, 0.28);
+  border-radius: 10px;
+  background: rgba(244, 114, 182, 0.06);
+  display: grid;
+  grid-template-columns: 170px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+}
+.flash-gpu-hbm > b {
+  color: var(--out);
+  font-size: 15px;
+}
+.flash-gpu-hbm > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.flash-gpu-hbm > div > span {
+  min-width: 92px;
+  padding: 7px 10px;
+  border: 1px solid rgba(244, 114, 182, 0.22);
+  border-radius: 7px;
+  background: var(--panel-3);
+  color: var(--t2);
+  text-align: center;
+}
+.flash-gpu-transfer {
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--t-dim);
+  font-size: 14px;
+  text-align: center;
+}
+.flash-gpu-transfer > b {
+  color: var(--v);
+  font-size: 23px;
+}
+.flash-gpu-transfer.output {
+  flex-direction: column;
+  gap: 1px;
+}
+.flash-gpu-kernel {
+  padding: 15px;
+  border: 1px solid rgba(45, 212, 191, 0.34);
+  border-radius: 12px;
+  background: rgba(45, 212, 191, 0.045);
+}
+.flash-gpu-kernel > header {
+  padding-bottom: 11px;
+  border-bottom: 1px solid var(--hairline);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.flash-gpu-kernel > header > b {
+  color: var(--v);
+  font-size: 16px;
+}
+.flash-gpu-kernel > header > span {
+  color: var(--t-dim);
+  font-size: 13px;
+}
+.flash-gpu-init {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  background: var(--panel-3);
+  display: grid;
+  grid-template-columns: minmax(220px, 0.7fr) minmax(0, 1.3fr);
+  gap: 12px;
+  align-items: center;
+}
+.flash-gpu-init > span,
+.flash-gpu-loop-steps article > b,
+.flash-gpu-finish article > b {
+  color: var(--t1);
+  font-size: 14px;
+}
+.flash-gpu-init-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: var(--t2);
+  font-size: 13px;
+}
+.flash-gpu-init-state > span {
+  padding: 6px 9px;
+  border: 1px solid var(--hairline);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.018);
+}
+.flash-gpu-init i,
+.flash-gpu-loop-steps article > i,
+.flash-gpu-finish article > i {
+  width: 25px;
+  height: 25px;
+  margin-right: 8px;
+  border-radius: 7px;
+  background: var(--att-soft);
+  display: inline-grid;
+  place-items: center;
+  color: var(--att);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 800;
+}
+.flash-gpu-loop {
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px dashed rgba(167, 139, 250, 0.45);
+  border-radius: 10px;
+  background: rgba(167, 139, 250, 0.045);
+}
+.flash-gpu-loop-title {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 10px;
 }
-.flash-tile-stage header > span {
-  padding: 5px 9px;
-  border-radius: 6px;
-  background: rgba(45, 212, 191, 0.12);
-  color: var(--v);
-  font-family: var(--mono);
-  font-size: 13px;
-  font-weight: 700;
-}
-.flash-tile-stage.second header > span {
-  background: rgba(244, 114, 182, 0.12);
-  color: var(--out);
-}
-.flash-tile-stage header > b {
-  color: var(--t2);
+.flash-gpu-loop-title > b {
+  color: var(--k);
   font-size: 15px;
 }
-.flash-round-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
-  gap: 18px;
-  align-items: center;
-  padding-top: 12px;
-  border-top: 1px solid var(--hairline);
+.flash-gpu-loop-title > span {
+  color: var(--t-dim);
+  font-size: 13px;
 }
-.flash-round-grid > .math-block {
+.flash-gpu-loop-steps {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1.2fr) auto minmax(0, 1fr) auto minmax(0, 0.9fr);
+  gap: 8px;
+  align-items: stretch;
+}
+.flash-gpu-loop-steps > article,
+.flash-gpu-finish > article {
   min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  background: var(--panel-3);
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 7px;
+  color: var(--t2);
+  font-size: 13px;
+  line-height: 1.45;
+  text-align: center;
+}
+.flash-gpu-loop-steps > article > i,
+.flash-gpu-finish > article > i {
   margin: 0;
 }
-.flash-tile-stage .katex {
-  font-size: 1em;
+.flash-gpu-loop-steps > em,
+.flash-gpu-finish > em {
+  align-self: center;
+  color: var(--v);
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 700;
 }
-.flash-tile-result {
-  border-color: rgba(45, 212, 191, 0.38);
-  background: rgba(45, 212, 191, 0.08);
+.flash-gpu-loop-back {
+  margin-top: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  color: var(--t-dim);
+  font-size: 13px;
+}
+.flash-gpu-loop-back > b {
+  color: var(--k);
+  font-size: 21px;
+}
+.flash-gpu-finish {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: stretch;
+}
+.flash-gpu-hbm.output {
+  border-color: rgba(45, 212, 191, 0.28);
+  background: rgba(45, 212, 191, 0.06);
+}
+.flash-gpu-hbm.output > b {
+  color: var(--v);
+}
+.flash-gpu-hbm.output > div > span {
+  border-color: rgba(45, 212, 191, 0.22);
+}
+.flash-gpu-map .fig-cap {
+  margin-top: 16px;
 }
 
-@media (max-width: 900px) {
-  .flash-io-lane,
-  .flash-round-grid,
-  .flash-gpu-compact {
+@media (max-width: 980px) {
+  .flash-exact-lane.normal,
+  .flash-exact-lane.flash,
+  .flash-memory-lanes,
+  .flash-memory-number {
     grid-template-columns: 1fr;
   }
-  .flash-gpu-compact > i,
-  .flash-gpu-compact > b {
-    text-align: center;
+  .flash-exact-lane.flash > .flash-tile-round.first,
+  .flash-exact-lane.flash > .flash-tile-round.second,
+  .flash-exact-lane.flash > .flash-calc-step.final {
+    grid-column: auto;
+    grid-row: auto;
   }
-  .flash-gpu-compact > b {
+  .flash-memory-number > small {
+    grid-column: auto;
+  }
+  .flash-speed-reasons {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .flash-pass-order,
+  .flash-gpu-parallel,
+  .flash-gpu-hbm,
+  .flash-gpu-init,
+  .flash-gpu-loop-steps {
+    grid-template-columns: 1fr;
+  }
+  .flash-pass-order > b,
+  .flash-gpu-loop-steps > em {
+    justify-self: center;
     transform: rotate(90deg);
+  }
+  .flash-gpu-hbm > b,
+  .flash-gpu-kernel > header,
+  .flash-gpu-loop-title {
+    text-align: center;
   }
 }
 
 @media (max-width: 560px) {
-  .flash-io-compare,
-  .flash-gpu-map,
-  .flash-tile-demo {
+  .flash-exact-demo,
+  .flash-memory-compare,
+  .flash-gpu-map {
     padding: 13px;
   }
   .flash-symbol-row,
-  .flash-summary-row {
+  .flash-summary-row,
+  .flash-speed-reasons {
     grid-template-columns: 1fr;
   }
-  .flash-tile-stage header {
+  .flash-exact-lane > header,
+  .flash-memory-lane > header {
     align-items: flex-start;
     flex-direction: column;
   }
-  .flash-memory-path,
-  .flash-io-matrices {
+  .flash-diag-explainer {
+    align-items: flex-start;
+    flex-direction: column;
+    text-align: left;
+  }
+  .flash-update-step {
     grid-template-columns: 1fr;
   }
-  .flash-memory-path {
+  .flash-tile-round.first {
+    grid-template-columns: 1fr;
+  }
+  .flash-tile-round.first > i {
+    grid-column: auto;
+  }
+  .flash-gpu-parallel,
+  .flash-gpu-hbm,
+  .flash-gpu-init {
+    grid-template-columns: 1fr;
+  }
+  .flash-gpu-parallel > div {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .flash-gpu-hbm > div {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .flash-gpu-init-state {
     align-items: stretch;
     flex-direction: column;
-    text-align: center;
+    gap: 7px;
+  }
+  .flash-gpu-hbm > div > span {
+    min-width: 0;
+  }
+  .flash-gpu-kernel > header,
+  .flash-gpu-loop-title {
+    align-items: flex-start;
+    flex-direction: column;
+    text-align: left;
+  }
+  .flash-gpu-finish {
+    grid-template-columns: 1fr;
+  }
+  .flash-gpu-finish > em {
+    justify-self: center;
+    transform: rotate(90deg);
+  }
+  .flash-equivalence-step {
+    grid-template-columns: 1fr;
+    gap: 5px;
   }
 }
 
