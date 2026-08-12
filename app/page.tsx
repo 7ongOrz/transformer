@@ -1532,65 +1532,63 @@ function PositionEncodingFlow() {
         <div className="position-addition-head">
           <span>为什么使用相加，而不是拼接</span>
           <b>拼接输入经分块线性变换可写成内容项与位置项之和</b>
-          <p>内容和位置索引拼接后，经过某种特定结构的线性变换，可以写成内容项与位置项之和。列向量记法中，内容向量 <Formula tex={String.raw`e_i\in\mathbb{R}^{d_{\mathrm{model}}\times1}`} /> 与位置 one-hot <Formula tex={String.raw`r_i\in\mathbb{R}^{L\times1}`} /> 拼接后，得到 <Formula tex={String.raw`[e_i;r_i]\in\mathbb{R}^{(d_{\mathrm{model}}+L)\times1}`} />。</p>
+          <p>内容和位置索引拼接后，经过某种特定结构的线性变换，可以写成内容项与位置项之和。行向量记法中，内容向量 <Formula tex={String.raw`e_i\in\mathbb{R}^{1\times d_{\mathrm{model}}}`} /> 与位置 one-hot <Formula tex={String.raw`r_i\in\mathbb{R}^{1\times L}`} /> 拼接后，得到 <Formula tex={String.raw`[e_i\mid r_i]\in\mathbb{R}^{1\times(d_{\mathrm{model}}+L)}`} />。</p>
         </div>
 
-        <div className="position-proof-terms" aria-label="内容列向量、位置 one-hot 列向量与拼接列向量">
+        <div className="position-proof-terms" aria-label="内容行向量、位置 one-hot 行向量与拼接行向量">
           <article>
             <span>内容向量</span>
-            <Formula block tex={String.raw`e_3=\begin{bmatrix}0.55\\0.60\end{bmatrix}`} />
-            <small>Token 3 的内容，shape 为 <Formula tex={String.raw`2\times1`} /></small>
+            <Formula block tex={String.raw`e_3=\begin{bmatrix}0.55&0.60\end{bmatrix}`} />
+            <small>Token 3 的内容，shape 为 <Formula tex={String.raw`1\times2`} /></small>
           </article>
           <article className="address">
             <span>位置索引 · one-hot</span>
-            <Formula block tex={String.raw`r_3=\begin{bmatrix}0\\0\\1\\0\end{bmatrix}`} />
+            <Formula block tex={String.raw`r_3=\begin{bmatrix}0&0&1&0\end{bmatrix}`} />
             <small>第 3 项为 1，表示位置 3</small>
           </article>
           <article className="combined">
             <span>沿特征维拼接</span>
-            <Formula block tex={String.raw`\begin{bmatrix}e_3\\r_3\end{bmatrix}=\left[\begin{array}{c}0.55\\0.60\\\hline0\\0\\1\\0\end{array}\right]`} />
-            <small>拼接后 shape 为 <Formula tex={String.raw`6\times1`} /></small>
+            <Formula block tex={String.raw`[e_3\mid r_3]=\left[\begin{array}{cc|cccc}0.55&0.60&0&0&1&0\end{array}\right]`} />
+            <small>拼接后 shape 为 <Formula tex={String.raw`1\times6`} /></small>
           </article>
         </div>
 
         <div className="position-linear-equation">
           <span>分块线性变换</span>
           <Formula block tex={String.raw`\begin{aligned}
-          \underbrace{W}_{d_{\mathrm{model}}\times(d_{\mathrm{model}}+L)}
-          \underbrace{\begin{bmatrix}e_i\\r_i\end{bmatrix}}_{(d_{\mathrm{model}}+L)\times1}
-          &=\underbrace{\begin{bmatrix}W^e&W^p\end{bmatrix}}_{W\text{ 按输入分块}}
-          \begin{bmatrix}e_i\\r_i\end{bmatrix}\\
-          &=\underbrace{W^e e_i}_{\text{变换后的内容}}+\underbrace{W^p r_i}_{p_i}\\
-          &=W^e e_i+p_i
+          \underbrace{[e_i\mid r_i]}_{1\times(d_{\mathrm{model}}+L)}
+          \underbrace{W}_{(d_{\mathrm{model}}+L)\times d_{\mathrm{model}}}
+          &=[e_i\mid r_i]\underbrace{\begin{bmatrix}W^e\\W^p\end{bmatrix}}_{W\text{ 按输入分块}}\\
+          &=\underbrace{e_iW^e}_{\text{变换后的内容}}+\underbrace{r_iW^p}_{p_i}\\
+          &=e_iW^e+p_i
           \end{aligned}`} />
           <div className="position-linear-reading">
-            <div><b>内容分块</b><span><Formula tex={String.raw`W^e\in\mathbb{R}^{d_{\mathrm{model}}\times d_{\mathrm{model}}}`} /> 负责变换内容，因此一般结果保留为 <Formula tex="W^e e_i" />。</span></div>
-            <div><b>位置分块</b><span>令 <Formula tex={String.raw`W^p=P_{\mathrm{seq}}^{\mathsf T}=[p_1\ p_2\ \cdots\ p_L]`} />，one-hot 只选中第 <Formula tex="i" /> 列，所以 <Formula tex={String.raw`W^p r_i=p_i`} />。</span></div>
+            <div><b>内容分块</b><span><Formula tex={String.raw`W^e\in\mathbb{R}^{d_{\mathrm{model}}\times d_{\mathrm{model}}}`} /> 负责变换内容，因此一般结果保留为 <Formula tex="e_iW^e" />。</span></div>
+            <div><b>位置分块</b><span>令 <Formula tex={String.raw`W^p=P_{\mathrm{seq}}=\begin{bmatrix}p_1\\p_2\\\vdots\\p_L\end{bmatrix}`} />，one-hot 只选中第 <Formula tex="i" /> 行，所以 <Formula tex={String.raw`r_iW^p=p_i`} />。</span></div>
           </div>
-          <p className="position-general-result">输出的一般形式为 <Formula tex="W^e e_i+p_i" />；取 <Formula tex={String.raw`W^e=I_{d_{\mathrm{model}}}`} /> 时化为 <Formula tex="e_i+p_i" />。</p>
+          <p className="position-general-result">输出的一般形式为 <Formula tex="e_iW^e+p_i" />；取 <Formula tex={String.raw`W^e=I_{d_{\mathrm{model}}}`} /> 时化为 <Formula tex="e_i+p_i" />。</p>
         </div>
 
-        <div className="position-proof-calculation" role="img" aria-label="取内容分块为二维单位矩阵后，Token 3 的拼接列向量经过分块线性变换得到内容与位置之和">
+        <div className="position-proof-calculation" role="img" aria-label="取内容分块为二维单位矩阵后，Token 3 的拼接行向量经过分块线性变换得到内容与位置之和">
           <span>单位矩阵数值例 · <Formula tex={String.raw`W^e=I_2`} /></span>
           <Formula block tex={String.raw`\begin{aligned}
-          &\underbrace{\left[\begin{array}{cc|cccc}1&0&0.05&0.15&0.25&0.35\\0&1&0.10&0.20&0.30&0.40\end{array}\right]}_{W=[I_2\;W^p]\;(2\times6)}
-          \underbrace{\left[\begin{array}{c}0.55\\0.60\\\hline0\\0\\1\\0\end{array}\right]}_{[e_3;r_3]\;(6\times1)}\\[4pt]
-          ={}&\underbrace{I_2\begin{bmatrix}0.55\\0.60\end{bmatrix}}_{e_3}
-          +\underbrace{\begin{bmatrix}0.05&0.15&0.25&0.35\\0.10&0.20&0.30&0.40\end{bmatrix}
-          \begin{bmatrix}0\\0\\1\\0\end{bmatrix}}_{p_3}\\[4pt]
-          ={}&\begin{bmatrix}0.55\\0.60\end{bmatrix}+\begin{bmatrix}0.25\\0.30\end{bmatrix}
-          =\begin{bmatrix}0.80\\0.90\end{bmatrix}=x_3
+          &\underbrace{\left[\begin{array}{cc|cccc}0.55&0.60&0&0&1&0\end{array}\right]}_{[e_3\mid r_3]\;(1\times6)}
+          \underbrace{\left[\begin{array}{cc}1&0\\0&1\\\hline0.05&0.10\\0.15&0.20\\0.25&0.30\\0.35&0.40\end{array}\right]}_{W=[I_2;W^p]\;(6\times2)}\\[4pt]
+          ={}&0.55\begin{bmatrix}1&0\end{bmatrix}+0.60\begin{bmatrix}0&1\end{bmatrix}\\
+          &+0\begin{bmatrix}0.05&0.10\end{bmatrix}+0\begin{bmatrix}0.15&0.20\end{bmatrix}+1\begin{bmatrix}0.25&0.30\end{bmatrix}+0\begin{bmatrix}0.35&0.40\end{bmatrix}\\[4pt]
+          ={}&\begin{bmatrix}0.55&0.60\end{bmatrix}+\begin{bmatrix}0.25&0.30\end{bmatrix}
+          =\begin{bmatrix}0.80&0.90\end{bmatrix}=x_3
           \end{aligned}`} />
           <div className="position-proof-reading">
-            <div><b>内容块 <Formula tex="W^e" /></b><span>取 <Formula tex={String.raw`W^e=I_2`} />，因此 <Formula tex={String.raw`I_2e_3=e_3`} />，内容数值保持不变。</span></div>
-            <div><b>位置块 <Formula tex="W^p" /></b><span><Formula tex={String.raw`r_3=[0,0,1,0]^{\mathsf T}`} /> 选中 <Formula tex="W^p" /> 第 3 列，得到 <Formula tex="p_3" />。</span></div>
-            <div><b>输出</b><span><Formula tex={String.raw`W^e=I_2`} /> 时，<Formula tex="W^e e_3+p_3" /> 化为 <Formula tex="e_3+p_3=x_3" />。</span></div>
+            <div><b>内容块 <Formula tex="W^e" /></b><span>取 <Formula tex={String.raw`W^e=I_2`} />，因此 <Formula tex={String.raw`e_3I_2=e_3`} />，内容数值保持不变。</span></div>
+            <div><b>位置块 <Formula tex="W^p" /></b><span><Formula tex={String.raw`r_3=[0,0,1,0]`} /> 选中 <Formula tex="W^p" /> 第 3 行，得到 <Formula tex="p_3" />。</span></div>
+            <div><b>输出</b><span><Formula tex={String.raw`W^e=I_2`} /> 时，<Formula tex="e_3W^e+p_3" /> 化为 <Formula tex="e_3+p_3=x_3" />。</span></div>
           </div>
         </div>
 
         <div className="position-proof-boundary">
           <b>与 Transformer 输入相加的关系</b>
-          <p><Formula tex={String.raw`W[e_i;r_i]=W^e e_i+p_i`} /> 描述拼接输入经过分块线性变换后的结果；取 <Formula tex={String.raw`W^e=I_{d_{\mathrm{model}}}`} /> 即得到 <Formula tex="e_i+p_i" />。原始 Transformer 的前向过程直接将同为 <Formula tex="d_{\mathrm{model}}" /> 维的 embedding 与位置编码相加，不显式构造 one-hot、拼接向量或矩阵 <Formula tex="W" />。</p>
+          <p><Formula tex={String.raw`[e_i\mid r_i]W=e_iW^e+p_i`} /> 描述拼接输入经过分块线性变换后的结果；取 <Formula tex={String.raw`W^e=I_{d_{\mathrm{model}}}`} /> 即得到 <Formula tex="e_i+p_i" />。原始 Transformer 的前向过程直接将同为 <Formula tex="d_{\mathrm{model}}" /> 维的 embedding 与位置编码相加，不显式构造 one-hot、拼接向量或矩阵 <Formula tex="W" />。</p>
         </div>
       </div>
       <div className="position-sine-proof">

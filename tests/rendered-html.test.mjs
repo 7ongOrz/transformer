@@ -59,6 +59,8 @@ test("server-renders the Attention teaching page", async () => {
   assert.match(html, /为什么使用相加，而不是拼接/);
   assert.match(html, /拼接输入经分块线性变换可写成内容项与位置项之和/);
   assert.match(html, /内容和位置索引拼接后，经过某种特定结构的线性变换/);
+  assert.match(html, /行向量记法中/);
+  assert.doesNotMatch(html, /列向量记法中/);
   assert.match(html, /位置索引 · one-hot/);
   assert.match(html, /沿特征维拼接/);
   assert.match(html, /分块线性变换/);
@@ -222,6 +224,8 @@ test("ships the current teaching page as an offline standalone HTML file", async
   assert.match(html, /为什么使用相加，而不是拼接/);
   assert.match(html, /拼接输入经分块线性变换可写成内容项与位置项之和/);
   assert.match(html, /内容和位置索引拼接后，经过某种特定结构的线性变换/);
+  assert.match(html, /行向量记法中/);
+  assert.doesNotMatch(html, /列向量记法中/);
   assert.match(html, /位置索引 · one-hot/);
   assert.match(html, /沿特征维拼接/);
   assert.match(html, /分块线性变换/);
