@@ -1499,7 +1499,7 @@ function PositionEncodingFlow() {
       <div className="position-demo-head">
         <span>进入第一层 Attention 之前</span>
         <b>内容矩阵 <Formula tex="E_{\mathrm{seq}}" /> + 位置矩阵 <Formula tex="P_{\mathrm{seq}}" /> = 输入矩阵 <Formula tex="X" /></b>
-        <p>Self-Attention 本身不包含 Token 的先后顺序。位置 <Formula tex="i" /> 的内容向量 <Formula tex="e_i" /> 与位置向量 <Formula tex="p_i" /> 同为 <Formula tex="d_{\mathrm{model}}" /> 维，因此可以逐元素相加；<Formula tex="p_i" /> 可以来自可学习位置表，也可以由固定公式生成。</p>
+        <p>Self-Attention 本身不包含 Token 的先后顺序。位置 <Formula tex="i" /> 的内容向量 <Formula tex="e_i" /> 与位置向量 <Formula tex="p_i" /> 同为 <Formula tex="d_{\mathrm{model}}" /> 维，因此可以逐元素相加；<span className="position-source-choice"><Formula tex="p_i" /> 可以来自可学习位置表，也可以由固定公式生成。</span></p>
       </div>
 
       <div className="position-matrix-flow" role="img" aria-label="四个 Token 的内容向量逐行加上位置向量，得到 Attention 输入矩阵 X">
@@ -1530,81 +1530,28 @@ function PositionEncodingFlow() {
 
       <div className="position-addition-proof">
         <div className="position-addition-head">
-          <span>从位置地址到位置向量</span>
-          <b>one-hot 只负责指出位置，<Formula tex="p_i" /> 才是真正加入内容的向量</b>
-          <p>把 <Formula tex="L" /> 个位置向量按行堆成 <Formula tex="P_{\mathrm{pos}}" />。位置 <Formula tex="i" /> 的 one-hot 行向量 <Formula tex="r_i" /> 只有第 <Formula tex="i" /> 项为 1，因此 <Formula tex={String.raw`r_iP_{\mathrm{pos}}`} /> 恰好选中第 <Formula tex="i" /> 行：<Formula tex={String.raw`p_i=r_iP_{\mathrm{pos}}`} />。</p>
+          <span>为什么相加，而不是拼接</span>
+          <b>相加是拼接后经过特定线性变换的一个简单特例</b>
+          <p>令 <Formula tex={String.raw`r_i=\operatorname{onehot}(i)`} /> 表示位置 <Formula tex="i" />，位置表 <Formula tex="P_{\mathrm{pos}}" /> 的第 <Formula tex="i" /> 行就是 <Formula tex="p_i" />。把内容块设为单位矩阵，整条推导只需下面一行。</p>
         </div>
 
-        <div className="position-address-flow" role="img" aria-label="Token 3 的内容向量加上由 one-hot 地址选中的位置向量，得到 Attention 输入">
-          <article className="content">
-            <span>内容分支</span>
-            <Formula block tex={String.raw`e_3=\begin{bmatrix}0.55&0.60\end{bmatrix}`} />
-            <small>Token 3 的内容向量 <Formula tex={String.raw`[1\times2]`} /></small>
-          </article>
-          <div className="position-address-op"><b>+</b><span>同维相加</span></div>
-          <article className="lookup">
-            <span>位置分支 · 地址查表</span>
-            <Formula block tex={String.raw`\underbrace{r_3}_{[0\;0\;1\;0]}P_{\mathrm{pos}}=P_{\mathrm{pos}}[3,:]=\underbrace{\begin{bmatrix}0.25&0.30\end{bmatrix}}_{p_3}`} />
-            <small><Formula tex="r_3" /> 是 <Formula tex={String.raw`1\times4`} /> 的地址；<Formula tex="p_3" /> 才是 <Formula tex={String.raw`1\times2`} /> 的位置向量</small>
-          </article>
-          <div className="position-address-op"><b>=</b><span>得到输入</span></div>
-          <article className="result">
-            <span>合并结果</span>
-            <Formula block tex={String.raw`x_3=e_3+p_3=\begin{bmatrix}0.80&0.90\end{bmatrix}`} />
-            <small><Formula tex={String.raw`x_3\in\mathbb{R}^{1\times2}`} />，维度保持不变</small>
-          </article>
+        <div className="position-proof-calculation" role="img" aria-label="单位矩阵保留内容，one-hot 选出位置向量，最终得到内容与位置之和">
+          <span>核心等式</span>
+          <Formula block tex={String.raw`\underbrace{[e_i\mid r_i]}_{\text{内容与位置索引}}\underbrace{\begin{bmatrix}I_{d_{\mathrm{model}}}\\P_{\mathrm{pos}}\end{bmatrix}}_{\text{特定线性变换}}=\underbrace{e_iI_{d_{\mathrm{model}}}}_{e_i}+\underbrace{r_iP_{\mathrm{pos}}}_{p_i}=e_i+p_i=x_i`} />
+          <p><Formula tex={String.raw`I_{d_{\mathrm{model}}}`} /> 是单位矩阵，所以 <Formula tex="e_i" /> 原样通过；<Formula tex="r_i" /> 是 one-hot，所以 <Formula tex={String.raw`r_iP_{\mathrm{pos}}`} /> 只选中位置表第 <Formula tex="i" /> 行。</p>
         </div>
 
-        <div className="position-general-proof">
-          <span>拼接后做一次分块线性变换</span>
-          <Formula block tex={String.raw`\underbrace{[e_i\mid r_i]}_{1\times(d_{\mathrm{model}}+L)}\underbrace{\begin{bmatrix}W^e\\W^p\end{bmatrix}}_{(d_{\mathrm{model}}+L)\times d_{\mathrm{model}}}=e_iW^e+r_iW^p=e_iW^e+p_i`} />
-          <div className="position-general-steps">
-            <div><b>① 分块展开</b><span>拼接输入分别乘内容块 <Formula tex="W^e" /> 与位置块 <Formula tex="W^p" />，两个结果在同一 <Formula tex="d_{\mathrm{model}}" /> 维空间相加。</span></div>
-            <div><b>② one-hot 选行</b><span>令 <Formula tex={String.raw`W^p=P_{\mathrm{pos}}`} />，则 <Formula tex={String.raw`r_iW^p=p_i`} />；one-hot 只是把位置编号转换成位置向量。</span></div>
-            <div><b>③ 直接相加</b><span>再取 <Formula tex={String.raw`W^e=I_{d_{\mathrm{model}}}`} />，内容原样通过，于是输出正好变成 <Formula tex="e_i+p_i" />。</span></div>
-          </div>
-        </div>
-
-        <div className="position-proof-calculation" role="img" aria-label="拼接向量乘分块矩阵，逐项展开后得到内容向量加位置向量">
-          <span>取 <Formula tex={String.raw`W^e=I_2,\ W^p=P_{\mathrm{pos}}`} /> 后的完整数值验证</span>
-          <Formula block tex={String.raw`\begin{aligned}
-          &\underbrace{\begin{bmatrix}0.55&0.60\mid0&0&1&0\end{bmatrix}}_{[e_3\mid r_3]\;(1\times6)}
-          \underbrace{\begin{bmatrix}1&0\\0&1\\\hline0.05&0.10\\0.15&0.20\\0.25&0.30\\0.35&0.40\end{bmatrix}}_{[I_2;P_{\mathrm{pos}}]\;(6\times2)}\\[3pt]
-          ={}&0.55\begin{bmatrix}1&0\end{bmatrix}+0.60\begin{bmatrix}0&1\end{bmatrix}\\
-          &+0\begin{bmatrix}0.05&0.10\end{bmatrix}+0\begin{bmatrix}0.15&0.20\end{bmatrix}+1\begin{bmatrix}0.25&0.30\end{bmatrix}+0\begin{bmatrix}0.35&0.40\end{bmatrix}\\
-          ={}&\underbrace{\begin{bmatrix}0.55&0.60\end{bmatrix}}_{e_3\;\text{内容}}+\underbrace{\begin{bmatrix}0.25&0.30\end{bmatrix}}_{p_3\;\text{位置}}\\
-          ={}&\begin{bmatrix}0.80&0.90\end{bmatrix}=x_3
-          \end{aligned}`} />
-          <div className="position-proof-reading">
-            <div><b>前两个系数</b><span><Formula tex={String.raw`0.55,\ 0.60`} /> 乘单位矩阵两行，原样保留内容 <Formula tex="e_3" /></span></div>
-            <div><b>后四个系数</b><span><Formula tex={String.raw`0,0,1,0`} /> 只保留位置表第 3 行，得到 <Formula tex={String.raw`p_3=[0.25,0.30]`} /></span></div>
-            <div><b>最终结果</b><span>两组贡献都落在二维空间，因此相加后仍是 <Formula tex={String.raw`x_3\in\mathbb{R}^{1\times2}`} /></span></div>
-          </div>
-        </div>
-
-        <div className="position-attention-impact">
-          <div className="position-impact-head">
-            <span>进入 Attention 后</span>
-            <b>位置项会直接改变 <Formula tex={String.raw`Q,\ K,\ V`} /> 与注意力分数</b>
-          </div>
-          <div className="position-impact-projections">
-            <Formula block tex={String.raw`q_i=(e_i+p_i)W^Q=e_iW^Q+p_iW^Q`} />
-            <Formula block tex={String.raw`k_j=(e_j+p_j)W^K=e_jW^K+p_jW^K`} />
-            <Formula block tex={String.raw`v_j=(e_j+p_j)W^V=e_jW^V+p_jW^V`} />
-          </div>
-          <Formula block tex={String.raw`q_i k_j^{\mathsf T}=\left(e_iW^Q+p_iW^Q\right)\left(e_jW^K+p_jW^K\right)^{\mathsf T}`} />
-          <div className="position-impact-terms">
-            <span>内容 ↔ 内容</span><span>内容 ↔ 位置</span><span>位置 ↔ 内容</span><span>位置 ↔ 位置</span>
-          </div>
-          <p>模型不需要先从 <Formula tex="x_i" /> 中还原 <Formula tex="e_i" /> 与 <Formula tex="p_i" />：只要 <Formula tex="p_i" /> 改变了投影结果，它就会影响匹配分数与 Value 汇聚。“发生混合”不等于“位置信息消失”。</p>
+        <div className="position-proof-example">
+          <span>二维例子 · Token 3</span>
+          <Formula block tex={String.raw`[e_3\mid r_3]\begin{bmatrix}I_2\\P_{\mathrm{pos}}\end{bmatrix}=\begin{bmatrix}0.55&0.60\end{bmatrix}+\begin{bmatrix}0.25&0.30\end{bmatrix}=\begin{bmatrix}0.80&0.90\end{bmatrix}=x_3`} />
+          <p><Formula tex={String.raw`I_2=\begin{bmatrix}1&0\\0&1\end{bmatrix}`} /> 保持二维内容不变；<Formula tex={String.raw`r_3=[0,0,1,0]`} /> 只取出 <Formula tex="P_{\mathrm{pos}}" /> 的第 3 行 <Formula tex={String.raw`p_3=[0.25,0.30]`} />。</p>
         </div>
 
         <div className="position-proof-boundary">
-          <div><b>等价成立的条件</b><p>“拼接 + 线性层”等于直接相加，需要 <Formula tex={String.raw`W^e=I_{d_{\mathrm{model}}}`} />、<Formula tex={String.raw`W^p=P_{\mathrm{pos}}`} /> 这一特定分块结构；任意拼接和任意线性映射并不与相加等价。</p></div>
-          <div><b>原始 Transformer 的前向计算</b><p>令 <Formula tex={String.raw`e_i=\sqrt{d_{\mathrm{model}}}\,\operatorname{Emb}(\mathrm{token}_i)`} />、<Formula tex="p_i=\mathrm{PE}(i)" />，模型直接计算 <Formula tex="x_i=e_i+p_i" />；不会显式构造 <Formula tex={String.raw`\mathrm{one\text{-}hot}`} />、拼接向量或分块矩阵。</p></div>
+          <b>原始 Transformer 的实际计算</b>
+          <p>模型直接计算 <Formula tex="x_i=e_i+p_i" />。上面的 one-hot、拼接和单位矩阵只用于解释这个相加形式，不是模型额外执行的步骤。</p>
         </div>
       </div>
-
       <div className="position-sine-proof">
         <div className="position-sine-head">
           <span>原始 Transformer · 固定正弦 / 余弦位置编码</span>
