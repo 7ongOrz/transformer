@@ -255,7 +255,7 @@ function AttentionSetupGuide() {
       <div className="setup-guide-head">
         <span>计算前置</span>
         <b>Token、<Formula tex="x_i" />、<Formula tex="X" /> 与 <Formula tex="q_1" /> 的来源</b>
-        <p><code>Token 1～4</code> 表示序列中的四个位置；后续矩阵的第 <Formula tex="i" /> 行始终对应 Token <Formula tex="i" />。</p>
+        <p><code>Token 1～4</code> 表示序列中的四个位置。第 1～3 步说明原始 Transformer 如何准备首层输入 <Formula tex="X" />；第 4 步开始进入完整 Self-Attention 模块，其中缩放点积核心接收投影后的 <Formula tex={String.raw`Q,\ K,\ V`} />。</p>
       </div>
 
       <div className="setup-flow">
@@ -272,22 +272,21 @@ function AttentionSetupGuide() {
 
         <article className="setup-node">
           <span className="setup-step">2</span>
-          <strong>每个位置得到输入向量 <Formula tex="x_i" /></strong>
-          <Formula block tex={String.raw`e_i=\operatorname{Embed}(\operatorname{tokenId}_i)`} />
-          <Formula block tex={String.raw`x_i=e_i+p_i`} />
-          <p>采用输入端绝对位置编码时，首层由 token embedding 与位置向量相加；原始 Transformer 会先把 embedding 乘 <Formula tex={String.raw`\sqrt{d_{\mathrm{model}}}`} />。后续层的 <Formula tex="x_i" /> 来自上一层输出，现代模型也可能用 RoPE 等方式注入位置。</p>
+          <strong>Token ID 变为输入向量 <Formula tex="x_i" /></strong>
+          <Formula block tex={String.raw`\begin{aligned}u_i&=E_{\mathrm{tok}}[\operatorname{tokenId}_i]\\e_i&=\sqrt{d_{\mathrm{model}}}\,u_i\\x_i&=e_i+p_i\end{aligned}`} />
+          <p>Embedding 表按 ID 取出一行，把离散编号转换成可计算的 <Formula tex="d_{\mathrm{model}}" /> 维内容向量。原始 Transformer 再做缩放并加入位置编码；这些属于模型的首层输入处理，不属于 Attention 算子。</p>
         </article>
 
         <article className="setup-node">
           <span className="setup-step">3</span>
           <strong>按位置堆叠成输入矩阵 <Formula tex="X" /></strong>
           <Formula block tex={`X=\\begin{bmatrix}x_1\\\\x_2\\\\x_3\\\\x_4\\end{bmatrix}=${matrixTex(attentionDemo.X, 1)}`} />
-          <p><Formula tex={String.raw`X\in\mathbb{R}^{4\times2}`} />：4 表示四个位置，2 表示每个位置暂用两个数描述。</p>
+          <p><Formula tex={String.raw`X\in\mathbb{R}^{4\times2}`} />：4 表示四个位置，2 表示每个位置暂用两个数描述。后续数值演示从这份已经准备好的 <Formula tex="X" /> 开始。</p>
         </article>
 
         <article className="setup-node">
           <span className="setup-step">4</span>
-          <strong><Formula tex="X" /> 经三组参数投影为 <Formula tex={String.raw`Q,\ K,\ V`} /></strong>
+          <strong>进入 Self-Attention：投影为 <Formula tex={String.raw`Q,\ K,\ V`} /></strong>
           <Formula block tex={String.raw`\begin{aligned}Q&=XW^Q\\K&=XW^K\\V&=XW^V\end{aligned}`} />
           <Formula block tex={String.raw`q_1=x_1W^Q`} />
           <p><Formula tex="q_1" /> 不是额外生成的变量：它就是 <Formula tex="Q" /> 的第一行，对应 Token 1；<Formula tex={String.raw`k_1,\ v_1`} /> 同理。</p>
@@ -311,9 +310,14 @@ function AttentionSetupGuide() {
               <td>tokenizer 输出 token ID 序列后，由它在序列中的索引确定</td>
             </tr>
             <tr>
+              <th><Formula tex={String.raw`u_i`} /></th>
+              <td>从可训练 Embedding 表中查出的内容向量</td>
+              <td><Formula tex={String.raw`u_i=E_{\mathrm{tok}}[\operatorname{tokenId}_i]`} />；用离散 ID 选择表中的一行</td>
+            </tr>
+            <tr>
               <th><Formula tex="x_i" /></th>
               <td>第 i 个位置送入当前 Attention 层的行向量</td>
-              <td>首层来自 embedding 与位置信息；后续层来自上一层</td>
+              <td>原始 Transformer 首层为 <Formula tex={String.raw`x_i=\sqrt{d_{\mathrm{model}}}\,u_i+p_i`} />；后续层来自上一层输出</td>
             </tr>
             <tr>
               <th><Formula tex="X" /></th>
@@ -345,7 +349,7 @@ function AttentionSetupGuide() {
       </div>
 
       <div className="setup-types">
-        <div><b>可训练参数</b><span>当前单头链路包含 Token Embedding 表 <Formula tex="E_{\mathrm{tok}}" /> 与投影矩阵 <Formula tex={String.raw`W^Q,\ W^K,\ W^V`} />；若采用可学习位置表，还包括 <Formula tex="P_{\mathrm{pos}}" />。它们训练初始通常随机，随后被学习；推理时不再重新随机。</span></div>
+        <div><b>可训练参数</b><span>Transformer 输入层包含 Embedding 表 <Formula tex="E_{\mathrm{tok}}" />；Self-Attention 模块包含投影矩阵 <Formula tex={String.raw`W^Q,\ W^K,\ W^V`} />。训练初始通常随机，随后由训练学习；推理时不再重新随机。</span></div>
         <div><b>前向中间量</b><span><Formula tex={String.raw`X,\ Q,\ K,\ V,\ S,\ A,\ O`} />：随输入变化，每次前向重新计算，不是模型单独保存的参数。</span></div>
         <div><b>数值算例</b><span>矩阵使用固定数值，便于逐项核算；这些数值不对应某个已训练模型。</span></div>
       </div>
@@ -1499,14 +1503,14 @@ function PositionEncodingFlow() {
       <div className="position-demo-head">
         <span>进入第一层 Attention 之前</span>
         <b>内容矩阵 <Formula tex="E_{\mathrm{seq}}" /> + 位置矩阵 <Formula tex="P_{\mathrm{seq}}" /> = 输入矩阵 <Formula tex="X" /></b>
-        <p>没有位置编码或位置偏置时，双向 Self-Attention 对 Token 排列是置换等变的，不会自行获得先后顺序。位置 <Formula tex="i" /> 的内容向量 <Formula tex="e_i" /> 与位置向量 <Formula tex="p_i" /> 同为 <Formula tex="d_{\mathrm{model}}" /> 维，因此可以逐元素相加；原始 Transformer 在相加前还会将 token embedding 乘 <Formula tex={String.raw`\sqrt{d_{\mathrm{model}}}`} />。<Formula tex="p_i" /> 可由可学习位置表或固定公式生成。</p>
+        <p>没有位置编码或位置偏置时，双向 Self-Attention 不会自行获得先后顺序。这里用 <Formula tex={String.raw`u_i=E_{\mathrm{tok}}[\operatorname{tokenId}_i]`} /> 表示查表结果，并把原始 Transformer 缩放后的内容向量记为 <Formula tex={String.raw`e_i=\sqrt{d_{\mathrm{model}}}\,u_i`} />；它与同维位置向量 <Formula tex="p_i" /> 逐元素相加得到 <Formula tex="x_i" />。</p>
       </div>
 
       <div className="position-matrix-flow" role="img" aria-label="四个 Token 的内容向量逐行加上位置向量，得到 Attention 输入矩阵 X">
         <div className="position-matrix-stage">
           <span>① Token 内容</span>
           <FmsMatGrid data={contentEmbedding} name={<Formula tex="E_{\mathrm{seq}}" />} shape={<Formula tex={String.raw`[4\times2]`} />} pal={{ c: "#a9b4dc", t: "rgba(169,180,220,0.08)" }} rowLabels={rows} colLabels={cols} cornerLabel="位置＼维" digits={2} />
-          <small>四个 <Formula tex="e_i" /> 按行堆叠；每行是进入位置相加前的内容向量</small>
+          <small>四个已完成输入缩放的 <Formula tex="e_i" /> 按行堆叠</small>
         </div>
         <div className="position-matrix-op"><b>+</b><span>逐行、逐维相加</span></div>
         <div className="position-matrix-stage">
@@ -1588,7 +1592,7 @@ function PositionEncodingFlow() {
 
         <div className="position-proof-boundary">
           <b>与 Transformer 输入相加的关系</b>
-          <p><Formula tex={String.raw`[e_i\mid r_i]W=e_iW^e+p_i`} /> 描述拼接输入经过分块线性变换后的结果；取 <Formula tex={String.raw`W^e=I_{d_{\mathrm{model}}}`} /> 即得到 <Formula tex="e_i+p_i" />。原始 Transformer 的前向过程直接将同为 <Formula tex="d_{\mathrm{model}}" /> 维的 embedding 与位置编码相加，不显式构造 one-hot、拼接向量或矩阵 <Formula tex="W" />。</p>
+          <p><Formula tex={String.raw`[e_i\mid r_i]W=e_iW^e+p_i`} /> 描述拼接输入经过分块线性变换后的结果；取 <Formula tex={String.raw`W^e=I_{d_{\mathrm{model}}}`} /> 即得到 <Formula tex="e_i+p_i" />。原始 Transformer 直接计算 <Formula tex={String.raw`e_i=\sqrt{d_{\mathrm{model}}}\,E_{\mathrm{tok}}[\operatorname{tokenId}_i]`} />，再与位置编码相加，不显式构造 one-hot、拼接向量或矩阵 <Formula tex="W" />。</p>
         </div>
       </div>
       <div className="position-sine-proof">
@@ -1624,7 +1628,7 @@ function PositionEncodingFlow() {
         </div>
       </div>
 
-      <div className="position-demo-note">二维数值表展示 <Formula tex="x_i=e_i+p_i" /> 与 <Formula tex="q_i=x_iW^Q" /> 的连接关系；四维矩阵展示固定正弦编码的具体数值。输入端相加的绝对位置编码要求内容向量与位置向量维度一致，并在 <Formula tex={String.raw`Q,\ K,\ V`} /> 投影前逐元素相加。</div>
+      <div className="position-demo-note">二维数值表从已准备好的内容向量 <Formula tex="e_i" /> 开始，不再重复展示 Embedding 查表与标量缩放；后面的 Attention 数值演示同样从 <Formula tex="X" /> 开始。输入端绝对位置编码在 <Formula tex={String.raw`Q,\ K,\ V`} /> 投影前与内容向量逐元素相加。</div>
     </div>
   );
 }
