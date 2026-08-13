@@ -1557,8 +1557,8 @@ function PositionEncodingFlow() {
           <span>分块线性变换</span>
           <Formula block tex={String.raw`\begin{aligned}
           \underbrace{[e_i\mid r_i]}_{1\times(d_{\mathrm{model}}+L)}
-          \underbrace{W}_{(d_{\mathrm{model}}+L)\times d_{\mathrm{model}}}
-          &=[e_i\mid r_i]\underbrace{\begin{bmatrix}W^e\\W^p\end{bmatrix}}_{\text{W：按输入分块}}\\
+          \underbrace{\vphantom{[e_i\mid r_i]}W}_{(d_{\mathrm{model}}+L)\times d_{\mathrm{model}}}
+          &=[e_i\mid r_i]\underbrace{\begin{bmatrix}W^e\\W^p\end{bmatrix}}_{W\text{ 按输入分块}}\\
           &=\underbrace{e_iW^e}_{\text{变换后的内容}}+\underbrace{r_iW^p}_{p_i}\\
           &=e_iW^e+p_i
           \end{aligned}`} />

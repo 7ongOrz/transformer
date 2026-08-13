@@ -1975,9 +1975,6 @@ p {
   overflow: visible;
   font-size: 18px;
 }
-.position-linear-equation .katex .mord.text {
-  white-space: nowrap;
-}
 .position-linear-equation .katex-display { text-align: center; }
 .position-linear-equation p {
   max-width: 1000px;
