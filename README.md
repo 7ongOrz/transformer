@@ -1,6 +1,6 @@
 # Attention Operator Guide
 
-面向技术分享的中文单页讲义，从矩阵乘法、Q/K/V 投影和 Scaled Dot-Product Attention，讲到多头注意力、FlashAttention、算子测试与经典 Transformer 结构。
+面向技术分享的中文单页讲义，从矩阵乘法、Q/K/V 投影和 Scaled Dot-Product Attention，讲到多头注意力、FlashAttention 与经典 Transformer 结构。
 
 ## 直接使用
 
@@ -29,10 +29,14 @@ pnpm export:standalone
 ```
 
 `pnpm export:standalone` 会重新构建并更新根目录的 `attention.html`。
+`pnpm test` 同样先生成最新离线页面，再检查公式、数值、交互状态与内容完整性。
 
 ## 主要文件
 
 - `app/page.tsx`：页面内容与交互
+- `app/teaching-figures.tsx`：完整矩阵推导与流程图
+- `app/formula.tsx`：严格校验、带 MathML 的公式渲染
+- `app/lesson-navigation.tsx`、`app/reading-progress.js`：响应式目录与两种版本共享的滚动逻辑
 - `app/globals.css`：页面样式
 - `app/attention-demo.js`：全文统一使用的教学数值
 - `scripts/export-standalone.mjs`：离线单文件导出

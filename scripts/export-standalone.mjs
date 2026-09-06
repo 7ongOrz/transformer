@@ -2,6 +2,8 @@ import { readdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { observeReadingProgress } from "../app/reading-progress.js";
+
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const clientDir = resolve(root, "dist/client");
 const assetsDir = resolve(clientDir, "assets");
@@ -30,23 +32,7 @@ css = css.replace(/,url\(\/assets\/[^)]*\.(?:woff|ttf)\)format\("(?:woff|truetyp
 
 const standaloneJs = String.raw`
 (() => {
-  const sections = ["s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8"];
-  const navLinks = [...document.querySelectorAll(".sidenav a")];
-  const progress = document.querySelector(".progress");
-
-  const syncScroll = () => {
-    const height = document.documentElement.scrollHeight - innerHeight;
-    progress.style.width = (height > 0 ? scrollY / height * 100 : 0) + "%";
-    const y = scrollY + 130;
-    let active = sections[0];
-    for (const id of sections) {
-      const section = document.getElementById(id);
-      if (section && section.offsetTop <= y) active = id;
-    }
-    for (const link of navLinks) link.classList.toggle("active", link.hash === "#" + active);
-  };
-  addEventListener("scroll", syncScroll, { passive: true });
-  syncScroll();
+  (${observeReadingProgress.toString()})();
 
   const matrixCols = [...document.querySelectorAll("#s1 .mcol")];
   const resultButtons = [...document.querySelectorAll("#s1 button.mcell.res")];
@@ -54,31 +40,20 @@ const standaloneJs = String.raw`
   const selectCell = (row, col) => {
     [...matrixCols[0].querySelectorAll(".mcell")].forEach((cell, index) => cell.classList.toggle("hl-row", Math.floor(index / 3) === row));
     [...matrixCols[1].querySelectorAll(".mcell")].forEach((cell, index) => cell.classList.toggle("hl-col", index % 2 === col));
-    resultButtons.forEach((cell, index) => cell.classList.toggle("hl-res", index === row * 2 + col));
+    resultButtons.forEach((cell, index) => { cell.classList.toggle("hl-res", index === row * 2 + col); cell.setAttribute("aria-pressed", String(index === row * 2 + col)); });
     matrixCalculations.forEach((formula, index) => formula.classList.toggle("active", index === row * 2 + col));
   };
   resultButtons.forEach((button, index) => button.addEventListener("click", () => selectCell(Math.floor(index / 2), index % 2)));
 
   const attentionDemo = document.querySelector("#s4 .attention-demo-card");
-  const queries = JSON.parse(attentionDemo.dataset.queries);
-  const keys = JSON.parse(attentionDemo.dataset.keys);
-  const values = JSON.parse(attentionDemo.dataset.values);
+  const { S, A, O } = JSON.parse(attentionDemo.dataset.attention);
   const queryTabs = [...document.querySelectorAll("#s4 .tabs .tab")];
-  const queryCells = [...document.querySelectorAll("#s4 .tabs + .card .mcell")];
+  const queryCells = [...attentionDemo.querySelectorAll(".mcell")];
   const queryTitles = [...document.querySelectorAll("#s4 .query-title-option")];
-  const softmax = (items) => {
-    const max = Math.max(...items);
-    const exponents = items.map((value) => Math.exp(value - max));
-    const sum = exponents.reduce((a, b) => a + b, 0);
-    return exponents.map((value) => value / sum);
-  };
   const selectQuery = (index) => {
-    queryTabs.forEach((tab, tabIndex) => tab.classList.toggle("active", tabIndex === index));
+    queryTabs.forEach((tab, tabIndex) => { tab.classList.toggle("active", tabIndex === index); tab.setAttribute("aria-pressed", String(tabIndex === index)); });
     queryTitles.forEach((title) => title.classList.toggle("active", Number(title.dataset.queryIndex) === index));
-    const q = queries[index];
-    const scaled = keys.map((key) => (q[0] * key[0] + q[1] * key[1]) / Math.sqrt(q.length));
-    const weights = softmax(scaled);
-    const output = values[0].map((_, dimension) => weights.reduce((sum, weight, row) => sum + weight * values[row][dimension], 0));
+    const scaled = S[index], weights = A[index], output = O[index];
     scaled.forEach((value, cell) => { queryCells[cell].textContent = value.toFixed(2); });
     weights.forEach((value, cell) => {
       const target = queryCells[cell + 4];
@@ -93,16 +68,16 @@ const standaloneJs = String.raw`
   const headDemo = document.querySelector("#s5 .head-demo");
   const heads = JSON.parse(headDemo.dataset.heads);
   const headTabs = [...document.querySelectorAll("#s5 .tabs .tab")];
-  const headCells = [...document.querySelectorAll("#s5 .fig table tr:not(:first-child) td div")];
-  const headCaption = document.querySelector("#s5 .fig .fig-cap");
+  const headCells = [...headDemo.querySelectorAll("table tr:not(:first-child) td div")];
+  const headCaption = headDemo.querySelector(".fig-cap b");
   const selectHead = (index) => {
-    headTabs.forEach((tab, tabIndex) => tab.classList.toggle("active", tabIndex === index));
+    headTabs.forEach((tab, tabIndex) => { tab.classList.toggle("active", tabIndex === index); tab.setAttribute("aria-pressed", String(tabIndex === index)); });
     heads[index].matrix.flat().forEach((value, cell) => {
       headCells[cell].textContent = value.toFixed(2);
       headCells[cell].style.background = "rgba(56,189,248," + (0.08 + value * 0.7).toFixed(3) + ")";
       headCells[cell].style.color = value > 0.4 ? "#fff" : "#a9b4dc";
     });
-    headCaption.innerHTML = "<b>" + heads[index].name + " 的数值链计算结果</b> · 行=Query（谁在问）· 列=Key（看谁）";
+    headCaption.textContent = heads[index].name + " 的数值链计算结果";
   };
   headTabs.forEach((button, index) => button.addEventListener("click", () => selectHead(index)));
 })();

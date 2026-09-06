@@ -98,7 +98,7 @@ test("server-renders the Attention teaching page", async () => {
   assert.match(html, /A.*第 1 行乘完整.*V.*矩阵/);
   assert.match(html, /matrix-calc-option active/);
   assert.match(html, /query-title-option active/);
-  assert.match(html, /data-queries=/);
+  assert.match(html, /data-attention=/);
   assert.match(html, /<svg\b/i);
   assert.match(html, /katex/);
   assert.doesNotMatch(html, /class="[^"]*\bmath-error\b/);
@@ -246,13 +246,17 @@ test("keeps project metadata and generated assets clean", async () => {
     readFile(new URL("../.gitignore", import.meta.url), "utf8"),
   ]);
 
-  assert.match(page, /katex\.renderToString/);
+  const formula = await readFile(new URL("../app/formula.tsx", import.meta.url), "utf8");
+  assert.match(formula, /katex\.renderToString/);
+  assert.match(formula, /throwOnError: true/);
+  assert.match(formula, /htmlAndMathml/);
   assert.match(page, /def attention_ref/);
   assert.match(page, /scaled_dot_product_attention/);
-  assert.match(page, /function FigTransformer/);
-  assert.match(page, /function FigFlashCompare/);
+  const figures = await readFile(new URL("../app/teaching-figures.tsx", import.meta.url), "utf8");
+  assert.match(figures, /function FigTransformer/);
+  assert.match(figures, /function FigFlashCompare/);
   assert.match(page, /代码实现：从公式到 PyTorch/);
-  assert.match(page, /E_\{\\mathrm\{tok\}\}/);
+  assert.match(figures, /E_\{\\mathrm\{tok\}\}/);
   assert.match(page, /O\(L²d\)/);
   assert.doesNotMatch(page, /\\frac\{\[\\tfrac14/);
   assert.doesNotMatch(page, /d_\{model\}|L_\{max\}|W[ᵠᵏᵛ]|tex="(?:Q\/K\/V|S\/P|dQ,dK,dV)"/);
@@ -340,8 +344,8 @@ test("ships the current teaching page as an offline standalone HTML file", async
   assert.match(html, /多头最终输出/);
   assert.match(html, /代码实现：从公式到 PyTorch/);
   assert.match(html, /data-standalone="attention"/);
-  assert.match(html, /data-queries=/);
-  assert.match(html, /JSON\.parse\(attentionDemo\.dataset\.queries\)/);
+  assert.match(html, /data-attention=/);
+  assert.match(html, /JSON\.parse\(attentionDemo\.dataset\.attention\)/);
   assert.match(html, /matrixCalculations\.forEach/);
   assert.match(html, /queryTitles\.forEach/);
   assert.doesNotMatch(html, /calculation\.innerHTML\s*=\s*"C\[/);
